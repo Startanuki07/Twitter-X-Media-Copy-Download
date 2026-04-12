@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      1.5.1
+// @version      1.5.2
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -603,6 +603,21 @@
 
     const CURRENT_LANG = getAppLanguage();
     const T = TR[CURRENT_LANG];
+
+    let _cachedDateFormat = GM_getValue(KEY_DATE_FORMAT, 'asian');
+    function _refreshDateFormatCache() {
+        _cachedDateFormat = GM_getValue(KEY_DATE_FORMAT, 'asian');
+    }
+
+    function _readSettings() {
+        return {
+            clickCustom: GM_getValue(KEY_CLICK_MODE_CUSTOM, false),
+            clickDomain: GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com'),
+            prefix:      GM_getValue(KEY_PREFIX_TEXT, '[text]'),
+            fmt:         GM_getValue(KEY_DATE_FORMAT, 'asian'),
+            fbStyle:     GM_getValue(KEY_FEEDBACK_STYLE, 'toast'),
+        };
+    }
 
     function showToast(message) {
         const existing = document.getElementById('tm-reload-toast');
@@ -1260,6 +1275,7 @@
         menuIds.push(GM_registerMenuCommand(T.menu_date_format + ` [${fmtStatusText}]`, () => {
             const newFmt = currentFmt === 'western' ? 'asian' : 'western';
             GM_setValue(KEY_DATE_FORMAT, newFmt);
+            _refreshDateFormatCache();
             const newLabel = newFmt === 'western' ? T.status_date_western : T.status_date_asian;
             showToast(T.toast_date_fmt + newLabel);
             registerMenus();
@@ -1344,16 +1360,17 @@
         const cardSub  = dark ? '#8b98a5' : '#536471';
         const arrowClr = dark ? '#16202b' : '#ffffff';
         const cardW    = 270;
-        const cardRight = Math.max(8, window.innerWidth - cx - 18);
+        const cardLeft = Math.max(8, Math.min(cx - cardW / 2, window.innerWidth - cardW - 8));
         const cardTop   = cy + r2 + 10;
 
         const card = document.createElement('div');
         card.id = 'tm-ob-card';
         card.style.cssText = `
-            width:${cardW}px; right:${cardRight}px; top:${cardTop}px;
+            width:${cardW}px; left:${cardLeft}px; top:${cardTop}px;
             background:${cardBg}; border-radius:14px;
             box-shadow:0 8px 32px rgba(0,0,0,0.32);
             padding:18px 18px 14px;
+            z-index:999989;
         `;
 
         const arrow = document.createElement('div');
@@ -1650,6 +1667,38 @@
                 animation: tm-float-new-pulse 1.8s ease-in-out infinite;
                 pointer-events: none; z-index: 5;
             }
+
+            
+            #tm-settings-wrapper[data-absorb="true"] {
+                opacity: 1 !important;
+                
+            }
+            /* ⚠️ 注意：histBtn 的 transform 不能加 !important，
+               否則 CSS Animation (層級低於 !important) 會被完全鎖死，
+               bounce keyframe 的 transform 永遠不會生效。
+               只管 opacity / z-index，transform 交給 animation 處理。 */
+            #tm-settings-wrapper[data-absorb="true"] #tm-history-btn {
+                z-index: 3 !important;
+                opacity: 1 !important;
+            }
+            #tm-settings-wrapper[data-absorb="true"] #tm-settings-gear-btn {
+                opacity: 0.35 !important;
+                transform: scale(0.88) translateX(0) !important;
+                z-index: 1 !important;
+            }
+            @keyframes tm-hist-absorb-bounce {
+                0%   { transform: scale(1)    translateX(0); filter: none; }
+                18%  { transform: scale(1.42) translateX(0); filter: drop-shadow(0 0 10px rgba(29,155,240,0.95)); }
+                38%  { transform: scale(0.88) translateX(0); filter: drop-shadow(0 0  5px rgba(29,155,240,0.5)); }
+                58%  { transform: scale(1.18) translateX(0); filter: drop-shadow(0 0  7px rgba(29,155,240,0.7)); }
+                75%  { transform: scale(0.95) translateX(0); filter: none; }
+                100% { transform: scale(1)    translateX(0); filter: none; }
+            }
+            
+            #tm-history-btn.tm-absorbing {
+                animation: tm-hist-absorb-bounce 0.75s cubic-bezier(0.36,0.07,0.19,0.97) forwards;
+                transition: none !important;
+            }
         `;
         document.head.appendChild(panelStyle);
 
@@ -1728,10 +1777,7 @@
         function buildContent() {
             panel.innerHTML = '';
 
-            const clickCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
-            const clickDomain = GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com');
-            const prefix      = GM_getValue(KEY_PREFIX_TEXT, '[text]');
-            const fmt         = GM_getValue(KEY_DATE_FORMAT, 'asian');
+            const { clickCustom, clickDomain, prefix, fmt, fbStyle: _fbStyle } = _readSettings();
 
             const header = document.createElement('div');
             header.className = 'tm-sp-header';
@@ -1795,16 +1841,15 @@
                 }
             });
 
-            const fbStyle = GM_getValue(KEY_FEEDBACK_STYLE, 'toast');
             const fbLabel = (T.menu_feedback_style || '🔔 Feedback Style').replace(/^🔔\s*/, '');
 
             let fbVal = T.status_feedback_toast || 'Toast';
-            if (fbStyle === 'silent') fbVal = T.status_feedback_silent || 'Silent (Text)';
-            if (fbStyle === 'icon') fbVal = T.status_feedback_icon || 'Icon Only';
+            if (_fbStyle === 'silent') fbVal = T.status_feedback_silent || 'Silent (Text)';
+            if (_fbStyle === 'icon') fbVal = T.status_feedback_icon || 'Icon Only';
 
             makeRow('🔔 ' + fbLabel, fbVal, () => {
                 const nextMap = { 'toast': 'icon', 'icon': 'toast' };
-                const newFb = nextMap[fbStyle] || 'toast';
+                const newFb = nextMap[_fbStyle] || 'toast';
                 GM_setValue(KEY_FEEDBACK_STYLE, newFb);
 
                 let fbToastLabel = T.status_feedback_toast || 'Toast';
@@ -1820,6 +1865,7 @@
             makeRow('📅 ' + fmtLabel, fmtVal, () => {
                 const newFmt = fmt === 'western' ? 'asian' : 'western';
                 GM_setValue(KEY_DATE_FORMAT, newFmt);
+                _refreshDateFormatCache();
                 const newLabel = newFmt === 'western' ? T.status_date_western : T.status_date_asian;
                 showToast(T.toast_date_fmt + newLabel);
                 registerMenus(); buildContent();
@@ -1900,8 +1946,7 @@
 
             const raw = info.date || '';
             let yyyymm = '0000.00';
-            const fmt = GM_getValue(KEY_DATE_FORMAT, 'asian');
-            if (fmt === 'western') {
+            if (_cachedDateFormat === 'western') {
                 const p = raw.split('.');
                 if (p.length === 3) yyyymm = `${p[2]}.${p[1]}`;
             } else {
@@ -1932,9 +1977,10 @@
 
             _downloadedIds.add(info.id);
 
-            document.querySelectorAll('article').forEach(a => {
-                if (_getTweetIdFromArticle(a) === info.id) {
-                    const targetBtn = a.querySelector('.force-media-copy-btn');
+            document.querySelectorAll(`article a[href*="/status/${info.id}"]`).forEach(a => {
+                const art = a.closest('article');
+                if (art) {
+                    const targetBtn = art.querySelector('.force-media-copy-btn');
                     if (targetBtn) _applyHistoryBadge(targetBtn);
                 }
             });
@@ -1946,7 +1992,12 @@
 
     function showHistoryPanel() {
         const existing = document.getElementById('tm-hist-panel');
-        if (existing) { existing.remove(); _cleanZoom(); return; }
+        if (existing) {
+            if (typeof existing._tmCleanup === 'function') existing._tmCleanup();
+            existing.remove();
+            _cleanZoom();
+            return;
+        }
 
         const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         const C = dark ? {
@@ -1982,7 +2033,8 @@
         let viewMode  = GM_getValue(KEY_HISTORY_VIEW_MODE, 'list');
         let editMode  = false;
         let query     = '';
-        const selectedIds = new Set();
+        const selectedIds    = new Set();
+        const collapsedGroups = new Set();
         let anchorIdx = -1;
 
         let histStyleEl = document.getElementById('tm-hist-style');
@@ -2047,7 +2099,47 @@
                 background: ${C.groupHdr}; border-bottom: 1px solid ${C.border};
                 font-size: 11px; font-weight: 700; color: ${C.groupTxt};
                 letter-spacing: 0.03em;
+                cursor: pointer; user-select: none;
+                display: flex; align-items: center; gap: 5px;
             }
+            .tm-hist-group-header:hover { background: ${C.rowHover}; }
+            .tm-hist-group-chevron {
+                font-size: 9px; opacity: 0.55; flex-shrink: 0;
+                display: inline-block;
+                transition: transform 0.18s ease;
+            }
+            .tm-hist-group-header.tm-collapsed .tm-hist-group-chevron {
+                transform: rotate(-90deg);
+            }
+            .tm-hist-group-count {
+                margin-left: auto; font-size: 10px; font-weight: 400;
+                opacity: 0.5; padding-right: 2px;
+            }
+            
+            .tm-hist-sel-all-btn {
+                padding: 4px 10px; border-radius: 99px;
+                border: 1px solid ${C.border}; background: transparent;
+                color: ${C.sub}; font-size: 11px; cursor: pointer;
+                transition: background 0.1s, color 0.1s;
+                white-space: nowrap; flex-shrink: 0;
+            }
+            .tm-hist-sel-all-btn:hover { background: ${C.rowHover}; color: ${C.text}; }
+            
+            #tm-hist-gh-footer {
+                flex-shrink: 0; box-sizing: border-box;
+                height: 26px;
+                border-top: 1px solid ${C.border};
+                display: flex; align-items: center; justify-content: center;
+                background: ${C.header};
+            }
+            #tm-hist-gh-footer a {
+                font-size: 10px; color: ${C.sub}; text-decoration: none;
+                opacity: 0.38; letter-spacing: 0.02em;
+                font-family: system-ui, -apple-system, sans-serif;
+                transition: opacity 0.18s;
+                pointer-events: all;
+            }
+            #tm-hist-gh-footer a:hover { opacity: 0.85; text-decoration: underline; }
             .tm-hist-row {
                 display: flex; align-items: flex-start; gap: 10px;
                 padding: 8px 12px; border-bottom: 1px solid ${C.border};
@@ -2237,14 +2329,32 @@
         const footer = document.createElement('div');
         footer.id = 'tm-hist-footer';
         footer.className = 'hidden';
+
+        const selAllBtn = document.createElement('button');
+        selAllBtn.className = 'tm-hist-sel-all-btn';
+        selAllBtn.textContent = 'Select All';
+
         const delSelBtn = document.createElement('button');
         delSelBtn.className = 'tm-hist-del-sel-btn';
+
         const cancelEditBtn = document.createElement('button');
         cancelEditBtn.className = 'tm-hist-cancel-edit';
         cancelEditBtn.textContent = 'Cancel';
+
+        footer.appendChild(selAllBtn);
         footer.appendChild(delSelBtn);
         footer.appendChild(cancelEditBtn);
         panel.appendChild(footer);
+
+        const ghFooterEl = document.createElement('div');
+        ghFooterEl.id = 'tm-hist-gh-footer';
+        const ghLink = document.createElement('a');
+        ghLink.href    = 'https://github.com/Startanuki07/Twitter-X-Media-Copy-Download';
+        ghLink.target  = '_blank';
+        ghLink.rel     = 'noopener noreferrer';
+        ghLink.textContent = '★ Star on GitHub';
+        ghFooterEl.appendChild(ghLink);
+        panel.appendChild(ghFooterEl);
 
         const resizeHandle = document.createElement('div');
         resizeHandle.id = 'tm-hist-resize';
@@ -2273,8 +2383,7 @@
             if (p.length !== 2) return yyyymm;
             const y = p[0];
             const m = parseInt(p[1], 10);
-            const fmt = GM_getValue(KEY_DATE_FORMAT, 'asian');
-            if (fmt === 'western') {
+            if (_cachedDateFormat === 'western') {
                 const names = ['','January','February','March','April','May','June',
                                'July','August','September','October','November','December'];
                 return `${names[m] || p[1]} ${y}`;
@@ -2287,6 +2396,13 @@
             const filtered = getFiltered(records);
             countBadge.textContent = `${records.length} / ${HISTORY_MAX_RECORDS}`;
             delSelBtn.textContent = `Delete selected (${selectedIds.size})`;
+
+            const visibleIds = filtered
+                .filter(r => !collapsedGroups.has(r.yyyymm))
+                .map(r => r.id);
+            const allSelected = visibleIds.length > 0 && visibleIds.every(id => selectedIds.has(id));
+            selAllBtn.textContent = allSelected ? 'Deselect All' : 'Select All';
+
             body.innerHTML = '';
 
             if (viewMode === 'list') renderList(filtered);
@@ -2299,15 +2415,44 @@
         function renderList(records) {
             if (!records.length) { _renderEmpty(); return; }
 
+            const groupCounts = {};
+            records.forEach(r => { groupCounts[r.yyyymm] = (groupCounts[r.yyyymm] || 0) + 1; });
+
             let lastGroup = null;
+            let _cbShiftDown = false;
+
             records.forEach((rec, idx) => {
                 if (rec.yyyymm !== lastGroup) {
                     lastGroup = rec.yyyymm;
+                    const isCollapsed = collapsedGroups.has(rec.yyyymm);
                     const gh = document.createElement('div');
-                    gh.className = 'tm-hist-group-header';
-                    gh.textContent = _fmtGroupLabel(rec.yyyymm);
+                    gh.className = 'tm-hist-group-header' + (isCollapsed ? ' tm-collapsed' : '');
+                    gh.dataset.yyyymm = rec.yyyymm;
+
+                    const chevron = document.createElement('span');
+                    chevron.className = 'tm-hist-group-chevron';
+                    chevron.textContent = '▼';
+
+                    const label = document.createElement('span');
+                    label.textContent = _fmtGroupLabel(rec.yyyymm);
+
+                    const countEl = document.createElement('span');
+                    countEl.className = 'tm-hist-group-count';
+                    countEl.textContent = `${groupCounts[rec.yyyymm]}`;
+
+                    gh.appendChild(chevron);
+                    gh.appendChild(label);
+                    gh.appendChild(countEl);
+
+                    gh.addEventListener('click', () => {
+                        if (collapsedGroups.has(rec.yyyymm)) collapsedGroups.delete(rec.yyyymm);
+                        else collapsedGroups.add(rec.yyyymm);
+                        render();
+                    });
                     body.appendChild(gh);
                 }
+
+                if (collapsedGroups.has(rec.yyyymm)) return;
 
                 const row = document.createElement('div');
                 row.className = 'tm-hist-row' + (selectedIds.has(rec.id) ? ' selected' : '');
@@ -2319,9 +2464,11 @@
                     cb.type = 'checkbox';
                     cb.className = 'tm-hist-cb';
                     cb.checked = selectedIds.has(rec.id);
-                    cb.addEventListener('change', (e) => {
+                    cb.addEventListener('mousedown', e => { _cbShiftDown = e.shiftKey; });
+                    cb.addEventListener('change', e => {
                         e.stopPropagation();
-                        _handleCheckbox(rec.id, idx, e.shiftKey);
+                        _handleCheckbox(rec.id, idx, _cbShiftDown);
+                        _cbShiftDown = false;
                     });
                     row.appendChild(cb);
                 }
@@ -2533,7 +2680,11 @@
         function _showZoom(url, e) {
             let z = document.getElementById('tm-hist-zoom');
             if (!z) { z = document.createElement('div'); z.id = 'tm-hist-zoom'; document.body.appendChild(z); }
-            z.innerHTML = `<img src="${_thumbUrl(url).replace('name=small','name=medium')}" alt="">`;
+            z.innerHTML = '';
+            const img = document.createElement('img');
+            img.src = _thumbUrl(url).replace('name=small', 'name=medium');
+            img.alt = '';
+            z.appendChild(img);
             _moveZoom(e);
         }
         function _moveZoom(e) {
@@ -2580,13 +2731,35 @@
 
         btnList.addEventListener('click', () => { viewMode = 'list'; GM_setValue(KEY_HISTORY_VIEW_MODE, 'list'); render(); });
         btnThumb.addEventListener('click', () => { viewMode = 'thumb'; GM_setValue(KEY_HISTORY_VIEW_MODE, 'thumb'); render(); });
-        btnClose.addEventListener('click', () => { panel.remove(); _cleanZoom(); });
+        btnClose.addEventListener('click', () => {
+            _panelAC.abort();
+            panel.remove();
+            _cleanZoom();
+        });
 
         btnEdit.addEventListener('click', () => {
             editMode = !editMode;
             selectedIds.clear(); anchorIdx = -1;
             footer.classList.toggle('hidden', !editMode);
             btnEdit.classList.toggle('active', editMode);
+            render();
+        });
+
+        selAllBtn.addEventListener('click', () => {
+            const filtered = getFiltered(getRecords());
+            const visibleIds = filtered
+                .filter(r => !collapsedGroups.has(r.yyyymm))
+                .map(r => r.id);
+            const allSelected = visibleIds.length > 0 && visibleIds.every(id => selectedIds.has(id));
+            if (allSelected) {
+                visibleIds.forEach(id => selectedIds.delete(id));
+            } else {
+                visibleIds.forEach(id => selectedIds.add(id));
+                const firstVisible = filtered.find(r => !collapsedGroups.has(r.yyyymm));
+                if (firstVisible) {
+                    anchorIdx = filtered.indexOf(firstVisible);
+                }
+            }
             render();
         });
 
@@ -2619,6 +2792,10 @@
 
         panel.addEventListener('tm-hist-refresh', render);
 
+        const _panelAC = new AbortController();
+        const _acSignal = { signal: _panelAC.signal };
+        panel._tmCleanup = () => { _panelAC.abort(); };
+
         let _dragging = false, _dx = 0, _dy = 0;
         titlebar.addEventListener('mousedown', (e) => {
             if (e.button !== 0 || e.target.classList.contains('tm-hist-icon-btn')) return;
@@ -2635,12 +2812,12 @@
             ny = Math.max(0, Math.min(ny, window.innerHeight - 60));
             panel.style.left = nx + 'px';
             panel.style.top  = ny + 'px';
-        });
+        }, _acSignal);
         document.addEventListener('mouseup', () => {
             if (!_dragging) return;
             _dragging = false;
             _savePos();
-        });
+        }, _acSignal);
 
         let _resizing = false, _rsx = 0, _rsy = 0, _rsw = 0, _rsh = 0;
         resizeHandle.addEventListener('mousedown', (e) => {
@@ -2655,12 +2832,12 @@
             const nh = Math.max(280, Math.min(_rsh + (e.clientY - _rsy), window.innerHeight - 80));
             panel.style.width  = nw + 'px';
             panel.style.height = nh + 'px';
-        });
+        }, _acSignal);
         document.addEventListener('mouseup', () => {
             if (!_resizing) return;
             _resizing = false;
             _savePos();
-        });
+        }, _acSignal);
 
         function _savePos() {
             const r = panel.getBoundingClientRect();
@@ -2673,6 +2850,138 @@
     }
 
     function _cleanZoom() { document.getElementById('tm-hist-zoom')?.remove(); }
+
+    function fireMeteor(fromEl) {
+        const histBtn = document.getElementById('tm-history-btn');
+        if (!histBtn || !fromEl) return;
+
+        const fromRect = fromEl.getBoundingClientRect();
+        const toRect   = histBtn.getBoundingClientRect();
+
+        const fromX = fromRect.left + fromRect.width  / 2;
+        const fromY = fromRect.top  + fromRect.height / 2;
+        const toX   = toRect.left   + toRect.width    / 2;
+        const toY   = toRect.top    + toRect.height   / 2;
+
+        const dx    = toX - fromX;
+        const dy    = toY - fromY;
+        const dist  = Math.sqrt(dx * dx + dy * dy);
+        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        const tailLen = Math.min(Math.max(dist * 0.24, 16), 40);
+
+        const container = document.createElement('div');
+        container.style.cssText = `
+            position: fixed;
+            left: ${fromX}px; top: ${fromY}px;
+            width: 0; height: 0;
+            pointer-events: none;
+            z-index: 99999999;
+        `;
+
+        const tail = document.createElement('div');
+        tail.style.cssText = `
+            position: absolute;
+            width: ${tailLen * 1.2}px; height: 6px;
+            border-radius: 9999px;
+            background: linear-gradient(90deg,
+                rgba(255,255,255,0)     0%,
+                rgba(255,220,100,0.15) 30%,
+                rgba(255,200,80,0.3)   70%,
+                rgba(255,240,150,0.25)100%);
+            box-shadow: 0 0 4px 1px rgba(255,200,100,0.3);
+            filter: drop-shadow(0 0 3px rgba(255,200,100,0.2));
+            transform: translateX(-100%) translateY(-50%) rotate(${angle}deg);
+            transform-origin: 100% 50%;
+        `;
+
+        const tailGlow = document.createElement('div');
+        tailGlow.style.cssText = `
+            position: absolute;
+            width: ${tailLen}px; height: 10px;
+            border-radius: 9999px;
+            background: linear-gradient(90deg,
+                rgba(255,240,200,0)    0%,
+                rgba(255,220,150,0.15) 50%,
+                rgba(255,240,200,0)  100%);
+            filter: blur(1.5px);
+            transform: translateX(-100%) translateY(-50%) rotate(${angle}deg);
+            transform-origin: 100% 50%;
+            opacity: 0.4;
+        `;
+
+        const dot = document.createElement('div');
+        dot.style.cssText = `
+            position: absolute;
+            width: 9px; height: 9px; border-radius: 50%;
+            background: radial-gradient(circle at 40% 40%, #ffffdd, #ffeed4);
+            box-shadow: 0 0 5px 2px rgba(255,220,150,0.4),
+                        0 0 10px 4px rgba(255,200,100,0.15);
+            transform: translate(-50%, -50%);
+        `;
+
+        const particles = [];
+        for (let i = 0; i < 4; i++) {
+            const particle = document.createElement('div');
+            const offsetX = (Math.random() - 0.5) * tailLen * 0.4;
+            const offsetY = (Math.random() - 0.5) * 8;
+            const size = 1.5 + Math.random() * 2;
+            particle.style.cssText = `
+                position: absolute;
+                width: ${size}px; height: ${size}px; border-radius: 50%;
+                background: rgba(255, 240, 180, ${0.3 + Math.random() * 0.3});
+                left: ${offsetX}px; top: ${offsetY}px;
+                filter: blur(0.5px);
+                box-shadow: 0 0 ${size + 1}px rgba(255,220,150,0.3);
+            `;
+            particles.push(particle);
+        }
+
+        container.appendChild(tailGlow);
+        container.appendChild(tail);
+        particles.forEach(p => container.appendChild(p));
+        container.appendChild(dot);
+        document.body.appendChild(container);
+
+        const DURATION = 680;
+
+        const anim = container.animate([
+            { transform: 'translate(0px, 0px)',           opacity: 0,   offset: 0    },
+            { transform: 'translate(0px, 0px)',           opacity: 1,   offset: 0.04 },
+            { transform: `translate(${dx}px, ${dy}px)`,  opacity: 1,   offset: 0.88 },
+            { transform: `translate(${dx}px, ${dy}px)`,  opacity: 0,   offset: 1    },
+        ], {
+            duration: DURATION,
+            easing:   'cubic-bezier(0.28, 0.0, 0.72, 1.0)',
+            fill:     'forwards',
+        });
+
+        anim.onfinish = () => {
+            container.remove();
+            _triggerHistAbsorb();
+        };
+    }
+
+    let _absorbTimer = null;
+    function _triggerHistAbsorb() {
+        const wrapper = document.getElementById('tm-settings-wrapper');
+        const histBtn = document.getElementById('tm-history-btn');
+        if (!wrapper || !histBtn) return;
+
+        if (_absorbTimer) clearTimeout(_absorbTimer);
+
+        wrapper.setAttribute('data-focus', 'hist');
+        wrapper.setAttribute('data-absorb', 'true');
+
+        histBtn.classList.remove('tm-absorbing');
+        void histBtn.offsetWidth;
+        histBtn.classList.add('tm-absorbing');
+
+        _absorbTimer = setTimeout(() => {
+            wrapper.removeAttribute('data-absorb');
+            histBtn.classList.remove('tm-absorbing');
+            _absorbTimer = null;
+        }, 2500);
+    }
 
     const BUTTON_CLASS = 'force-media-copy-btn';
 
@@ -3280,8 +3589,7 @@
             const y = date.getFullYear();
             const m = String(date.getMonth() + 1).padStart(2, '0');
             const d = String(date.getDate()).padStart(2, '0');
-            const fmt = GM_getValue(KEY_DATE_FORMAT, 'asian');
-            return fmt === 'western' ? `${d}.${m}.${y}` : `${y}.${m}.${d}`;
+            return _cachedDateFormat === 'western' ? `${d}.${m}.${y}` : `${y}.${m}.${d}`;
         } catch (e) { return '0000.00.00'; }
     }
 
@@ -3691,11 +3999,12 @@
             btn.classList.remove('tm-anim-pop');
 
             const setTextMode = (text, customColor) => {
-                if (customColor) {
-                    btn.innerHTML = `<span class="tm-anim-pop-text" style="color: ${customColor} !important;">${text}</span>`;
-                } else {
-                    btn.innerHTML = `<span class="tm-anim-pop-text">${text}</span>`;
-                }
+                const span = document.createElement('span');
+                span.className = 'tm-anim-pop-text';
+                span.textContent = text;
+                if (customColor) span.style.cssText = `color: ${customColor} !important;`;
+                btn.innerHTML = '';
+                btn.appendChild(span);
             };
 
             const setIconMode = (svg, customColor) => {
@@ -3862,6 +4171,7 @@
             } else {
                 setMediaIcon('ok', T.msg_downloaded, 'Downloaded', 'download');
                 recordHistory(info, urls);
+                fireMeteor(btn);
             }
             setTimeout(() => setMediaIcon('default'), 2000);
         });
@@ -3880,7 +4190,11 @@
                 icon.classList.remove('tm-anim-pop');
 
                 const setTextMode = (text) => {
-                    icon.innerHTML = `<span class="tm-anim-pop-text">${text}</span>`;
+                    const span = document.createElement('span');
+                    span.className = 'tm-anim-pop-text';
+                    span.textContent = text;
+                    icon.innerHTML = '';
+                    icon.appendChild(span);
                 };
 
                 const setIconMode = (svg) => {
@@ -3964,9 +4278,13 @@
 
     let _tmdDebounceTimer = null;
 
+    const _processedArticles = new WeakSet();
+
     function scanAndInsert() {
         document.querySelectorAll('article').forEach(article => {
+            if (_processedArticles.has(article) && article.querySelector(`.${BUTTON_CLASS}`)) return;
             insertCopyButton(article);
+            if (article.querySelector(`.${BUTTON_CLASS}`)) _processedArticles.add(article);
         });
     }
 
@@ -3985,7 +4303,7 @@
         }
     });
 
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, { childList: true, subtree: true, attributes: false, characterData: false });
 
     setInterval(scanAndInsert, 1500);
 
