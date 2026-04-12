@@ -9,8 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @namespace    https://github.com/Startanuki07
-// @version      1.4.2
+// @version      1.5.0
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -50,7 +49,18 @@
     const KEY_DATE_FORMAT = 'app_date_format';
     const KEY_CUSTOM_LANG = 'app_custom_lang_json';
     const KEY_VIDEO_VOLUME = 'app_video_volume';
-    const KEY_ONBOARDING_DONE = 'app_onboarding_done';
+    const KEY_ONBOARDING_DONE  = 'app_onboarding_done';
+    const KEY_FEEDBACK_STYLE   = 'app_feedback_style';
+    const KEY_SEEN_FEATURES    = 'app_seen_features';
+    const KEY_HISTORY_RECORDS   = 'app_history_records';
+    const KEY_HISTORY_PANEL_POS = 'app_history_panel_pos';
+    const KEY_HISTORY_VIEW_MODE = 'app_history_view_mode';
+    const HISTORY_MAX_RECORDS   = 300;
+
+    const NEW_FEATURE_IDS = [
+        'feedback_style',
+        'history_panel',
+    ];
 
     const DOMAIN_LIST = [
         "vxtwitter.com",
@@ -113,6 +123,10 @@
             onboard_title: '⚙ Settings Panel',
             onboard_body:  'Hover the top-right corner to reveal the settings button. Click it to quickly manage domains, prefix, language and more — no script manager menu needed.',
             onboard_got_it: 'Got it!',
+            menu_feedback_style:    '🔔 Feedback Style',
+            status_feedback_toast:  'Toast',
+            status_feedback_silent: 'Silent',
+            toast_feedback_style:   '🔔 Feedback Style → ',
         },
         'zh-TW': {
             langName: '繁體中文',
@@ -164,6 +178,10 @@
             onboard_title: '⚙ 設定面板',
             onboard_body:  '將滑鼠移至右上角即可叫出設定按鈕，點擊後可快速管理域名、前綴、語言等設定，無需開啟腳本管理器選單。',
             onboard_got_it: '知道了！',
+            menu_feedback_style:    '🔔 提示風格',
+            status_feedback_toast:  'Toast 提示',
+            status_feedback_silent: '靜默（僅圖示）',
+            toast_feedback_style:   '🔔 提示風格 → ',
         },
         'zh-CN': {
             langName: '简体中文',
@@ -215,6 +233,10 @@
             onboard_title: '⚙ 设置面板',
             onboard_body:  '将鼠标移到右上角即可呼出设置按钮，点击后可快速管理域名、前缀、语言等设置，无需打开脚本管理器菜单。',
             onboard_got_it: '知道了！',
+            menu_feedback_style:    '🔔 提示风格',
+            status_feedback_toast:  'Toast 提示',
+            status_feedback_silent: '静默（仅图标）',
+            toast_feedback_style:   '🔔 提示风格 → ',
         },
         'ja': {
             langName: '日本語',
@@ -266,6 +288,10 @@
             onboard_title: '⚙ 設定パネル',
             onboard_body:  '右上隅にカーソルを合わせると設定ボタンが現れます。クリックすればスクリプト管理器を開かずにドメイン・プレフィックス・言語などをすばやく管理できます。',
             onboard_got_it: 'わかった！',
+            menu_feedback_style:    '🔔 フィードバックスタイル',
+            status_feedback_toast:  'トースト通知',
+            status_feedback_silent: 'サイレント（アイコンのみ）',
+            toast_feedback_style:   '🔔 フィードバックスタイル → ',
         },
         'ko': {
             langName: '한국어',
@@ -317,6 +343,10 @@
             onboard_title: '⚙ 설정 패널',
             onboard_body:  '오른쪽 상단 모서리에 마우스를 올리면 설정 버튼이 나타납니다. 클릭하면 스크립트 관리자 없이 도메인, 접두사, 언어 등을 빠르게 관리할 수 있습니다.',
             onboard_got_it: '알겠어요!',
+            menu_feedback_style:    '🔔 피드백 스타일',
+            status_feedback_toast:  '토스트',
+            status_feedback_silent: '조용히 (아이콘만)',
+            toast_feedback_style:   '🔔 피드백 스타일 → ',
         },
         'es': {
             langName: 'Español',
@@ -367,7 +397,11 @@
             `,
             onboard_title: '⚙ Panel de Configuración',
             onboard_body:  'Mueve el cursor a la esquina superior derecha para revelar el botón de configuración. Haz clic para gestionar dominios, prefijo, idioma y más sin abrir el administrador de scripts.',
-            onboard_got_it: '¡Entendido!'
+            onboard_got_it: '¡Entendido!',
+            menu_feedback_style:    '🔔 Estilo de Aviso',
+            status_feedback_toast:  'Toast',
+            status_feedback_silent: 'Silencioso (solo icono)',
+            toast_feedback_style:   '🔔 Estilo de Aviso → ',
         },
         'pt-BR': {
             langName: 'Português (BR)',
@@ -418,7 +452,11 @@
             `,
             onboard_title: '⚙ Painel de Configurações',
             onboard_body:  'Passe o mouse no canto superior direito para revelar o botão de configurações. Clique para gerenciar domínios, prefixo, idioma e mais sem abrir o gerenciador de scripts.',
-            onboard_got_it: 'Entendi!'
+            onboard_got_it: 'Entendi!',
+            menu_feedback_style:    '🔔 Estilo de Aviso',
+            status_feedback_toast:  'Toast',
+            status_feedback_silent: 'Silencioso (só ícone)',
+            toast_feedback_style:   '🔔 Estilo de Aviso → ',
         },
         'fr': {
             langName: 'Français',
@@ -469,7 +507,11 @@
             `,
             onboard_title: '⚙ Panneau de Paramètres',
             onboard_body:  'Survolez le coin supérieur droit pour afficher le bouton de paramètres. Cliquez pour gérer les domaines, le préfixe, la langue et plus en utilisant le panneau de paramètres intégré.',
-            onboard_got_it: "Compris !"
+            onboard_got_it: "Compris !",
+            menu_feedback_style:    '🔔 Style de Retour',
+            status_feedback_toast:  'Toast',
+            status_feedback_silent: 'Silencieux (icône seul)',
+            toast_feedback_style:   '🔔 Style de Retour → ',
         },
         'ru': {
             langName: 'Русский',
@@ -521,6 +563,10 @@
             onboard_title: '⚙ Панель настроек',
             onboard_body:  'Наведите курсор в правый верхний угол, чтобы показать кнопку настроек. Нажмите для быстрого управления доменами, префиксом, языком и другими параметрами.',
             onboard_got_it: 'Понятно!',
+            menu_feedback_style:    '🔔 Стиль уведомлений',
+            status_feedback_toast:  'Тост',
+            status_feedback_silent: 'Тихий (только иконка)',
+            toast_feedback_style:   '🔔 Стиль уведомлений → ',
         }
     };
 
@@ -1008,7 +1054,12 @@
         if (hasCustom) {
             try {
                 const parsed = JSON.parse(existingJson);
-                statusLine.innerHTML = `★ Active: <b>${parsed.langName || 'Custom'}</b>`;
+                statusLine.textContent = '';
+                const starText = document.createTextNode('★ Active: ');
+                const boldEl   = document.createElement('b');
+                boldEl.textContent = parsed.langName || 'Custom';
+                statusLine.appendChild(starText);
+                statusLine.appendChild(boldEl);
                 statusLine.style.color = '#1d9bf0';
             } catch(e) {
                 statusLine.textContent = '⚠️ Saved data is corrupted.';
@@ -1222,8 +1273,6 @@
         if (document.body) { createSettingsPanel(); }
         else { document.addEventListener('DOMContentLoaded', createSettingsPanel, { once: true }); }
     }
-    _initSettingsPanel();
-    setTimeout(showOnboardingOverlay, 1200);
 
     function showOnboardingOverlay() {
         if (GM_getValue(KEY_ONBOARDING_DONE, false)) return;
@@ -1273,6 +1322,7 @@
                 width:100%; padding:9px; border-radius:9999px;
                 border:none; background:#1d9bf0; color:#fff;
                 font-size:14px; font-weight:700; cursor:pointer;
+                text-align:center; display:block;
                 transition:background 0.15s;
             }
             #tm-ob-got-it:hover { background:#1a8cd8; }
@@ -1286,7 +1336,7 @@
 
         const ring = document.createElement('div');
         ring.id = 'tm-ob-ring';
-        ring.style.cssText = `width:${r1 * 2}px; height:${r1 * 2}px; left:${cx}px; top:${cy}px;`;
+        ring.style.cssText = `width:${r1 * 2}px; height:${r1 * 2}px; left:${cx}px; top:${cy}px; transform:translate(-50%,-50%);`;
 
         const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         const cardBg   = dark ? '#16202b' : '#ffffff';
@@ -1349,6 +1399,9 @@
         document.body.appendChild(ring);
         document.body.appendChild(card);
     }
+
+    setTimeout(showOnboardingOverlay, 1200);
+    _initSettingsPanel();
 
     function showDomainPickerModal(key, onSuccess) {
         const old = document.getElementById('tm-domain-picker-modal');
@@ -1428,6 +1481,24 @@
         document.body.appendChild(modal);
     }
 
+    function isFeatureNew(id) {
+        if (!NEW_FEATURE_IDS.includes(id)) return false;
+        try {
+            const seen = JSON.parse(GM_getValue(KEY_SEEN_FEATURES, '[]'));
+            return !seen.includes(id);
+        } catch(_) { return true; }
+    }
+
+    function markFeatureSeen(id) {
+        try {
+            const seen = JSON.parse(GM_getValue(KEY_SEEN_FEATURES, '[]'));
+            if (!seen.includes(id)) {
+                seen.push(id);
+                GM_setValue(KEY_SEEN_FEATURES, JSON.stringify(seen));
+            }
+        } catch(_) {}
+    }
+
     function createSettingsPanel() {
         const existingWrapper = document.getElementById('tm-settings-wrapper');
         if (existingWrapper) existingWrapper.remove();
@@ -1444,7 +1515,7 @@
             rowHover:  '#1e2732',
             badge:     '#1d9bf0',
             gearFg:    '#e7e9ea',
-            gearBg:    'rgba(255,255,255,0.07)',
+            gearBg:    'rgba(255,255,255,0.08)',
         } : {
             panel:     '#ffffff',
             header:    '#f7f9f9',
@@ -1460,28 +1531,82 @@
         const panelStyle = document.createElement('style');
         panelStyle.id = 'tm-settings-panel-style';
         panelStyle.textContent = `
+            
             #tm-settings-wrapper {
-                position: fixed; top: 8px; right: 8px; z-index: 999990;
-            }
-            #tm-settings-gear-btn {
-                width: 36px; height: 36px; border-radius: 50%; border: none;
-                background: transparent; cursor: pointer; padding: 6px;
-                display: flex; align-items: center; justify-content: center;
+                position: fixed; top: 12px; right: 12px; z-index: 999990;
+                width: 90px; height: 50px;
                 opacity: 0;
-                transition: opacity 0.28s ease, background 0.15s ease;
+                transition: opacity 0.3s ease;
+            }
+            #tm-settings-wrapper:hover, #tm-settings-wrapper[data-open="true"] {
+                opacity: 1;
+            }
+
+            
+            #tm-history-btn {
+                position: absolute; right: 28px; top: 2px;
+                width: 44px; height: 44px;
+                border-radius: 50%; border: none; background: transparent;
+                cursor: pointer; padding: 0;
+                display: flex; align-items: center; justify-content: center;
                 color: ${C.gearFg};
+                z-index: 3; opacity: 1;
+                transform: scale(1) translateX(0);
+                transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
             }
-            #tm-settings-wrapper:hover #tm-settings-gear-btn { opacity: 0.7; }
-            #tm-settings-gear-btn:hover { opacity: 1 !important; background: ${C.gearBg} !important; }
-            #tm-settings-gear-btn svg {
-                width: 20px; height: 20px; display: block;
-                transition: transform 0.38s cubic-bezier(0.34,1.56,0.64,1);
+            #tm-history-btn svg { width: 24px; height: 24px; display: block; }
+
+            
+            #tm-settings-gear-btn {
+                position: absolute; right: 4px; top: 6px;
+                width: 36px; height: 36px;
+                border-radius: 50%; border: none; background: transparent;
+                cursor: pointer; padding: 0;
+                display: flex; align-items: center; justify-content: center;
+                color: ${C.gearFg};
+                z-index: 1; opacity: 0.5;
+                transform: scale(0.9) translateX(0);
+                transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
             }
-            #tm-settings-gear-btn[data-open="true"] svg { transform: rotate(90deg); }
+            #tm-settings-gear-btn svg { width: 20px; height: 20px; display: block; transition: transform 0.3s ease; }
+
+            /* =========================================
+               狀態切換 (由 Wrapper 的 JS data-focus 控制)
+               ========================================= */
+
+            
+            #tm-settings-wrapper[data-focus="hist"] #tm-history-btn {
+                transform: scale(1.15);
+                background: ${C.gearBg};
+            }
+
+            
+            #tm-settings-wrapper[data-focus="gear"] #tm-settings-gear-btn,
+            #tm-settings-wrapper[data-open="true"] #tm-settings-gear-btn {
+                z-index: 4;
+                opacity: 1;
+                transform: scale(1.2) translateX(-22px); 
+                background: ${C.gearBg};
+            }
+
+            
+            #tm-settings-wrapper[data-focus="gear"] #tm-history-btn,
+            #tm-settings-wrapper[data-open="true"] #tm-history-btn {
+                z-index: 1;
+                opacity: 0.35;
+                transform: scale(0.75) translateX(26px); 
+                background: transparent;
+            }
+
+            
+            #tm-settings-wrapper[data-open="true"] #tm-settings-gear-btn svg {
+                transform: rotate(90deg);
+            }
+
+            
             #tm-settings-panel {
-                position: absolute; top: calc(100% + 4px); right: 0;
-                width: 300px;
-                background: ${C.panel};
+                position: absolute; top: calc(100% + 4px); right: 4px;
+                width: 300px; background: ${C.panel};
                 border-radius: 14px;
                 box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.10);
                 border: 1px solid ${C.border};
@@ -1489,61 +1614,116 @@
                 overflow: hidden;
                 transform-origin: top right;
                 transform: scale(0.88) translateY(-8px); opacity: 0;
-                transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1),
-                            opacity 0.18s ease;
+                transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), opacity 0.18s ease;
                 pointer-events: none;
             }
-            #tm-settings-panel[data-open="true"] {
+            #tm-settings-wrapper[data-open="true"] #tm-settings-panel {
                 transform: scale(1) translateY(0); opacity: 1;
                 pointer-events: all;
             }
-            .tm-sp-header {
-                display: flex; align-items: center;
-                padding: 11px 14px 10px;
-                background: ${C.header};
-                border-bottom: 1px solid ${C.border};
-                font-size: 12px; font-weight: 700; color: ${C.sub};
-                letter-spacing: 0.04em; text-transform: uppercase;
-            }
-            .tm-sp-row {
-                display: flex; align-items: center; justify-content: space-between;
-                padding: 9px 14px; gap: 8px;
-                border-bottom: 1px solid ${C.border};
-                cursor: pointer;
-                transition: background 0.1s;
-            }
+
+            .tm-sp-header { display: flex; align-items: center; padding: 11px 14px 10px; background: ${C.header}; border-bottom: 1px solid ${C.border}; font-size: 12px; font-weight: 700; color: ${C.sub}; letter-spacing: 0.04em; text-transform: uppercase; }
+            .tm-sp-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; gap: 8px; border-bottom: 1px solid ${C.border}; cursor: pointer; transition: background 0.1s; }
             .tm-sp-row:last-child { border-bottom: none; }
             .tm-sp-row:hover { background: ${C.rowHover}; }
             .tm-sp-row-left { display:flex; flex-direction:column; gap:1px; min-width:0; }
             .tm-sp-row-label { font-size: 12px; color: ${C.sub}; white-space: nowrap; }
-            .tm-sp-row-value {
-                font-size: 13px; color: ${C.text}; font-weight: 500;
-                overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            .tm-sp-row-value { font-size: 13px; color: ${C.text}; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .tm-sp-arrow { font-size: 11px; color: ${C.sub}; flex-shrink: 0; margin-left: 4px; opacity: 0.5; }
+
+            @keyframes tm-sp-new-pulse {
+                0%, 100% { box-shadow: 0 0 0 0   rgba(29,155,240,0.55); }
+                50%       { box-shadow: 0 0 0 4px rgba(29,155,240,0);    }
             }
-            .tm-sp-arrow {
-                font-size: 11px; color: ${C.sub}; flex-shrink: 0;
-                margin-left: 4px; opacity: 0.5;
+            .tm-sp-new-badge { font-size: 9px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 6px; border-radius: 9999px; flex-shrink: 0; background: #1d9bf0; color: #fff; animation: tm-sp-new-pulse 1.8s ease-in-out infinite; margin-right: 2px; }
+
+            
+            @keyframes tm-float-new-pulse {
+                0%, 100% { box-shadow: 0 0 0 0   rgba(249, 24, 128, 0.6); }
+                50%       { box-shadow: 0 0 0 4px rgba(249, 24, 128, 0);    }
+            }
+            .tm-float-new-badge {
+                position: absolute; top: -2px; right: -4px;
+                font-size: 8px; font-weight: 800; letter-spacing: 0.04em;
+                text-transform: uppercase; padding: 2px 4px;
+                border-radius: 4px; background: #f91880; color: #fff;
+                animation: tm-float-new-pulse 1.8s ease-in-out infinite;
+                pointer-events: none; z-index: 5;
             }
         `;
         document.head.appendChild(panelStyle);
 
-        const SVG_GEAR = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-        </svg>`;
-
         const wrapper = document.createElement('div');
         wrapper.id = 'tm-settings-wrapper';
+        wrapper.setAttribute('data-focus', 'hist');
+        wrapper.setAttribute('data-open', 'false');
 
+        let focusTimer = null;
+        let currentFocus = 'hist';
+
+        wrapper.addEventListener('mousemove', (e) => {
+            if (wrapper.getAttribute('data-open') === 'true') return;
+            const rect = wrapper.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const targetFocus = x > 45 ? 'gear' : 'hist';
+
+            if (targetFocus !== currentFocus) {
+                if (!focusTimer) {
+                    focusTimer = setTimeout(() => {
+                        currentFocus = targetFocus;
+                        wrapper.setAttribute('data-focus', currentFocus);
+                        focusTimer = null;
+                    }, 150);
+                }
+            } else {
+                if (focusTimer) {
+                    clearTimeout(focusTimer);
+                    focusTimer = null;
+                }
+            }
+        });
+
+        wrapper.addEventListener('mouseleave', () => {
+            if (wrapper.getAttribute('data-open') === 'true') return;
+            if (focusTimer) { clearTimeout(focusTimer); focusTimer = null; }
+            currentFocus = 'hist';
+            wrapper.setAttribute('data-focus', 'hist');
+        });
+
+        const SVG_GEAR = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;
         const gearBtn = document.createElement('button');
         gearBtn.id = 'tm-settings-gear-btn';
         gearBtn.innerHTML = SVG_GEAR;
         gearBtn.title = '⚙️ Twitter Media Script Settings';
-        gearBtn.setAttribute('data-open', 'false');
+
+        const SVG_HISTORY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 15.5"/><path d="M5 5l2.5 2.5" opacity="0.5"/></svg>`;
+        const histBtn = document.createElement('button');
+        histBtn.id = 'tm-history-btn';
+        histBtn.innerHTML = SVG_HISTORY;
+        histBtn.title = '📋 Download History';
+
+        if (isFeatureNew('history_panel')) {
+            const floatBadge = document.createElement('span');
+            floatBadge.className = 'tm-float-new-badge';
+            floatBadge.textContent = 'NEW';
+            histBtn.appendChild(floatBadge);
+        }
+
+        histBtn.addEventListener('click', e => {
+            e.stopPropagation();
+
+            if (isFeatureNew('history_panel')) {
+                markFeatureSeen('history_panel');
+                const badge = histBtn.querySelector('.tm-float-new-badge');
+                if (badge) badge.remove();
+            }
+
+            wrapper.setAttribute('data-open', 'false');
+            showHistoryPanel();
+        });
 
         const panel = document.createElement('div');
         panel.id = 'tm-settings-panel';
-        panel.setAttribute('data-open', 'false');
 
         function buildContent() {
             panel.innerHTML = '';
@@ -1558,7 +1738,7 @@
             header.textContent = '⚙ Media Script Settings';
             panel.appendChild(header);
 
-            const makeRow = (label, value, onClick) => {
+            const makeRow = (label, value, onClick, featureId = null) => {
                 const row = document.createElement('div');
                 row.className = 'tm-sp-row';
                 const left = document.createElement('div');
@@ -1569,14 +1749,24 @@
                 const val = document.createElement('span');
                 val.className = 'tm-sp-row-value';
                 val.textContent = value;
-                const arrow = document.createElement('span');
-                arrow.className = 'tm-sp-arrow';
-                arrow.textContent = '›';
                 left.appendChild(lbl);
                 left.appendChild(val);
                 row.appendChild(left);
+
+                if (featureId && isFeatureNew(featureId)) {
+                    const badge = document.createElement('span');
+                    badge.className = 'tm-sp-new-badge';
+                    badge.textContent = 'NEW';
+                    row.appendChild(badge);
+                }
+                const arrow = document.createElement('span');
+                arrow.className = 'tm-sp-arrow';
+                arrow.textContent = '›';
                 row.appendChild(arrow);
-                row.addEventListener('click', onClick);
+                row.addEventListener('click', () => {
+                    if (featureId) markFeatureSeen(featureId);
+                    onClick();
+                });
                 panel.appendChild(row);
             };
 
@@ -1605,6 +1795,26 @@
                 }
             });
 
+            const fbStyle = GM_getValue(KEY_FEEDBACK_STYLE, 'toast');
+            const fbLabel = (T.menu_feedback_style || '🔔 Feedback Style').replace(/^🔔\s*/, '');
+
+            let fbVal = T.status_feedback_toast || 'Toast';
+            if (fbStyle === 'silent') fbVal = T.status_feedback_silent || 'Silent (Text)';
+            if (fbStyle === 'icon') fbVal = T.status_feedback_icon || 'Icon Only';
+
+            makeRow('🔔 ' + fbLabel, fbVal, () => {
+                const nextMap = { 'toast': 'icon', 'icon': 'toast' };
+                const newFb = nextMap[fbStyle] || 'toast';
+                GM_setValue(KEY_FEEDBACK_STYLE, newFb);
+
+                let fbToastLabel = T.status_feedback_toast || 'Toast';
+                if (newFb === 'silent') fbToastLabel = T.status_feedback_silent || 'Silent (Text)';
+                if (newFb === 'icon') fbToastLabel = T.status_feedback_icon || 'Icon Only';
+
+                showToast((T.toast_feedback_style || '🔔 Feedback Style → ') + fbToastLabel);
+                buildContent();
+            }, 'feedback_style');
+
             const fmtLabel = T.menu_date_format.replace(/^📅\s*/, '');
             const fmtVal   = fmt === 'western' ? T.status_date_western : T.status_date_asian;
             makeRow('📅 ' + fmtLabel, fmtVal, () => {
@@ -1630,23 +1840,834 @@
 
         gearBtn.addEventListener('click', e => {
             e.stopPropagation();
-            const isOpen = panel.getAttribute('data-open') === 'true';
-            const next   = String(!isOpen);
-            panel.setAttribute('data-open', next);
-            gearBtn.setAttribute('data-open', next);
+            const isOpen = wrapper.getAttribute('data-open') === 'true';
+            wrapper.setAttribute('data-open', String(!isOpen));
         });
 
         document.addEventListener('click', e => {
             if (!wrapper.contains(e.target)) {
-                panel.setAttribute('data-open', 'false');
-                gearBtn.setAttribute('data-open', 'false');
+                wrapper.setAttribute('data-open', 'false');
             }
         });
 
+        wrapper.appendChild(histBtn);
         wrapper.appendChild(gearBtn);
         wrapper.appendChild(panel);
         document.body.appendChild(wrapper);
     }
+
+    const _downloadedIds = (() => {
+        try {
+            const arr = JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]'));
+            return new Set(arr.map(r => r.tweetId));
+        } catch (_) { return new Set(); }
+    })();
+
+    let _historyUndoBuffer = null;
+    let _historyUndoTimer  = null;
+
+    function _getTweetIdFromArticle(article) {
+        for (const lk of article.querySelectorAll('a[href*="/status/"]')) {
+            const m = lk.getAttribute('href')?.match(/\/status\/(\d+)/);
+            if (m) return m[1];
+        }
+        return null;
+    }
+
+    function _applyHistoryBadge(btn) {
+        if (!btn || btn.querySelector('.tm-hist-badge')) return;
+        const badge = document.createElement('span');
+        badge.className = 'tm-hist-badge';
+        badge.style.cssText = `
+            position: absolute; top: 6px; right: 6px;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #00ba7c; pointer-events: none;
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.65);
+            animation: tm-pop-bounce 0.35s cubic-bezier(0.175,0.885,0.32,1.275) both;
+            z-index: 10;
+        `;
+        btn.appendChild(badge);
+    }
+
+    function recordHistory(info, urls) {
+        try {
+            const thumbUrls = urls.filter(u => !u.includes('.mp4'));
+            const hasVideo  = urls.some(u => u.includes('.mp4'));
+            const raw = info.date || '';
+            let yyyymm = '0000.00';
+            const fmt = GM_getValue(KEY_DATE_FORMAT, 'asian');
+            if (fmt === 'western') {
+                const p = raw.split('.');
+                if (p.length === 3) yyyymm = `${p[2]}.${p[1]}`;
+            } else {
+                yyyymm = raw.slice(0, 7);
+            }
+
+            const record = {
+                id:          Date.now(),
+                ts:          Date.now(),
+                yyyymm,
+                tweetId:     info.id,
+                tweetUrl:    `https://x.com/${info.screenName}/status/${info.id}`,
+                tweetDate:   info.date,
+                screenName:  info.screenName,
+                displayName: info.displayName,
+                text:        (info.text || '').slice(0, 80),
+                thumbUrls,
+                hasVideo,
+                count:       urls.length,
+            };
+
+            let records = [];
+            try { records = JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]')); } catch (_) {}
+            records = records.filter(r => r.tweetId !== info.id);
+            records.unshift(record);
+            if (records.length > HISTORY_MAX_RECORDS) records = records.slice(0, HISTORY_MAX_RECORDS);
+            GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
+
+            _downloadedIds.add(info.id);
+
+            document.querySelectorAll('article').forEach(a => {
+                if (_getTweetIdFromArticle(a) === info.id) {
+                    const targetBtn = a.querySelector('.force-media-copy-btn');
+                    if (targetBtn) _applyHistoryBadge(targetBtn);
+                }
+            });
+
+            const existPanel = document.getElementById('tm-hist-panel');
+            if (existPanel) existPanel.dispatchEvent(new CustomEvent('tm-hist-refresh'));
+        } catch (e) { console.error('[TMHist] recordHistory error:', e); }
+    }
+
+    function showHistoryPanel() {
+        const existing = document.getElementById('tm-hist-panel');
+        if (existing) { existing.remove(); _cleanZoom(); return; }
+
+        const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const C = dark ? {
+            bg: '#16202b', header: '#1e2732', text: '#e7e9ea', sub: '#8b98a5',
+            border: '#2f3336', rowHover: '#1e2732', inputBg: '#1e2732',
+            groupHdr: '#2f3336', groupTxt: '#8b98a5',
+            thumbBg: '#1e2732', danger: '#e0245e', dangerHover: '#c01e4e',
+            badgeNew: '#1d9bf0', scrollbar: '#2f3336',
+        } : {
+            bg: '#ffffff', header: '#f7f9f9', text: '#0f1419', sub: '#536471',
+            border: '#eff3f4', rowHover: '#f7f9f9', inputBg: '#f7f9f9',
+            groupHdr: '#f7f9f9', groupTxt: '#536471',
+            thumbBg: '#f7f9f9', danger: '#e0245e', dangerHover: '#c01e4e',
+            badgeNew: '#1d9bf0', scrollbar: '#eff3f4',
+        };
+
+        let pos = {
+            x: Math.max(8, window.innerWidth - 408),
+            y: 60, w: 390, h: 540,
+        };
+        try {
+            const saved = JSON.parse(GM_getValue(KEY_HISTORY_PANEL_POS, 'null'));
+            if (saved && typeof saved.x === 'number') {
+                pos = {
+                    x: Math.min(saved.x, window.innerWidth  - 300),
+                    y: Math.min(saved.y, window.innerHeight - 200),
+                    w: Math.max(300, Math.min(saved.w || 390, 680)),
+                    h: Math.max(280, Math.min(saved.h || 540, window.innerHeight - 80)),
+                };
+            }
+        } catch (_) {}
+
+        let viewMode  = GM_getValue(KEY_HISTORY_VIEW_MODE, 'list');
+        let editMode  = false;
+        let query     = '';
+        const selectedIds = new Set();
+        let anchorIdx = -1;
+
+        let histStyleEl = document.getElementById('tm-hist-style');
+        if (!histStyleEl) {
+            histStyleEl = document.createElement('style');
+            histStyleEl.id = 'tm-hist-style';
+            document.head.appendChild(histStyleEl);
+        }
+        histStyleEl.textContent = `
+            #tm-hist-panel {
+                position: fixed; z-index: 999980;
+                font-family: system-ui, -apple-system, sans-serif;
+                display: flex; flex-direction: column;
+                background: ${C.bg}; border: 1px solid ${C.border};
+                border-radius: 14px;
+                box-shadow: 0 12px 40px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.10);
+                overflow: hidden;
+                min-width: 300px; min-height: 280px;
+            }
+            #tm-hist-titlebar {
+                display: flex; align-items: center; gap: 6px;
+                padding: 9px 12px; cursor: grab;
+                background: ${C.header}; border-bottom: 1px solid ${C.border};
+                user-select: none; flex-shrink: 0;
+            }
+            #tm-hist-titlebar:active { cursor: grabbing; }
+            .tm-hist-title {
+                font-size: 13px; font-weight: 700; color: ${C.text};
+                flex: 1;
+            }
+            .tm-hist-count-badge {
+                font-size: 10px; padding: 2px 7px; border-radius: 99px;
+                background: ${C.groupHdr}; color: ${C.sub};
+            }
+            .tm-hist-icon-btn {
+                width: 26px; height: 26px; border-radius: 6px; border: none;
+                background: transparent; cursor: pointer;
+                display: flex; align-items: center; justify-content: center;
+                color: ${C.sub}; transition: background 0.1s, color 0.1s;
+                flex-shrink: 0;
+            }
+            .tm-hist-icon-btn:hover { background: ${C.rowHover}; color: ${C.text}; }
+            .tm-hist-icon-btn svg { width: 14px; height: 14px; pointer-events: none; }
+            .tm-hist-icon-btn.active { color: #1d9bf0; }
+            .tm-hist-searchbar {
+                padding: 7px 12px; border-bottom: 1px solid ${C.border}; flex-shrink: 0;
+            }
+            #tm-hist-search {
+                width: 100%; padding: 5px 10px; border-radius: 99px;
+                border: 1px solid ${C.border}; background: ${C.inputBg};
+                color: ${C.text}; font-size: 12px;
+                outline: none; box-sizing: border-box;
+            }
+            #tm-hist-search::placeholder { color: ${C.sub}; }
+            #tm-hist-body {
+                flex: 1; overflow-y: auto; overflow-x: hidden;
+                scrollbar-width: thin; scrollbar-color: ${C.scrollbar} transparent;
+            }
+            .tm-hist-group-header {
+                position: sticky; top: 0; z-index: 2;
+                padding: 5px 12px 4px;
+                background: ${C.groupHdr}; border-bottom: 1px solid ${C.border};
+                font-size: 11px; font-weight: 700; color: ${C.groupTxt};
+                letter-spacing: 0.03em;
+            }
+            .tm-hist-row {
+                display: flex; align-items: flex-start; gap: 10px;
+                padding: 8px 12px; border-bottom: 1px solid ${C.border};
+                transition: background 0.08s;
+                position: relative;
+            }
+            .tm-hist-row:hover { background: ${C.rowHover}; }
+            .tm-hist-row.selected { background: rgba(29,155,240,0.08); }
+            .tm-hist-row.selected::before {
+                content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+                background: #1d9bf0; border-radius: 0 2px 2px 0;
+            }
+            .tm-hist-cb { flex-shrink: 0; margin-top: 3px; cursor: pointer; }
+            .tm-hist-thumb-wrap {
+                width: 44px; height: 44px; border-radius: 6px;
+                overflow: hidden; flex-shrink: 0;
+                background: ${C.thumbBg}; border: 1px solid ${C.border};
+                display: flex; align-items: center; justify-content: center;
+                position: relative; cursor: pointer;
+            }
+            .tm-hist-thumb-wrap img {
+                width: 100%; height: 100%; object-fit: cover; display: block;
+            }
+            .tm-hist-thumb-wrap .tm-hist-video-icon { color: ${C.sub}; }
+            .tm-hist-thumb-wrap .tm-hist-video-icon svg { width: 20px; height: 20px; }
+            .tm-hist-info { flex: 1; min-width: 0; }
+            .tm-hist-author {
+                font-size: 12px; font-weight: 600; color: ${C.text};
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            }
+            .tm-hist-handle {
+                font-size: 11px; color: ${C.sub}; margin-left: 4px; font-weight: 400;
+            }
+            .tm-hist-text {
+                font-size: 11px; color: ${C.sub}; margin: 2px 0;
+                overflow: hidden; text-overflow: ellipsis;
+                display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+                line-height: 1.4;
+            }
+            .tm-hist-url {
+                font-size: 10px; color: #1d9bf0;
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                cursor: pointer;
+            }
+            .tm-hist-url:hover { text-decoration: underline; }
+            .tm-hist-actions {
+                display: flex; flex-direction: column; gap: 3px;
+                flex-shrink: 0; align-items: center;
+            }
+            .tm-hist-act-btn {
+                width: 24px; height: 24px; border-radius: 5px; border: none;
+                background: transparent; cursor: pointer;
+                display: flex; align-items: center; justify-content: center;
+                color: ${C.sub}; transition: background 0.1s, color 0.1s;
+            }
+            .tm-hist-act-btn:hover { background: ${C.rowHover}; color: ${C.text}; }
+            .tm-hist-act-btn.danger:hover { color: ${C.danger}; }
+            .tm-hist-act-btn svg { width: 13px; height: 13px; pointer-events: none; }
+            
+            #tm-hist-thumb-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+                gap: 3px; padding: 8px;
+            }
+            .tm-hist-grid-cell {
+                aspect-ratio: 1; border-radius: 6px; overflow: hidden;
+                position: relative; cursor: pointer;
+                background: ${C.thumbBg};
+            }
+            .tm-hist-grid-cell img {
+                width: 100%; height: 100%; object-fit: cover; display: block;
+            }
+            .tm-hist-grid-cell .tm-hist-grid-overlay {
+                position: absolute; inset: 0;
+                background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0) 55%);
+                opacity: 0; transition: opacity 0.18s;
+                display: flex; flex-direction: column; justify-content: flex-end;
+                padding: 6px;
+            }
+            .tm-hist-grid-cell:hover .tm-hist-grid-overlay { opacity: 1; }
+            .tm-hist-grid-overlay .gov-author {
+                font-size: 11px; font-weight: 700; color: #fff;
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            }
+            .tm-hist-grid-overlay .gov-text {
+                font-size: 10px; color: rgba(255,255,255,0.82);
+                overflow: hidden; text-overflow: ellipsis;
+                display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+                line-height: 1.3; margin-top: 2px;
+            }
+            .tm-hist-grid-cell .tm-hist-grid-nothumb {
+                width: 100%; height: 100%; display: flex; align-items: center;
+                justify-content: center; color: ${C.sub};
+            }
+            .tm-hist-grid-cell .tm-hist-grid-nothumb svg { width: 28px; height: 28px; }
+            
+            #tm-hist-footer {
+                border-top: 1px solid ${C.border}; padding: 7px 12px;
+                display: flex; align-items: center; gap: 8px;
+                background: ${C.header}; flex-shrink: 0;
+            }
+            #tm-hist-footer.hidden { display: none; }
+            .tm-hist-del-sel-btn {
+                padding: 5px 12px; border-radius: 99px; border: none;
+                background: ${C.danger}; color: #fff; font-size: 12px;
+                font-weight: 600; cursor: pointer; transition: background 0.1s;
+            }
+            .tm-hist-del-sel-btn:hover { background: ${C.dangerHover}; }
+            .tm-hist-cancel-edit {
+                padding: 5px 12px; border-radius: 99px;
+                border: 1px solid ${C.border}; background: transparent;
+                color: ${C.text}; font-size: 12px; cursor: pointer;
+            }
+            
+            #tm-hist-resize {
+                position: absolute; bottom: 0; right: 0;
+                width: 14px; height: 14px; cursor: se-resize;
+                opacity: 0.4;
+            }
+            #tm-hist-resize:hover { opacity: 0.8; }
+            
+            .tm-hist-empty {
+                display: flex; flex-direction: column; align-items: center;
+                justify-content: center; padding: 40px 20px;
+                color: ${C.sub}; font-size: 13px; gap: 10px; text-align: center;
+            }
+            .tm-hist-empty svg { width: 36px; height: 36px; opacity: 0.4; }
+            
+            #tm-hist-zoom {
+                position: fixed; z-index: 999999;
+                width: 200px; height: 200px; border-radius: 8px;
+                overflow: hidden; pointer-events: none;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+                border: 2px solid rgba(255,255,255,0.2);
+            }
+            #tm-hist-zoom img { width: 100%; height: 100%; object-fit: cover; }
+        `;
+
+        const panel = document.createElement('div');
+        panel.id = 'tm-hist-panel';
+        panel.style.cssText = `left:${pos.x}px; top:${pos.y}px; width:${pos.w}px; height:${pos.h}px;`;
+
+        const titlebar = document.createElement('div');
+        titlebar.id = 'tm-hist-titlebar';
+
+        const titleEl = document.createElement('span');
+        titleEl.className = 'tm-hist-title';
+        titleEl.textContent = '📋 Download History';
+
+        const countBadge = document.createElement('span');
+        countBadge.className = 'tm-hist-count-badge';
+
+        const SVG_LIST  = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg>`;
+        const SVG_GRID  = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>`;
+        const SVG_EDIT  = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M11 2l3 3-8 8H3v-3L11 2z"/></svg>`;
+        const SVG_EXP   = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 2v8M5 7l3 4 3-4"/><line x1="2" y1="13" x2="14" y2="13"/></svg>`;
+        const SVG_CLOSE = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
+
+        const btnList  = _mkIconBtn(SVG_LIST,  'List mode');
+        const btnThumb = _mkIconBtn(SVG_GRID,  'Thumbnail mode');
+        const btnEdit  = _mkIconBtn(SVG_EDIT,  'Edit mode');
+        const btnExp   = _mkIconBtn(SVG_EXP,   'Export');
+        const btnClose = _mkIconBtn(SVG_CLOSE, 'Close');
+
+        titlebar.appendChild(titleEl);
+        titlebar.appendChild(countBadge);
+        titlebar.appendChild(btnList);
+        titlebar.appendChild(btnThumb);
+        titlebar.appendChild(btnEdit);
+        titlebar.appendChild(btnExp);
+        titlebar.appendChild(btnClose);
+        panel.appendChild(titlebar);
+
+        const searchBar = document.createElement('div');
+        searchBar.className = 'tm-hist-searchbar';
+        const searchInput = document.createElement('input');
+        searchInput.id = 'tm-hist-search';
+        searchInput.type = 'search';
+        searchInput.placeholder = '🔍  Search author / content…';
+        searchBar.appendChild(searchInput);
+        panel.appendChild(searchBar);
+
+        const body = document.createElement('div');
+        body.id = 'tm-hist-body';
+        panel.appendChild(body);
+
+        const footer = document.createElement('div');
+        footer.id = 'tm-hist-footer';
+        footer.className = 'hidden';
+        const delSelBtn = document.createElement('button');
+        delSelBtn.className = 'tm-hist-del-sel-btn';
+        const cancelEditBtn = document.createElement('button');
+        cancelEditBtn.className = 'tm-hist-cancel-edit';
+        cancelEditBtn.textContent = 'Cancel';
+        footer.appendChild(delSelBtn);
+        footer.appendChild(cancelEditBtn);
+        panel.appendChild(footer);
+
+        const resizeHandle = document.createElement('div');
+        resizeHandle.id = 'tm-hist-resize';
+        resizeHandle.innerHTML = `<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="2" y1="12" x2="12" y2="12"/><line x1="7" y1="12" x2="12" y2="7"/><line x1="12" y1="2" x2="12" y2="12"/></svg>`;
+        panel.appendChild(resizeHandle);
+
+        document.body.appendChild(panel);
+
+        function getRecords() {
+            try { return JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]')); }
+            catch (_) { return []; }
+        }
+
+        function getFiltered(records) {
+            if (!query) return records;
+            const q = query.toLowerCase();
+            return records.filter(r =>
+                r.displayName?.toLowerCase().includes(q) ||
+                r.screenName?.toLowerCase().includes(q) ||
+                r.text?.toLowerCase().includes(q)
+            );
+        }
+
+        function _fmtGroupLabel(yyyymm) {
+            const p = yyyymm.split('.');
+            if (p.length !== 2) return yyyymm;
+            const y = p[0];
+            const m = parseInt(p[1], 10);
+            const fmt = GM_getValue(KEY_DATE_FORMAT, 'asian');
+            if (fmt === 'western') {
+                const names = ['','January','February','March','April','May','June',
+                               'July','August','September','October','November','December'];
+                return `${names[m] || p[1]} ${y}`;
+            }
+            return `${y}年 ${m}月`;
+        }
+
+        function render() {
+            const records  = getRecords();
+            const filtered = getFiltered(records);
+            countBadge.textContent = `${records.length} / ${HISTORY_MAX_RECORDS}`;
+            delSelBtn.textContent = `Delete selected (${selectedIds.size})`;
+            body.innerHTML = '';
+
+            if (viewMode === 'list') renderList(filtered);
+            else renderThumb(filtered);
+
+            btnList.classList.toggle('active', viewMode === 'list');
+            btnThumb.classList.toggle('active', viewMode === 'thumb');
+        }
+
+        function renderList(records) {
+            if (!records.length) { _renderEmpty(); return; }
+
+            let lastGroup = null;
+            records.forEach((rec, idx) => {
+                if (rec.yyyymm !== lastGroup) {
+                    lastGroup = rec.yyyymm;
+                    const gh = document.createElement('div');
+                    gh.className = 'tm-hist-group-header';
+                    gh.textContent = _fmtGroupLabel(rec.yyyymm);
+                    body.appendChild(gh);
+                }
+
+                const row = document.createElement('div');
+                row.className = 'tm-hist-row' + (selectedIds.has(rec.id) ? ' selected' : '');
+                row.dataset.id = rec.id;
+                row.dataset.idx = idx;
+
+                if (editMode) {
+                    const cb = document.createElement('input');
+                    cb.type = 'checkbox';
+                    cb.className = 'tm-hist-cb';
+                    cb.checked = selectedIds.has(rec.id);
+                    cb.addEventListener('change', (e) => {
+                        e.stopPropagation();
+                        _handleCheckbox(rec.id, idx, e.shiftKey);
+                    });
+                    row.appendChild(cb);
+                }
+
+                const thumbWrap = document.createElement('div');
+                thumbWrap.className = 'tm-hist-thumb-wrap';
+                if (rec.thumbUrls && rec.thumbUrls.length > 0) {
+                    const img = document.createElement('img');
+                    img.src = _thumbUrl(rec.thumbUrls[0]);
+                    img.loading = 'lazy';
+                    img.alt = '';
+                    thumbWrap.appendChild(img);
+                    thumbWrap.addEventListener('mouseenter', (e) => _showZoom(rec.thumbUrls[0], e));
+                    thumbWrap.addEventListener('mousemove',  (e) => _moveZoom(e));
+                    thumbWrap.addEventListener('mouseleave', _hideZoom);
+                } else {
+                    const vi = document.createElement('div');
+                    vi.className = 'tm-hist-video-icon';
+                    vi.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M15 10l4.55-2.28A1 1 0 0 1 21 8.65v6.7a1 1 0 0 1-1.45.93L15 14"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg>`;
+                    thumbWrap.appendChild(vi);
+                }
+                row.appendChild(thumbWrap);
+
+                const info = document.createElement('div');
+                info.className = 'tm-hist-info';
+
+                const author = document.createElement('div');
+                author.className = 'tm-hist-author';
+                author.textContent = rec.displayName || rec.screenName;
+                const handle = document.createElement('span');
+                handle.className = 'tm-hist-handle';
+                handle.textContent = `@${rec.screenName}`;
+                author.appendChild(handle);
+
+                const textEl = document.createElement('div');
+                textEl.className = 'tm-hist-text';
+                textEl.textContent = rec.text || '(no caption)';
+
+                const urlEl = document.createElement('div');
+                urlEl.className = 'tm-hist-url';
+                urlEl.textContent = rec.tweetUrl;
+                urlEl.title = rec.tweetUrl;
+                urlEl.addEventListener('click', () => window.open(rec.tweetUrl, '_blank'));
+
+                info.appendChild(author);
+                info.appendChild(textEl);
+                info.appendChild(urlEl);
+                row.appendChild(info);
+
+                const acts = document.createElement('div');
+                acts.className = 'tm-hist-actions';
+
+                const SVG_JUMP = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 2h4v4"/><path d="M7 9L14 2"/><path d="M12 10v4H2V4h4"/></svg>`;
+                const SVG_DEL  = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><polyline points="2,4 4,4 14,4"/><path d="M13 4l-.9 9H3.9L3 4"/><path d="M6.5 7v4M9.5 7v4"/><path d="M5.5 4V2.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5V4"/></svg>`;
+
+                const jmpBtn = document.createElement('button');
+                jmpBtn.className = 'tm-hist-act-btn';
+                jmpBtn.innerHTML = SVG_JUMP;
+                jmpBtn.title = 'Open tweet';
+                jmpBtn.addEventListener('click', (e) => { e.stopPropagation(); window.open(rec.tweetUrl, '_blank'); });
+
+                const delBtn = document.createElement('button');
+                delBtn.className = 'tm-hist-act-btn danger';
+                delBtn.innerHTML = SVG_DEL;
+                delBtn.title = 'Delete';
+                delBtn.addEventListener('click', (e) => { e.stopPropagation(); _deleteOne(rec.id, idx); });
+
+                acts.appendChild(jmpBtn);
+                acts.appendChild(delBtn);
+                row.appendChild(acts);
+
+                if (editMode) {
+                    row.style.cursor = 'pointer';
+                    row.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('tm-hist-cb')) return;
+                        _handleCheckbox(rec.id, idx, e.shiftKey);
+                    });
+                }
+
+                body.appendChild(row);
+            });
+        }
+
+        function renderThumb(records) {
+            if (!records.length) { _renderEmpty(); return; }
+            const grid = document.createElement('div');
+            grid.id = 'tm-hist-thumb-grid';
+
+            records.forEach(rec => {
+                const cell = document.createElement('div');
+                cell.className = 'tm-hist-grid-cell';
+                cell.title = `${rec.displayName} @${rec.screenName}`;
+
+                if (rec.thumbUrls && rec.thumbUrls.length > 0) {
+                    const img = document.createElement('img');
+                    img.src = _thumbUrl(rec.thumbUrls[0]);
+                    img.loading = 'lazy';
+                    img.alt = '';
+                    cell.appendChild(img);
+                } else {
+                    const ni = document.createElement('div');
+                    ni.className = 'tm-hist-grid-nothumb';
+                    ni.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M15 10l4.55-2.28A1 1 0 0 1 21 8.65v6.7a1 1 0 0 1-1.45.93L15 14"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg>`;
+                    cell.appendChild(ni);
+                }
+
+                const overlay = document.createElement('div');
+                overlay.className = 'tm-hist-grid-overlay';
+                const govAuthor = document.createElement('div');
+                govAuthor.className = 'gov-author';
+                govAuthor.textContent = rec.displayName || rec.screenName;
+                const govText = document.createElement('div');
+                govText.className = 'gov-text';
+                govText.textContent = rec.text || '';
+                overlay.appendChild(govAuthor);
+                overlay.appendChild(govText);
+                cell.appendChild(overlay);
+
+                cell.addEventListener('click', () => window.open(rec.tweetUrl, '_blank'));
+                grid.appendChild(cell);
+            });
+
+            body.appendChild(grid);
+        }
+
+        function _renderEmpty() {
+            const em = document.createElement('div');
+            em.className = 'tm-hist-empty';
+            em.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+            const msg = document.createElement('div');
+            msg.textContent = query ? 'No results matching search.' : 'No download history yet.\nRight-click 🎞️ to download & record.';
+            msg.style.whiteSpace = 'pre-line';
+            em.appendChild(msg);
+            body.appendChild(em);
+        }
+
+        function _handleCheckbox(id, idx, shiftKey) {
+            if (shiftKey && anchorIdx >= 0) {
+                const records = getFiltered(getRecords());
+                const lo = Math.min(anchorIdx, idx);
+                const hi = Math.max(anchorIdx, idx);
+                for (let i = lo; i <= hi; i++) {
+                    if (records[i]) selectedIds.add(records[i].id);
+                }
+            } else {
+                if (selectedIds.has(id)) selectedIds.delete(id);
+                else { selectedIds.add(id); anchorIdx = idx; }
+            }
+            render();
+        }
+
+        function _deleteOne(id, idx) {
+            let records = getRecords();
+            const record = records.find(r => r.id === id);
+            if (!record) return;
+            records = records.filter(r => r.id !== id);
+            GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
+            _downloadedIds.delete(record.tweetId);
+
+            if (_historyUndoTimer) clearTimeout(_historyUndoTimer);
+            _historyUndoBuffer = { record, index: idx };
+            render();
+
+            const ut = document.createElement('div');
+            ut.style.cssText = `
+                position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+                background:rgba(15,20,25,0.92); color:#fff; padding:8px 16px;
+                border-radius:99px; font-size:12px; font-family:system-ui;
+                display:flex; align-items:center; gap:10px;
+                z-index:9999999; box-shadow:0 4px 16px rgba(0,0,0,0.3);
+                animation:tm-toast-rise 5s forwards;
+            `;
+            ut.id = 'tm-hist-undo-toast';
+            const msg = document.createElement('span');
+            msg.textContent = 'Record deleted';
+            const undoBtn = document.createElement('button');
+            undoBtn.textContent = 'Undo';
+            undoBtn.style.cssText = `background:none;border:none;color:#1d9bf0;cursor:pointer;font-weight:700;font-size:12px;padding:0;`;
+            undoBtn.addEventListener('click', () => {
+                if (_historyUndoBuffer) {
+                    let recs = getRecords();
+                    recs.splice(_historyUndoBuffer.index, 0, _historyUndoBuffer.record);
+                    GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(recs));
+                    _downloadedIds.add(_historyUndoBuffer.record.tweetId);
+                    _historyUndoBuffer = null;
+                    ut.remove();
+                    clearTimeout(_historyUndoTimer);
+                    render();
+                }
+            });
+            ut.appendChild(msg);
+            ut.appendChild(undoBtn);
+            document.getElementById('tm-hist-undo-toast')?.remove();
+            document.body.appendChild(ut);
+            _historyUndoTimer = setTimeout(() => { ut.remove(); _historyUndoBuffer = null; }, 5000);
+        }
+
+        function _thumbUrl(url) {
+            try {
+                if (url.includes('pbs.twimg.com') && url.includes('/media/')) {
+                    const u = new URL(url);
+                    u.searchParams.set('name', 'small');
+                    return u.toString();
+                }
+            } catch (_) {}
+            return url;
+        }
+
+        function _showZoom(url, e) {
+            let z = document.getElementById('tm-hist-zoom');
+            if (!z) { z = document.createElement('div'); z.id = 'tm-hist-zoom'; document.body.appendChild(z); }
+            z.innerHTML = `<img src="${_thumbUrl(url).replace('name=small','name=medium')}" alt="">`;
+            _moveZoom(e);
+        }
+        function _moveZoom(e) {
+            const z = document.getElementById('tm-hist-zoom');
+            if (!z) return;
+            const w = 200, h = 200, margin = 14;
+            let left = e.clientX - w - margin;
+            let top  = e.clientY - h / 2;
+            if (left < 4) left = e.clientX + margin;
+            if (top < 4)  top  = 4;
+            if (top + h > window.innerHeight - 4) top = window.innerHeight - h - 4;
+            z.style.cssText = `position:fixed;z-index:9999999;width:${w}px;height:${h}px;left:${left}px;top:${top}px;border-radius:8px;overflow:hidden;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.2);`;
+        }
+        function _hideZoom() { document.getElementById('tm-hist-zoom')?.remove(); }
+
+        function _exportCSV() {
+            const records = getRecords();
+            const header  = 'tweetId,tweetUrl,date,screenName,displayName\n';
+            const rows    = records.map(r =>
+                [r.tweetId, r.tweetUrl, r.tweetDate, r.screenName, `"${(r.displayName||'').replace(/"/g,'""')}"`].join(',')
+            ).join('\n');
+            _download('history.csv', header + rows, 'text/csv');
+        }
+        function _exportJSON() {
+            const records = getRecords();
+            _download('history.json', JSON.stringify(records, null, 2), 'application/json');
+        }
+        function _download(filename, content, type) {
+            const blob = new Blob([content], { type });
+            const url  = URL.createObjectURL(blob);
+            const a    = document.createElement('a');
+            a.href = url; a.download = filename;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 5000);
+        }
+
+        function _mkIconBtn(svg, title) {
+            const b = document.createElement('button');
+            b.className = 'tm-hist-icon-btn';
+            b.innerHTML = svg;
+            b.title = title;
+            return b;
+        }
+
+        btnList.addEventListener('click', () => { viewMode = 'list'; GM_setValue(KEY_HISTORY_VIEW_MODE, 'list'); render(); });
+        btnThumb.addEventListener('click', () => { viewMode = 'thumb'; GM_setValue(KEY_HISTORY_VIEW_MODE, 'thumb'); render(); });
+        btnClose.addEventListener('click', () => { panel.remove(); _cleanZoom(); });
+
+        btnEdit.addEventListener('click', () => {
+            editMode = !editMode;
+            selectedIds.clear(); anchorIdx = -1;
+            footer.classList.toggle('hidden', !editMode);
+            btnEdit.classList.toggle('active', editMode);
+            render();
+        });
+
+        delSelBtn.addEventListener('click', () => {
+            if (!selectedIds.size) return;
+            let records = getRecords();
+            records.filter(r => selectedIds.has(r.id)).forEach(r => _downloadedIds.delete(r.tweetId));
+            records = records.filter(r => !selectedIds.has(r.id));
+            GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
+            selectedIds.clear(); anchorIdx = -1;
+            render();
+        });
+
+        cancelEditBtn.addEventListener('click', () => {
+            editMode = false; selectedIds.clear(); anchorIdx = -1;
+            footer.classList.add('hidden'); btnEdit.classList.remove('active');
+            render();
+        });
+
+        let _expState = 0;
+        btnExp.addEventListener('click', () => {
+            _expState = (_expState + 1) % 3;
+            if      (_expState === 1) _exportCSV();
+            else if (_expState === 2) _exportJSON();
+            else _expState = 0;
+        });
+        btnExp.title = 'Export CSV (click once) / JSON (click twice)';
+
+        searchInput.addEventListener('input', () => { query = searchInput.value.trim(); render(); });
+
+        panel.addEventListener('tm-hist-refresh', render);
+
+        let _dragging = false, _dx = 0, _dy = 0;
+        titlebar.addEventListener('mousedown', (e) => {
+            if (e.button !== 0 || e.target.classList.contains('tm-hist-icon-btn')) return;
+            _dragging = true;
+            _dx = e.clientX - panel.getBoundingClientRect().left;
+            _dy = e.clientY - panel.getBoundingClientRect().top;
+            e.preventDefault();
+        });
+        document.addEventListener('mousemove', (e) => {
+            if (!_dragging) return;
+            let nx = e.clientX - _dx;
+            let ny = e.clientY - _dy;
+            nx = Math.max(0, Math.min(nx, window.innerWidth  - panel.offsetWidth));
+            ny = Math.max(0, Math.min(ny, window.innerHeight - 60));
+            panel.style.left = nx + 'px';
+            panel.style.top  = ny + 'px';
+        });
+        document.addEventListener('mouseup', () => {
+            if (!_dragging) return;
+            _dragging = false;
+            _savePos();
+        });
+
+        let _resizing = false, _rsx = 0, _rsy = 0, _rsw = 0, _rsh = 0;
+        resizeHandle.addEventListener('mousedown', (e) => {
+            _resizing = true;
+            _rsx = e.clientX; _rsy = e.clientY;
+            _rsw = panel.offsetWidth; _rsh = panel.offsetHeight;
+            e.preventDefault(); e.stopPropagation();
+        });
+        document.addEventListener('mousemove', (e) => {
+            if (!_resizing) return;
+            const nw = Math.max(300, Math.min(_rsw + (e.clientX - _rsx), 680));
+            const nh = Math.max(280, Math.min(_rsh + (e.clientY - _rsy), window.innerHeight - 80));
+            panel.style.width  = nw + 'px';
+            panel.style.height = nh + 'px';
+        });
+        document.addEventListener('mouseup', () => {
+            if (!_resizing) return;
+            _resizing = false;
+            _savePos();
+        });
+
+        function _savePos() {
+            const r = panel.getBoundingClientRect();
+            GM_setValue(KEY_HISTORY_PANEL_POS, JSON.stringify({ x: r.left, y: r.top, w: r.width, h: r.height }));
+        }
+
+        panel.addEventListener('click', e => e.stopPropagation());
+
+        render();
+    }
+
+    function _cleanZoom() { document.getElementById('tm-hist-zoom')?.remove(); }
 
     const BUTTON_CLASS = 'force-media-copy-btn';
 
@@ -1722,6 +2743,7 @@
     document.head.appendChild(_toastStyle);
 
     function showActionToast(anchorEl, message, type = 'ok') {
+        if (GM_getValue(KEY_FEEDBACK_STYLE, 'toast') === 'silent') return;
         const rect = anchorEl.getBoundingClientRect();
         const viewW = window.innerWidth;
         const cx = Math.max(48, Math.min(rect.left + rect.width / 2, viewW - 48));
@@ -2599,45 +3621,124 @@
         const actions = Array.from(article.querySelectorAll('[role="group"]')).pop();
         if (!actions) return;
 
+        if (!document.getElementById('tm-icon-anim-style')) {
+            const s = document.createElement('style');
+            s.id = 'tm-icon-anim-style';
+            s.textContent = `
+                @keyframes tm-pop-bounce {
+                    0%   { transform: scale(0.5); opacity: 0; }
+                    60%  { transform: scale(1.15); opacity: 1; }
+                    100% { transform: scale(1); opacity: 1; }
+                }
+                @keyframes tm-pop-bounce-text {
+                    0%   { transform: translateY(-50%) scale(0.5); opacity: 0; }
+                    60%  { transform: translateY(-50%) scale(1.1); opacity: 1; }
+                    100% { transform: translateY(-50%) scale(1); opacity: 1; }
+                }
+                .tm-anim-pop {
+                    animation: tm-pop-bounce 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+                }
+                .tm-anim-pop-text {
+                    position: absolute;
+                    right: 4px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    transform-origin: right center;
+                    white-space: nowrap;
+                    font-weight: 700;
+                    font-size: 13px;
+                    font-family: system-ui, -apple-system, sans-serif;
+                    background: rgba(128, 128, 128, 0.2);
+                    backdrop-filter: blur(4px);
+                    padding: 5px 12px;
+                    border-radius: 9999px;
+                    color: currentColor;
+                    z-index: 9999;
+                    pointer-events: none;
+                    animation: tm-pop-bounce-text 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+                }
+            `;
+            document.head.appendChild(s);
+        }
+
         const SVG_FILM = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="16" height="12" rx="2"/><line x1="2" y1="7" x2="18" y2="7"/><line x1="2" y1="13" x2="18" y2="13"/><line x1="6" y1="4" x2="6" y2="7"/><line x1="10" y1="4" x2="10" y2="7"/><line x1="14" y1="4" x2="14" y2="7"/><line x1="6" y1="13" x2="6" y2="16"/><line x1="10" y1="13" x2="10" y2="16"/><line x1="14" y1="13" x2="14" y2="16"/></svg>`;
         const SVG_CHECK_SM = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`;
+        const SVG_PREFIX_COPY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
         const SVG_DL = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M6 9l4 4 4-4"/><line x1="3" y1="17" x2="17" y2="17"/></svg>`;
-
-        const setMediaIcon = (state, extra) => {
-            if (state === 'default') {
-                btn.innerHTML = SVG_FILM;
-                btn.style.filter = '';
-                btn.style.fontSize = '';
-                btn.style.color = '';
-            } else if (state === 'dl') {
-                btn.innerHTML = SVG_DL;
-                btn.style.filter = '';
-                btn.style.fontSize = '';
-                btn.style.color = '';
-            } else if (state === 'ok') {
-                btn.innerHTML = SVG_CHECK_SM;
-                btn.style.filter = 'drop-shadow(0 0 3px currentColor)';
-                btn.style.fontSize = '';
-                btn.style.color = '';
-                showActionToast(btn, extra || T.msg_copied, 'ok');
-            } else if (state === 'warn') {
-                btn.innerHTML = SVG_FILM;
-                btn.style.filter = '';
-                btn.style.fontSize = '';
-                btn.style.color = '';
-                showActionToast(btn, extra, 'warn');
-            } else {
-                btn.innerHTML = SVG_FILM;
-                btn.style.filter = '';
-                btn.style.fontSize = '';
-                btn.style.color = '';
-                if (extra) showActionToast(btn, extra, state === 'error' ? 'error' : 'ok');
-            }
-        };
 
         const btn = document.createElement('button');
         btn.className = BUTTON_CLASS;
         btn.title = T.btn_tooltip;
+        btn.style.position = 'relative';
+
+        const setMediaIcon = (state, extra, silentText, actionType = 'copy') => {
+            const fbStyle = GM_getValue(KEY_FEEDBACK_STYLE, 'toast');
+            btn.classList.remove('tm-anim-pop');
+
+            const setTextMode = (text, customColor) => {
+                if (customColor) {
+                    btn.innerHTML = `<span class="tm-anim-pop-text" style="color: ${customColor} !important;">${text}</span>`;
+                } else {
+                    btn.innerHTML = `<span class="tm-anim-pop-text">${text}</span>`;
+                }
+            };
+
+            const setIconMode = (svg, customColor) => {
+                btn.innerHTML = svg;
+                btn.classList.add('tm-anim-pop');
+                if (customColor) {
+                    const svgEl = btn.querySelector('svg');
+                    if (svgEl) {
+                        svgEl.style.color = customColor;
+                        svgEl.style.filter = `drop-shadow(0 0 4px ${customColor}66)`;
+                    }
+                }
+            };
+
+            const getSilentText = () => silentText || extra;
+
+            if (state === 'default') {
+                btn.innerHTML = SVG_FILM;
+            } else if (state === 'dl') {
+                btn.innerHTML = SVG_DL;
+            } else if (state === 'ok') {
+                if (fbStyle === 'silent') {
+                    setTextMode(getSilentText() || 'Copied');
+                } else if (fbStyle === 'icon') {
+                    if (actionType === 'prefix') setIconMode(SVG_PREFIX_COPY);
+                    else if (actionType === 'download') setIconMode(SVG_CHECK_SM);
+                    else setIconMode(SVG_CHECK_SM);
+                } else {
+                    btn.innerHTML = SVG_CHECK_SM;
+                    btn.classList.add('tm-anim-pop');
+                    showActionToast(btn, extra || T.msg_copied, 'ok');
+                }
+            } else if (state === 'warn') {
+                if (fbStyle === 'silent') {
+                    setTextMode(getSilentText(), '#ff8c00');
+                } else if (fbStyle === 'icon') {
+                    setIconMode(SVG_FILM, '#ff8c00');
+                } else {
+                    btn.innerHTML = SVG_FILM;
+                    showActionToast(btn, extra, 'warn');
+                }
+            } else {
+                if (fbStyle === 'silent' && getSilentText()) {
+                    setTextMode(getSilentText(), state === 'error' ? '#e0245e' : null);
+                } else if (fbStyle === 'icon') {
+                    setIconMode(SVG_FILM, state === 'error' ? '#e0245e' : null);
+                } else {
+                    btn.innerHTML = SVG_FILM;
+                    if (extra) showActionToast(btn, extra, state === 'error' ? 'error' : 'ok');
+                }
+            }
+
+            const tweetId = _getTweetIdFromArticle(article);
+            if (tweetId && _downloadedIds.has(tweetId)) {
+                _applyHistoryBadge(btn);
+            }
+        };
+
         setMediaIcon('default');
 
         let timer = null;
@@ -2651,8 +3752,8 @@
                     const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
                     const txt = urls.map(u => `${prefix}(${u})`).join('\n');
                     GM_setClipboard(txt);
-                    setMediaIcon('msg', T.msg_prefix_copied);
-                    setTimeout(() => setMediaIcon('default'), 1000);
+                    setMediaIcon('ok', T.msg_prefix_copied, 'Prefix Copied', 'prefix');
+                    setTimeout(() => setMediaIcon('default'), 1500);
                     timer = null;
                 }, 500);
 
@@ -2668,19 +3769,25 @@
                 } else if (imgUrls.length) {
                     showImageLightbox(imgUrls);
                 } else {
-                    setMediaIcon('msg', T.msg_no_media);
-                    setTimeout(() => setMediaIcon('default'), 1000);
+                    setMediaIcon('msg', T.msg_no_media, 'No Media');
+                    setTimeout(() => setMediaIcon('default'), 1500);
                 }
             }
         });
+
         btn.addEventListener('mouseup', async (e) => {
             if (e.button !== 0) return;
             if (timer) {
                 clearTimeout(timer); timer = null;
                 const urls = await extractMediaUrls(article);
-                if (!urls.length) { setMediaIcon('msg', T.msg_no_media); setTimeout(() => setMediaIcon('default'), 1000); return; }
+                if (!urls.length) {
+                    setMediaIcon('msg', T.msg_no_media, 'No Media');
+                    setTimeout(() => setMediaIcon('default'), 1500);
+                    return;
+                }
                 GM_setClipboard(urls.join('\n'));
-                setMediaIcon('ok'); setTimeout(() => setMediaIcon('default'), 1000);
+                setMediaIcon('ok', T.msg_copied, 'Copied', 'copy');
+                setTimeout(() => setMediaIcon('default'), 1500);
             }
         });
         btn.addEventListener('mouseleave', () => { if (timer) { clearTimeout(timer); timer = null; } });
@@ -2696,7 +3803,6 @@
 
             const ring = createProgressRing();
             ring.el.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;';
-            btn.style.position = 'relative';
             btn.appendChild(ring.el);
 
             let index = 1;
@@ -2735,12 +3841,12 @@
             }
 
             ring.remove();
-            btn.style.position = '';
             const successCount = total - failCount;
             if (failCount > 0) {
                 setMediaIcon('warn', `⚠️ ${successCount}/${total}`);
             } else {
-                setMediaIcon('ok', T.msg_downloaded);
+                setMediaIcon('ok', T.msg_downloaded, 'Downloaded', 'download');
+                recordHistory(info, urls);
             }
             setTimeout(() => setMediaIcon('default'), 2000);
         });
@@ -2749,26 +3855,37 @@
         if (!article.querySelector(`.${LINK_BTN_CLASS}`)) {
             const icon = document.createElement('div');
             icon.className = LINK_BTN_CLASS;
+            icon.style.position = 'relative';
 
             const SVG_LINK = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12a4 4 0 0 0 5.66 0l2-2a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M12 8a4 4 0 0 0-5.66 0l-2 2a4 4 0 0 0 5.66 5.66l1-1"/></svg>`;
             const SVG_CHECK = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`;
 
-            const setLinkIcon = (state, extra) => {
+            const setLinkIcon = (state, extra, silentText, actionType = 'copy') => {
+                const fbStyle = GM_getValue(KEY_FEEDBACK_STYLE, 'toast');
+                icon.classList.remove('tm-anim-pop');
+
+                const setTextMode = (text) => {
+                    icon.innerHTML = `<span class="tm-anim-pop-text">${text}</span>`;
+                };
+
+                const setIconMode = (svg) => {
+                    icon.innerHTML = svg;
+                    icon.classList.add('tm-anim-pop');
+                };
+
                 if (state === 'ok') {
-                    icon.innerHTML = SVG_LINK;
-                    icon.style.filter = 'drop-shadow(0 0 3px currentColor)';
-                    icon.style.opacity = '1';
-                    icon.style.fontSize = '';
-                    showActionToast(icon, extra || T.msg_copied, 'ok');
-                    setTimeout(() => {
-                        icon.style.filter = '';
-                        icon.style.opacity = '';
-                    }, 800);
+                    if (fbStyle === 'silent') {
+                        setTextMode(silentText || extra || 'Copied');
+                    } else if (fbStyle === 'icon') {
+                        const useSvg = actionType === 'prefix' ? SVG_PREFIX_COPY : SVG_CHECK;
+                        setIconMode(useSvg);
+                    } else {
+                        icon.innerHTML = SVG_CHECK;
+                        icon.classList.add('tm-anim-pop');
+                        showActionToast(icon, extra || T.msg_copied, 'ok');
+                    }
                 } else {
                     icon.innerHTML = SVG_LINK;
-                    icon.style.filter = '';
-                    icon.style.opacity = '';
-                    icon.style.fontSize = '';
                 }
             };
             setLinkIcon('default');
@@ -2791,8 +3908,8 @@
                     if (url) {
                         const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
                         GM_setClipboard(`${prefix}(${url})`);
-                        setLinkIcon('ok', T.msg_prefix_copied);
-                        setTimeout(() => setLinkIcon('default'), 1000);
+                        setLinkIcon('ok', T.msg_prefix_copied, 'Prefix Copied', 'prefix');
+                        setTimeout(() => setLinkIcon('default'), 1500);
                     }
                     lTimer = null;
                 }, 500);
@@ -2809,8 +3926,8 @@
 
                     if(url) {
                         GM_setClipboard(url);
-                        setLinkIcon('ok');
-                        setTimeout(() => setLinkIcon('default'), 1000);
+                        setLinkIcon('ok', T.msg_copied, 'Copied', 'copy');
+                        setTimeout(() => setLinkIcon('default'), 1500);
                     }
                 }
             });
@@ -2820,6 +3937,13 @@
 
             actions.appendChild(btn);
             actions.insertBefore(icon, btn);
+
+            if (_downloadedIds.size > 0) {
+                requestAnimationFrame(() => {
+                    const tweetId = _getTweetIdFromArticle(article);
+                    if (tweetId && _downloadedIds.has(tweetId)) _applyHistoryBadge(btn);
+                });
+            }
         }
     }
 
