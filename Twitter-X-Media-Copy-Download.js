@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      1.5.0
+// @version      1.5.1
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -1893,6 +1893,11 @@
         try {
             const thumbUrls = urls.filter(u => !u.includes('.mp4'));
             const hasVideo  = urls.some(u => u.includes('.mp4'));
+
+            if (thumbUrls.length === 0 && info.videoThumb) {
+                thumbUrls.push(info.videoThumb);
+            }
+
             const raw = info.date || '';
             let yyyymm = '0000.00';
             const fmt = GM_getValue(KEY_DATE_FORMAT, 'asian');
@@ -3335,12 +3340,22 @@
             screenName = 'Promoted';
         }
 
+        let videoThumb = null;
+        const posterVid = article.querySelector('video[poster]');
+        if (posterVid) {
+            videoThumb = posterVid.getAttribute('poster');
+        } else {
+            const thumbImg = article.querySelector('img[src*="video_thumb"], img[src*="ext_tw_video_thumb"], img[src*="amplify_video_thumb"]');
+            if (thumbImg) videoThumb = thumbImg.src;
+        }
+
         return {
             screenName: screenName,
             displayName: displayName,
             id: id,
             date: date,
-            text: sanitizeForFilename(tweetText)
+            text: sanitizeForFilename(tweetText),
+            videoThumb: videoThumb
         };
     }
 
