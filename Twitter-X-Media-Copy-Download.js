@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      1.5.2
+// @version      1.5.3
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -107,18 +107,27 @@
             help_title: 'Twitter Media Copy Button - Manual',
             help_content: `
                 <p><b>🖱️ Media Button (🎞️):</b><br>
-                • <b>Left Click:</b> Copy media links.<br>
-                • <b>Long Press (0.5s):</b> Copy links with custom prefix (for Discord).<br>
-                • <b>Right Click:</b> Force download media files.<br>
-                  (Name format: <code>[twitter] Name(@ID)_Date_Text_ID.ext</code>)</p>
+                • <b>Left Click:</b> Copy media links (images / video URLs).<br>
+                • <b>Long Press (0.5s):</b> Copy links with custom prefix (Markdown format, for Discord).<br>
+                • <b>Middle Click:</b> Preview — floating video player or image lightbox.<br>
+                • <b>Right Click:</b> Force download all media with structured filenames.<br>
+                  (Format: <code>[twitter] Name(@ID)_Date_Text_ID.ext</code>)</p>
                 <hr>
                 <p><b>🔗 Link Button (🔗):</b><br>
-                • <b>Click:</b> Copy link (Default: x.com, or Custom Domain).<br>
-                • <b>Long Press:</b> Copy link with custom prefix + Long-Press Domain.<br>
-                (Configure domains in the script manager menu).</p>
+                • <b>Click:</b> Copy tweet link (default: x.com, or custom click domain).<br>
+                • <b>Long Press:</b> Copy with custom prefix + long-press embed domain (e.g. fixupx).</p>
+                <hr>
+                <p><b>📋 Download History:</b><br>
+                • Right-click downloads are automatically logged (up to 300 entries).<br>
+                • Downloaded tweets show a 🟢 badge on the 🎞️ button.<br>
+                • Click 📋 (top-right) to browse history: list / thumbnail view, search, export CSV / JSON.</p>
+                <hr>
+                <p><b>⚙️ Settings Panel:</b><br>
+                • Hover the top-right corner → 📋 history / ⚙️ gear button appears.<br>
+                • Configure: click domain, long-press domain, Discord prefix, date format, language, feedback style.</p>
                 <hr>
                 <p style="color: #e0245e; font-size: 0.9em;"><b>⚠️ Disclaimer:</b><br>
-                The custom link domains (e.g., fixupx, vxtwitter) are third-party services not affiliated with this script. Please ensure you trust them before use.</p>
+                Embed domains (e.g. fixupx, vxtwitter) are third-party services unaffiliated with this script.</p>
             `,
             onboard_title: '⚙ Settings Panel',
             onboard_body:  'Hover the top-right corner to reveal the settings button. Click it to quickly manage domains, prefix, language and more — no script manager menu needed.',
@@ -159,21 +168,30 @@
             menu_date_format: '📅 日期格式',
             status_date_asian: '亞洲慣用 (YYYY.MM.DD)',
             status_date_western: '歐美慣用 (DD.MM.YYYY)',
-            help_title: '推特媒體複製按鈕 - 說明書',
+            help_title: '推特媒體腳本 — 說明書',
             help_content: `
                 <p><b>🖱️ 媒體按鈕 (🎞️)：</b><br>
-                • <b>左鍵點擊：</b> 複製該推文的媒體連結。<br>
-                • <b>長按 (0.5秒)：</b> 複製包含「自定義前綴」的連結 (方便 Discord 使用)。<br>
-                • <b>右鍵點擊：</b> 強制下載推文內所有圖片/影片。<br>
-                  (檔名格式：<code>[twitter] 暱稱(@ID)_日期_內文_ID.檔名</code>)</p>
+                • <b>左鍵單擊：</b> 複製推文中所有圖片/影片連結。<br>
+                • <b>長按 (0.5秒)：</b> 複製含自定義前綴的連結，例如 <code>[text](url)</code>（方便 Discord 嵌入）。<br>
+                • <b>中鍵點擊：</b> 開啟浮動影片播放器或圖片燈箱。<br>
+                • <b>右鍵點擊：</b> 下載全部媒體，自動生成結構化檔名。<br>
+                  (格式：<code>[twitter] 暱稱(@ID)_日期_內文_ID.副檔名</code>)</p>
                 <hr>
                 <p><b>🔗 連結按鈕 (🔗)：</b><br>
-                • <b>單擊：</b> 複製連結 (可設定為 x.com 或 自定義域名)。<br>
-                • <b>長按：</b> 複製帶自定義前綴的「長按專用」域名連結。<br>
-                (請至腳本管理器選單進行設定)。</p>
+                • <b>單擊：</b> 複製推文網址（x.com 或自定義單擊域名）。<br>
+                • <b>長按：</b> 複製前綴 + 長按域名網址（如 fixupx.com）。</p>
+                <hr>
+                <p><b>📋 下載履歷：</b><br>
+                • 右鍵下載後自動記錄（最多 300 筆）。<br>
+                • 滑鼠移至右上角 → 點擊 🕐 開啟履歷面板。<br>
+                • 支援列表/縮圖切換、搜尋、Shift 區間選取、批次刪除、CSV/JSON 匯出。</p>
+                <hr>
+                <p><b>⚙️ 設定面板：</b><br>
+                • 將滑鼠移至右上角，顯示齒輪 ⚙️ 與履歷 🕐 按鈕。<br>
+                • 點擊 ⚙️ 可設定：單擊域名、長按域名、Discord 前綴、提示風格、日期格式、語言。</p>
                 <hr>
                 <p style="color: #e0245e; font-size: 0.9em;"><b>⚠️ 免責聲明：</b><br>
-                列表中的轉換網址（如 fixupx, vxtwitter 等）皆為第三方服務，與本腳本無關。請自行評估風險，並僅使用您信任的網址。</p>
+                fixupx / vxtwitter 等域名皆為第三方服務，與本腳本無關，請僅使用您信任的域名。</p>
             `,
             onboard_title: '⚙ 設定面板',
             onboard_body:  '將滑鼠移至右上角即可叫出設定按鈕，點擊後可快速管理域名、前綴、語言等設定，無需開啟腳本管理器選單。',
@@ -214,21 +232,30 @@
             menu_date_format: '📅 日期格式',
             status_date_asian: '亚洲惯用 (YYYY.MM.DD)',
             status_date_western: '欧美惯用 (DD.MM.YYYY)',
-            help_title: '推特媒体复制按钮 - 说明书',
+                        help_title: '推特媒体脚本 — 说明书',
             help_content: `
                 <p><b>🖱️ 媒体按钮 (🎞️)：</b><br>
-                • <b>左键点击：</b> 复制该推文的媒体链接。<br>
-                • <b>长按 (0.5秒)：</b> 复制包含“自定义前缀”的链接。<br>
-                • <b>右键点击：</b> 强制下载推文内所有图片/视频。<br>
-                  (文件名格式：<code>[twitter] 昵称(@ID)_日期_内文_ID.ext</code>)</p>
+                • <b>左键单击：</b> 复制推文中所有图片/视频链接。<br>
+                • <b>长按 (0.5秒)：</b> 复制含自定义前缀的链接，例如 <code>[text](url)</code>（方便 Discord 嵌入）。<br>
+                • <b>中键单击：</b> 打开浮动视频播放器或图片灯箱。<br>
+                • <b>右键单击：</b> 下载全部媒体，自动生成结构化文件名。<br>
+                  (格式：<code>[twitter] 昵称(@ID)_日期_内文_ID.扩展名</code>)</p>
                 <hr>
                 <p><b>🔗 链接按钮 (🔗)：</b><br>
-                • <b>单击：</b> 复制链接 (默认：x.com，或自定义域名)。<br>
-                • <b>长按：</b> 复制带自定义前缀的<b>长按专用</b>域名链接 (如 fixupx)。<br>
-                (请至脚本管理器菜单进行设置)。</p>
+                • <b>单击：</b> 复制推文链接（x.com 或自定义单击域名）。<br>
+                • <b>长按：</b> 复制前缀 + 长按域名链接（如 fixupx.com）。</p>
+                <hr>
+                <p><b>📋 下载历史：</b><br>
+                • 右键下载后自动记录（最多 300 条）。<br>
+                • 鼠标移至右上角 → 点击 🕐 打开历史面板。<br>
+                • 支持列表/缩略图切换、搜索、Shift 区间选择、批量删除、CSV/JSON 导出。</p>
+                <hr>
+                <p><b>⚙️ 设置面板：</b><br>
+                • 将鼠标移至右上角，显示齿轮 ⚙️ 与历史 🕐 按钮。<br>
+                • 点击 ⚙️ 可设置：单击域名、长按域名、Discord 前缀、提示风格、日期格式、语言。</p>
                 <hr>
                 <p style="color: #e0245e; font-size: 0.9em;"><b>⚠️ 免责声明：</b><br>
-                列表中的转换网址（如 fixupx, vxtwitter 等）皆为第三方服务，与本脚本无关。请自行评估风险，并仅使用您信任的网址。</p>
+                fixupx / vxtwitter 等域名均为第三方服务，与本脚本无关，请仅使用您信任的域名。</p>
             `,
             onboard_title: '⚙ 设置面板',
             onboard_body:  '将鼠标移到右上角即可呼出设置按钮，点击后可快速管理域名、前缀、语言等设置，无需打开脚本管理器菜单。',
@@ -269,21 +296,30 @@
             menu_date_format: '📅 日付フォーマット',
             status_date_asian: 'アジア式 (YYYY.MM.DD)',
             status_date_western: '欧米式 (DD.MM.YYYY)',
-            help_title: 'Twitterメディアコピー - 説明書',
+                        help_title: 'Twitter メディアスクリプト — マニュアル',
             help_content: `
                 <p><b>🖱️ メディアボタン (🎞️)：</b><br>
-                • <b>左クリック：</b> メディアリンクをコピー。<br>
-                • <b>長押し (0.5秒)：</b> 「カスタムプレフィックス」付きでコピー (Discord用)。<br>
-                • <b>右クリック：</b> 画像・動画を強制ダウンロード。<br>
-                  (ファイル名：<code>[twitter] 名前(@ID)_日付_本文_ID.ext</code>)</p>
+                • <b>左クリック：</b> ツイート内の画像/動画URLをすべてコピー。<br>
+                • <b>長押し (0.5秒)：</b> カスタムプレフィックス付きでコピー（例：<code>[text](url)</code>、Discord向け）。<br>
+                • <b>中クリック：</b> フローティング動画プレーヤーまたは画像ライトボックスを開く。<br>
+                • <b>右クリック：</b> 全メディアをダウンロード（構造化ファイル名）。<br>
+                  (形式：<code>[twitter] 名前(@ID)_日付_本文_ID.拡張子</code>)</p>
                 <hr>
                 <p><b>🔗 リンクボタン (🔗)：</b><br>
-                • <b>クリック：</b> 元の <code>x.com</code> リンクをコピー。<br>
-                • <b>長押し：</b> <b>カスタムドメイン</b>で「カスタムプレフィックス」付きコピー (例: fixupx)。<br>
-                (スクリプト管理メニューからドメインを変更できます)。</p>
+                • <b>クリック：</b> ツイートURLをコピー（x.com またはカスタムドメイン）。<br>
+                • <b>長押し：</b> プレフィックス + 長押しドメインURLをコピー（例：fixupx.com）。</p>
+                <hr>
+                <p><b>📋 ダウンロード履歴：</b><br>
+                • 右クリックダウンロードは自動記録（最大300件）。<br>
+                • 右上にカーソルを合わせ → 🕐 をクリックして履歴パネルを開く。<br>
+                • リスト/サムネイル表示、検索、Shift選択一括削除、CSV/JSONエクスポート対応。</p>
+                <hr>
+                <p><b>⚙️ 設定パネル：</b><br>
+                • 右上隅にカーソルを合わせると ⚙️ と 🕐 ボタンが表示される。<br>
+                • ⚙️ をクリックして設定：クリックドメイン、長押しドメイン、プレフィックス、通知スタイル、日付形式、言語。</p>
                 <hr>
                 <p style="color: #e0245e; font-size: 0.9em;"><b>⚠️ 免責事項：</b><br>
-                リストにある変換URL（fixupx, vxtwitterなど）はサードパーティのサービスであり、このスクリプトとは無関係です。リスクを自己評価し、信頼できるドメインのみを使用してください。</p>
+                fixupx / vxtwitter 等のドメインは第三者サービスであり、このスクリプトとは無関係です。信頼できるドメインのみご使用ください。</p>
             `,
             onboard_title: '⚙ 設定パネル',
             onboard_body:  '右上隅にカーソルを合わせると設定ボタンが現れます。クリックすればスクリプト管理器を開かずにドメイン・プレフィックス・言語などをすばやく管理できます。',
@@ -324,21 +360,30 @@
             menu_date_format: '📅 날짜 형식',
             status_date_asian: '아시아식 (YYYY.MM.DD)',
             status_date_western: '서양식 (DD.MM.YYYY)',
-            help_title: '트위터 미디어 복사 버튼 - 설명서',
+                        help_title: '트위터 미디어 스크립트 — 설명서',
             help_content: `
-                <p><b>🖱️ 미디어 버튼 (🎞️):</b><br>
-                • <b>왼쪽 클릭:</b> 미디어 링크 복사.<br>
-                • <b>길게 누르기 (0.5초):</b> "사용자 지정 접두사" 포함 복사.<br>
-                • <b>오른쪽 클릭:</b> 모든 미디어 강제 다운로드.<br>
-                  (파일 이름: <code>[twitter] 이름(@ID)_날짜_내용_ID.ext</code>)</p>
+                <p><b>🖱️ 미디어 버튼 (🎞️)：</b><br>
+                • <b>좌클릭：</b> 트윗 내 모든 이미지/동영상 URL 복사。<br>
+                • <b>길게 누르기 (0.5초)：</b> 커스텀 접두사 포함 복사（예：<code>[text](url)</code>, Discord용）。<br>
+                • <b>중간 클릭：</b> 동영상 플레이어 또는 이미지 라이트박스 열기。<br>
+                • <b>우클릭：</b> 모든 미디어 다운로드（구조화된 파일명 자동 생성）。<br>
+                  (형식：<code>[twitter] 이름(@ID)_날짜_본문_ID.확장자</code>)</p>
                 <hr>
-                <p><b>🔗 링크 버튼 (🔗):</b><br>
-                • <b>클릭:</b> 원본 <code>x.com</code> 링크 복사.<br>
-                • <b>길게 누르기:</b> <b>사용자 지정 도메인</b>에서 「사용자 지정 접두사」 포함 복사 (예: fixupx).<br>
-                (스크립트 관리자 메뉴에서 설정을 변경할 수 있습니다).</p>
+                <p><b>🔗 링크 버튼 (🔗)：</b><br>
+                • <b>클릭：</b> 트윗 URL 복사（x.com 또는 커스텀 도메인）。<br>
+                • <b>길게 누르기：</b> 접두사 + 길게 누르기 도메인 URL 복사（예：fixupx.com）。</p>
                 <hr>
-                <p style="color: #e0245e; font-size: 0.9em;"><b>⚠️ 면책 조항:</b><br>
-                목록의 변환 URL(예: fixupx, vxtwitter)은 본 스크립트와 무관한 타사 서비스입니다. 위험을 스스로 평가하고 신뢰할 수 있는 도메인만 사용하십시오.</p>
+                <p><b>📋 다운로드 기록：</b><br>
+                • 우클릭 다운로드 후 자동 기록（최대 300건）。<br>
+                • 오른쪽 상단에 마우스를 올려 → 🕐 클릭으로 기록 패널 열기。<br>
+                • 목록/썸네일 보기, 검색, Shift 범위 선택, 일괄 삭제, CSV/JSON 내보내기 지원。</p>
+                <hr>
+                <p><b>⚙️ 설정 패널：</b><br>
+                • 오른쪽 상단에 마우스를 올리면 ⚙️ 와 🕐 버튼이 나타납니다。<br>
+                • ⚙️ 클릭으로 설정：클릭 도메인, 길게 누르기 도메인, 접두사, 알림 스타일, 날짜 형식, 언어。</p>
+                <hr>
+                <p style="color: #e0245e; font-size: 0.9em;"><b>⚠️ 면책 조항：</b><br>
+                fixupx / vxtwitter 등은 본 스크립트와 무관한 제3자 서비스입니다. 신뢰할 수 있는 도메인만 사용하세요。</p>
             `,
             onboard_title: '⚙ 설정 패널',
             onboard_body:  '오른쪽 상단 모서리에 마우스를 올리면 설정 버튼이 나타납니다. 클릭하면 스크립트 관리자 없이 도메인, 접두사, 언어 등을 빠르게 관리할 수 있습니다.',
@@ -382,15 +427,24 @@
             help_title: 'Botón de copia de medios de Twitter - Manual',
             help_content: `
                 <p><b>🖱️ Botón de medios (🎞️):</b><br>
-                • <b>Clic izquierdo:</b> Copiar enlaces de medios.<br>
-                • <b>Pulsación larga (0.5s):</b> Copiar con prefijo personalizado (para Discord).<br>
-                • <b>Clic derecho:</b> Forzar descarga de medios.<br>
+                • <b>Clic izquierdo:</b> Copiar enlaces de imágenes/videos.<br>
+                • <b>Pulsación larga (0.5s):</b> Copiar con prefijo personalizado (formato Markdown, para Discord).<br>
+                • <b>Clic central:</b> Vista previa——reproductor de video flotante o galería de imágenes.<br>
+                • <b>Clic derecho:</b> Descargar todos los medios con nombres de archivo estructurados.<br>
                   (Formato: <code>[twitter] Nombre(@ID)_Fecha_Texto_ID.ext</code>)</p>
                 <hr>
                 <p><b>🔗 Botón de enlace (🔗):</b><br>
-                • <b>Clic:</b> Copiar enlace (predeterminado: x.com o dominio personalizado).<br>
-                • <b>Pulsación larga:</b> Copiar con dominio personalizado e incluir prefijo personalizado (ej. fixupx).<br>
-                (Configura los dominios en el menú del administrador de scripts).</p>
+                • <b>Clic:</b> Copiar enlace del tweet (predeterminado x.com, o dominio personalizado de clic).<br>
+                • <b>Pulsación larga:</b> Copiar con prefijo + dominio de pulsación larga (ej. fixupx).</p>
+                <hr>
+                <p><b>📋 Historial de descargas:</b><br>
+                • Se registra automáticamente tras descargar con clic derecho (máx. 300 entradas).<br>
+                • Los tweets descargados muestran un 🟢 badge en el botón 🎞️.<br>
+                • Clic en 📋 (esquina superior derecha): vista lista/miniaturas, búsqueda, exportar CSV/JSON.</p>
+                <hr>
+                <p><b>⚙️ Panel de configuración:</b><br>
+                • Pasa el ratón por la esquina superior derecha → aparecen 📋 y ⚙️.<br>
+                • Configura: dominio de clic, dominio de pulsación larga, prefijo Discord, formato de fecha, idioma, estilo de notificación.</p>
                 <hr>
                 <p style="color: #e0245e; font-size: 0.9em;"><b>⚠️ Aviso legal:</b><br>
                 Los dominios de conversión (ej. fixupx, vxtwitter) son servicios de terceros sin relación con este script.</p>
@@ -437,15 +491,24 @@
             help_title: 'Botão de cópia de mídia do Twitter - Manual',
             help_content: `
                 <p><b>🖱️ Botão de mídia (🎞️):</b><br>
-                • <b>Clique esquerdo:</b> Copiar links de mídia.<br>
-                • <b>Pressão longa (0.5s):</b> Copiar com prefixo personalizado (para Discord).<br>
-                • <b>Clique direito:</b> Forçar download de mídia.<br>
+                • <b>Clique esquerdo:</b> Copiar links de imagens/vídeos.<br>
+                • <b>Pressão longa (0.5s):</b> Copiar com prefixo personalizado (formato Markdown, para Discord).<br>
+                • <b>Clique do meio:</b> Visualizar——player de vídeo flutuante ou galeria de imagens.<br>
+                • <b>Clique direito:</b> Baixar todas as mídias com nomes de arquivo estruturados.<br>
                   (Formato: <code>[twitter] Nome(@ID)_Data_Texto_ID.ext</code>)</p>
                 <hr>
                 <p><b>🔗 Botão de link (🔗):</b><br>
-                • <b>Clique:</b> Copiar link (padrão: x.com ou domínio personalizado).<br>
-                • <b>Pressão longa:</b> Copiar com domínio de pressão longa incluindo prefixo personalizado.<br>
-                (Configure os domínios no menu do gerenciador de scripts).</p>
+                • <b>Clique:</b> Copiar link do tweet (padrão x.com, ou domínio de clique personalizado).<br>
+                • <b>Pressão longa:</b> Copiar com prefixo + domínio de pressão longa (ex. fixupx).</p>
+                <hr>
+                <p><b>📋 Histórico de downloads:</b><br>
+                • Registrado automaticamente após download com clique direito (máx. 300 entradas).<br>
+                • Tweets baixados mostram 🟢 badge no botão 🎞️.<br>
+                • Clique em 📋 (canto superior direito): lista/miniaturas, pesquisa, exportar CSV/JSON.</p>
+                <hr>
+                <p><b>⚙️ Painel de configurações:</b><br>
+                • Passe o mouse pelo canto superior direito → 📋 e ⚙️ aparecem.<br>
+                • Configure: domínio de clique, domínio de pressão longa, prefixo Discord, formato de data, idioma, estilo de aviso.</p>
                 <hr>
                 <p style="color: #e0245e; font-size: 0.9em;"><b>⚠️ Aviso legal:</b><br>
                 Os domínios de conversão (ex. fixupx, vxtwitter) são serviços de terceiros sem relação com este script.</p>
@@ -492,15 +555,24 @@
             help_title: 'Bouton de copie de médias Twitter - Manuel',
             help_content: `
                 <p><b>🖱️ Bouton média (🎞️) :</b><br>
-                • <b>Clic gauche :</b> Copier les liens médias.<br>
-                • <b>Appui long (0.5s) :</b> Copier avec préfixe personnalisé (pour Discord).<br>
-                • <b>Clic droit :</b> Forcer le téléchargement des médias.<br>
+                • <b>Clic gauche :</b> Copier les liens des images/vidéos.<br>
+                • <b>Appui long (0.5s) :</b> Copier avec préfixe personnalisé (format Markdown, pour Discord).<br>
+                • <b>Clic central :</b> Aperçu——lecteur vidéo flottant ou galerie d'images.<br>
+                • <b>Clic droit :</b> Télécharger tous les médias avec noms de fichiers structurés.<br>
                   (Format : <code>[twitter] Nom(@ID)_Date_Texte_ID.ext</code>)</p>
                 <hr>
                 <p><b>🔗 Bouton lien (🔗) :</b><br>
-                • <b>Clic :</b> Copier le lien (par défaut : x.com ou domaine personnalisé).<br>
-                • <b>Appui long :</b> Copier avec domaine d'appui long en incluant le préfixe personnalisé.<br>
-                (Configurez les domaines dans le menu du gestionnaire de scripts).</p>
+                • <b>Clic :</b> Copier le lien du tweet (x.com par défaut, ou domaine de clic personnalisé).<br>
+                • <b>Appui long :</b> Copier avec préfixe + domaine appui long (ex. fixupx).</p>
+                <hr>
+                <p><b>📋 Historique des téléchargements :</b><br>
+                • Enregistré automatiquement après téléchargement par clic droit (max. 300 entrées).<br>
+                • Les tweets téléchargés affichent un 🟢 badge sur le bouton 🎞️.<br>
+                • Cliquez sur 📋 (coin supérieur droit) : liste/miniatures, recherche, export CSV/JSON.</p>
+                <hr>
+                <p><b>⚙️ Panneau de paramètres :</b><br>
+                • Survolez le coin supérieur droit → 📋 et ⚙️ apparaissent.<br>
+                • Configurez : domaine de clic, domaine d'appui long, préfixe Discord, format de date, langue, style de retour.</p>
                 <hr>
                 <p style="color: #e0245e; font-size: 0.9em;"><b>⚠️ Avertissement :</b><br>
                 Les domaines de conversion (ex. fixupx, vxtwitter) sont des services tiers sans lien avec ce script.</p>
@@ -547,15 +619,24 @@
             help_title: 'Кнопка копирования медиа Twitter - Руководство',
             help_content: `
                 <p><b>🖱️ Кнопка медиа (🎞️):</b><br>
-                • <b>Левый клик:</b> Копировать медиа-ссылки.<br>
-                • <b>Долгое нажатие (0.5с):</b> Копировать с пользовательским префиксом (для Discord).<br>
-                • <b>Правый клик:</b> Принудительно скачать все медиафайлы.<br>
-                  (Формат имени: <code>[twitter] Имя(@ID)_Дата_Текст_ID.ext</code>)</p>
+                • <b>Левый клик:</b> Копировать ссылки на изображения/видео.<br>
+                • <b>Долгое нажатие (0.5с):</b> Копировать с префиксом (формат Markdown, для Discord).<br>
+                • <b>Средний клик:</b> Предпросмотр——всплывающий видеоплеер или галерея изображений.<br>
+                • <b>Правый клик:</b> Принудительно скачать все медиафайлы со структурированными именами.<br>
+                  (Формат: <code>[twitter] Имя(@ID)_Дата_Текст_ID.ext</code>)</p>
                 <hr>
                 <p><b>🔗 Кнопка ссылки (🔗):</b><br>
-                • <b>Клик:</b> Копировать ссылку (по умолчанию: x.com или пользовательский домен).<br>
-                • <b>Долгое нажатие:</b> Копировать ссылку с доменом долгого нажатия, включая пользовательский префикс.<br>
-                (Настройте домены в меню менеджера скриптов).</p>
+                • <b>Клик:</b> Копировать ссылку на твит (по умолчанию x.com, или пользовательский домен).<br>
+                • <b>Долгое нажатие:</b> Копировать с префиксом + домен долгого нажатия (напр. fixupx).</p>
+                <hr>
+                <p><b>📋 История загрузок:</b><br>
+                • Автоматически записывается после правого клика (макс. 300 записей).<br>
+                • Скачанные твиты показывают 🟢 значок на кнопке 🎞️.<br>
+                • Нажмите 📋 (верхний правый угол): список/миниатюры, поиск, экспорт CSV/JSON.</p>
+                <hr>
+                <p><b>⚙️ Панель настроек:</b><br>
+                • Наведите курсор в правый верхний угол → появятся 📋 и ⚙️.<br>
+                • Настройте: домен клика, домен долгого нажатия, префикс Discord, формат даты, язык, стиль уведомлений.</p>
                 <hr>
                 <p style="color: #e0245e; font-size: 0.9em;"><b>⚠️ Отказ от ответственности:</b><br>
                 Домены конвертации (fixupx, vxtwitter и др.) — сторонние сервисы, не связанные с этим скриптом. Используйте только те домены, которым доверяете.</p>
@@ -1302,6 +1383,11 @@
         const r1   = 26;
         const r2   = 42;
 
+        const wrapperEl = document.getElementById('tm-settings-wrapper');
+        if (wrapperEl) {
+            wrapperEl.style.setProperty('opacity', '1', 'important');
+            wrapperEl.style.setProperty('transition', 'none', 'important');
+        }
         gearEl.style.setProperty('opacity', '1', 'important');
         gearEl.style.setProperty('transition', 'none', 'important');
 
@@ -1402,6 +1488,10 @@
                 [overlay, card, ring, obStyle].forEach(el => el.remove());
                 gearEl.style.removeProperty('opacity');
                 gearEl.style.removeProperty('transition');
+                if (wrapperEl) {
+                    wrapperEl.style.removeProperty('opacity');
+                    wrapperEl.style.removeProperty('transition');
+                }
             }, 320);
         };
 
@@ -1970,9 +2060,14 @@
 
             let records = [];
             try { records = JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]')); } catch (_) {}
+            const _oldRecord = records.find(r => r.tweetId === info.id);
+            if (_oldRecord?.favorited) record.favorited = true;
             records = records.filter(r => r.tweetId !== info.id);
             records.unshift(record);
-            if (records.length > HISTORY_MAX_RECORDS) records = records.slice(0, HISTORY_MAX_RECORDS);
+            if (records.length > HISTORY_MAX_RECORDS) {
+                const _overflow = records.slice(HISTORY_MAX_RECORDS).filter(r => r.favorited);
+                records = [...records.slice(0, HISTORY_MAX_RECORDS), ..._overflow];
+            }
             GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
 
             _downloadedIds.add(info.id);
@@ -2175,8 +2270,7 @@
             }
             .tm-hist-text {
                 font-size: 11px; color: ${C.sub}; margin: 2px 0;
-                overflow: hidden; text-overflow: ellipsis;
-                display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
                 line-height: 1.4;
             }
             .tm-hist-url {
@@ -2186,7 +2280,7 @@
             }
             .tm-hist-url:hover { text-decoration: underline; }
             .tm-hist-actions {
-                display: flex; flex-direction: column; gap: 3px;
+                display: flex; flex-direction: row; gap: 1px;
                 flex-shrink: 0; align-items: center;
             }
             .tm-hist-act-btn {
@@ -2198,6 +2292,10 @@
             .tm-hist-act-btn:hover { background: ${C.rowHover}; color: ${C.text}; }
             .tm-hist-act-btn.danger:hover { color: ${C.danger}; }
             .tm-hist-act-btn svg { width: 13px; height: 13px; pointer-events: none; }
+            
+            .tm-hist-act-btn.tm-fav-active { color: #e0245e; }
+            .tm-hist-act-btn.tm-fav-btn:hover { color: #e0245e; }
+            .tm-hist-act-btn.tm-fav-btn svg { width: 17px; height: 17px; }
             
             #tm-hist-thumb-grid {
                 display: grid;
@@ -2460,17 +2558,25 @@
                 row.dataset.idx = idx;
 
                 if (editMode) {
-                    const cb = document.createElement('input');
-                    cb.type = 'checkbox';
-                    cb.className = 'tm-hist-cb';
-                    cb.checked = selectedIds.has(rec.id);
-                    cb.addEventListener('mousedown', e => { _cbShiftDown = e.shiftKey; });
-                    cb.addEventListener('change', e => {
-                        e.stopPropagation();
-                        _handleCheckbox(rec.id, idx, _cbShiftDown);
-                        _cbShiftDown = false;
-                    });
-                    row.appendChild(cb);
+                    if (!rec.favorited) {
+                        const cb = document.createElement('input');
+                        cb.type = 'checkbox';
+                        cb.className = 'tm-hist-cb';
+                        cb.checked = selectedIds.has(rec.id);
+                        cb.addEventListener('mousedown', e => { _cbShiftDown = e.shiftKey; });
+                        cb.addEventListener('change', e => {
+                            e.stopPropagation();
+                            _handleCheckbox(rec.id, idx, _cbShiftDown);
+                            _cbShiftDown = false;
+                        });
+                        row.appendChild(cb);
+                    } else {
+                        const lock = document.createElement('span');
+                        lock.className = 'tm-hist-cb';
+                        lock.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;opacity:0.35;font-size:10px;';
+                        lock.textContent = '♥';
+                        row.appendChild(lock);
+                    }
                 }
 
                 const thumbWrap = document.createElement('div');
@@ -2521,8 +2627,10 @@
                 const acts = document.createElement('div');
                 acts.className = 'tm-hist-actions';
 
-                const SVG_JUMP = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 2h4v4"/><path d="M7 9L14 2"/><path d="M12 10v4H2V4h4"/></svg>`;
-                const SVG_DEL  = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><polyline points="2,4 4,4 14,4"/><path d="M13 4l-.9 9H3.9L3 4"/><path d="M6.5 7v4M9.5 7v4"/><path d="M5.5 4V2.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5V4"/></svg>`;
+                const SVG_JUMP    = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 2h4v4"/><path d="M7 9L14 2"/><path d="M12 10v4H2V4h4"/></svg>`;
+                const SVG_DEL     = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><polyline points="2,4 4,4 14,4"/><path d="M13 4l-.9 9H3.9L3 4"/><path d="M6.5 7v4M9.5 7v4"/><path d="M5.5 4V2.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5V4"/></svg>`;
+                const SVG_HEART_EMPTY = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
+                const SVG_HEART_FULL  = `<svg viewBox="0 0 16 16" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
 
                 const jmpBtn = document.createElement('button');
                 jmpBtn.className = 'tm-hist-act-btn';
@@ -2530,17 +2638,41 @@
                 jmpBtn.title = 'Open tweet';
                 jmpBtn.addEventListener('click', (e) => { e.stopPropagation(); window.open(rec.tweetUrl, '_blank'); });
 
+                const favBtn = document.createElement('button');
+                const isFav = !!rec.favorited;
+                favBtn.className = 'tm-hist-act-btn tm-fav-btn' + (isFav ? ' tm-fav-active' : '');
+                favBtn.innerHTML = isFav ? SVG_HEART_FULL : SVG_HEART_EMPTY;
+                favBtn.title = isFav ? 'Unfavorite' : 'Favorite';
+                if (editMode) {
+                    favBtn.style.opacity = '0.3';
+                    favBtn.style.pointerEvents = 'none';
+                }
+                favBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    let records = getRecords();
+                    const target = records.find(r => r.id === rec.id);
+                    if (!target) return;
+                    target.favorited = !target.favorited;
+                    GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
+                    const nowFav = target.favorited;
+                    favBtn.innerHTML = nowFav ? SVG_HEART_FULL : SVG_HEART_EMPTY;
+                    favBtn.title = nowFav ? 'Unfavorite' : 'Favorite';
+                    favBtn.classList.toggle('tm-fav-active', nowFav);
+                    rec.favorited = nowFav;
+                });
+
                 const delBtn = document.createElement('button');
                 delBtn.className = 'tm-hist-act-btn danger';
                 delBtn.innerHTML = SVG_DEL;
                 delBtn.title = 'Delete';
                 delBtn.addEventListener('click', (e) => { e.stopPropagation(); _deleteOne(rec.id, idx); });
 
+                acts.appendChild(favBtn);
                 acts.appendChild(jmpBtn);
                 acts.appendChild(delBtn);
                 row.appendChild(acts);
 
-                if (editMode) {
+                if (editMode && !rec.favorited) {
                     row.style.cursor = 'pointer';
                     row.addEventListener('click', (e) => {
                         if (e.target.classList.contains('tm-hist-cb')) return;
@@ -2606,12 +2738,14 @@
         }
 
         function _handleCheckbox(id, idx, shiftKey) {
+            const allRecords = getFiltered(getRecords());
+            const target = allRecords.find(r => r.id === id);
+            if (target && target.favorited) return;
             if (shiftKey && anchorIdx >= 0) {
-                const records = getFiltered(getRecords());
                 const lo = Math.min(anchorIdx, idx);
                 const hi = Math.max(anchorIdx, idx);
                 for (let i = lo; i <= hi; i++) {
-                    if (records[i]) selectedIds.add(records[i].id);
+                    if (allRecords[i] && !allRecords[i].favorited) selectedIds.add(allRecords[i].id);
                 }
             } else {
                 if (selectedIds.has(id)) selectedIds.delete(id);
@@ -2624,6 +2758,7 @@
             let records = getRecords();
             const record = records.find(r => r.id === id);
             if (!record) return;
+            if (record.favorited) return;
             records = records.filter(r => r.id !== id);
             GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
             _downloadedIds.delete(record.tweetId);
@@ -2748,14 +2883,14 @@
         selAllBtn.addEventListener('click', () => {
             const filtered = getFiltered(getRecords());
             const visibleIds = filtered
-                .filter(r => !collapsedGroups.has(r.yyyymm))
+                .filter(r => !collapsedGroups.has(r.yyyymm) && !r.favorited)
                 .map(r => r.id);
             const allSelected = visibleIds.length > 0 && visibleIds.every(id => selectedIds.has(id));
             if (allSelected) {
                 visibleIds.forEach(id => selectedIds.delete(id));
             } else {
                 visibleIds.forEach(id => selectedIds.add(id));
-                const firstVisible = filtered.find(r => !collapsedGroups.has(r.yyyymm));
+                const firstVisible = filtered.find(r => !collapsedGroups.has(r.yyyymm) && !r.favorited);
                 if (firstVisible) {
                     anchorIdx = filtered.indexOf(firstVisible);
                 }
@@ -2766,8 +2901,8 @@
         delSelBtn.addEventListener('click', () => {
             if (!selectedIds.size) return;
             let records = getRecords();
-            records.filter(r => selectedIds.has(r.id)).forEach(r => _downloadedIds.delete(r.tweetId));
-            records = records.filter(r => !selectedIds.has(r.id));
+            records.filter(r => selectedIds.has(r.id) && !r.favorited).forEach(r => _downloadedIds.delete(r.tweetId));
+            records = records.filter(r => !selectedIds.has(r.id) || r.favorited);
             GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
             selectedIds.clear(); anchorIdx = -1;
             render();
