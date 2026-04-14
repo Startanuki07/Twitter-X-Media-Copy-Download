@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      1.5.3
+// @version      1.5.4
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -824,10 +824,11 @@
         }
 
         const closeBtn = document.createElement('button');
-        closeBtn.textContent = '✕';
+        closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
         closeBtn.style.cssText = `
             position: absolute; top: 10px; right: 12px; border: none; background: none;
-            font-size: 16px; cursor: pointer; color: ${C.sub}; line-height: 1;
+            width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: ${C.sub}; border-radius: 5px;
         `;
         closeBtn.onclick = () => modal.remove();
         modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
@@ -907,10 +908,11 @@
         `;
 
         const closeBtn = document.createElement('button');
-        closeBtn.textContent = '✕';
+        closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
         closeBtn.style.cssText = `
             position: absolute; top: 12px; right: 14px; border: none; background: none;
-            font-size: 15px; cursor: pointer; color: ${C.sub}; line-height: 1; padding: 2px 6px;
+            width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: ${C.sub}; border-radius: 5px;
         `;
         closeBtn.onclick = () => modal.remove();
         modal.onclick = e => { if (e.target === modal) modal.remove(); };
@@ -1132,10 +1134,11 @@
         `;
 
         const closeBtn = document.createElement('button');
-        closeBtn.textContent = '✕';
+        closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
         closeBtn.style.cssText = `
             position: absolute; top: 12px; right: 14px; border: none; background: none;
-            font-size: 16px; cursor: pointer; color: ${C.sub}; line-height: 1;
+            width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: ${C.sub}; border-radius: 5px;
         `;
         closeBtn.onclick = () => modal.remove();
         modal.onclick = e => { if (e.target === modal) modal.remove(); };
@@ -1544,9 +1547,9 @@
             box-shadow:0 8px 32px rgba(0,0,0,0.35);position:relative;
         `;
         const closeBtn = document.createElement('button');
-        closeBtn.textContent = '✕';
+        closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
         closeBtn.style.cssText = `position:absolute;top:12px;right:14px;border:none;
-            background:none;font-size:15px;cursor:pointer;color:${C.sub};`;
+            background:none;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:${C.sub};border-radius:5px;`;
         closeBtn.onclick = () => modal.remove();
         modal.onclick = e => { if (e.target === modal) modal.remove(); };
 
@@ -2158,11 +2161,13 @@
             #tm-hist-titlebar:active { cursor: grabbing; }
             .tm-hist-title {
                 font-size: 13px; font-weight: 700; color: ${C.text};
-                flex: 1;
+                flex: 1; min-width: 0;
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             }
             .tm-hist-count-badge {
                 font-size: 10px; padding: 2px 7px; border-radius: 99px;
                 background: ${C.groupHdr}; color: ${C.sub};
+                white-space: nowrap; flex-shrink: 0;
             }
             .tm-hist-icon-btn {
                 width: 26px; height: 26px; border-radius: 6px; border: none;
@@ -2199,8 +2204,8 @@
             }
             .tm-hist-group-header:hover { background: ${C.rowHover}; }
             .tm-hist-group-chevron {
-                font-size: 9px; opacity: 0.55; flex-shrink: 0;
-                display: inline-block;
+                opacity: 0.55; flex-shrink: 0;
+                display: inline-flex; align-items: center;
                 transition: transform 0.18s ease;
             }
             .tm-hist-group-header.tm-collapsed .tm-hist-group-chevron {
@@ -2383,9 +2388,14 @@
         const titlebar = document.createElement('div');
         titlebar.id = 'tm-hist-titlebar';
 
+        const titleIcon = document.createElement('span');
+        titleIcon.style.cssText = 'display:inline-flex;align-items:center;flex-shrink:0;opacity:0.55;margin-right:2px;';
+        titleIcon.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="1" width="10" height="14" rx="1.5"/><line x1="6" y1="5" x2="10" y2="5"/><line x1="6" y1="8" x2="10" y2="8"/><line x1="6" y1="11" x2="8.5" y2="11"/></svg>`;
+
         const titleEl = document.createElement('span');
         titleEl.className = 'tm-hist-title';
-        titleEl.textContent = '📋 Download History';
+        titleEl.textContent = 'Download History';
+        titleEl.title = 'Download History';
 
         const countBadge = document.createElement('span');
         countBadge.className = 'tm-hist-count-badge';
@@ -2402,6 +2412,7 @@
         const btnExp   = _mkIconBtn(SVG_EXP,   'Export');
         const btnClose = _mkIconBtn(SVG_CLOSE, 'Close');
 
+        titlebar.appendChild(titleIcon);
         titlebar.appendChild(titleEl);
         titlebar.appendChild(countBadge);
         titlebar.appendChild(btnList);
@@ -2529,7 +2540,7 @@
 
                     const chevron = document.createElement('span');
                     chevron.className = 'tm-hist-group-chevron';
-                    chevron.textContent = '▼';
+                    chevron.innerHTML = `<svg viewBox="0 0 10 10" width="8" height="8" fill="currentColor"><path d="M1 3l4 4 4-4z"/></svg>`;
 
                     const label = document.createElement('span');
                     label.textContent = _fmtGroupLabel(rec.yyyymm);
@@ -3364,11 +3375,11 @@
         nextBtn.onmouseleave = () => nextBtn.style.background = 'rgba(0,0,0,0.55)';
 
         const closeBtn = document.createElement('button');
-        closeBtn.innerHTML = '✕';
+        closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
         closeBtn.style.cssText = `
             position: absolute; top: 20px; right: 25px;
             background: rgba(0,0,0,0.6); color: white; border: none;
-            font-size: 20px; width: 40px; height: 40px; border-radius: 50%;
+            width: 40px; height: 40px; border-radius: 50%;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
             transition: background 0.2s; z-index: 4;
         `;
@@ -3512,11 +3523,11 @@
             modal.appendChild(container);
 
             const closeBtn = document.createElement('button');
-            closeBtn.innerHTML = '✕';
+            closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
             closeBtn.style.cssText = `
                 position: absolute; top: 20px; right: 25px;
                 background: rgba(0,0,0,0.6); color: white; border: none;
-                font-size: 20px; width: 40px; height: 40px; border-radius: 50%;
+                width: 40px; height: 40px; border-radius: 50%;
                 cursor: pointer; display: flex; align-items: center; justify-content: center;
                 transition: background 0.2s; z-index: 30;
             `;
@@ -3635,11 +3646,11 @@
         `;
 
         const closeBtn = document.createElement('button');
-        closeBtn.innerHTML = '✕';
+        closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
         closeBtn.style.cssText = `
             position: absolute; top: 20px; right: 25px;
             background: rgba(0,0,0,0.6); color: white; border: none;
-            font-size: 20px; width: 40px; height: 40px; border-radius: 50%;
+            width: 40px; height: 40px; border-radius: 50%;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
             transition: background 0.2s; z-index: 30;
         `;
