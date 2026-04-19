@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      1.6.0
+// @version      1.7.0
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -27,15 +27,15 @@
 // @connect      x.com
 // @connect      twimg.com
 // @run-at       document-idle
-// @description      Adds a 🎞️ media button and a 🔗 link button to every tweet. The media button copies image/video URLs or downloads files with structured filenames; long-press attaches a custom prefix in Markdown link format. The link button copies the tweet URL; long-press switches to an embed-friendly domain (e.g. vxtwitter, fixupx). Configurable via the userscript manager menu.
-// @description:zh-TW 在每則推文注入 🎞️ 媒體按鈕與 🔗 連結按鈕。媒體按鈕可複製圖片／影片連結或以結構化檔名下載；長按可附加自訂前綴（Markdown 連結格式）。連結按鈕複製推文網址；長按切換為 vxtwitter、fixupx 等可嵌入域名。可透過腳本管理器選單設定。
-// @description:zh-CN 为每条推文添加 🎞️ 媒体按钮和 🔗 链接按钮。媒体按钮可复制图片/视频链接或以结构化文件名下载；长按可附加自定义前缀（Markdown 链接格式）。链接按钮复制推文网址；长按切换为 vxtwitter、fixupx 等可嵌入域名。可通过脚本管理器菜单配置。
-// @description:ja    各ツイートに 🎞️ メディアボタンと 🔗 リンクボタンを追加。メディアボタンは画像/動画URLのコピーや構造化ファイル名でのダウンロードに対応し、長押しでMarkdownリンク形式のカスタムプレフィックスを付加。リンクボタンはツイートURLをコピーし、長押しでvxtwitter・fixupxなど埋め込み対応ドメインに切替。スクリプトマネージャーのメニューから設定可能。
-// @description:ko    모든 트윗에 🎞️ 미디어 버튼과 🔗 링크 버튼을 추가합니다. 미디어 버튼은 이미지/동영상 URL 복사 및 구조화 파일명으로 다운로드를 지원하며, 길게 누르면 Markdown 링크 형식의 커스텀 접두사를 첨부합니다. 링크 버튼은 트윗 URL을 복사하고, 길게 누르면 vxtwitter·fixupx 등 임베드 도메인으로 전환합니다. 스크립트 관리자 메뉴에서 설정 가능.
-// @description:es    Agrega un botón 🎞️ de medios y un botón 🔗 de enlace a cada tweet. El botón de medios copia URLs de imágenes/videos o descarga archivos con nombres estructurados; mantenga presionado para adjuntar un prefijo personalizado en formato Markdown.
-// @description:pt-BR Adiciona um botão 🎞️ de mídia e um botão 🔗 de link a cada tweet. O botão de mídia copia URLs de imagens/vídeos ou baixa arquivos com nomes estruturados; pressione longo para anexar um prefixo personalizado no formato Markdown.
-// @description:fr    Ajoute un bouton 🎞️ média et un bouton 🔗 lien à chaque tweet. Le bouton média copie les URLs d'images/vidéos ou télécharge les fichiers avec des noms structurés ; appui long pour joindre un préfixe personnalisé en format Markdown.
-// @description:ru    Добавляет кнопку 🎞️ медиа и кнопку 🔗 ссылки к каждому твиту. Кнопка медиа копирует URL изображений/видео или скачивает файлы со структурированными именами; долгое нажатие добавляет префикс в формате Markdown. Кнопка ссылки копирует URL твита; долгое нажатие переключает домен на vxtwitter, fixupx и др.
+// @description      Adds a media button and a link button to every tweet for one-click URL copying and media downloading.
+// @description:zh-TW 在每則推文新增媒體與連結按鈕，提供一鍵複製網址及下載媒體的功能。
+// @description:zh-CN 在每条推文新增媒体与链接按钮，提供一键复制网址及下载媒体的功能。
+// @description:ja    各ツイートにメディアボタンとリンクボタンを追加し、URLのコピーとメディアのダウンロードをワンクリックで行えます。
+// @description:ko    모든 트윗에 미디어 및 링크 버튼을 추가하여 원클릭으로 URL 복사 및 미디어 다운로드를 제공합니다.
+// @description:es    Agrega botones de medios y enlaces a cada tweet para copiar URLs y descargar medios con un solo clic.
+// @description:pt-BR Adiciona botões de mídia e links a cada tweet para copiar URLs e baixar mídia com um clique.
+// @description:fr    Ajoute des boutons de médias et de liens à chaque tweet pour copier les URL et télécharger des médias en un clic.
+// @description:ru    Добавляет кнопки медиа и ссылок к каждому твиту для копирования URL и скачивания медиа в один клик.
 // ==/UserScript==
 
 (function () {
@@ -43,7 +43,6 @@
 
     const KEY_PREFIX_TEXT = 'discord_prefix_text';
     const KEY_LANG = 'app_language';
-    const KEY_LINK_DOMAIN_LONG = 'app_link_domain_long';
     const KEY_LINK_DOMAIN_CLICK = 'app_link_domain_click';
     const KEY_CLICK_MODE_CUSTOM = 'app_link_click_mode_custom';
     const KEY_DATE_FORMAT = 'app_date_format';
@@ -55,11 +54,23 @@
     const KEY_HISTORY_RECORDS   = 'app_history_records';
     const KEY_HISTORY_PANEL_POS = 'app_history_panel_pos';
     const KEY_HISTORY_VIEW_MODE = 'app_history_view_mode';
+    const KEY_DOCK_STYLE        = 'app_dock_style';
+    const KEY_DOCK_HOVER_DELAY  = 'app_dock_hover_delay';
+    const KEY_DOCK_TRIGGER_L    = 'app_dock_trigger_l';
+    const KEY_DOCK_TRIGGER_R    = 'app_dock_trigger_r';
+    const KEY_DOCK_PERSISTED    = 'app_dock_persisted';
     const HISTORY_MAX_RECORDS   = 300;
 
     const NEW_FEATURE_IDS = [
         'feedback_style',
         'history_panel',
+        'dock_style',
+        'sp_feedback_picker',
+        'sp_date_picker',
+        'sp_dock_picker',
+        'sp_trigger_dist',
+        'sp_slider_controls',
+        'sp_dock_persist',
     ];
 
     const DOMAIN_LIST = [
@@ -692,11 +703,15 @@
 
     function _readSettings() {
         return {
-            clickCustom: GM_getValue(KEY_CLICK_MODE_CUSTOM, false),
-            clickDomain: GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com'),
-            prefix:      GM_getValue(KEY_PREFIX_TEXT, '[text]'),
-            fmt:         GM_getValue(KEY_DATE_FORMAT, 'asian'),
-            fbStyle:     GM_getValue(KEY_FEEDBACK_STYLE, 'toast'),
+            clickCustom:    GM_getValue(KEY_CLICK_MODE_CUSTOM, false),
+            clickDomain:    GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com'),
+            prefix:         GM_getValue(KEY_PREFIX_TEXT, '[text]'),
+            fmt:            GM_getValue(KEY_DATE_FORMAT, 'asian'),
+            fbStyle:        GM_getValue(KEY_FEEDBACK_STYLE, 'toast'),
+            dockStyle:      GM_getValue(KEY_DOCK_STYLE, 'ruler'),
+            dockHoverDelay: parseInt(GM_getValue(KEY_DOCK_HOVER_DELAY, '500'), 10) || 500,
+            dockTriggerL:   parseInt(GM_getValue(KEY_DOCK_TRIGGER_L, '80'), 10) || 80,
+            dockTriggerR:   parseInt(GM_getValue(KEY_DOCK_TRIGGER_R, '80'), 10) || 80,
         };
     }
 
@@ -1337,15 +1352,6 @@
             }
         }));
 
-        const longDomain = GM_getValue(KEY_LINK_DOMAIN_LONG, 'fixupx.com');
-        menuIds.push(GM_registerMenuCommand(T.menu_domain_long + ` [${longDomain}]`, () => {
-            if (selectDomain(KEY_LINK_DOMAIN_LONG)) {
-                const newDomain = GM_getValue(KEY_LINK_DOMAIN_LONG, 'fixupx.com');
-                showToast(T.toast_domain_long + newDomain);
-                registerMenus();
-            }
-        }));
-
         menuIds.push(GM_registerMenuCommand(T.menu_prefix + ` (${currentPrefix})`, () => {
             const newPrefix = prompt(T.prompt_prefix, currentPrefix);
             if (newPrefix !== null) {
@@ -1535,7 +1541,7 @@
             activeBorder: '#1d9bf0', activeText: '#1d9bf0',
         };
 
-        const currentVal = GM_getValue(key, key === KEY_LINK_DOMAIN_LONG ? 'fixupx.com' : 'x.com');
+        const currentVal = GM_getValue(key, 'x.com');
 
         const modal = document.createElement('div');
         modal.id = 'tm-domain-picker-modal';
@@ -1559,9 +1565,7 @@
         modal.onclick = e => { if (e.target === modal) modal.remove(); };
 
         const title = document.createElement('h3');
-        title.textContent = key === KEY_LINK_DOMAIN_LONG
-            ? T.menu_domain_long.replace(/^🔗\s*/, '')
-            : T.menu_domain_click.replace(/^🔗\s*/, '');
+        title.textContent = T.menu_domain_click.replace(/^🔗\s*/, '');
         title.style.cssText = `margin:0 0 14px;font-size:0.95rem;color:${C.text};padding-right:24px;`;
 
         const list = document.createElement('div');
@@ -1738,6 +1742,18 @@
             }
 
             .tm-sp-header { display: flex; align-items: center; padding: 11px 14px 10px; background: ${C.header}; border-bottom: 1px solid ${C.border}; font-size: 12px; font-weight: 700; color: ${C.sub}; letter-spacing: 0.04em; text-transform: uppercase; }
+            
+            .tm-sp-group-header {
+                padding: 8px 14px 5px;
+                font-size: 10px; font-weight: 800; letter-spacing: 0.08em;
+                text-transform: uppercase; color: ${C.sub};
+                background: ${C.header};
+                border-bottom: 1px solid ${C.border};
+                border-top: 1px solid ${C.border};
+                user-select: none;
+                opacity: 0.7;
+            }
+            .tm-sp-group-header:first-of-type { border-top: none; }
             .tm-sp-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; gap: 8px; border-bottom: 1px solid ${C.border}; cursor: pointer; transition: background 0.1s; }
             .tm-sp-row:last-child { border-bottom: none; }
             .tm-sp-row:hover { background: ${C.rowHover}; }
@@ -1745,6 +1761,149 @@
             .tm-sp-row-label { font-size: 12px; color: ${C.sub}; white-space: nowrap; }
             .tm-sp-row-value { font-size: 13px; color: ${C.text}; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
             .tm-sp-arrow { font-size: 11px; color: ${C.sub}; flex-shrink: 0; margin-left: 4px; opacity: 0.5; }
+            
+            .tm-sp-picker {
+                display: none; flex-direction: column;
+                background: ${C.panel};
+                border-top: 1px solid ${C.border};
+                padding: 6px 10px 8px;
+                gap: 4px;
+            }
+            .tm-sp-picker.open { display: flex; }
+            .tm-sp-picker-opt {
+                display: flex; align-items: center; gap: 8px;
+                padding: 6px 10px; border-radius: 8px; border: none;
+                background: transparent; cursor: pointer; text-align: left;
+                font-size: 12px; color: ${C.text};
+                transition: background 0.1s;
+                width: 100%;
+            }
+            .tm-sp-picker-opt:hover { background: ${C.rowHover}; }
+            .tm-sp-picker-opt.active {
+                background: rgba(29,155,240,0.10);
+                color: #1d9bf0; font-weight: 700;
+            }
+            .tm-sp-picker-opt .tm-sp-opt-check {
+                width: 14px; flex-shrink: 0;
+                font-size: 11px; color: #1d9bf0;
+            }
+            
+            .tm-sp-group-header {
+                display: flex; align-items: center; gap: 5px;
+                cursor: pointer;
+                transition: opacity 0.15s;
+            }
+            .tm-sp-group-header:hover { opacity: 1 !important; }
+            .tm-sp-group-chevron {
+                margin-left: auto; flex-shrink: 0;
+                opacity: 0.5;
+                transition: transform 0.2s ease;
+                display: inline-flex; align-items: center;
+            }
+            .tm-sp-group-header.collapsed .tm-sp-group-chevron {
+                transform: rotate(-90deg);
+            }
+            .tm-sp-group-body {
+                overflow: hidden;
+                max-height: 600px;
+                transition: max-height 0.28s cubic-bezier(0.4,0,0.2,1),
+                            opacity 0.2s ease;
+                opacity: 1;
+            }
+            .tm-sp-group-body.collapsed {
+                max-height: 0;
+                opacity: 0;
+                pointer-events: none;
+            }
+            
+            .tm-sp-help-badge {
+                display: inline-flex; align-items: center; justify-content: center;
+                width: 13px; height: 13px; flex-shrink: 0;
+                opacity: 0.45; cursor: help;
+                transition: opacity 0.15s;
+            }
+            .tm-sp-help-badge:hover { opacity: 0.9; }
+            .tm-sp-help-badge svg { width: 13px; height: 13px; }
+            
+            .tm-sp-slider-row {
+                padding: 7px 14px 8px;
+                border-bottom: 1px solid ${C.border};
+                display: flex; flex-direction: column; gap: 4px;
+            }
+            .tm-sp-slider-header {
+                display: flex; align-items: center; justify-content: space-between;
+            }
+            .tm-sp-slider-label { font-size: 12px; color: ${C.sub}; }
+            .tm-sp-slider-value {
+                font-size: 12px; font-weight: 600; color: #1d9bf0;
+                min-width: 40px; text-align: right;
+            }
+            .tm-sp-slider {
+                -webkit-appearance: none; appearance: none;
+                width: 100%; height: 3px; border-radius: 2px;
+                background: ${C.border}; outline: none; cursor: pointer;
+                accent-color: #1d9bf0;
+            }
+            .tm-sp-slider::-webkit-slider-thumb {
+                -webkit-appearance: none; appearance: none;
+                width: 14px; height: 14px; border-radius: 50%;
+                background: #1d9bf0; cursor: pointer;
+                box-shadow: 0 1px 4px rgba(29,155,240,0.4);
+                transition: box-shadow 0.15s;
+            }
+            .tm-sp-slider::-webkit-slider-thumb:hover {
+                box-shadow: 0 0 0 4px rgba(29,155,240,0.18);
+            }
+            .tm-sp-slider::-moz-range-thumb {
+                width: 14px; height: 14px; border-radius: 50%; border: none;
+                background: #1d9bf0; cursor: pointer;
+            }
+            
+            #tm-dock-spotlight {
+                position: fixed; inset: 0; z-index: 9999990;
+                pointer-events: all;
+                animation: tm-spotlight-fadein 0.22s ease;
+            }
+            @keyframes tm-spotlight-fadein {
+                from { opacity: 0; }
+                to   { opacity: 1; }
+            }
+            #tm-dock-spotlight-canvas {
+                position: absolute; inset: 0;
+                pointer-events: none;
+            }
+            .tm-dock-spotlight-step {
+                position: absolute;
+                background: rgba(29,155,240,0.12);
+                border: 2px solid rgba(29,155,240,0.75);
+                border-radius: 8px;
+                pointer-events: none;
+                animation: tm-spotlight-pulse 1.8s ease-in-out infinite;
+            }
+            @keyframes tm-spotlight-pulse {
+                0%,100% { box-shadow: 0 0 0 0 rgba(29,155,240,0.4); }
+                50%      { box-shadow: 0 0 0 6px rgba(29,155,240,0); }
+            }
+            .tm-dock-spotlight-label {
+                position: absolute;
+                background: rgba(15,20,25,0.92);
+                color: #e7e9ea;
+                font-size: 11px; font-weight: 600;
+                padding: 5px 10px; border-radius: 6px;
+                white-space: nowrap;
+                pointer-events: none;
+                border: 1px solid rgba(29,155,240,0.35);
+            }
+            #tm-dock-spotlight-dismiss {
+                position: absolute; bottom: 32px; left: 50%;
+                transform: translateX(-50%);
+                padding: 8px 22px; border-radius: 99px; border: none;
+                background: #1d9bf0; color: #fff;
+                font-size: 13px; font-weight: 700; cursor: pointer;
+                box-shadow: 0 4px 16px rgba(29,155,240,0.4);
+                transition: background 0.15s;
+            }
+            #tm-dock-spotlight-dismiss:hover { background: #1a8cd8; }
 
             @keyframes tm-sp-new-pulse {
                 0%, 100% { box-shadow: 0 0 0 0   rgba(29,155,240,0.55); }
@@ -1875,11 +2034,13 @@
         function buildContent() {
             panel.innerHTML = '';
 
-            const { clickCustom, clickDomain, prefix, fmt, fbStyle: _fbStyle } = _readSettings();
+            const s = _readSettings();
+            const { clickCustom, clickDomain, prefix, fmt, fbStyle: _fbStyle,
+                    dockStyle, dockHoverDelay, dockTriggerL, dockTriggerR } = s;
 
             const header = document.createElement('div');
             header.className = 'tm-sp-header';
-            header.textContent = '⚙ Media Script Settings';
+            header.textContent = T.onboard_title || '⚙ Media Script Settings';
             panel.appendChild(header);
 
             const makeRow = (label, value, onClick, featureId = null) => {
@@ -1896,7 +2057,6 @@
                 left.appendChild(lbl);
                 left.appendChild(val);
                 row.appendChild(left);
-
                 if (featureId && isFeatureNew(featureId)) {
                     const badge = document.createElement('span');
                     badge.className = 'tm-sp-new-badge';
@@ -1911,12 +2071,248 @@
                     if (featureId) markFeatureSeen(featureId);
                     onClick();
                 });
-                panel.appendChild(row);
+                return row;
             };
 
-            const clickLabel = T.menu_domain_click.replace(/^🔗\s*/, '');
-            const clickVal   = clickCustom ? clickDomain : 'x.com (default)';
-            makeRow('🔗 ' + clickLabel, clickVal, () => {
+            const makeGroup = (label, defaultOpen = true, tooltip = null, onOpen = null) => {
+                const SVG_CHEVRON = `<svg viewBox="0 0 10 10" width="9" height="9" fill="currentColor"><path d="M1 3l4 4 4-4z"/></svg>`;
+                const SVG_HELP    = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"/><path d="M6 6.2C6 5.1 6.9 4.2 8 4.2s2 .9 2 2c0 1-1 1.5-2 2v.6"/><circle cx="8" cy="11.2" r=".6" fill="currentColor" stroke="none"/></svg>`;
+
+                const g = document.createElement('div');
+                g.className = 'tm-sp-group-header' + (defaultOpen ? '' : ' collapsed');
+
+                const labelSpan = document.createElement('span');
+                labelSpan.textContent = label;
+                g.appendChild(labelSpan);
+
+                if (tooltip) {
+                    const helpBadge = document.createElement('span');
+                    helpBadge.className = 'tm-sp-help-badge';
+                    helpBadge.innerHTML = SVG_HELP;
+                    helpBadge.title = tooltip;
+                    g.appendChild(helpBadge);
+                }
+
+                const chevron = document.createElement('span');
+                chevron.className = 'tm-sp-group-chevron';
+                chevron.innerHTML = SVG_CHEVRON;
+                if (defaultOpen) chevron.style.transform = 'rotate(0deg)';
+                else             chevron.style.transform = 'rotate(-90deg)';
+                g.appendChild(chevron);
+
+                const body = document.createElement('div');
+                body.className = 'tm-sp-group-body' + (defaultOpen ? '' : ' collapsed');
+
+                g.addEventListener('click', (e) => {
+                    if (e.target.closest('.tm-sp-help-badge')) return;
+                    const isCollapsed = body.classList.toggle('collapsed');
+                    g.classList.toggle('collapsed', isCollapsed);
+                    chevron.style.transform = isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
+                    if (!isCollapsed && onOpen) onOpen();
+                });
+
+                panel.appendChild(g);
+                panel.appendChild(body);
+                return {
+                    body,
+                    append: (el) => body.appendChild(el),
+                };
+            };
+
+            const makePickerRow = (label, options, currentVal, onSelect, featureId = null) => {
+                const wrap = document.createElement('div');
+                wrap.style.cssText = 'border-bottom: 1px solid ${C.border};';
+
+                const row = document.createElement('div');
+                row.className = 'tm-sp-row';
+                row.style.borderBottom = 'none';
+
+                const left = document.createElement('div');
+                left.className = 'tm-sp-row-left';
+                const lbl = document.createElement('span');
+                lbl.className = 'tm-sp-row-label';
+                lbl.textContent = label;
+                const val = document.createElement('span');
+                val.className = 'tm-sp-row-value';
+                val.textContent = (options.find(o => o.value === currentVal) || options[0]).label;
+                left.appendChild(lbl);
+                left.appendChild(val);
+                row.appendChild(left);
+
+                if (featureId && isFeatureNew(featureId)) {
+                    const badge = document.createElement('span');
+                    badge.className = 'tm-sp-new-badge';
+                    badge.textContent = 'NEW';
+                    row.appendChild(badge);
+                }
+
+                const arrow = document.createElement('span');
+                arrow.className = 'tm-sp-arrow';
+                arrow.textContent = '›';
+                arrow.style.cssText = 'transition: transform 0.18s ease;';
+                row.appendChild(arrow);
+
+                const picker = document.createElement('div');
+                picker.className = 'tm-sp-picker';
+
+                options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'tm-sp-picker-opt' + (opt.value === currentVal ? ' active' : '');
+                    const check = document.createElement('span');
+                    check.className = 'tm-sp-opt-check';
+                    check.textContent = opt.value === currentVal ? '✓' : '';
+                    const txt = document.createElement('span');
+                    txt.textContent = opt.label;
+                    btn.appendChild(check);
+                    btn.appendChild(txt);
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (featureId) markFeatureSeen(featureId);
+                        onSelect(opt.value);
+                        picker.classList.remove('open');
+                        arrow.style.transform = '';
+                    });
+                    picker.appendChild(btn);
+                });
+
+                row.addEventListener('click', () => {
+                    const isOpen = picker.classList.toggle('open');
+                    arrow.style.transform = isOpen ? 'rotate(90deg)' : '';
+                    if (featureId && isOpen) markFeatureSeen(featureId);
+                });
+
+                wrap.appendChild(row);
+                wrap.appendChild(picker);
+                return wrap;
+            };
+
+            const makeSliderRow = (label, value, min, max, step, unit, onChange, onCommit, featureId = null) => {
+                const wrap = document.createElement('div');
+                wrap.className = 'tm-sp-slider-row';
+
+                const hdr = document.createElement('div');
+                hdr.className = 'tm-sp-slider-header';
+
+                const lbl = document.createElement('span');
+                lbl.className = 'tm-sp-slider-label';
+                lbl.textContent = label;
+
+                const valDisplay = document.createElement('span');
+                valDisplay.className = 'tm-sp-slider-value';
+                valDisplay.textContent = value + ' ' + unit;
+
+                if (featureId && isFeatureNew(featureId)) {
+                    const badge = document.createElement('span');
+                    badge.className = 'tm-sp-new-badge';
+                    badge.textContent = 'NEW';
+                    hdr.appendChild(lbl);
+                    hdr.appendChild(badge);
+                } else {
+                    hdr.appendChild(lbl);
+                }
+                hdr.appendChild(valDisplay);
+
+                const slider = document.createElement('input');
+                slider.type  = 'range';
+                slider.className = 'tm-sp-slider';
+                slider.min   = String(min);
+                slider.max   = String(max);
+                slider.step  = String(step);
+                slider.value = String(value);
+
+                slider.addEventListener('input', () => {
+                    const n = parseInt(slider.value, 10);
+                    valDisplay.textContent = n + ' ' + unit;
+                    if (onChange) onChange(n);
+                });
+                slider.addEventListener('change', () => {
+                    const n = parseInt(slider.value, 10);
+                    if (onCommit) onCommit(n);
+                    if (featureId) markFeatureSeen(featureId);
+                });
+                slider.addEventListener('click', e => e.stopPropagation());
+
+                wrap.appendChild(hdr);
+                wrap.appendChild(slider);
+                return wrap;
+            };
+
+            const showDockSpotlight = () => {
+                if (GM_getValue('app_dock_spotlight_done', false)) return;
+                GM_setValue('app_dock_spotlight_done', true);
+
+                if (document.getElementById('tm-dock-spotlight')) return;
+                const histPanel = document.getElementById('tm-hist-panel');
+                if (!histPanel) return;
+
+                const trigL = histPanel.querySelector('.tm-dock-trigger.left');
+                const trigR = histPanel.querySelector('.tm-dock-trigger.right');
+                if (!trigL && !trigR) return;
+
+                const overlay = document.createElement('div');
+                overlay.id = 'tm-dock-spotlight';
+
+                const canvas = document.createElement('canvas');
+                canvas.id = 'tm-dock-spotlight-canvas';
+                canvas.width  = window.innerWidth;
+                canvas.height = window.innerHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = 'rgba(0,0,0,0.62)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const pr = histPanel.getBoundingClientRect();
+                ctx.clearRect(pr.left - 4, pr.top - 4, pr.width + 8, pr.height + 8);
+
+                overlay.appendChild(canvas);
+
+                const addHighlight = (el, labelText, labelSide) => {
+                    if (!el) return;
+                    const r = el.getBoundingClientRect();
+                    const pad = 6;
+                    const box = document.createElement('div');
+                    box.className = 'tm-dock-spotlight-step';
+                    box.style.cssText = [
+                        'left:'   + (r.left   - pad) + 'px',
+                        'top:'    + (r.top    - pad) + 'px',
+                        'width:'  + (r.width  + pad * 2) + 'px',
+                        'height:' + (r.height + pad * 2) + 'px',
+                    ].join(';');
+                    overlay.appendChild(box);
+
+                    const lbl = document.createElement('div');
+                    lbl.className = 'tm-dock-spotlight-label';
+                    lbl.textContent = labelText;
+                    lbl.style.cssText = labelSide === 'left'
+                        ? 'left:' + (r.right + 10) + 'px; top:' + (r.top + r.height/2 - 12) + 'px;'
+                        : 'right:' + (window.innerWidth - r.left + 10) + 'px; top:' + (r.top + r.height/2 - 12) + 'px;';
+                    overlay.appendChild(lbl);
+                };
+
+                addHighlight(trigL, '① Click to dock left →', 'left');
+                addHighlight(trigR, '← Click to dock right ②', 'right');
+
+                const dismissBtn = document.createElement('button');
+                dismissBtn.id = 'tm-dock-spotlight-dismiss';
+                dismissBtn.textContent = 'Got it!';
+                dismissBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    overlay.remove();
+                });
+                overlay.appendChild(dismissBtn);
+
+                overlay.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (e.target === overlay || e.target === canvas) overlay.remove();
+                });
+
+                document.body.appendChild(overlay);
+            };
+
+            const grpLink = makeGroup('🔗  Link', true);
+
+            const clickVal = clickCustom ? clickDomain : 'x.com (default)';
+            const clickLabel = T.menu_domain_click ? T.menu_domain_click.replace(/^🔗\s*/, '') : 'Single-Click Domain';
+            grpLink.append(makeRow(clickLabel, clickVal, () => {
                 if (!clickCustom) {
                     showDomainPickerModal(KEY_LINK_DOMAIN_CLICK, dom => {
                         GM_setValue(KEY_CLICK_MODE_CUSTOM, true);
@@ -1928,56 +2324,94 @@
                     showToast(T.toast_domain_click + 'x.com');
                     registerMenus(); buildContent();
                 }
-            });
+            }));
 
-            makeRow('⚙️ Discord Prefix', prefix || '(empty)', () => {
+            const prefixLabel = T.menu_prefix ? T.menu_prefix.replace(/^⚙️\s*/, '') : 'Discord Prefix';
+            grpLink.append(makeRow(prefixLabel, prefix || '(empty)', () => {
                 const newPrefix = prompt(T.prompt_prefix, prefix);
                 if (newPrefix !== null) {
                     GM_setValue(KEY_PREFIX_TEXT, newPrefix);
                     showToast(T.toast_prefix + (newPrefix || '(empty)'));
                     registerMenus(); buildContent();
                 }
-            });
+            }));
 
-            const fbLabel = (T.menu_feedback_style || '🔔 Feedback Style').replace(/^🔔\s*/, '');
+            const grpMedia = makeGroup('🎞  Media', true);
 
-            let fbVal = T.status_feedback_toast || 'Toast';
-            if (_fbStyle === 'silent') fbVal = T.status_feedback_silent || 'Silent (Text)';
-            if (_fbStyle === 'icon') fbVal = T.status_feedback_icon || 'Icon Only';
-
-            makeRow('🔔 ' + fbLabel, fbVal, () => {
-                const nextMap = { 'toast': 'icon', 'icon': 'toast' };
-                const newFb = nextMap[_fbStyle] || 'toast';
+            const fbOpts = [
+                { value: 'toast',  label: (T.status_feedback_toast  || 'Toast')     + '  — 1' },
+                { value: 'icon',   label: (T.status_feedback_icon   || 'Icon Only') + '  — 2 '   },
+                { value: 'silent', label: (T.status_feedback_silent || 'Silent')    + '  — 3'     },
+            ];
+            const fbLabel = T.menu_feedback_style ? T.menu_feedback_style.replace(/^🔔\s*/, '') : 'Feedback Style';
+            grpMedia.append(makePickerRow(fbLabel, fbOpts, _fbStyle, (newFb) => {
                 GM_setValue(KEY_FEEDBACK_STYLE, newFb);
-
-                let fbToastLabel = T.status_feedback_toast || 'Toast';
-                if (newFb === 'silent') fbToastLabel = T.status_feedback_silent || 'Silent (Text)';
-                if (newFb === 'icon') fbToastLabel = T.status_feedback_icon || 'Icon Only';
-
-                showToast((T.toast_feedback_style || '🔔 Feedback Style → ') + fbToastLabel);
+                const chosen = fbOpts.find(o => o.value === newFb);
+                showToast((T.toast_feedback_style || '🔔 Feedback Style → ') + (chosen ? chosen.label.split('  ')[0] : newFb));
                 buildContent();
-            }, 'feedback_style');
+            }, 'sp_feedback_picker'));
 
-            const fmtLabel = T.menu_date_format.replace(/^📅\s*/, '');
-            const fmtVal   = fmt === 'western' ? T.status_date_western : T.status_date_asian;
-            makeRow('📅 ' + fmtLabel, fmtVal, () => {
-                const newFmt = fmt === 'western' ? 'asian' : 'western';
+            const fmtOpts = [
+                { value: 'asian',   label: (T.status_date_asian   || 'Asian (YYYY.MM.DD)') },
+                { value: 'western', label: (T.status_date_western || 'Western (DD.MM.YYYY)') },
+            ];
+            const fmtLabel = T.menu_date_format ? T.menu_date_format.replace(/^📅\s*/, '') : 'Date Format';
+            grpMedia.append(makePickerRow(fmtLabel, fmtOpts, fmt, (newFmt) => {
                 GM_setValue(KEY_DATE_FORMAT, newFmt);
                 _refreshDateFormatCache();
-                const newLabel = newFmt === 'western' ? T.status_date_western : T.status_date_asian;
-                showToast(T.toast_date_fmt + newLabel);
+                const chosen = fmtOpts.find(o => o.value === newFmt);
+                showToast(T.toast_date_fmt + (chosen ? chosen.label : newFmt));
                 registerMenus(); buildContent();
-            });
+            }, 'sp_date_picker'));
 
             const langLabel = T.menu_lang.replace(/^🌐\s*/, '').replace(/\s*\(Change Language\)/i, '').trim();
-            makeRow('🌐 ' + langLabel, T.langName, () => {
+            grpMedia.append(makeRow('🌐 ' + langLabel, T.langName, () => {
                 showLangPickerModal();
-            });
+            }));
 
-            const helpLabel = T.menu_help.replace(/^📖\s*/, '');
-            makeRow('📖 ' + helpLabel, '', () => {
+            const HIST_TOOLTIP = 'Hidden feature: The history panel has invisible dock triggers on its left & right edges. Click them to auto-hide the panel to the screen edge!';
+            const grpHist = makeGroup('🗂  History Panel', false, HIST_TOOLTIP, showDockSpotlight);
+
+            const dockStyleOpts = [
+                { value: 'ruler', label: '— Ruler  📏' },
+                { value: 'ghost', label: '· Ghost' },
+                { value: 'notch', label: '| Notch' },
+            ];
+            grpHist.append(makePickerRow('Dock Style', dockStyleOpts, dockStyle, (next) => {
+                GM_setValue(KEY_DOCK_STYLE, next);
+                showToast('🗂 Dock Style → ' + (dockStyleOpts.find(o => o.value === next)?.label || next));
+                const curTab = document.getElementById('tm-hist-dock-tab');
+                if (curTab) { curTab.className = 'style-' + next; curTab.innerHTML = ''; }
+                buildContent();
+            }, 'sp_dock_picker'));
+
+            grpHist.append(makeSliderRow(
+                'Hover Delay', dockHoverDelay, 100, 3000, 50, 'ms',
+                null,
+                (n) => { GM_setValue(KEY_DOCK_HOVER_DELAY, String(n)); showToast('⏱ Hover Delay → ' + n + ' ms'); },
+                'sp_slider_controls'
+            ));
+
+            grpHist.append(makeSliderRow(
+                'Trigger Distance ◀ Left', dockTriggerL, 20, 300, 5, 'px',
+                null,
+                (n) => { GM_setValue(KEY_DOCK_TRIGGER_L, String(n)); showToast('◀ Trigger → ' + n + ' px'); },
+                'sp_slider_controls'
+            ));
+
+            grpHist.append(makeSliderRow(
+                'Trigger Distance ▶ Right', dockTriggerR, 20, 300, 5, 'px',
+                null,
+                (n) => { GM_setValue(KEY_DOCK_TRIGGER_R, String(n)); showToast('▶ Trigger → ' + n + ' px'); },
+                'sp_slider_controls'
+            ));
+
+            const helpLabel = T.menu_help ? T.menu_help.replace(/^📖\s*/, '') : 'Help / Manual';
+            const helpRow = makeRow('📖 ' + helpLabel, '', () => {
                 showHelpModal();
             });
+            helpRow.style.borderTop = `1px solid ${C.border}`;
+            panel.appendChild(helpRow);
         }
 
         buildContent();
@@ -2009,6 +2443,23 @@
 
     let _historyUndoBuffer = null;
     let _historyUndoTimer  = null;
+
+    let _dockSideGlobal         = null;
+    let _dockTabElGlobal        = null;
+    let _dockHoverTimerGlobal   = null;
+    let _dockPeekedGlobal       = false;
+    let _dockRetractTimerGlobal = null;
+    let _dockSnapshotGlobal     = null;
+
+    (function _restorePersistedDock() {
+        const persisted = GM_getValue(KEY_DOCK_PERSISTED, '');
+        if (persisted === 'left' || persisted === 'right') {
+            _dockSideGlobal = persisted;
+            requestAnimationFrame(() => {
+                showHistoryPanel();
+            });
+        }
+    })();
 
     function _getTweetIdFromArticle(article) {
         for (const lk of article.querySelectorAll('a[href*="/status/"]')) {
@@ -2096,6 +2547,11 @@
     function showHistoryPanel() {
         const existing = document.getElementById('tm-hist-panel');
         if (existing) {
+            if (_dockSideGlobal) {
+                existing.dispatchEvent(new CustomEvent('tm-hist-toggle-peek'));
+                return;
+            }
+
             if (typeof existing._tmCleanup === 'function') existing._tmCleanup();
             existing.remove();
             _cleanZoom();
@@ -2428,6 +2884,128 @@
                 opacity: 0.4;
             }
             #tm-hist-resize:hover { opacity: 0.8; }
+
+            
+            
+            .tm-dock-trigger {
+                position: absolute; top: 50%; transform: translateY(-50%);
+                width: 10px; height: 40px;
+                background: transparent;
+                border: none; padding: 0; cursor: pointer;
+                display: flex; align-items: center; justify-content: center;
+                opacity: 0;
+                transition: opacity 0.25s ease;
+                z-index: 5;
+                
+                overflow: visible;
+            }
+            #tm-hist-panel:hover .tm-dock-trigger { opacity: 1; }
+            .tm-dock-trigger.left  { left: -1px; }
+            .tm-dock-trigger.right { right: -1px; }
+
+            
+            .tm-dock-trigger svg {
+                width: 6px; height: 28px;
+                opacity: 0.18;
+                transition: opacity 0.2s ease, filter 0.2s ease;
+                pointer-events: none;
+            }
+            .tm-dock-trigger:hover svg {
+                opacity: 0.55;
+                filter: drop-shadow(0 0 2px rgba(29,155,240,0.7));
+            }
+
+            
+            #tm-hist-panel {
+                transition: left 0.38s cubic-bezier(0.4,0,0.2,1),
+                            right 0.38s cubic-bezier(0.4,0,0.2,1),
+                            opacity 0.28s ease,
+                            box-shadow 0.28s ease;
+            }
+            #tm-hist-panel.tm-docked { opacity: 0.0; pointer-events: none; }
+            #tm-hist-panel.tm-docked .tm-dock-trigger { opacity: 1 !important; pointer-events: all; }
+
+            
+            #tm-hist-dock-tab {
+                position: fixed; z-index: 999979;
+                width: 6px;
+                border-radius: 3px;
+                pointer-events: all;
+                cursor: pointer;
+                overflow: hidden;
+                transition: width 0.22s ease, opacity 0.22s ease;
+            }
+            #tm-hist-dock-tab:hover { width: 9px; }
+
+            
+            #tm-hist-dock-tab.style-ruler {
+                background: ${C.border};
+            }
+            #tm-hist-dock-tab.style-ruler::before {
+                content: '';
+                position: absolute; inset: 0;
+                background: repeating-linear-gradient(
+                    to bottom,
+                    transparent       0px,
+                    transparent       7px,
+                    rgba(29,155,240,0.45) 7px,
+                    rgba(29,155,240,0.45) 8px
+                );
+            }
+            #tm-hist-dock-tab.style-ruler::after {
+                content: '';
+                position: absolute; inset: 0;
+                background: repeating-linear-gradient(
+                    to bottom,
+                    transparent       0px,
+                    transparent       23px,
+                    rgba(29,155,240,0.85) 23px,
+                    rgba(29,155,240,0.85) 25px
+                );
+                box-shadow: 0 0 3px rgba(29,155,240,0.4);
+            }
+
+            
+            
+            #tm-hist-dock-tab.style-ghost {
+                background: repeating-linear-gradient(
+                    to bottom,
+                    transparent           0px,
+                    transparent           3px,
+                    rgba(128,128,128,0.22) 3px,
+                    rgba(128,128,128,0.22) 4px
+                );
+                border-radius: 3px;
+            }
+            #tm-hist-dock-tab.style-ghost:hover {
+                background: repeating-linear-gradient(
+                    to bottom,
+                    transparent           0px,
+                    transparent           3px,
+                    rgba(29,155,240,0.38)  3px,
+                    rgba(29,155,240,0.38)  4px
+                );
+            }
+
+            
+            
+            #tm-hist-dock-tab.style-notch {
+                background: transparent;
+                display: flex; align-items: center; justify-content: center;
+            }
+            #tm-hist-dock-tab.style-notch::before {
+                content: '';
+                width: 2px;
+                height: 28px;
+                border-radius: 1px;
+                background: ${C.border};
+                box-shadow: inset 0 0 0 1px rgba(29,155,240,0.2);
+                transition: background 0.2s, box-shadow 0.2s;
+            }
+            #tm-hist-dock-tab.style-notch:hover::before {
+                background: rgba(29,155,240,0.45);
+                box-shadow: 0 0 4px rgba(29,155,240,0.5);
+            }
             
             .tm-hist-empty {
                 display: flex; flex-direction: column; align-items: center;
@@ -2449,6 +3027,11 @@
         const panel = document.createElement('div');
         panel.id = 'tm-hist-panel';
         panel.style.cssText = `left:${pos.x}px; top:${pos.y}px; width:${pos.w}px; height:${pos.h}px;`;
+
+        if (_dockSideGlobal) {
+            panel.style.opacity = '0';
+            panel.style.transition = 'none';
+        }
 
         const titlebar = document.createElement('div');
         titlebar.id = 'tm-hist-titlebar';
@@ -2534,6 +3117,22 @@
         resizeHandle.id = 'tm-hist-resize';
         resizeHandle.innerHTML = `<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="2" y1="12" x2="12" y2="12"/><line x1="7" y1="12" x2="12" y2="7"/><line x1="12" y1="2" x2="12" y2="12"/></svg>`;
         panel.appendChild(resizeHandle);
+
+        const SVG_NOTCH = `<svg viewBox="0 0 6 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="2" y="6"  width="2" height="2" rx="1" fill="currentColor"/>
+  <rect x="2" y="13" width="2" height="2" rx="1" fill="currentColor"/>
+  <rect x="2" y="20" width="2" height="2" rx="1" fill="currentColor"/>
+</svg>`;
+        const dockTriggerL = document.createElement('button');
+        dockTriggerL.className = 'tm-dock-trigger left';
+        dockTriggerL.title = 'Dock panel to left edge';
+        dockTriggerL.innerHTML = SVG_NOTCH;
+        panel.appendChild(dockTriggerL);
+        const dockTriggerR = document.createElement('button');
+        dockTriggerR.className = 'tm-dock-trigger right';
+        dockTriggerR.title = 'Dock panel to right edge';
+        dockTriggerR.innerHTML = SVG_NOTCH;
+        panel.appendChild(dockTriggerR);
 
         document.body.appendChild(panel);
 
@@ -3086,7 +3685,12 @@
         btnList.addEventListener('click', () => { viewMode = 'list'; GM_setValue(KEY_HISTORY_VIEW_MODE, 'list'); render(); });
         btnThumb.addEventListener('click', () => { viewMode = 'thumb'; GM_setValue(KEY_HISTORY_VIEW_MODE, 'thumb'); render(); });
         btnClose.addEventListener('click', () => {
-            _panelAC.abort();
+            if (_dockSideGlobal) {
+                _retract();
+                return;
+            }
+
+            if (typeof panel._tmCleanup === 'function') panel._tmCleanup();
             if (_historyUndoTimer) { clearTimeout(_historyUndoTimer); _historyUndoTimer = null; _historyUndoBuffer = null; }
             panel.remove();
             _cleanZoom();
@@ -3147,6 +3751,11 @@
 
         panel.addEventListener('tm-hist-refresh', render);
 
+        panel.addEventListener('tm-hist-toggle-peek', () => {
+            if (_dockPeekedGlobal) _retract();
+            else _peekOut();
+        });
+
         const _panelAC = new AbortController();
         const _acSignal = { signal: _panelAC.signal };
         panel._tmCleanup = () => { _panelAC.abort(); };
@@ -3200,6 +3809,291 @@
         }
 
         panel.addEventListener('click', e => e.stopPropagation());
+
+        function _dockTabGeometry() {
+            const snap = _dockSnapshotGlobal;
+            if (!snap) {
+                const r = panel.getBoundingClientRect();
+                const h   = Math.min(r.height * 0.55, 200);
+                const top = r.top + (r.height - h) / 2;
+                return { h, top };
+            }
+            const h   = Math.min(snap.height * 0.55, 200);
+            const top = snap.top + (snap.height - h) / 2;
+            return { h, top };
+        }
+
+        function _buildDockTab(side) {
+            const style = GM_getValue(KEY_DOCK_STYLE, 'ruler');
+            const { h, top } = _dockTabGeometry();
+
+            const triggerKey  = side === 'left' ? KEY_DOCK_TRIGGER_L : KEY_DOCK_TRIGGER_R;
+            const triggerDist = Math.max(6, parseInt(GM_getValue(triggerKey, '80'), 10) || 80);
+
+            const tab = document.createElement('div');
+            tab.id = 'tm-hist-dock-tab';
+            tab.className = 'style-' + style;
+            tab.style.cssText = [
+                'top:'    + top + 'px',
+                'height:' + h   + 'px',
+                side === 'left' ? 'left:2px' : 'right:2px',
+            ].join(';');
+
+            const hotzone = document.createElement('div');
+            hotzone.style.cssText = [
+                'position:absolute',
+                'top:0',
+                'height:100%',
+                'width:' + triggerDist + 'px',
+                side === 'left'
+                    ? 'left:0'
+                    : 'right:0',
+                'cursor:pointer',
+                'z-index:1',
+            ].join(';');
+
+            const _onHotEnter = () => {
+                clearTimeout(_dockHoverTimerGlobal);
+                const delay = parseInt(GM_getValue(KEY_DOCK_HOVER_DELAY, '500'), 10) || 500;
+                _dockHoverTimerGlobal = setTimeout(() => _peekOut(), delay);
+            };
+            const _onHotLeave = () => {
+                clearTimeout(_dockHoverTimerGlobal);
+                _dockHoverTimerGlobal = null;
+            };
+
+            hotzone.addEventListener('mouseenter', _onHotEnter);
+            hotzone.addEventListener('mouseleave', _onHotLeave);
+            tab.addEventListener('mouseenter', _onHotEnter);
+            tab.addEventListener('mouseleave', _onHotLeave);
+
+            let _tabHoldTimer   = null;
+            let _tabHoldRAF     = null;
+            let _tabHoldElapsed = 0;
+            const TAB_HOLD_MS   = 2000;
+
+            const _tabTick = () => {
+                _tabHoldElapsed += 16;
+                const pct = Math.min(_tabHoldElapsed / TAB_HOLD_MS, 1);
+                tab.style.opacity = (0.4 + pct * 0.6).toFixed(2);
+                if (pct < 1) _tabHoldRAF = requestAnimationFrame(_tabTick);
+            };
+
+            const _cancelTabHold = () => {
+                if (_tabHoldTimer) { clearTimeout(_tabHoldTimer); _tabHoldTimer = null; }
+                if (_tabHoldRAF)   { cancelAnimationFrame(_tabHoldRAF); _tabHoldRAF = null; }
+                _tabHoldElapsed = 0;
+                tab.style.opacity = '';
+            };
+
+            tab.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return;
+                e.stopPropagation();
+                _tabHoldElapsed = 0;
+                _tabHoldTimer = setTimeout(() => {
+                    cancelAnimationFrame(_tabHoldRAF);
+                    _tabHoldRAF  = null;
+                    _tabHoldTimer = null;
+                    tab.style.opacity = '';
+                    _forceResetDock();
+                }, TAB_HOLD_MS);
+                _tabHoldRAF = requestAnimationFrame(_tabTick);
+            });
+            tab.addEventListener('mouseup',    _cancelTabHold);
+            tab.addEventListener('mouseleave',  _cancelTabHold);
+
+            tab.appendChild(hotzone);
+            return tab;
+        }
+
+        function _dock(side) {
+            if (_dockSideGlobal) return;
+            _dockPeekedGlobal = false;
+
+            const r   = panel.getBoundingClientRect();
+            const vpW = window.innerWidth;
+
+            _dockSnapshotGlobal = { left: r.left, top: r.top, width: r.width, height: r.height };
+            _dockSideGlobal = side;
+
+            GM_setValue(KEY_DOCK_PERSISTED, side);
+
+            const PEEK = 6;
+            panel.style.left = side === 'left'
+                ? (-r.width + PEEK) + 'px'
+                : (vpW - PEEK) + 'px';
+            panel.classList.add('tm-docked');
+
+            if (_dockTabElGlobal) _dockTabElGlobal.remove();
+            _dockTabElGlobal = _buildDockTab(side);
+            document.body.appendChild(_dockTabElGlobal);
+        }
+
+        function _peekOut() {
+            if (!_dockSideGlobal || _dockPeekedGlobal) return;
+            _dockPeekedGlobal = true;
+
+            clearTimeout(_dockRetractTimerGlobal);
+            _dockRetractTimerGlobal = null;
+
+            const snap = _dockSnapshotGlobal;
+            const vpW  = window.innerWidth;
+            const vpH  = window.innerHeight;
+
+            if (snap) {
+                const safeTop = Math.max(0, Math.min(snap.top, vpH - snap.height - 10));
+
+                const OFFSET_LEFT = 15;
+                const OFFSET_RIGHT = -15;
+
+                if (_dockSideGlobal === 'left') {
+                    panel.style.left = OFFSET_LEFT + 'px';
+                } else {
+                    panel.style.left = (vpW - snap.width + OFFSET_RIGHT) + 'px';
+                }
+                panel.style.top = safeTop + 'px';
+            }
+            panel.classList.remove('tm-docked');
+
+            panel.classList.remove('tm-docked');
+
+            if (_dockTabElGlobal) _dockTabElGlobal.style.pointerEvents = 'none';
+
+            let bridge = document.getElementById('tm-hover-bridge');
+            if (!bridge) {
+                bridge = document.createElement('div');
+                bridge.id = 'tm-hover-bridge';
+                bridge.style.cssText = 'position:absolute; top:0; bottom:0; width:15px; background:transparent; z-index:-1;';
+                panel.appendChild(bridge);
+            }
+
+            if (_dockSideGlobal === 'left') {
+                bridge.style.left = '-10px';
+                bridge.style.right = '';
+            } else {
+                bridge.style.right = '-10px';
+                bridge.style.left = '';
+            }
+
+            const body = document.getElementById('tm-hist-body');
+            if (body && !body.hasChildNodes()) render();
+        }
+
+        function _retract() {
+            if (!_dockSideGlobal || !_dockPeekedGlobal) return;
+            _dockPeekedGlobal = false;
+
+            const r   = panel.getBoundingClientRect();
+            const vpW = window.innerWidth;
+            const PEEK = 6;
+            panel.style.left = _dockSideGlobal === 'left'
+                ? (-r.width + PEEK) + 'px'
+                : (vpW - PEEK) + 'px';
+            panel.classList.add('tm-docked');
+
+            if (_dockTabElGlobal) _dockTabElGlobal.style.pointerEvents = '';
+        }
+
+        function _exitDockMode() {
+            clearTimeout(_dockHoverTimerGlobal);
+            clearTimeout(_dockRetractTimerGlobal);
+            _dockHoverTimerGlobal   = null;
+            _dockRetractTimerGlobal = null;
+
+            const snap = _dockSnapshotGlobal;
+            if (snap) {
+                const safeLeft = Math.max(0, Math.min(snap.left, window.innerWidth  - snap.width));
+                const safeTop  = Math.max(0, Math.min(snap.top,  window.innerHeight - 60));
+                panel.style.left = safeLeft + 'px';
+                panel.style.top  = safeTop  + 'px';
+            }
+            panel.classList.remove('tm-docked');
+            _dockSideGlobal     = null;
+            _dockPeekedGlobal   = false;
+            _dockSnapshotGlobal = null;
+
+            GM_setValue(KEY_DOCK_PERSISTED, '');
+
+            if (_dockTabElGlobal) {
+                _dockTabElGlobal.remove();
+                _dockTabElGlobal = null;
+            }
+        }
+
+        function _forceResetDock() {
+            clearTimeout(_dockHoverTimerGlobal);
+            clearTimeout(_dockRetractTimerGlobal);
+            _dockHoverTimerGlobal   = null;
+            _dockRetractTimerGlobal = null;
+            _dockSideGlobal         = null;
+            _dockPeekedGlobal       = false;
+            _dockSnapshotGlobal     = null;
+            if (_dockTabElGlobal) { _dockTabElGlobal.remove(); _dockTabElGlobal = null; }
+            GM_setValue(KEY_DOCK_PERSISTED, '');
+
+            panel.classList.remove('tm-docked');
+            const pw = panel.offsetWidth  || 390;
+            const ph = panel.offsetHeight || 540;
+            panel.style.left = Math.round((window.innerWidth  - pw) / 2) + 'px';
+            panel.style.top  = Math.round((window.innerHeight - ph) / 4) + 'px';
+            render();
+            showToast('🔓 Dock reset — panel restored');
+        }
+
+        dockTriggerL.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (_dockSideGlobal === 'left') {
+                _exitDockMode();
+            } else if (_dockSideGlobal === 'right') {
+                showToast('⚠️ Undock right side first before docking left');
+            } else {
+                _dock('left');
+            }
+        });
+        dockTriggerR.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (_dockSideGlobal === 'right') {
+                _exitDockMode();
+            } else if (_dockSideGlobal === 'left') {
+                showToast('⚠️ Undock left side first before docking right');
+            } else {
+                _dock('right');
+            }
+        });
+
+        panel.addEventListener('mouseleave', () => {
+            if (!_dockSideGlobal || !_dockPeekedGlobal) return;
+            clearTimeout(_dockRetractTimerGlobal);
+            _dockRetractTimerGlobal = setTimeout(() => _retract(), 120);
+        });
+        panel.addEventListener('mouseenter', () => {
+            if (!_dockSideGlobal) return;
+            clearTimeout(_dockRetractTimerGlobal);
+            _dockRetractTimerGlobal = null;
+        });
+
+        const _origCleanup = panel._tmCleanup;
+        panel._tmCleanup = () => {
+            _origCleanup();
+            clearTimeout(_dockHoverTimerGlobal);
+            clearTimeout(_dockRetractTimerGlobal);
+            _dockHoverTimerGlobal   = null;
+            _dockRetractTimerGlobal = null;
+            if (_dockTabElGlobal) { _dockTabElGlobal.remove(); _dockTabElGlobal = null; }
+        };
+
+        if (_dockSideGlobal) {
+            requestAnimationFrame(() => {
+                const side = _dockSideGlobal;
+                _dockSideGlobal = null;
+                _dock(side);
+
+                requestAnimationFrame(() => {
+                    panel.style.transition = '';
+                    panel.style.opacity = '';
+                });
+            });
+        }
 
         render();
     }
@@ -4639,10 +5533,9 @@
             setLinkIcon('default');
 
             icon.addEventListener('mouseenter', () => {
-                const long = GM_getValue(KEY_LINK_DOMAIN_LONG, 'fixupx.com');
                 const custom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
                 const click = custom ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
-                icon.title = T.link_tooltip + click + T.link_tooltip_long + long;
+                icon.title = T.link_tooltip + click + T.link_tooltip_long + click;
             });
 
             let lTimer = null;
@@ -4651,7 +5544,8 @@
                 if (e.button !== 0) return;
                 e.preventDefault(); e.stopPropagation();
                 lTimer = setTimeout(() => {
-                    const targetDomain = GM_getValue(KEY_LINK_DOMAIN_LONG, 'fixupx.com');
+                    const useCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
+                    const targetDomain = useCustom ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
                     const url = extractTweetUrl(article, 'https://' + targetDomain);
                     if (url) {
                         const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
