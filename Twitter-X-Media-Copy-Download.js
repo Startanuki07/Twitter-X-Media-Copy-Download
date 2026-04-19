@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      1.7.0
+// @version      1.7.1
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -145,6 +145,7 @@
             onboard_got_it: 'Got it!',
             menu_feedback_style:    '🔔 Feedback Style',
             status_feedback_toast:  'Toast',
+            status_feedback_icon:   'Icon Only',
             status_feedback_silent: 'Silent',
             toast_feedback_style:   '🔔 Feedback Style → ',
         },
@@ -209,6 +210,7 @@
             onboard_got_it: '知道了！',
             menu_feedback_style:    '🔔 提示風格',
             status_feedback_toast:  'Toast 提示',
+            status_feedback_icon:   '僅圖示',
             status_feedback_silent: '靜默（僅圖示）',
             toast_feedback_style:   '🔔 提示風格 → ',
         },
@@ -273,6 +275,7 @@
             onboard_got_it: '知道了！',
             menu_feedback_style:    '🔔 提示风格',
             status_feedback_toast:  'Toast 提示',
+            status_feedback_icon:   '仅图标',
             status_feedback_silent: '静默（仅图标）',
             toast_feedback_style:   '🔔 提示风格 → ',
         },
@@ -337,6 +340,7 @@
             onboard_got_it: 'わかった！',
             menu_feedback_style:    '🔔 フィードバックスタイル',
             status_feedback_toast:  'トースト通知',
+            status_feedback_icon:   'アイコンのみ',
             status_feedback_silent: 'サイレント（アイコンのみ）',
             toast_feedback_style:   '🔔 フィードバックスタイル → ',
         },
@@ -401,6 +405,7 @@
             onboard_got_it: '알겠어요!',
             menu_feedback_style:    '🔔 피드백 스타일',
             status_feedback_toast:  '토스트',
+            status_feedback_icon:   '아이콘만',
             status_feedback_silent: '조용히 (아이콘만)',
             toast_feedback_style:   '🔔 피드백 스타일 → ',
         },
@@ -465,6 +470,7 @@
             onboard_got_it: '¡Entendido!',
             menu_feedback_style:    '🔔 Estilo de Aviso',
             status_feedback_toast:  'Toast',
+            status_feedback_icon:   'Solo icono',
             status_feedback_silent: 'Silencioso (solo icono)',
             toast_feedback_style:   '🔔 Estilo de Aviso → ',
         },
@@ -529,6 +535,7 @@
             onboard_got_it: 'Entendi!',
             menu_feedback_style:    '🔔 Estilo de Aviso',
             status_feedback_toast:  'Toast',
+            status_feedback_icon:   'Só ícone',
             status_feedback_silent: 'Silencioso (só ícone)',
             toast_feedback_style:   '🔔 Estilo de Aviso → ',
         },
@@ -593,6 +600,7 @@
             onboard_got_it: "Compris !",
             menu_feedback_style:    '🔔 Style de Retour',
             status_feedback_toast:  'Toast',
+            status_feedback_icon:   'Icône seul',
             status_feedback_silent: 'Silencieux (icône seul)',
             toast_feedback_style:   '🔔 Style de Retour → ',
         },
@@ -657,6 +665,7 @@
             onboard_got_it: 'Понятно!',
             menu_feedback_style:    '🔔 Стиль уведомлений',
             status_feedback_toast:  'Тост',
+            status_feedback_icon:   'Только иконка',
             status_feedback_silent: 'Тихий (только иконка)',
             toast_feedback_style:   '🔔 Стиль уведомлений → ',
         }
@@ -1912,6 +1921,71 @@
             .tm-sp-new-badge { font-size: 9px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 6px; border-radius: 9999px; flex-shrink: 0; background: #1d9bf0; color: #fff; animation: tm-sp-new-pulse 1.8s ease-in-out infinite; margin-right: 2px; }
 
             
+            .tm-fb-demo {
+                flex-shrink: 0;
+                display: inline-flex; align-items: center; justify-content: center;
+                width: 52px; height: 22px;
+                pointer-events: none;
+                overflow: visible;
+            }
+            
+            .tm-fb-demo-toast-bubble {
+                display: inline-flex; align-items: center; gap: 3px;
+                padding: 2px 6px; border-radius: 99px;
+                background: rgba(29,155,240,0.13); color: #1d9bf0;
+                font-size: 9px; font-weight: 700; white-space: nowrap;
+                border: 1px solid rgba(29,155,240,0.28);
+                opacity: 0;
+                transform: translateY(6px) scale(0.85);
+            }
+            .tm-fb-playing.tm-fb-demo-toast .tm-fb-demo-toast-bubble {
+                animation: tm-fb-toast-in 0.55s cubic-bezier(0.34,1.56,0.64,1) forwards;
+            }
+            @keyframes tm-fb-toast-in {
+                0%   { opacity: 0; transform: translateY(6px) scale(0.85); }
+                55%  { opacity: 1; transform: translateY(0)   scale(1);    }
+                80%  { opacity: 1; transform: translateY(0)   scale(1);    }
+                100% { opacity: 0; transform: translateY(-3px) scale(0.9); }
+            }
+            
+            .tm-fb-demo-icon-wrap {
+                display: inline-flex; align-items: center; justify-content: center;
+                width: 22px; height: 22px; border-radius: 50%;
+                background: rgba(29,155,240,0.10);
+                border: 1.5px solid rgba(29,155,240,0.25);
+                color: #1d9bf0;
+                opacity: 0;
+                transform: scale(0.4);
+            }
+            .tm-fb-playing.tm-fb-demo-icon .tm-fb-demo-icon-wrap {
+                animation: tm-fb-icon-pop 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards;
+            }
+            .tm-fb-demo-icon-svg {
+                stroke: #1d9bf0;
+            }
+            @keyframes tm-fb-icon-pop {
+                0%   { opacity: 0; transform: scale(0.3) rotate(-15deg); }
+                55%  { opacity: 1; transform: scale(1.15) rotate(3deg); }
+                75%  { opacity: 1; transform: scale(0.95) rotate(0deg); }
+                85%  { opacity: 1; transform: scale(1) rotate(0deg);    }
+                100% { opacity: 0; transform: scale(1) rotate(0deg);    }
+            }
+            
+            .tm-fb-demo-silent-text {
+                font-size: 9px; font-weight: 700; color: ${C.sub};
+                white-space: nowrap;
+                opacity: 0;
+            }
+            .tm-fb-playing.tm-fb-demo-silent .tm-fb-demo-silent-text {
+                animation: tm-fb-silent-fade 1.1s ease forwards;
+            }
+            @keyframes tm-fb-silent-fade {
+                0%   { opacity: 0.9; }
+                30%  { opacity: 0.9; }
+                100% { opacity: 0;   }
+            }
+
+            
             @keyframes tm-float-new-pulse {
                 0%, 100% { box-shadow: 0 0 0 0   rgba(249, 24, 128, 0.6); }
                 50%       { box-shadow: 0 0 0 4px rgba(249, 24, 128, 0);    }
@@ -2186,6 +2260,119 @@
                 return wrap;
             };
 
+            const makeFeedbackPickerRow = (label, options, currentVal, onSelect, featureId = null) => {
+                const wrap = document.createElement('div');
+                wrap.style.cssText = 'border-bottom: 1px solid ${C.border};';
+
+                const row = document.createElement('div');
+                row.className = 'tm-sp-row';
+                row.style.borderBottom = 'none';
+
+                const left = document.createElement('div');
+                left.className = 'tm-sp-row-left';
+                const lbl = document.createElement('span');
+                lbl.className = 'tm-sp-row-label';
+                lbl.textContent = label;
+                const val = document.createElement('span');
+                val.className = 'tm-sp-row-value';
+                val.textContent = (options.find(o => o.value === currentVal) || options[0]).label;
+                left.appendChild(lbl);
+                left.appendChild(val);
+                row.appendChild(left);
+
+                if (featureId && isFeatureNew(featureId)) {
+                    const badge = document.createElement('span');
+                    badge.className = 'tm-sp-new-badge';
+                    badge.textContent = 'NEW';
+                    row.appendChild(badge);
+                }
+
+                const arrow = document.createElement('span');
+                arrow.className = 'tm-sp-arrow';
+                arrow.textContent = '›';
+                arrow.style.cssText = 'transition: transform 0.18s ease;';
+                row.appendChild(arrow);
+
+                const picker = document.createElement('div');
+                picker.className = 'tm-sp-picker';
+
+                const makeDemoEl = (value) => {
+                    const demo = document.createElement('span');
+                    demo.className = 'tm-fb-demo tm-fb-demo-' + value;
+                    demo.setAttribute('aria-hidden', 'true');
+
+                    if (value === 'toast') {
+                        demo.innerHTML = `
+                            <span class="tm-fb-demo-toast-bubble">
+                                <svg viewBox="0 0 14 14" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
+                                OK
+                            </span>`;
+                    } else if (value === 'icon') {
+                        demo.innerHTML = `
+                            <span class="tm-fb-demo-icon-wrap">
+                                <svg class="tm-fb-demo-icon-svg" viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
+                            </span>`;
+                    } else if (value === 'silent') {
+                        demo.innerHTML = `<span class="tm-fb-demo-silent-text">Copied</span>`;
+                    }
+                    return demo;
+                };
+
+                options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'tm-sp-picker-opt' + (opt.value === currentVal ? ' active' : '');
+
+                    const check = document.createElement('span');
+                    check.className = 'tm-sp-opt-check';
+                    check.textContent = opt.value === currentVal ? '✓' : '';
+
+                    const txt = document.createElement('span');
+                    txt.style.cssText = 'flex: 1;';
+                    txt.textContent = opt.label;
+
+                    const demoEl = makeDemoEl(opt.value);
+
+                    btn.appendChild(check);
+                    btn.appendChild(txt);
+                    btn.appendChild(demoEl);
+
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (featureId) markFeatureSeen(featureId);
+                        onSelect(opt.value);
+                        picker.classList.remove('open');
+                        arrow.style.transform = '';
+                    });
+
+                    btn.addEventListener('mouseenter', () => {
+                        const d = btn.querySelector('.tm-fb-demo');
+                        if (!d) return;
+                        d.classList.remove('tm-fb-playing');
+                        void d.offsetWidth;
+                        d.classList.add('tm-fb-playing');
+                    });
+
+                    picker.appendChild(btn);
+                });
+
+                row.addEventListener('click', () => {
+                    const isOpen = picker.classList.toggle('open');
+                    arrow.style.transform = isOpen ? 'rotate(90deg)' : '';
+                    if (featureId && isOpen) markFeatureSeen(featureId);
+                    if (isOpen) {
+                        picker.querySelectorAll('.tm-fb-demo').forEach(d => {
+                            d.classList.remove('tm-fb-playing');
+                            void d.offsetWidth;
+                            d.classList.add('tm-fb-playing');
+                        });
+                    }
+                });
+
+                wrap.appendChild(row);
+                wrap.appendChild(picker);
+                return wrap;
+            };
+
             const makeSliderRow = (label, value, min, max, step, unit, onChange, onCommit, featureId = null) => {
                 const wrap = document.createElement('div');
                 wrap.className = 'tm-sp-slider-row';
@@ -2339,15 +2526,14 @@
             const grpMedia = makeGroup('🎞  Media', true);
 
             const fbOpts = [
-                { value: 'toast',  label: (T.status_feedback_toast  || 'Toast')     + '  — 1' },
-                { value: 'icon',   label: (T.status_feedback_icon   || 'Icon Only') + '  — 2 '   },
-                { value: 'silent', label: (T.status_feedback_silent || 'Silent')    + '  — 3'     },
+                { value: 'toast',  label: T.status_feedback_toast  || 'Toast' },
+                { value: 'icon',   label: T.status_feedback_icon   || 'Icon Only' },
             ];
             const fbLabel = T.menu_feedback_style ? T.menu_feedback_style.replace(/^🔔\s*/, '') : 'Feedback Style';
-            grpMedia.append(makePickerRow(fbLabel, fbOpts, _fbStyle, (newFb) => {
+            grpMedia.append(makeFeedbackPickerRow(fbLabel, fbOpts, _fbStyle, (newFb) => {
                 GM_setValue(KEY_FEEDBACK_STYLE, newFb);
                 const chosen = fbOpts.find(o => o.value === newFb);
-                showToast((T.toast_feedback_style || '🔔 Feedback Style → ') + (chosen ? chosen.label.split('  ')[0] : newFb));
+                showToast((T.toast_feedback_style || '🔔 Feedback Style → ') + (chosen ? chosen.label : newFb));
                 buildContent();
             }, 'sp_feedback_picker'));
 
