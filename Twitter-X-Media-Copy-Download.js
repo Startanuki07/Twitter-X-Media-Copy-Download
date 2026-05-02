@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      1.7.1
+// @version      2.0.0
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -59,6 +59,9 @@
     const KEY_DOCK_TRIGGER_L    = 'app_dock_trigger_l';
     const KEY_DOCK_TRIGGER_R    = 'app_dock_trigger_r';
     const KEY_DOCK_PERSISTED    = 'app_dock_persisted';
+    const KEY_GROUP_ON_DOWNLOAD = 'app_group_on_download';
+    const KEY_GROUPS            = 'app_media_groups';
+    const KEY_GROUP_PANEL_CFG   = 'app_group_panel_cfg';
     const HISTORY_MAX_RECORDS   = 300;
 
     const NEW_FEATURE_IDS = [
@@ -71,6 +74,10 @@
         'sp_trigger_dist',
         'sp_slider_controls',
         'sp_dock_persist',
+        'sp_group_on_dl',
+        'sp_group_glow_color',
+        'sp_group_glow_size',
+        'sp_group_text_color',
     ];
 
     const DOMAIN_LIST = [
@@ -1390,8 +1397,25 @@
     registerMenus();
 
     function _initSettingsPanel() {
-        if (document.body) { createSettingsPanel(); }
-        else { document.addEventListener('DOMContentLoaded', createSettingsPanel, { once: true }); }
+        if (document.body) { createSettingsPanel(); _initStarPip(); }
+        else { document.addEventListener('DOMContentLoaded', () => { createSettingsPanel(); _initStarPip(); }, { once: true }); }
+    }
+
+    function _initStarPip() {
+        if (document.getElementById('tm-star-pip')) return;
+
+        const pip = document.createElement('button');
+        pip.id        = 'tm-star-pip';
+        pip.className = 'tm-star-pip';
+        pip.title     = 'Group this download';
+        pip.textContent = '⭐';
+
+        pip.addEventListener('mouseenter', () => { if (!_fanOpen) openGroupFan(); });
+        pip.addEventListener('click', e => {
+            e.preventDefault(); e.stopPropagation();
+            if (_fanOpen) closeGroupFan(); else openGroupFan();
+        });
+        document.body.appendChild(pip);
     }
 
     function showOnboardingOverlay() {
@@ -1670,7 +1694,6 @@
                 opacity: 1;
             }
 
-            
             #tm-history-btn {
                 position: absolute; right: 28px; top: 2px;
                 width: 44px; height: 44px;
@@ -1684,7 +1707,6 @@
             }
             #tm-history-btn svg { width: 24px; height: 24px; display: block; }
 
-            
             #tm-settings-gear-btn {
                 position: absolute; right: 4px; top: 6px;
                 width: 36px; height: 36px;
@@ -1698,17 +1720,11 @@
             }
             #tm-settings-gear-btn svg { width: 20px; height: 20px; display: block; transition: transform 0.3s ease; }
 
-            /* =========================================
-               狀態切換 (由 Wrapper 的 JS data-focus 控制)
-               ========================================= */
-
-            
             #tm-settings-wrapper[data-focus="hist"] #tm-history-btn {
                 transform: scale(1.15);
                 background: ${C.gearBg};
             }
 
-            
             #tm-settings-wrapper[data-focus="gear"] #tm-settings-gear-btn,
             #tm-settings-wrapper[data-open="true"] #tm-settings-gear-btn {
                 z-index: 4;
@@ -1717,7 +1733,6 @@
                 background: ${C.gearBg};
             }
 
-            
             #tm-settings-wrapper[data-focus="gear"] #tm-history-btn,
             #tm-settings-wrapper[data-open="true"] #tm-history-btn {
                 z-index: 1;
@@ -1726,12 +1741,10 @@
                 background: transparent;
             }
 
-            
             #tm-settings-wrapper[data-open="true"] #tm-settings-gear-btn svg {
                 transform: rotate(90deg);
             }
 
-            
             #tm-settings-panel {
                 position: absolute; top: calc(100% + 4px); right: 4px;
                 width: 300px; background: ${C.panel};
@@ -1920,7 +1933,6 @@
             }
             .tm-sp-new-badge { font-size: 9px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 6px; border-radius: 9999px; flex-shrink: 0; background: #1d9bf0; color: #fff; animation: tm-sp-new-pulse 1.8s ease-in-out infinite; margin-right: 2px; }
 
-            
             .tm-fb-demo {
                 flex-shrink: 0;
                 display: inline-flex; align-items: center; justify-content: center;
@@ -1985,7 +1997,6 @@
                 100% { opacity: 0;   }
             }
 
-            
             @keyframes tm-float-new-pulse {
                 0%, 100% { box-shadow: 0 0 0 0   rgba(249, 24, 128, 0.6); }
                 50%       { box-shadow: 0 0 0 4px rgba(249, 24, 128, 0);    }
@@ -1999,15 +2010,11 @@
                 pointer-events: none; z-index: 5;
             }
 
-            
             #tm-settings-wrapper[data-absorb="true"] {
                 opacity: 1 !important;
                 
             }
-            /* ⚠️ 注意：histBtn 的 transform 不能加 !important，
-               否則 CSS Animation (層級低於 !important) 會被完全鎖死，
-               bounce keyframe 的 transform 永遠不會生效。
-               只管 opacity / z-index，transform 交給 animation 處理。 */
+            
             #tm-settings-wrapper[data-absorb="true"] #tm-history-btn {
                 z-index: 3 !important;
                 opacity: 1 !important;
@@ -2030,6 +2037,148 @@
                 animation: tm-hist-absorb-bounce 0.75s cubic-bezier(0.36,0.07,0.19,0.97) forwards;
                 transition: none !important;
             }
+
+            .tm-star-pip {
+                position: fixed;
+                width: 18px; height: 18px;
+                border-radius: 50%; border: none;
+                background: transparent;
+                display: flex; align-items: center; justify-content: center;
+                cursor: pointer; z-index: 99996;
+                box-shadow: none; outline: none; pointer-events: none;
+                transform: scale(0); opacity: 0;
+                transition: transform .38s cubic-bezier(.34,1.56,.64,1), opacity .25s ease;
+                font-size: 13px; line-height: 1;
+                filter: drop-shadow(0 1px 2px rgba(0,0,0,.5));
+            }
+            .tm-star-pip.tm-popped { transform: scale(1); opacity: 1; pointer-events: all; }
+            .tm-star-pip:hover     { transform: scale(1.35) !important; }
+            
+            .tm-fan-node {
+                position: fixed;
+                width: 36px; height: 36px;
+                border-radius: 50%;
+                display: flex; align-items: center; justify-content: center;
+                cursor: pointer; z-index: 99994; pointer-events: none;
+            }
+            .tm-fan-node.tm-spawned { pointer-events: all; }
+            .tm-fan-node-inner {
+                width: 32px; height: 32px; border-radius: 50%;
+                display: flex; align-items: center; justify-content: center;
+                position: relative;
+                background: transparent;
+                transition: transform .18s cubic-bezier(.34,1.56,.64,1);
+            }
+            .tm-fan-node:hover .tm-fan-node-inner { transform: scale(1.15); }
+            .tm-fan-glow {
+                position: absolute; inset: -6px; border-radius: 50%;
+                opacity: 0; transition: opacity .3s; pointer-events: none;
+            }
+            .tm-fan-node.tm-spawned .tm-fan-glow { opacity: 1; }
+            .tm-fan-icon { font-size: 15px; line-height: 1; position: relative; z-index: 2; }
+            .tm-fan-count { display: none; }  
+            .tm-fan-label {
+                position: absolute; bottom: -17px; left: 50%;
+                transform: translateX(-50%);
+                font-size: 9px; color: rgba(255,255,255,.7);
+                white-space: nowrap; pointer-events: none;
+                opacity: 0; transition: opacity .25s .12s;
+                text-shadow: 0 1px 4px rgba(0,0,0,.9);
+            }
+            .tm-fan-node.tm-spawned .tm-fan-label { opacity: 1; }  
+            
+            .tm-ripple-ring {
+                position: fixed; border-radius: 50%; pointer-events: none;
+                border: 1px solid rgba(255,210,50,.45);
+                animation: tm-ring-out .52s cubic-bezier(.2,.6,.4,1) forwards;
+                z-index: 99993;
+            }
+            @keyframes tm-ring-out {
+                0%   { transform: scale(1)   translate(-50%,-50%); opacity: .85; }
+                100% { transform: scale(3.8) translate(-50%,-50%); opacity: 0; }
+            }
+            
+            @keyframes tm-float-a { 0%,100%{transform:translate(0,0)} 33%{transform:translate(2.2px,-2.8px)} 66%{transform:translate(-1.8px,2.1px)} }
+            @keyframes tm-float-b { 0%,100%{transform:translate(0,0)} 28%{transform:translate(-2.5px,-2.0px)} 68%{transform:translate(2.8px,1.8px)} }
+            @keyframes tm-float-c { 0%,100%{transform:translate(0,0)} 42%{transform:translate(1.9px,2.6px)} 74%{transform:translate(-2.2px,-1.8px)} }
+            @keyframes tm-float-d { 0%,100%{transform:translate(0,0)} 22%{transform:translate(2.6px,1.5px)} 62%{transform:translate(-1.5px,-2.8px)} }
+            @keyframes tm-float-e { 0%,100%{transform:translate(0,0)} 36%{transform:translate(-2.8px,1.2px)} 71%{transform:translate(1.6px,-2.4px)} }
+            .tm-float-a { animation: tm-float-a 3.4s ease-in-out infinite; }
+            .tm-float-b { animation: tm-float-b 4.1s ease-in-out infinite .6s; }
+            .tm-float-c { animation: tm-float-c 3.8s ease-in-out infinite 1.1s; }
+            .tm-float-d { animation: tm-float-d 4.5s ease-in-out infinite .3s; }
+            .tm-float-e { animation: tm-float-e 3.6s ease-in-out infinite 1.8s; }
+            
+            .tm-group-modal-overlay {
+                position: fixed; inset: 0;
+                background: rgba(0,0,0,.52);
+                backdrop-filter: blur(4px);
+                z-index: 99998;
+                display: flex; align-items: center; justify-content: center;
+                opacity: 0; pointer-events: none;
+                transition: opacity .2s;
+            }
+            .tm-group-modal-overlay.tm-show {
+                opacity: 1; pointer-events: all;
+            }
+            .tm-group-modal-box {
+                background: #1a1f2e;
+                border: 0.5px solid rgba(255,255,255,.13);
+                border-radius: 14px; padding: 18px 20px; width: 230px;
+                transform: scale(.88) translateY(10px);
+                transition: transform .26s cubic-bezier(.34,1.56,.64,1);
+            }
+            .tm-group-modal-overlay.tm-show .tm-group-modal-box {
+                transform: scale(1) translateY(0);
+            }
+            .tm-group-modal-title {
+                font-size: 14px; color: rgba(255,255,255,.92);
+                margin-bottom: 14px; font-weight: 600;
+                letter-spacing: .01em;
+            }
+            .tm-group-modal-input {
+                width: 100%;
+                background: rgba(255,255,255,.08);
+                border: 1px solid rgba(255,255,255,.18);
+                border-radius: 8px; padding: 8px 11px;
+                font-size: 13px; color: #e7e9ea; outline: none;
+                transition: border-color .15s;
+                box-sizing: border-box;
+                font-family: inherit;
+            }
+            .tm-group-modal-input:focus { border-color: rgba(29,155,240,.7); }
+            .tm-group-emoji-row {
+                display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap;
+            }
+            .tm-group-emoji-btn {
+                font-size: 17px; cursor: pointer;
+                width: 30px; height: 30px;
+                display: flex; align-items: center; justify-content: center;
+                border-radius: 6px; transition: background .12s;
+                border: none; background: transparent; padding: 0;
+                font-family: inherit;
+            }
+            .tm-group-emoji-btn:hover { background: rgba(255,255,255,.1); }
+            .tm-group-emoji-btn.tm-sel { background: rgba(29,155,240,.28); outline: 1.5px solid rgba(29,155,240,.5); }
+            .tm-group-modal-btns {
+                display: flex; gap: 8px; margin-top: 16px;
+            }
+            .tm-group-modal-btn {
+                flex: 1; padding: 8px 0; border-radius: 8px; border: none;
+                font-size: 13px; font-weight: 500; cursor: pointer;
+                transition: background .15s, opacity .15s;
+                font-family: inherit; letter-spacing: .01em;
+            }
+            .tm-group-modal-btn.tm-confirm {
+                background: #1d9bf0; color: #fff;
+            }
+            .tm-group-modal-btn.tm-confirm:hover { background: #1a8cd8; }
+            .tm-group-modal-btn.tm-skip {
+                background: rgba(255,255,255,.09);
+                color: rgba(255,255,255,.65);
+                border: 1px solid rgba(255,255,255,.12);
+            }
+            .tm-group-modal-btn.tm-skip:hover { background: rgba(255,255,255,.14); }
         `;
         document.head.appendChild(panelStyle);
 
@@ -2127,7 +2276,8 @@
                 lbl.textContent = label;
                 const val = document.createElement('span');
                 val.className = 'tm-sp-row-value';
-                val.textContent = value;
+                const getVal = typeof value === 'function' ? value : () => value;
+                val.textContent = getVal();
                 left.appendChild(lbl);
                 left.appendChild(val);
                 row.appendChild(left);
@@ -2144,6 +2294,7 @@
                 row.addEventListener('click', () => {
                     if (featureId) markFeatureSeen(featureId);
                     onClick();
+                    val.textContent = getVal();
                 });
                 return row;
             };
@@ -2243,17 +2394,27 @@
                         e.stopPropagation();
                         if (featureId) markFeatureSeen(featureId);
                         onSelect(opt.value);
+                        val.textContent = opt.label;
+                        picker.querySelectorAll('.tm-sp-picker-opt').forEach(b => {
+                            b.classList.remove('active');
+                            b.querySelector('.tm-sp-opt-check').textContent = '';
+                        });
+                        btn.classList.add('active');
+                        check.textContent = '✓';
                         picker.classList.remove('open');
                         arrow.style.transform = '';
                     });
                     picker.appendChild(btn);
                 });
 
-                row.addEventListener('click', () => {
+                row.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     const isOpen = picker.classList.toggle('open');
                     arrow.style.transform = isOpen ? 'rotate(90deg)' : '';
                     if (featureId && isOpen) markFeatureSeen(featureId);
                 });
+
+                wrap.addEventListener('click', e => e.stopPropagation());
 
                 wrap.appendChild(row);
                 wrap.appendChild(picker);
@@ -2340,6 +2501,13 @@
                         e.stopPropagation();
                         if (featureId) markFeatureSeen(featureId);
                         onSelect(opt.value);
+                        val.textContent = opt.label;
+                        picker.querySelectorAll('.tm-sp-picker-opt').forEach(b => {
+                            b.classList.remove('active');
+                            b.querySelector('.tm-sp-opt-check').textContent = '';
+                        });
+                        btn.classList.add('active');
+                        check.textContent = '✓';
                         picker.classList.remove('open');
                         arrow.style.transform = '';
                     });
@@ -2355,7 +2523,8 @@
                     picker.appendChild(btn);
                 });
 
-                row.addEventListener('click', () => {
+                row.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     const isOpen = picker.classList.toggle('open');
                     arrow.style.transform = isOpen ? 'rotate(90deg)' : '';
                     if (featureId && isOpen) markFeatureSeen(featureId);
@@ -2368,6 +2537,7 @@
                     }
                 });
 
+                wrap.addEventListener('click', e => e.stopPropagation());
                 wrap.appendChild(row);
                 wrap.appendChild(picker);
                 return wrap;
@@ -2419,6 +2589,7 @@
                 });
                 slider.addEventListener('click', e => e.stopPropagation());
 
+                wrap.addEventListener('click', e => e.stopPropagation());
                 wrap.appendChild(hdr);
                 wrap.appendChild(slider);
                 return wrap;
@@ -2555,6 +2726,211 @@
                 showLangPickerModal();
             }));
 
+            const grpGroups = makeGroup('⭐  Groups', true);
+
+            grpGroups.append(makeRow(
+                'Group on Download',
+                () => GM_getValue(KEY_GROUP_ON_DOWNLOAD, false) ? (T.status_on || 'On') : (T.status_off || 'Off'),
+                () => {
+                    const next = !GM_getValue(KEY_GROUP_ON_DOWNLOAD, false);
+                    GM_setValue(KEY_GROUP_ON_DOWNLOAD, next);
+                    showToast('Group on Download → ' + (next ? (T.status_on || 'On') : (T.status_off || 'Off')));
+                },
+                'sp_group_on_dl'
+            ));
+
+            const _grpCfgRaw  = (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })();
+            const _grpGlowClr = _grpCfgRaw.glowColor || 'multi';
+            const _grpGlowSz  = Number(_grpCfgRaw.glowSize  ?? 12);
+            const _grpTxtClr  = _grpCfgRaw.textColor || 'white';
+
+            const glowColorRow = (() => {
+                const wrap = document.createElement('div');
+                wrap.style.cssText = 'padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.06)';
+                wrap.addEventListener('click', e => e.stopPropagation());
+
+                const labelRow = document.createElement('div');
+                labelRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:7px';
+                const lbl = document.createElement('span');
+                lbl.style.cssText = 'font-size:12px;color:rgba(255,255,255,.7)';
+                lbl.textContent   = 'Glow Color';
+
+                const multiToggle = document.createElement('button');
+                multiToggle.type = 'button';
+                const isMulti = _grpGlowClr === 'multi';
+                multiToggle.style.cssText = `
+                    padding:2px 8px;border-radius:99px;border:none;font-size:10px;
+                    cursor:pointer;font-family:inherit;line-height:1.4;
+                    background:${isMulti ? 'rgba(29,155,240,.7)' : 'rgba(255,255,255,.1)'};
+                    color:${isMulti ? '#fff' : 'rgba(255,255,255,.5)'};
+                    transition:background .12s,color .12s;
+                `;
+                multiToggle.textContent = 'Multi';
+                multiToggle.title = 'Use individual color per group';
+                multiToggle.addEventListener('click', () => {
+                    const cfg = (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })();
+                    const next = cfg.glowColor !== 'multi' ? 'multi' : '#1d9bf0';
+                    cfg.glowColor = next;
+                    GM_setValue(KEY_GROUP_PANEL_CFG, JSON.stringify(cfg));
+                    multiToggle.style.background = next === 'multi' ? 'rgba(29,155,240,.7)' : 'rgba(255,255,255,.1)';
+                    multiToggle.style.color      = next === 'multi' ? '#fff' : 'rgba(255,255,255,.5)';
+                    showToast('Glow Color → ' + (next === 'multi' ? 'Multi' : next));
+                });
+
+                labelRow.appendChild(lbl);
+                labelRow.appendChild(multiToggle);
+
+                const colorRow = document.createElement('div');
+                colorRow.style.cssText = 'display:flex;align-items:center;gap:5px;flex-wrap:wrap';
+
+                const presets = ['#1d9bf0','#ffd700','#ff6b6b','#7bed9f','#a29bfe','#ff9f43','#ffffff'];
+                const curHex  = (_grpGlowClr !== 'multi' && _grpGlowClr) ? _grpGlowClr : '#1d9bf0';
+
+                const colorInput = document.createElement('input');
+                colorInput.type  = 'color';
+                colorInput.value = curHex;
+                colorInput.style.cssText = `
+                    width:24px;height:24px;border:none;border-radius:50%;
+                    padding:0;cursor:pointer;background:transparent;
+                    flex-shrink:0;outline:none;
+                `;
+                colorInput.title = 'Custom color';
+
+                const saveColor = (hex) => {
+                    const cfg = (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })();
+                    cfg.glowColor = hex;
+                    GM_setValue(KEY_GROUP_PANEL_CFG, JSON.stringify(cfg));
+                    multiToggle.style.background = 'rgba(255,255,255,.1)';
+                    multiToggle.style.color      = 'rgba(255,255,255,.5)';
+                };
+
+                colorInput.addEventListener('input',  () => saveColor(colorInput.value));
+                colorInput.addEventListener('change', () => saveColor(colorInput.value));
+
+                presets.forEach(hex => {
+                    const swatch = document.createElement('button');
+                    swatch.type  = 'button';
+                    swatch.style.cssText = `
+                        width:18px;height:18px;border-radius:50%;border:2px solid ${hex === curHex ? 'rgba(255,255,255,.8)' : 'transparent'};
+                        background:${hex};cursor:pointer;flex-shrink:0;padding:0;
+                        transition:border-color .1s,transform .1s;
+                    `;
+                    swatch.addEventListener('mouseover', () => swatch.style.transform = 'scale(1.2)');
+                    swatch.addEventListener('mouseout',  () => swatch.style.transform = '');
+                    swatch.addEventListener('click', () => {
+                        colorInput.value = hex;
+                        saveColor(hex);
+                        colorRow.querySelectorAll('button[data-swatch]').forEach(s => s.style.borderColor = 'transparent');
+                        swatch.style.borderColor = 'rgba(255,255,255,.8)';
+                    });
+                    swatch.dataset.swatch = hex;
+                    colorRow.appendChild(swatch);
+                });
+
+                colorRow.appendChild(colorInput);
+                wrap.appendChild(labelRow);
+                wrap.appendChild(colorRow);
+                return wrap;
+            })();
+            grpGroups.append(glowColorRow);
+
+            grpGroups.append(makeSliderRow(
+                'Glow Size', _grpGlowSz, 4, 60, 2, 'px',
+                null,
+                (n) => {
+                    const cfg = (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })();
+                    cfg.glowSize = n;
+                    GM_setValue(KEY_GROUP_PANEL_CFG, JSON.stringify(cfg));
+                },
+                'sp_group_glow_size'
+            ));
+
+            const labelColorRow = (() => {
+                const wrap = document.createElement('div');
+                wrap.style.cssText = 'padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.06)';
+                wrap.addEventListener('click', e => e.stopPropagation());
+
+                const topRow = document.createElement('div');
+                topRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:7px';
+                const lbl = document.createElement('span');
+                lbl.style.cssText = 'font-size:12px;color:rgba(255,255,255,.7)';
+                lbl.textContent   = 'Label Color';
+                topRow.appendChild(lbl);
+
+                const colorRow = document.createElement('div');
+                colorRow.style.cssText = 'display:flex;align-items:center;gap:5px;flex-wrap:wrap';
+
+                const txtPresets = ['#ffffff','#ffd700','#1d9bf0','#aaaaaa','#ff9f43','#7bed9f','#f368e0'];
+                const curTxt = (_grpTxtClr && !['white','yellow','blue','gray'].includes(_grpTxtClr))
+                    ? _grpTxtClr
+                    : { white:'#ffffff', yellow:'#ffd700', blue:'#1d9bf0', gray:'#aaaaaa' }[_grpTxtClr] || '#ffffff';
+
+                const txtInput = document.createElement('input');
+                txtInput.type  = 'color';
+                txtInput.value = curTxt;
+                txtInput.style.cssText = 'width:24px;height:24px;border:none;border-radius:50%;padding:0;cursor:pointer;background:transparent;flex-shrink:0;outline:none';
+                txtInput.title = 'Custom label color';
+
+                const saveTxt = (hex) => {
+                    const cfg = (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })();
+                    cfg.textColor = hex;
+                    GM_setValue(KEY_GROUP_PANEL_CFG, JSON.stringify(cfg));
+                };
+                txtInput.addEventListener('input',  () => saveTxt(txtInput.value));
+                txtInput.addEventListener('change', () => saveTxt(txtInput.value));
+
+                txtPresets.forEach(hex => {
+                    const sw = document.createElement('button');
+                    sw.type  = 'button';
+                    sw.style.cssText = `
+                        width:18px;height:18px;border-radius:50%;
+                        border:2px solid ${hex === curTxt ? 'rgba(255,255,255,.8)' : 'transparent'};
+                        background:${hex};cursor:pointer;flex-shrink:0;padding:0;
+                        transition:border-color .1s,transform .1s;
+                    `;
+                    sw.addEventListener('mouseover', () => sw.style.transform = 'scale(1.2)');
+                    sw.addEventListener('mouseout',  () => sw.style.transform = '');
+                    sw.addEventListener('click', () => {
+                        txtInput.value = hex;
+                        saveTxt(hex);
+                        colorRow.querySelectorAll('button[data-swatch]').forEach(s => s.style.borderColor = 'transparent');
+                        sw.style.borderColor = 'rgba(255,255,255,.8)';
+                    });
+                    sw.dataset.swatch = hex;
+                    colorRow.appendChild(sw);
+                });
+                colorRow.appendChild(txtInput);
+                wrap.appendChild(topRow);
+                wrap.appendChild(colorRow);
+                return wrap;
+            })();
+            grpGroups.append(labelColorRow);
+
+            const grpBtnRow = document.createElement('div');
+            grpBtnRow.style.cssText = 'padding:6px 12px 10px';
+            grpBtnRow.addEventListener('click', e => e.stopPropagation());
+
+            const manageBtn = document.createElement('button');
+            manageBtn.type = 'button';
+            manageBtn.textContent = 'Manage Groups';
+            manageBtn.style.cssText = `
+                width:100%;padding:8px 0;border-radius:8px;
+                border:1px solid rgba(255,255,255,.15);
+                background:rgba(255,255,255,.06);
+                color:rgba(255,255,255,.75);
+                font-size:12px;font-weight:500;cursor:pointer;
+                font-family:inherit;text-align:center;line-height:1;
+                transition:background .12s,border-color .12s;
+            `;
+            manageBtn.addEventListener('mouseover', () => { manageBtn.style.background='rgba(255,255,255,.12)'; manageBtn.style.borderColor='rgba(255,255,255,.3)'; });
+            manageBtn.addEventListener('mouseout',  () => { manageBtn.style.background='rgba(255,255,255,.06)'; manageBtn.style.borderColor='rgba(255,255,255,.15)'; });
+            manageBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showGroupManagerModal();
+            });
+            grpBtnRow.appendChild(manageBtn);
+            grpGroups.append(grpBtnRow);
+
             const HIST_TOOLTIP = 'Hidden feature: The history panel has invisible dock triggers on its left & right edges. Click them to auto-hide the panel to the screen edge!';
             const grpHist = makeGroup('🗂  History Panel', false, HIST_TOOLTIP, showDockSpotlight);
 
@@ -2609,9 +2985,11 @@
         });
 
         document.addEventListener('click', e => {
-            if (!wrapper.contains(e.target)) {
-                wrapper.setAttribute('data-open', 'false');
-            }
+            if (wrapper.contains(e.target)) return;
+            if (e.target.closest('#tm-group-modal-overlay'))  return;
+            if (e.target.closest('#tm-group-mgr-overlay'))    return;
+            if (e.target.closest('.tm-sp-picker'))            return;
+            wrapper.setAttribute('data-open', 'false');
         });
 
         wrapper.appendChild(histBtn);
@@ -2670,7 +3048,661 @@
         btn.appendChild(badge);
     }
 
-    function recordHistory(info, urls) {
+    let _pendingGroupRecordId = null;
+    let _pendingStarPipEl     = null;
+
+    window.addEventListener('scroll', () => { if (!_fanOpen) hideStarPip(); }, { passive: true, capture: true });
+    document.addEventListener('visibilitychange', () => { if (document.hidden) hideStarPip(); });
+    (() => {
+        const _wrap = fn => function(...args) { const r = fn.apply(this, args); hideStarPip?.(); return r; };
+        history.pushState    = _wrap(history.pushState);
+        history.replaceState = _wrap(history.replaceState);
+    })();
+
+    function getGroups() {
+        try { return JSON.parse(GM_getValue(KEY_GROUPS, '[]')); } catch (_) { return []; }
+    }
+
+    function saveGroups(arr) {
+        GM_setValue(KEY_GROUPS, JSON.stringify(arr));
+    }
+
+    function createGroup(name, icon = '📁', glow = 'rgba(80,160,240,.5)') {
+        const groups = getGroups();
+        const group = {
+            id:        'g_' + Date.now(),
+            name:      name.slice(0, 24),
+            icon,
+            glow,
+            createdAt: Date.now(),
+        };
+        groups.push(group);
+        saveGroups(groups);
+        return group;
+    }
+
+    function deleteGroup(groupId) {
+        const groups = getGroups().filter(g => g.id !== groupId);
+        saveGroups(groups);
+        try {
+            const records = JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]'));
+            records.forEach(r => { if (r.groupId === groupId) delete r.groupId; });
+            GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
+        } catch (_) {}
+    }
+
+    function assignGroup(recordId, groupId) {
+        try {
+            const records = JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]'));
+            const rec = records.find(r => r.id === recordId);
+            if (!rec) return;
+            if (groupId === null) {
+                delete rec.groupId;
+            } else {
+                rec.groupId = groupId;
+            }
+            GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
+            const existPanel = document.getElementById('tm-hist-panel');
+            if (existPanel) existPanel.dispatchEvent(new CustomEvent('tm-hist-refresh'));
+        } catch (e) { console.error('[TMGroup] assignGroup error:', e); }
+    }
+
+    const STAR_AUTO_HIDE_SEC = 5;
+    const STAR_FLOAT_CLS     = ['tm-float-a','tm-float-b','tm-float-c','tm-float-d','tm-float-e'];
+    const STAR_GLOW_COLORS   = [
+        'rgba(80,200,180,.28)', 'rgba(160,100,240,.28)', 'rgba(240,160,80,.28)',
+        'rgba(240,100,100,.28)', 'rgba(80,160,240,.28)',  'rgba(200,200,80,.28)',
+        'rgba(180,80,200,.28)', 'rgba(100,200,120,.28)',  'rgba(240,120,160,.28)',
+        'rgba(220,160,60,.28)',
+    ];
+    let _starAutoHideTimer = null;
+    let _fanNodes          = [];
+    let _fanOpen           = false;
+
+    function popStarPip(mediaBtnEl) {
+        const pip = document.getElementById('tm-star-pip');
+        if (!pip) return;
+
+        if (mediaBtnEl) {
+            _pendingStarPipEl = pip;
+            const r = mediaBtnEl.getBoundingClientRect();
+            pip.style.left = (r.right + 2) + 'px';
+            pip.style.top  = (r.top   - 9) + 'px';
+        }
+
+        pip.classList.add('tm-popped');
+
+        clearTimeout(_starAutoHideTimer);
+        _starAutoHideTimer = setTimeout(() => {
+            if (!_fanOpen) hideStarPip();
+        }, STAR_AUTO_HIDE_SEC * 1000);
+    }
+
+    function hideStarPip() {
+        const pip = document.getElementById('tm-star-pip');
+        if (!pip) return;
+        pip.classList.remove('tm-popped');
+        clearTimeout(_starAutoHideTimer);
+        _pendingStarPipEl = null;
+    }
+
+    function onStarPipClick() {
+        if (_fanOpen) closeGroupFan();
+        else openGroupFan();
+    }
+
+    function _layerCfg(n) {
+        if (n <= 5)  return [{c:n,  r:48}];
+        if (n <= 12) return [{c:Math.min(5,n), r:46}, {c:n-Math.min(5,n), r:88}];
+        const l1=5, l2=Math.min(7,n-5);
+        return [{c:l1,r:46},{c:l2,r:88},{c:n-l1-l2,r:128}];
+    }
+
+    function _fanPositions(n, cx, cy) {
+        const pos = [];
+        _layerCfg(n).forEach(({c, r}) => {
+            const startDeg = -55, endDeg = 55;
+            const range = endDeg - startDeg;
+            for (let i = 0; i < c; i++) {
+                const deg = c === 1 ? 0 : startDeg + range * i / (c - 1);
+                const rad = deg * Math.PI / 180;
+                pos.push({ x: cx + r * Math.cos(rad) - 16, y: cy + r * Math.sin(rad) - 16 });
+            }
+        });
+        return pos;
+    }
+
+    function _spawnRipple(cx, cy) {
+        const r = document.createElement('div');
+        r.className = 'tm-ripple-ring';
+        const sz = 18;
+        r.style.cssText = `width:${sz}px;height:${sz}px;left:${cx}px;top:${cy}px`;
+        document.body.appendChild(r);
+        setTimeout(() => r.remove(), 560);
+    }
+
+    function _getStarPipPos() {
+        const pip = document.getElementById('tm-star-pip');
+        if (!pip) return { cx: 0, cy: 0 };
+        const r = pip.getBoundingClientRect();
+        return { cx: r.left + r.width / 2, cy: r.top + r.height / 2 };
+    }
+
+    function _buildFanDom() {
+        _fanNodes.forEach(n => n.remove());
+        _fanNodes = [];
+
+        const _cfg      = (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })();
+        const _glowClr  = _cfg.glowColor || 'multi';
+        const _glowSz   = Number(_cfg.glowSize  ?? 12);
+        const _txtClrMap = { white: 'rgba(255,255,255,.7)', yellow: 'rgba(255,220,60,.85)', blue: 'rgba(29,155,240,.9)', gray: 'rgba(180,180,180,.65)' };
+        const _txtClr   = _cfg.textColor
+            ? (_txtClrMap[_cfg.textColor] || _cfg.textColor)
+            : _txtClrMap.white;
+        const _glowPx   = Math.max(4, Math.min(60, _glowSz));
+
+        const groups = getGroups();
+        groups.forEach((g, i) => {
+            const baseGlow = _glowClr === 'multi'
+                ? (g.glow || STAR_GLOW_COLORS[i % STAR_GLOW_COLORS.length])
+                : _glowClr + '85';
+            const half = Math.round(_glowPx / 2);
+
+            const ic   = _GROUP_SVG_ICONS.find(x => x.id === g.icon) || null;
+            const iconHtml = ic
+                ? `<div style="width:18px;height:18px;color:${ic.color};flex-shrink:0">${ic.svg}</div>`
+                : `<span class="tm-fan-icon">${g.icon}</span>`;
+
+            const el = document.createElement('div');
+            el.className = 'tm-fan-node ' + STAR_FLOAT_CLS[i % STAR_FLOAT_CLS.length];
+            el.style.cssText = 'left:-300px;top:-300px;opacity:0';
+            el.innerHTML = `
+                <div class="tm-fan-node-inner">
+                    <div class="tm-fan-glow" style="background:radial-gradient(circle,${baseGlow} 0%,transparent 68%);inset:-${half}px"></div>
+                    ${iconHtml}
+                </div>
+                <span class="tm-fan-label" style="color:${_txtClr}">${g.name}</span>`;
+            el.addEventListener('click', () => _onFanGroupClick(g.id, g.name));
+            document.body.appendChild(el);
+            _fanNodes.push(el);
+        });
+
+    }
+
+    function _countGroupRecords(groupId) {
+        try {
+            const records = JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]'));
+            return records.filter(r => r.groupId === groupId).length;
+        } catch (_) { return 0; }
+    }
+
+    function _runStarEscapeAnim(callback) {
+        const pip = document.getElementById('tm-star-pip');
+        if (!pip) { callback?.(); return; }
+
+        clearTimeout(_starAutoHideTimer);
+
+        const rect = pip.getBoundingClientRect();
+        const cx   = rect.left + rect.width  / 2;
+        const cy   = rect.top  + rect.height / 2;
+
+        const directions = [
+            { dx:  220, dy: -180, rot:  340 },
+            { dx:  180, dy:  200, rot: -320 },
+            { dx:  260, dy:  -60, rot:  380 },
+            { dx:  200, dy:  140, rot: -360 },
+        ];
+        const dir = directions[Math.floor(Math.random() * directions.length)];
+
+        pip.style.transition = 'transform .1s cubic-bezier(.4,0,.2,1)';
+        pip.style.transform  = 'scale(0.7) translate(-6px, 2px)';
+
+        setTimeout(() => {
+            pip.style.transition = `transform .42s cubic-bezier(.2,0,.8,1), opacity .38s ease .08s`;
+            pip.style.transform  = `translate(${dir.dx}px, ${dir.dy}px) rotate(${dir.rot}deg) scale(0.15)`;
+            pip.style.opacity    = '0';
+        }, 110);
+
+        setTimeout(() => {
+            pip.style.transition = 'none';
+            pip.style.transform  = '';
+            pip.style.opacity    = '';
+            pip.classList.remove('tm-popped');
+            _pendingStarPipEl = null;
+            callback?.();
+        }, 580);
+    }
+
+    function openGroupFan() {
+        if (!getGroups().length) {
+            _runStarEscapeAnim(() => showGroupCreateModal());
+            return;
+        }
+
+        _fanOpen = true;
+        _buildFanDom();
+        const { cx, cy } = _getStarPipPos();
+        const groups = getGroups();
+        const positions = _fanPositions(groups.length, cx, cy);
+        const pip = document.getElementById('tm-star-pip');
+        if (pip) pip.classList.add('tm-lit');
+
+        _spawnRipple(cx, cy);
+        setTimeout(() => _spawnRipple(cx, cy), 110);
+
+        _fanNodes.forEach((node, i) => {
+            const pos = positions[i];
+            node.style.cssText = `left:${cx-16}px;top:${cy-16}px;opacity:0;transition:none`;
+            node.classList.remove('tm-spawned');
+            const delay = 20 + i * 46;
+            setTimeout(() => {
+                node.style.transition = `opacity .26s ease ${delay}ms, left .42s cubic-bezier(.34,1.56,.64,1) ${delay}ms, top .42s cubic-bezier(.34,1.56,.64,1) ${delay}ms`;
+                node.style.left    = pos.x + 'px';
+                node.style.top     = pos.y + 'px';
+                node.style.opacity = '1';
+                setTimeout(() => node.classList.add('tm-spawned'), delay + 380);
+            }, 10);
+        });
+    }
+
+    function closeGroupFan() {
+        _fanOpen = false;
+        const { cx, cy } = _getStarPipPos();
+        const pip = document.getElementById('tm-star-pip');
+        if (pip) pip.classList.remove('tm-lit');
+        _fanNodes.forEach(node => {
+            node.classList.remove('tm-spawned');
+            node.style.transition = 'opacity .15s ease, left .22s cubic-bezier(.6,0,.2,1), top .22s cubic-bezier(.6,0,.2,1)';
+            node.style.left    = (cx - 16) + 'px';
+            node.style.top     = (cy - 16) + 'px';
+            node.style.opacity = '0';
+        });
+        setTimeout(() => {
+            _fanNodes.forEach(n => n.remove());
+            _fanNodes = [];
+        }, 300);
+    }
+
+    function _onFanGroupClick(groupId, groupName) {
+        assignGroup(_pendingGroupRecordId, groupId);
+        _pendingGroupRecordId = null;
+        showToast(`⭐ → ${groupName}`);
+        closeGroupFan();
+        const pip = document.getElementById('tm-star-pip');
+        if (pip) {  }
+    }
+
+    document.addEventListener('click', e => {
+        if (!_fanOpen) return;
+        if (e.target.closest('.tm-fan-node') ||
+            e.target.closest('#tm-star-pip')  ||
+            e.target.closest('.tm-group-modal-overlay')) return;
+        closeGroupFan();
+    }, true);
+
+    const _GROUP_SVG_ICONS = [
+        { id:'travel',  label:'Travel',  color:'#4dd0e1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.5-8 13-8 13S4 15.5 4 10a8 8 0 0 1 8-8z"/></svg>' },
+        { id:'art',     label:'Art',     color:'#ce93d8', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 12a4 4 0 0 1 4-4 4 4 0 0 1 4 4"/><circle cx="8.5" cy="9" r=".8" fill="currentColor"/><circle cx="15.5" cy="9" r=".8" fill="currentColor"/></svg>' },
+        { id:'photo',   label:'Photo',   color:'#ffb74d', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="6" width="20" height="15" rx="2"/><circle cx="12" cy="13.5" r="3"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/></svg>' },
+        { id:'music',   label:'Music',   color:'#f48fb1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>' },
+        { id:'food',    label:'Food',    color:'#a5d6a7', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="8"/><line x1="10" y1="2" x2="10" y2="8"/><line x1="14" y1="2" x2="14" y2="8"/></svg>' },
+        { id:'game',    label:'Game',    color:'#80cbc4', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="3"/><path d="M7 11v4M5 13h4"/><circle cx="16.5" cy="12" r=".8" fill="currentColor"/><circle cx="18.5" cy="14" r=".8" fill="currentColor"/></svg>' },
+        { id:'nature',  label:'Nature',  color:'#c5e1a5', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 22V12"/><path d="M5 12c0-4 3-7 7-7s7 3 7 7c0 2.5-1.5 4.5-4 5.5"/><path d="M3 18c0-2.5 2-4 4.5-4C9 14 10 15.5 12 16"/></svg>' },
+        { id:'book',    label:'Book',    color:'#ffcc80', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' },
+        { id:'star',    label:'Fav',     color:'#fff176', svg:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>' },
+        { id:'work',    label:'Work',    color:'#b0bec5', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="12.01"/></svg>' },
+    ];
+    let _selectedIconId = _GROUP_SVG_ICONS[0].id;
+
+    function showGroupCreateModal() {
+        const old = document.getElementById('tm-group-modal-overlay');
+        if (old) old.remove();
+        _selectedIconId = _GROUP_SVG_ICONS[0].id;
+
+        const overlay = document.createElement('div');
+        overlay.id        = 'tm-group-modal-overlay';
+        overlay.className = 'tm-group-modal-overlay';
+
+        const box = document.createElement('div');
+        box.className = 'tm-group-modal-box';
+
+        const title = document.createElement('div');
+        title.className   = 'tm-group-modal-title';
+        title.textContent = 'New Group';
+
+        const input = document.createElement('input');
+        input.className   = 'tm-group-modal-input';
+        input.placeholder = 'Group name…';
+        input.maxLength   = 24;
+
+        const iconLabel = document.createElement('div');
+        iconLabel.style.cssText = 'font-size:10px;color:rgba(255,255,255,.4);margin:10px 0 6px;letter-spacing:.06em;text-transform:uppercase';
+        iconLabel.textContent = 'Icon';
+
+        const iconGrid = document.createElement('div');
+        iconGrid.style.cssText = 'display:grid;grid-template-columns:repeat(5,1fr);gap:5px';
+
+        _GROUP_SVG_ICONS.forEach(ic => {
+            const cell = document.createElement('button');
+            cell.type = 'button';
+            cell.dataset.iconId = ic.id;
+            const isFirst = ic.id === _selectedIconId;
+            cell.style.cssText = `
+                display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+                padding:6px 2px;border-radius:8px;border:1.5px solid ${isFirst ? ic.color : 'transparent'};
+                background:${isFirst ? 'rgba(255,255,255,.07)' : 'transparent'};
+                cursor:pointer;transition:all .12s;font-family:inherit;
+            `;
+
+            const iconWrap = document.createElement('div');
+            iconWrap.style.cssText = `width:20px;height:20px;color:${ic.color};flex-shrink:0`;
+            iconWrap.innerHTML = ic.svg;
+
+            const iconLbl = document.createElement('span');
+            iconLbl.style.cssText = 'font-size:8px;color:rgba(255,255,255,.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40px';
+            iconLbl.textContent = ic.label;
+
+            cell.appendChild(iconWrap);
+            cell.appendChild(iconLbl);
+
+            cell.addEventListener('click', () => {
+                _selectedIconId = ic.id;
+                iconGrid.querySelectorAll('button').forEach(b => {
+                    const bid = b.dataset.iconId;
+                    const bic = _GROUP_SVG_ICONS.find(x => x.id === bid);
+                    b.style.border = `1.5px solid ${bid === ic.id ? bic.color : 'transparent'}`;
+                    b.style.background = bid === ic.id ? 'rgba(255,255,255,.07)' : 'transparent';
+                });
+            });
+
+            iconGrid.appendChild(cell);
+        });
+
+        const btns = document.createElement('div');
+        btns.style.cssText = 'display:flex;gap:8px;margin-top:16px';
+
+        const skipBtn = document.createElement('button');
+        skipBtn.type = 'button';
+        skipBtn.style.cssText = `
+            flex:1;padding:9px 0;border-radius:8px;
+            border:1px solid rgba(255,255,255,.15);
+            background:rgba(255,255,255,.06);
+            color:rgba(255,255,255,.6);
+            font-size:13px;font-weight:500;cursor:pointer;
+            font-family:inherit;text-align:center;line-height:1;
+            transition:background .12s;
+        `;
+        skipBtn.textContent = 'Skip';
+        skipBtn.addEventListener('mouseover', () => skipBtn.style.background = 'rgba(255,255,255,.12)');
+        skipBtn.addEventListener('mouseout',  () => skipBtn.style.background = 'rgba(255,255,255,.06)');
+        skipBtn.addEventListener('click', () => _closeGroupModal(false, null));
+
+        const confirmBtn = document.createElement('button');
+        confirmBtn.type = 'button';
+        confirmBtn.style.cssText = `
+            flex:1;padding:9px 0;border-radius:8px;
+            border:none;background:#1d9bf0;
+            color:#fff;font-size:13px;font-weight:500;cursor:pointer;
+            font-family:inherit;text-align:center;line-height:1;
+            transition:background .12s;
+        `;
+        confirmBtn.textContent = 'Create';
+        confirmBtn.addEventListener('mouseover', () => confirmBtn.style.background = '#1a8cd8');
+        confirmBtn.addEventListener('mouseout',  () => confirmBtn.style.background = '#1d9bf0');
+        confirmBtn.addEventListener('click', () => _closeGroupModal(true, input.value.trim()));
+
+        btns.appendChild(skipBtn);
+        btns.appendChild(confirmBtn);
+
+        box.appendChild(title);
+        box.appendChild(input);
+        box.appendChild(iconLabel);
+        box.appendChild(iconGrid);
+        box.appendChild(btns);
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Enter')  _closeGroupModal(true, input.value.trim());
+            if (e.key === 'Escape') _closeGroupModal(false, null);
+        });
+        overlay.addEventListener('click', e => {
+            if (e.target === overlay) _closeGroupModal(false, null);
+        });
+        requestAnimationFrame(() => {
+            overlay.classList.add('tm-show');
+            setTimeout(() => input.focus(), 200);
+        });
+    }
+
+    function _closeGroupModal(confirm, name) {
+        const overlay = document.getElementById('tm-group-modal-overlay');
+        if (!overlay) return;
+        overlay.classList.remove('tm-show');
+        setTimeout(() => overlay.remove(), 220);
+
+        if (!confirm || !name) {
+            hideStarPip();
+            return;
+        }
+
+        const ic       = _GROUP_SVG_ICONS.find(x => x.id === _selectedIconId) || _GROUP_SVG_ICONS[0];
+        const glowIdx  = getGroups().length % STAR_GLOW_COLORS.length;
+        const group    = createGroup(name, ic.id, STAR_GLOW_COLORS[glowIdx]);
+        if (_pendingGroupRecordId !== null) {
+            assignGroup(_pendingGroupRecordId, group.id);
+            _pendingGroupRecordId = null;
+        }
+        showToast(`⭐ Created「${ic.label} · ${name}」`);
+
+        setTimeout(() => {
+            if (document.getElementById('tm-star-pip')?.classList.contains('tm-popped')) {
+                openGroupFan();
+            }
+        }, 300);
+    }
+
+    function showGroupManagerModal() {
+        const old = document.getElementById('tm-group-mgr-overlay');
+        if (old) old.remove();
+
+        const overlay = document.createElement('div');
+        overlay.id        = 'tm-group-mgr-overlay';
+        overlay.className = 'tm-group-modal-overlay';
+
+        const box = document.createElement('div');
+        box.className = 'tm-group-modal-box';
+        box.style.cssText += ';width:280px;max-width:92vw';
+
+        const titleRow = document.createElement('div');
+        titleRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:14px';
+
+        const title = document.createElement('div');
+        title.className   = 'tm-group-modal-title';
+        title.style.margin = '0';
+        title.textContent = 'Manage Groups';
+
+        const newBtn = document.createElement('button');
+        newBtn.type = 'button';
+        newBtn.textContent = '＋ New';
+        newBtn.style.cssText = `
+            padding:5px 10px;border-radius:7px;border:none;
+            background:#1d9bf0;color:#fff;
+            font-size:11px;font-weight:600;cursor:pointer;
+            font-family:inherit;line-height:1;transition:background .12s;
+        `;
+        newBtn.addEventListener('mouseover', () => newBtn.style.background = '#1a8cd8');
+        newBtn.addEventListener('mouseout',  () => newBtn.style.background = '#1d9bf0');
+        newBtn.addEventListener('click', () => {
+            overlay.classList.remove('tm-show');
+            setTimeout(() => { overlay.remove(); showGroupCreateModal(); }, 180);
+        });
+
+        titleRow.appendChild(title);
+        titleRow.appendChild(newBtn);
+
+        const list = document.createElement('div');
+        list.style.cssText = 'max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:14px;scrollbar-width:thin';
+
+        let _openIconPicker = null;
+
+        function buildIconPicker(g, iconWrap, onPick) {
+            const picker = document.createElement('div');
+            picker.style.cssText = `
+                display:grid;grid-template-columns:repeat(5,1fr);gap:4px;
+                padding:8px;background:rgba(20,25,40,.98);
+                border-radius:8px;border:1px solid rgba(255,255,255,.1);
+                margin-top:4px;
+            `;
+            _GROUP_SVG_ICONS.forEach(ic => {
+                const cell = document.createElement('button');
+                cell.type = 'button';
+                cell.style.cssText = `
+                    display:flex;flex-direction:column;align-items:center;gap:2px;
+                    padding:5px 2px;border-radius:6px;border:1.5px solid ${ic.id === g.icon ? ic.color : 'transparent'};
+                    background:${ic.id === g.icon ? 'rgba(255,255,255,.07)' : 'transparent'};
+                    cursor:pointer;transition:all .1s;font-family:inherit;
+                `;
+                const svg = document.createElement('div');
+                svg.style.cssText = `width:16px;height:16px;color:${ic.color}`;
+                svg.innerHTML = ic.svg;
+                const lbl = document.createElement('span');
+                lbl.style.cssText = 'font-size:7px;color:rgba(255,255,255,.4);white-space:nowrap;overflow:hidden;max-width:38px;text-overflow:ellipsis';
+                lbl.textContent = ic.label;
+                cell.appendChild(svg);
+                cell.appendChild(lbl);
+                cell.addEventListener('click', () => {
+                    onPick(ic);
+                    picker.remove();
+                    _openIconPicker = null;
+                });
+                picker.appendChild(cell);
+            });
+            return picker;
+        }
+
+        function rebuildList() {
+            list.innerHTML = '';
+            _openIconPicker = null;
+            const groups = getGroups();
+
+            if (!groups.length) {
+                const empty = document.createElement('div');
+                empty.style.cssText = 'font-size:12px;color:rgba(255,255,255,.35);text-align:center;padding:16px 0';
+                empty.textContent = 'No groups yet — click ＋ New to create one';
+                list.appendChild(empty);
+                return;
+            }
+
+            groups.forEach(g => {
+                const wrapper = document.createElement('div');
+                wrapper.style.cssText = 'display:flex;flex-direction:column;gap:0';
+
+                const row = document.createElement('div');
+                row.style.cssText = 'display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border-radius:8px;padding:7px 8px';
+
+                const iconWrap = document.createElement('button');
+                iconWrap.type = 'button';
+                iconWrap.title = 'Change icon';
+                iconWrap.style.cssText = `
+                    width:22px;height:22px;flex-shrink:0;border:none;
+                    background:transparent;cursor:pointer;padding:0;border-radius:4px;
+                    transition:background .12s;display:flex;align-items:center;justify-content:center;
+                `;
+                const ic = _GROUP_SVG_ICONS.find(x => x.id === g.icon);
+                iconWrap.style.color = ic?.color || 'rgba(255,255,255,.5)';
+                iconWrap.innerHTML = ic?.svg || `<span style="font-size:14px">${g.icon||'📁'}</span>`;
+                iconWrap.addEventListener('mouseover', () => iconWrap.style.background = 'rgba(255,255,255,.1)');
+                iconWrap.addEventListener('mouseout',  () => iconWrap.style.background = 'transparent');
+                iconWrap.addEventListener('click', () => {
+                    if (_openIconPicker) { _openIconPicker.remove(); _openIconPicker = null; }
+                    const picker = buildIconPicker(g, iconWrap, (newIc) => {
+                        const arr = getGroups();
+                        const idx = arr.findIndex(x => x.id === g.id);
+                        if (idx > -1) { arr[idx].icon = newIc.id; saveGroups(arr); g.icon = newIc.id; }
+                        iconWrap.style.color = newIc.color;
+                        iconWrap.innerHTML = newIc.svg;
+                        showToast(`Icon → ${newIc.label}`);
+                    });
+                    wrapper.appendChild(picker);
+                    _openIconPicker = picker;
+                });
+
+                const nameInput = document.createElement('input');
+                nameInput.value     = g.name;
+                nameInput.maxLength = 24;
+                nameInput.style.cssText = 'flex:1;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,.08);outline:none;color:rgba(255,255,255,.88);font-size:12px;font-family:inherit;padding:2px 0;transition:border-color .12s';
+                nameInput.addEventListener('focus', () => nameInput.style.borderColor = 'rgba(29,155,240,.6)');
+                nameInput.addEventListener('blur',  () => nameInput.style.borderColor = 'rgba(255,255,255,.08)');
+                nameInput.addEventListener('change', () => {
+                    const n = nameInput.value.trim();
+                    if (!n) { nameInput.value = g.name; return; }
+                    const arr = getGroups();
+                    const idx = arr.findIndex(x => x.id === g.id);
+                    if (idx > -1) { arr[idx].name = n; saveGroups(arr); g.name = n; showToast(`Renamed → ${n}`); }
+                });
+
+                const cnt = _countGroupRecords(g.id);
+                const cntBadge = document.createElement('span');
+                cntBadge.style.cssText = 'font-size:10px;color:rgba(255,255,255,.3);flex-shrink:0;white-space:nowrap';
+                cntBadge.textContent = cnt ? `${cnt} items` : '';
+
+                const delBtn = document.createElement('button');
+                delBtn.type  = 'button';
+                delBtn.title = 'Delete group';
+                delBtn.style.cssText = 'background:transparent;border:none;color:rgba(255,80,80,.55);font-size:14px;cursor:pointer;flex-shrink:0;padding:0 2px;line-height:1;transition:color .12s';
+                delBtn.innerHTML = '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>';
+                delBtn.addEventListener('mouseover', () => delBtn.style.color = 'rgba(255,80,80,.9)');
+                delBtn.addEventListener('mouseout',  () => delBtn.style.color = 'rgba(255,80,80,.55)');
+                delBtn.addEventListener('click', () => {
+                    if (cnt > 0 && !confirm(`Delete「${g.name}」? This will ungroup ${cnt} item(s).`)) return;
+                    if (cnt === 0 && !confirm(`Delete「${g.name}」?`)) return;
+                    deleteGroup(g.id);
+                    rebuildList();
+                    showToast(`Deleted「${g.name}」`);
+                });
+
+                row.appendChild(iconWrap);
+                row.appendChild(nameInput);
+                row.appendChild(cntBadge);
+                row.appendChild(delBtn);
+                wrapper.appendChild(row);
+                list.appendChild(wrapper);
+            });
+        }
+        rebuildList();
+
+        const doneBtn = document.createElement('button');
+        doneBtn.type = 'button';
+        doneBtn.style.cssText = `
+            width:100%;padding:9px 0;border-radius:8px;border:none;
+            background:#1d9bf0;color:#fff;
+            font-size:13px;font-weight:500;cursor:pointer;
+            font-family:inherit;text-align:center;line-height:1;
+            transition:background .12s;
+        `;
+        doneBtn.textContent = 'Done';
+        doneBtn.addEventListener('mouseover', () => doneBtn.style.background = '#1a8cd8');
+        doneBtn.addEventListener('mouseout',  () => doneBtn.style.background = '#1d9bf0');
+        doneBtn.addEventListener('click', () => {
+            overlay.classList.remove('tm-show');
+            setTimeout(() => overlay.remove(), 220);
+        });
+
+        box.appendChild(titleRow);
+        box.appendChild(list);
+        box.appendChild(doneBtn);
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+
+        overlay.addEventListener('click', e => {
+            if (e.target === overlay) { overlay.classList.remove('tm-show'); setTimeout(() => overlay.remove(), 220); }
+        });
+
+        requestAnimationFrame(() => overlay.classList.add('tm-show'));
+    }
+
+    function recordHistory(info, urls, mediaBtn) {
         try {
             const thumbUrls = urls.filter(u => !u.includes('.mp4'));
             const hasVideo  = urls.some(u => u.includes('.mp4'));
@@ -2714,6 +3746,11 @@
                 records = [...records.slice(0, HISTORY_MAX_RECORDS), ..._overflow];
             }
             GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
+
+            if (GM_getValue(KEY_GROUP_ON_DOWNLOAD, false)) {
+                _pendingGroupRecordId = record.id;
+                setTimeout(() => popStarPip(mediaBtn || null), 80);
+            }
 
             _downloadedIds.add(info.id);
 
@@ -2778,6 +3815,7 @@
         let viewMode  = GM_getValue(KEY_HISTORY_VIEW_MODE, 'list');
         let editMode  = false;
         let query     = '';
+        let activeGroupId = null;
         const selectedIds    = new Set();
         const collapsedGroups = new Set();
         let anchorIdx = -1;
@@ -3071,8 +4109,6 @@
             }
             #tm-hist-resize:hover { opacity: 0.8; }
 
-            
-            
             .tm-dock-trigger {
                 position: absolute; top: 50%; transform: translateY(-50%);
                 width: 10px; height: 40px;
@@ -3089,7 +4125,6 @@
             .tm-dock-trigger.left  { left: -1px; }
             .tm-dock-trigger.right { right: -1px; }
 
-            
             .tm-dock-trigger svg {
                 width: 6px; height: 28px;
                 opacity: 0.18;
@@ -3101,7 +4136,6 @@
                 filter: drop-shadow(0 0 2px rgba(29,155,240,0.7));
             }
 
-            
             #tm-hist-panel {
                 transition: left 0.38s cubic-bezier(0.4,0,0.2,1),
                             right 0.38s cubic-bezier(0.4,0,0.2,1),
@@ -3111,7 +4145,6 @@
             #tm-hist-panel.tm-docked { opacity: 0.0; pointer-events: none; }
             #tm-hist-panel.tm-docked .tm-dock-trigger { opacity: 1 !important; pointer-events: all; }
 
-            
             #tm-hist-dock-tab {
                 position: fixed; z-index: 999979;
                 width: 6px;
@@ -3123,7 +4156,6 @@
             }
             #tm-hist-dock-tab:hover { width: 9px; }
 
-            
             #tm-hist-dock-tab.style-ruler {
                 background: ${C.border};
             }
@@ -3151,8 +4183,6 @@
                 box-shadow: 0 0 3px rgba(29,155,240,0.4);
             }
 
-            
-            
             #tm-hist-dock-tab.style-ghost {
                 background: repeating-linear-gradient(
                     to bottom,
@@ -3173,8 +4203,6 @@
                 );
             }
 
-            
-            
             #tm-hist-dock-tab.style-notch {
                 background: transparent;
                 display: flex; align-items: center; justify-content: center;
@@ -3240,8 +4268,8 @@
         const SVG_EXP   = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 2v8M5 7l3 4 3-4"/><line x1="2" y1="13" x2="14" y2="13"/></svg>`;
         const SVG_CLOSE = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
 
-        const btnList  = _mkIconBtn(SVG_LIST,  'List mode');
-        const btnThumb = _mkIconBtn(SVG_GRID,  'Thumbnail mode');
+        const btnViewToggle = _mkIconBtn(viewMode === 'list' ? SVG_GRID : SVG_LIST,
+            viewMode === 'list' ? 'Switch to Thumbnail' : 'Switch to List');
         const btnEdit  = _mkIconBtn(SVG_EDIT,  'Edit mode');
         const btnExp   = _mkIconBtn(SVG_EXP,   'Export');
         const btnClose = _mkIconBtn(SVG_CLOSE, 'Close');
@@ -3249,8 +4277,7 @@
         titlebar.appendChild(titleIcon);
         titlebar.appendChild(titleEl);
         titlebar.appendChild(countBadge);
-        titlebar.appendChild(btnList);
-        titlebar.appendChild(btnThumb);
+        titlebar.appendChild(btnViewToggle);
         titlebar.appendChild(btnEdit);
         titlebar.appendChild(btnExp);
         titlebar.appendChild(btnClose);
@@ -3265,6 +4292,66 @@
         searchBar.appendChild(searchInput);
         panel.appendChild(searchBar);
 
+        const groupTabBar = document.createElement('div');
+        groupTabBar.id = 'tm-group-tab-bar';
+        groupTabBar.style.cssText = `
+            display:flex;align-items:center;gap:4px;
+            padding:4px 10px 2px;overflow-x:auto;
+            scrollbar-width:none;flex-shrink:0;
+            border-bottom:1px solid ${C.border};
+        `;
+        groupTabBar.style.setProperty('scrollbar-width','none');
+
+        function buildGroupTabs() {
+            groupTabBar.innerHTML = '';
+            const groups = getGroups();
+            if (!groups.length) { groupTabBar.style.display = 'none'; return; }
+            groupTabBar.style.display = 'flex';
+
+            const sel = document.createElement('select');
+            sel.style.cssText = `
+                flex:1;min-width:0;
+                background:rgba(30,35,50,.95);
+                border:1px solid rgba(255,255,255,.12);
+                border-radius:8px;padding:4px 8px;
+                font-size:11px;color:rgba(255,255,255,.8);
+                cursor:pointer;font-family:inherit;outline:none;
+                transition:border-color .12s;
+            `;
+            sel.addEventListener('focus',  () => sel.style.borderColor = 'rgba(29,155,240,.5)');
+            sel.addEventListener('blur',   () => sel.style.borderColor = 'rgba(255,255,255,.12)');
+
+            const optAll = document.createElement('option');
+            optAll.value       = '__all__';
+            optAll.textContent = '⊞  All';
+            optAll.selected    = activeGroupId === null;
+            sel.appendChild(optAll);
+
+            groups.forEach(g => {
+                const ic   = _GROUP_SVG_ICONS?.find(x => x.id === g.icon);
+                const opt  = document.createElement('option');
+                opt.value       = g.id;
+                opt.textContent = `${ic ? ic.label : (g.icon || '●')}  ${g.name}`;
+                opt.selected    = activeGroupId === g.id;
+                sel.appendChild(opt);
+            });
+
+            const optUng = document.createElement('option');
+            optUng.value       = '__ungrouped__';
+            optUng.textContent = '—  Ungrouped';
+            optUng.selected    = activeGroupId === '__ungrouped__';
+            sel.appendChild(optUng);
+
+            sel.addEventListener('change', () => {
+                activeGroupId = sel.value === '__all__' ? null : sel.value;
+                render();
+            });
+
+            groupTabBar.appendChild(sel);
+        }
+
+        buildGroupTabs();
+        panel.appendChild(groupTabBar);
         const body = document.createElement('div');
         body.id = 'tm-hist-body';
         panel.appendChild(body);
@@ -3328,13 +4415,21 @@
         }
 
         function getFiltered(records) {
-            if (!query) return records;
-            const q = query.toLowerCase();
-            return records.filter(r =>
-                r.displayName?.toLowerCase().includes(q) ||
-                r.screenName?.toLowerCase().includes(q) ||
-                r.text?.toLowerCase().includes(q)
-            );
+            let result = records;
+            if (activeGroupId === '__ungrouped__') {
+                result = result.filter(r => !r.groupId);
+            } else if (activeGroupId) {
+                result = result.filter(r => r.groupId === activeGroupId);
+            }
+            if (query) {
+                const q = query.toLowerCase();
+                result = result.filter(r =>
+                    r.displayName?.toLowerCase().includes(q) ||
+                    r.screenName?.toLowerCase().includes(q) ||
+                    r.text?.toLowerCase().includes(q)
+                );
+            }
+            return result;
         }
 
         function _fmtGroupLabel(yyyymm) {
@@ -3363,12 +4458,14 @@
             selAllBtn.textContent = allSelected ? 'Deselect All' : 'Select All';
 
             body.innerHTML = '';
+            buildGroupTabs();
 
             if (viewMode === 'list') renderList(filtered);
             else renderThumb(filtered);
 
-            btnList.classList.toggle('active', viewMode === 'list');
-            btnThumb.classList.toggle('active', viewMode === 'thumb');
+            btnViewToggle.innerHTML = viewMode === 'list' ? SVG_GRID : SVG_LIST;
+            btnViewToggle.title     = viewMode === 'list' ? 'Switch to Thumbnail' : 'Switch to List';
+            btnViewToggle.classList.toggle('active', true);
         }
 
         function renderList(records) {
@@ -3868,8 +4965,11 @@
             return b;
         }
 
-        btnList.addEventListener('click', () => { viewMode = 'list'; GM_setValue(KEY_HISTORY_VIEW_MODE, 'list'); render(); });
-        btnThumb.addEventListener('click', () => { viewMode = 'thumb'; GM_setValue(KEY_HISTORY_VIEW_MODE, 'thumb'); render(); });
+        btnViewToggle.addEventListener('click', () => {
+            viewMode = viewMode === 'list' ? 'thumb' : 'list';
+            GM_setValue(KEY_HISTORY_VIEW_MODE, viewMode);
+            render();
+        });
         btnClose.addEventListener('click', () => {
             if (_dockSideGlobal) {
                 _retract();
@@ -3924,14 +5024,132 @@
             render();
         });
 
-        let _expState = 0;
-        btnExp.addEventListener('click', () => {
-            _expState = (_expState + 1) % 3;
-            if      (_expState === 1) _exportCSV();
-            else if (_expState === 2) _exportJSON();
-            else _expState = 0;
+        function _importJSON() {
+            const input = document.createElement('input');
+            input.type   = 'file';
+            input.accept = '.json,application/json';
+            input.style.display = 'none';
+            document.body.appendChild(input);
+
+            input.addEventListener('change', () => {
+                const file = input.files?.[0];
+                if (!file) { input.remove(); return; }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        if (!Array.isArray(imported)) throw new Error('Not an array');
+
+                        const existing  = getRecords();
+                        const existMap  = new Map(existing.map(r => [r.tweetId, r]));
+                        let addCount    = 0;
+                        imported.forEach(r => {
+                            if (r.tweetId) {
+                                if (!existMap.has(r.tweetId)) addCount++;
+                                existMap.set(r.tweetId, r);
+                            }
+                        });
+                        const merged = [...existMap.values()].sort((a, b) => (b.id || 0) - (a.id || 0));
+                        GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(merged));
+                        merged.forEach(r => _downloadedIds.add(r.tweetId));
+                        showToast(`✅ Imported ${addCount} new record(s)`);
+                        render();
+                    } catch (err) {
+                        showToast(`❌ Import failed: ${err.message}`);
+                    } finally {
+                        input.remove();
+                    }
+                };
+                reader.readAsText(file);
+            });
+
+            input.click();
+        }
+
+        let _expMenu = null;
+
+        function _showExpMenu() {
+            if (_expMenu) { _expMenu.remove(); _expMenu = null; return; }
+
+            const menu = document.createElement('div');
+            menu.id = 'tm-exp-menu';
+            _expMenu = menu;
+
+            const btnRect = btnExp.getBoundingClientRect();
+            const panelEl = document.getElementById('tm-hist-panel');
+            const panelRect = panelEl?.getBoundingClientRect() || { left: 0, top: 0 };
+
+            menu.style.cssText = `
+                position:absolute;
+                right:${panelRect.right - btnRect.right}px;
+                top:${btnRect.bottom - panelRect.top + 4}px;
+                background:rgba(22,32,43,.97);
+                border:1px solid rgba(255,255,255,.12);
+                border-radius:10px;
+                padding:4px;
+                z-index:10;
+                min-width:140px;
+                box-shadow:0 6px 20px rgba(0,0,0,.45);
+                animation:tm-exp-menu-in .15s cubic-bezier(.34,1.56,.64,1);
+            `;
+
+            if (!document.getElementById('tm-exp-menu-style')) {
+                const s = document.createElement('style');
+                s.id = 'tm-exp-menu-style';
+                s.textContent = `@keyframes tm-exp-menu-in{from{opacity:0;transform:scale(.88) translateY(-4px)}to{opacity:1;transform:scale(1) translateY(0)}}`;
+                document.head.appendChild(s);
+            }
+
+            const mkItem = (icon, label, onClick) => {
+                const item = document.createElement('button');
+                item.type = 'button';
+                item.style.cssText = `
+                    display:flex;align-items:center;gap:8px;
+                    width:100%;padding:7px 10px;border:none;
+                    background:transparent;border-radius:7px;
+                    color:rgba(255,255,255,.8);font-size:12px;
+                    cursor:pointer;font-family:inherit;text-align:left;
+                    transition:background .1s;white-space:nowrap;
+                `;
+                item.innerHTML = `<span style="opacity:.65">${icon}</span><span>${label}</span>`;
+                item.addEventListener('mouseover', () => item.style.background = 'rgba(255,255,255,.09)');
+                item.addEventListener('mouseout',  () => item.style.background = 'transparent');
+                item.addEventListener('click', () => {
+                    menu.remove(); _expMenu = null;
+                    onClick();
+                });
+                return item;
+            };
+
+            const SVG_CSV  = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="2" y="1" width="12" height="14" rx="1.5"/><line x1="5" y1="5" x2="11" y2="5"/><line x1="5" y1="8" x2="11" y2="8"/><line x1="5" y1="11" x2="8" y2="11"/></svg>`;
+            const SVG_JSON = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 2C3.5 2 3 3 3 4v2c0 1-.5 1.5-1 2 .5.5 1 1 1 2v2c0 1 .5 2 2 2"/><path d="M11 2c1.5 0 2 1 2 2v2c0 1 .5 1.5 1 2-.5.5-1 1-1 2v2c0 1-.5 2-2 2"/></svg>`;
+            const SVG_IMP  = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 10V2M5 7l3 3 3-3"/><path d="M2 12h12"/></svg>`;
+
+            const divider = document.createElement('div');
+            divider.style.cssText = 'height:1px;background:rgba(255,255,255,.08);margin:3px 4px';
+
+            menu.appendChild(mkItem(SVG_CSV,  'Export CSV',  _exportCSV));
+            menu.appendChild(mkItem(SVG_JSON, 'Export JSON', _exportJSON));
+            menu.appendChild(divider);
+            menu.appendChild(mkItem(SVG_IMP,  'Import JSON', _importJSON));
+
+            panelEl.style.position = 'relative';
+            panelEl.appendChild(menu);
+
+            const closeMenu = (e) => {
+                if (!menu.contains(e.target) && e.target !== btnExp) {
+                    menu.remove(); _expMenu = null;
+                    document.removeEventListener('click', closeMenu, true);
+                }
+            };
+            setTimeout(() => document.addEventListener('click', closeMenu, true), 10);
+        }
+
+        btnExp.addEventListener('click', (e) => {
+            e.stopPropagation();
+            _showExpMenu();
         });
-        btnExp.title = 'Export CSV (click once) / JSON (click twice)';
+        btnExp.title = 'Export / Import';
 
         searchInput.addEventListener('input', () => { query = searchInput.value.trim(); render(); });
 
@@ -4783,7 +6001,6 @@
                 }
                 #tm-image-lightbox.tm-lb-in { opacity: 1; }
 
-                
                 #tm-image-lightbox .tm-lb-single-img {
                     opacity: 0;
                     transform: scale(0.88) translateZ(0);
@@ -4796,7 +6013,6 @@
                     transform: scale(1) translateZ(0);
                 }
 
-                
                 #tm-image-lightbox .tm-lb-card.tm-lb-animated {
                     transition:
                         transform  0.38s cubic-bezier(0.34,1.18,0.64,1),
@@ -5669,7 +6885,7 @@
                 setMediaIcon('warn', `⚠️ ${successCount}/${total}`);
             } else {
                 setMediaIcon('ok', T.msg_downloaded, 'Downloaded', 'download');
-                recordHistory(info, urls);
+                recordHistory(info, urls, btn);
                 fireMeteor(btn);
             }
             setTimeout(() => setMediaIcon('default'), 2000);
