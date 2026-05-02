@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      2.0.0
+// @version      2.0.1
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -5069,27 +5069,27 @@
         let _expMenu = null;
 
         function _showExpMenu() {
-            if (_expMenu) { _expMenu.remove(); _expMenu = null; return; }
+            const existing = document.getElementById('tm-exp-menu');
+            if (existing) { existing.remove(); _expMenu = null; return; }
 
             const menu = document.createElement('div');
             menu.id = 'tm-exp-menu';
             _expMenu = menu;
 
             const btnRect = btnExp.getBoundingClientRect();
-            const panelEl = document.getElementById('tm-hist-panel');
-            const panelRect = panelEl?.getBoundingClientRect() || { left: 0, top: 0 };
-
+            const menuWidth = 152;
+            const menuLeft  = Math.max(4, btnRect.right - menuWidth);
             menu.style.cssText = `
-                position:absolute;
-                right:${panelRect.right - btnRect.right}px;
-                top:${btnRect.bottom - panelRect.top + 4}px;
+                position:fixed;
+                left:${menuLeft}px;
+                top:${btnRect.bottom + 6}px;
                 background:rgba(22,32,43,.97);
                 border:1px solid rgba(255,255,255,.12);
                 border-radius:10px;
                 padding:4px;
-                z-index:10;
-                min-width:140px;
-                box-shadow:0 6px 20px rgba(0,0,0,.45);
+                z-index:999999;
+                min-width:${menuWidth}px;
+                box-shadow:0 6px 20px rgba(0,0,0,.5);
                 animation:tm-exp-menu-in .15s cubic-bezier(.34,1.56,.64,1);
             `;
 
@@ -5111,11 +5111,13 @@
                     cursor:pointer;font-family:inherit;text-align:left;
                     transition:background .1s;white-space:nowrap;
                 `;
-                item.innerHTML = `<span style="opacity:.65">${icon}</span><span>${label}</span>`;
+                item.innerHTML = `<span style="opacity:.65;display:flex;align-items:center">${icon}</span><span>${label}</span>`;
                 item.addEventListener('mouseover', () => item.style.background = 'rgba(255,255,255,.09)');
                 item.addEventListener('mouseout',  () => item.style.background = 'transparent');
-                item.addEventListener('click', () => {
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     menu.remove(); _expMenu = null;
+                    document.removeEventListener('click', closeMenu, true);
                     onClick();
                 });
                 return item;
@@ -5133,16 +5135,14 @@
             menu.appendChild(divider);
             menu.appendChild(mkItem(SVG_IMP,  'Import JSON', _importJSON));
 
-            panelEl.style.position = 'relative';
-            panelEl.appendChild(menu);
+            document.body.appendChild(menu);
 
             const closeMenu = (e) => {
-                if (!menu.contains(e.target) && e.target !== btnExp) {
-                    menu.remove(); _expMenu = null;
-                    document.removeEventListener('click', closeMenu, true);
-                }
+                if (menu.contains(e.target) || e.target === btnExp) return;
+                menu.remove(); _expMenu = null;
+                document.removeEventListener('click', closeMenu, true);
             };
-            setTimeout(() => document.addEventListener('click', closeMenu, true), 10);
+            setTimeout(() => document.addEventListener('click', closeMenu, true), 80);
         }
 
         btnExp.addEventListener('click', (e) => {
