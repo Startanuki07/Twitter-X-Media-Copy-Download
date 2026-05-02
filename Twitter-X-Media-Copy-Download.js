@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      2.0.1
+// @version      2.0.2
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -3711,14 +3711,10 @@
                 thumbUrls.push(info.videoThumb);
             }
 
-            const raw = info.date || '';
-            let yyyymm = '0000.00';
-            if (_cachedDateFormat === 'western') {
-                const p = raw.split('.');
-                if (p.length === 3) yyyymm = `${p[2]}.${p[1]}`;
-            } else {
-                yyyymm = raw.slice(0, 7);
-            }
+            const _now    = new Date();
+            const _yy     = _now.getFullYear();
+            const _mm     = String(_now.getMonth() + 1).padStart(2, '0');
+            const yyyymm  = `${_yy}.${_mm}`;
 
             const record = {
                 id:          Date.now(),
@@ -3727,6 +3723,7 @@
                 tweetId:     info.id,
                 tweetUrl:    `https://x.com/${info.screenName}/status/${info.id}`,
                 tweetDate:   info.date,
+                downloadDate: `${_yy}-${_mm}-${String(_now.getDate()).padStart(2,'0')}`,
                 screenName:  info.screenName,
                 displayName: info.displayName,
                 text:        (info.text || '').slice(0, 80),
