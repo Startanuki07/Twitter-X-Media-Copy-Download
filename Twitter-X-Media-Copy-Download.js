@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      2.0.2
+// @version      2.0.3
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -1410,7 +1410,9 @@
         pip.title     = 'Group this download';
         pip.textContent = '⭐';
 
-        pip.addEventListener('mouseenter', () => { if (!_fanOpen) openGroupFan(); });
+        pip.addEventListener('mouseenter', () => {
+            if (!_fanOpen && getGroups().length) openGroupFan();
+        });
         pip.addEventListener('click', e => {
             e.preventDefault(); e.stopPropagation();
             if (_fanOpen) closeGroupFan(); else openGroupFan();
@@ -1881,6 +1883,18 @@
                 background: #1d9bf0; cursor: pointer;
             }
             
+            .tm-sp-disabled-child {
+                opacity: 0.32;
+                pointer-events: none;
+                cursor: default;
+                user-select: none;
+                transition: opacity 0.18s ease;
+            }
+            .tm-sp-disabled-child .tm-sp-slider {
+                cursor: default;
+                accent-color: rgba(255,255,255,.2);
+            }
+            
             #tm-dock-spotlight {
                 position: fixed; inset: 0; z-index: 9999990;
                 pointer-events: all;
@@ -2009,6 +2023,19 @@
                 animation: tm-float-new-pulse 1.8s ease-in-out infinite;
                 pointer-events: none; z-index: 5;
             }
+            
+            .tm-gear-notify-dot {
+                position: absolute; top: 1px; right: 1px;
+                width: 7px; height: 7px; border-radius: 50%;
+                background: #ff6b35;
+                border: 1.5px solid var(--tm-gear-dot-border, #16202b);
+                pointer-events: none; z-index: 6;
+                animation: tm-dot-notify-pulse 2.2s ease-in-out infinite;
+            }
+            @keyframes tm-dot-notify-pulse {
+                0%,100% { box-shadow: 0 0 0 0 rgba(255,107,53,0.55); }
+                50%     { box-shadow: 0 0 0 4px rgba(255,107,53,0); }
+            }
 
             #tm-settings-wrapper[data-absorb="true"] {
                 opacity: 1 !important;
@@ -2053,6 +2080,8 @@
             }
             .tm-star-pip.tm-popped { transform: scale(1); opacity: 1; pointer-events: all; }
             .tm-star-pip:hover     { transform: scale(1.35) !important; }
+            .tm-star-pip.tm-escaping,
+            .tm-star-pip.tm-escaping:hover { transform: scale(0.7) translate(-6px, 2px) !important; pointer-events: none !important; }
             
             .tm-fan-node {
                 position: fixed;
@@ -2224,6 +2253,14 @@
         gearBtn.id = 'tm-settings-gear-btn';
         gearBtn.innerHTML = SVG_GEAR;
         gearBtn.title = '⚙️ Twitter Media Script Settings';
+
+        const _hasUnseenFeature = NEW_FEATURE_IDS.some(id => isFeatureNew(id));
+        if (_hasUnseenFeature) {
+            const dot = document.createElement('span');
+            dot.className = 'tm-gear-notify-dot';
+            dot.style.setProperty('--tm-gear-dot-border', dark ? '#16202b' : '#f7f9f9');
+            gearBtn.appendChild(dot);
+        }
 
         const SVG_HISTORY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 15.5"/><path d="M5 5l2.5 2.5" opacity="0.5"/></svg>`;
         const histBtn = document.createElement('button');
@@ -2728,16 +2765,18 @@
 
             const grpGroups = makeGroup('⭐  Groups', true);
 
-            grpGroups.append(makeRow(
+            const groupOnDlRow = makeRow(
                 'Group on Download',
                 () => GM_getValue(KEY_GROUP_ON_DOWNLOAD, false) ? (T.status_on || 'On') : (T.status_off || 'Off'),
                 () => {
                     const next = !GM_getValue(KEY_GROUP_ON_DOWNLOAD, false);
                     GM_setValue(KEY_GROUP_ON_DOWNLOAD, next);
                     showToast('Group on Download → ' + (next ? (T.status_on || 'On') : (T.status_off || 'Off')));
+                    _syncGroupChildrenDisabled();
                 },
                 'sp_group_on_dl'
-            ));
+            );
+            grpGroups.append(groupOnDlRow);
 
             const _grpCfgRaw  = (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })();
             const _grpGlowClr = _grpCfgRaw.glowColor || 'multi';
@@ -2931,6 +2970,16 @@
             grpBtnRow.appendChild(manageBtn);
             grpGroups.append(grpBtnRow);
 
+            const _groupChildren = [glowColorRow, labelColorRow, grpBtnRow];
+            const _getGroupSliders = () => Array.from(grpGroups.body.querySelectorAll('.tm-sp-slider-row'));
+            const _syncGroupChildrenDisabled = () => {
+                const isOn = GM_getValue(KEY_GROUP_ON_DOWNLOAD, false);
+                [..._groupChildren, ..._getGroupSliders()].forEach(el => {
+                    el.classList.toggle('tm-sp-disabled-child', !isOn);
+                });
+            };
+            _syncGroupChildrenDisabled();
+
             const HIST_TOOLTIP = 'Hidden feature: The history panel has invisible dock triggers on its left & right edges. Click them to auto-hide the panel to the screen edge!';
             const grpHist = makeGroup('🗂  History Panel', false, HIST_TOOLTIP, showDockSpotlight);
 
@@ -2982,6 +3031,9 @@
             e.stopPropagation();
             const isOpen = wrapper.getAttribute('data-open') === 'true';
             wrapper.setAttribute('data-open', String(!isOpen));
+            if (!isOpen) {
+                gearBtn.querySelector('.tm-gear-notify-dot')?.remove();
+            }
         });
 
         document.addEventListener('click', e => {
@@ -3102,6 +3154,9 @@
                 rec.groupId = groupId;
             }
             GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
+            if (groupId !== null) {
+                GM_setValue('app_group_unread_' + groupId, true);
+            }
             const existPanel = document.getElementById('tm-hist-panel');
             if (existPanel) existPanel.dispatchEvent(new CustomEvent('tm-hist-refresh'));
         } catch (e) { console.error('[TMGroup] assignGroup error:', e); }
@@ -3236,15 +3291,18 @@
         } catch (_) { return 0; }
     }
 
+    let _starEscaping = false;
+
     function _runStarEscapeAnim(callback) {
         const pip = document.getElementById('tm-star-pip');
-        if (!pip) { callback?.(); return; }
+        if (!pip || _starEscaping) { if (!pip) callback?.(); return; }
+        _starEscaping = true;
 
         clearTimeout(_starAutoHideTimer);
 
+        pip.classList.add('tm-escaping');
+
         const rect = pip.getBoundingClientRect();
-        const cx   = rect.left + rect.width  / 2;
-        const cy   = rect.top  + rect.height / 2;
 
         const directions = [
             { dx:  220, dy: -180, rot:  340 },
@@ -3254,23 +3312,24 @@
         ];
         const dir = directions[Math.floor(Math.random() * directions.length)];
 
-        pip.style.transition = 'transform .1s cubic-bezier(.4,0,.2,1)';
+        pip.style.transition = 'transform .12s cubic-bezier(.4,0,.2,1)';
         pip.style.transform  = 'scale(0.7) translate(-6px, 2px)';
 
         setTimeout(() => {
-            pip.style.transition = `transform .42s cubic-bezier(.2,0,.8,1), opacity .38s ease .08s`;
+            pip.style.transition = 'transform .42s cubic-bezier(.2,0,.8,1), opacity .38s ease .08s';
             pip.style.transform  = `translate(${dir.dx}px, ${dir.dy}px) rotate(${dir.rot}deg) scale(0.15)`;
             pip.style.opacity    = '0';
-        }, 110);
+        }, 130);
 
         setTimeout(() => {
             pip.style.transition = 'none';
             pip.style.transform  = '';
             pip.style.opacity    = '';
-            pip.classList.remove('tm-popped');
+            pip.classList.remove('tm-popped', 'tm-escaping');
             _pendingStarPipEl = null;
+            _starEscaping = false;
             callback?.();
-        }, 580);
+        }, 600);
     }
 
     function openGroupFan() {
@@ -4233,6 +4292,79 @@
                 border: 2px solid rgba(255,255,255,0.2);
             }
             #tm-hist-zoom img { width: 100%; height: 100%; object-fit: cover; }
+            
+            #tm-group-tab-bar {
+                position: relative;
+                display: flex; align-items: center;
+                padding: 0; gap: 0;
+                border-bottom: 1px solid ${C.border};
+                flex-shrink: 0; overflow: hidden;
+                background: ${C.header};
+            }
+            #tm-group-tab-scroll {
+                display: flex; align-items: center; gap: 4px;
+                padding: 5px 8px;
+                overflow-x: auto; overflow-y: hidden;
+                scrollbar-width: none; flex: 1; min-width: 0;
+                scroll-behavior: smooth;
+            }
+            #tm-group-tab-scroll::-webkit-scrollbar { display: none; }
+            .tm-gtab-pill {
+                display: inline-flex; align-items: center; gap: 4px;
+                padding: 3px 9px 3px 7px;
+                border-radius: 99px; border: 1px solid transparent;
+                font-size: 11px; font-weight: 500;
+                color: ${C.sub}; white-space: nowrap;
+                cursor: pointer; flex-shrink: 0;
+                background: transparent;
+                font-family: inherit; line-height: 1.4;
+                transition: background .12s, border-color .12s, color .12s;
+            }
+            .tm-gtab-pill:hover {
+                background: ${C.rowHover};
+                color: ${C.text};
+                border-color: ${C.border};
+            }
+            .tm-gtab-pill.active {
+                background: rgba(29,155,240,.14);
+                border-color: rgba(29,155,240,.45);
+                color: #1d9bf0;
+            }
+            .tm-gtab-pill svg {
+                width: 12px; height: 12px;
+                flex-shrink: 0; pointer-events: none;
+            }
+            .tm-gtab-scroll-btn {
+                flex-shrink: 0; width: 22px; height: 100%;
+                border: none; background: transparent;
+                cursor: pointer; display: none;
+                align-items: center; justify-content: center;
+                color: ${C.sub}; padding: 0;
+                transition: background .1s, color .1s;
+                z-index: 2;
+            }
+            .tm-gtab-scroll-btn:hover { background: ${C.rowHover}; color: ${C.text}; }
+            .tm-gtab-scroll-btn.visible { display: flex; }
+            .tm-gtab-scroll-btn svg { width: 10px; height: 10px; pointer-events: none; }
+            .tm-gtab-scroll-btn.left {
+                border-right: 1px solid ${C.border};
+            }
+            .tm-gtab-scroll-btn.right {
+                border-left: 1px solid ${C.border};
+            }
+            
+            .tm-gtab-dot {
+                width: 6px; height: 6px;
+                border-radius: 50%;
+                background: #fbbf24;
+                flex-shrink: 0;
+                box-shadow: 0 0 4px rgba(251,191,36,0.7);
+                animation: tm-dot-pop 0.25s cubic-bezier(0.34,1.56,0.64,1);
+            }
+            @keyframes tm-dot-pop {
+                from { transform: scale(0); opacity: 0; }
+                to   { transform: scale(1); opacity: 1; }
+            }
         `;
 
         const panel = document.createElement('div');
@@ -4291,13 +4423,6 @@
 
         const groupTabBar = document.createElement('div');
         groupTabBar.id = 'tm-group-tab-bar';
-        groupTabBar.style.cssText = `
-            display:flex;align-items:center;gap:4px;
-            padding:4px 10px 2px;overflow-x:auto;
-            scrollbar-width:none;flex-shrink:0;
-            border-bottom:1px solid ${C.border};
-        `;
-        groupTabBar.style.setProperty('scrollbar-width','none');
 
         function buildGroupTabs() {
             groupTabBar.innerHTML = '';
@@ -4305,46 +4430,92 @@
             if (!groups.length) { groupTabBar.style.display = 'none'; return; }
             groupTabBar.style.display = 'flex';
 
-            const sel = document.createElement('select');
-            sel.style.cssText = `
-                flex:1;min-width:0;
-                background:rgba(30,35,50,.95);
-                border:1px solid rgba(255,255,255,.12);
-                border-radius:8px;padding:4px 8px;
-                font-size:11px;color:rgba(255,255,255,.8);
-                cursor:pointer;font-family:inherit;outline:none;
-                transition:border-color .12s;
-            `;
-            sel.addEventListener('focus',  () => sel.style.borderColor = 'rgba(29,155,240,.5)');
-            sel.addEventListener('blur',   () => sel.style.borderColor = 'rgba(255,255,255,.12)');
+            const SVG_LEFT  = `<svg viewBox="0 0 10 10" fill="currentColor"><path d="M6.5 2L3.5 5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>`;
+            const SVG_RIGHT = `<svg viewBox="0 0 10 10" fill="currentColor"><path d="M3.5 2L6.5 5l-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>`;
 
-            const optAll = document.createElement('option');
-            optAll.value       = '__all__';
-            optAll.textContent = '⊞  All';
-            optAll.selected    = activeGroupId === null;
-            sel.appendChild(optAll);
+            const btnLeft = document.createElement('button');
+            btnLeft.className = 'tm-gtab-scroll-btn left';
+            btnLeft.innerHTML = SVG_LEFT;
+            btnLeft.title = 'Scroll left';
+            btnLeft.addEventListener('click', (e) => {
+                e.stopPropagation();
+                scrollArea.scrollBy({ left: -120, behavior: 'smooth' });
+            });
+
+            const scrollArea = document.createElement('div');
+            scrollArea.id = 'tm-group-tab-scroll';
+
+            const btnRight = document.createElement('button');
+            btnRight.className = 'tm-gtab-scroll-btn right';
+            btnRight.innerHTML = SVG_RIGHT;
+            btnRight.title = 'Scroll right';
+            btnRight.addEventListener('click', (e) => {
+                e.stopPropagation();
+                scrollArea.scrollBy({ left: 120, behavior: 'smooth' });
+            });
+
+            const makePill = (iconHtml, label, value) => {
+                const pill = document.createElement('button');
+                pill.type = 'button';
+                pill.className = 'tm-gtab-pill' + (
+                    (value !== '__ungrouped__' && activeGroupId === value) ||
+                    (value === '__ungrouped__' && activeGroupId === '__ungrouped__')
+                    ? ' active' : ''
+                );
+                const iconSpan = document.createElement('span');
+                iconSpan.innerHTML = iconHtml;
+                iconSpan.style.cssText = 'display:inline-flex;align-items:center;flex-shrink:0';
+                const txtSpan = document.createElement('span');
+                txtSpan.textContent = label;
+                pill.appendChild(iconSpan);
+                pill.appendChild(txtSpan);
+                if (value !== '__ungrouped__' && GM_getValue('app_group_unread_' + value, false)) {
+                    const dot = document.createElement('span');
+                    dot.className = 'tm-gtab-dot';
+                    pill.appendChild(dot);
+                }
+                pill.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    activeGroupId = value;
+                    if (value !== '__ungrouped__') {
+                        GM_deleteValue('app_group_unread_' + value);
+                        pill.querySelector('.tm-gtab-dot')?.remove();
+                    }
+                    scrollArea.querySelectorAll('.tm-gtab-pill').forEach(p => p.classList.remove('active'));
+                    pill.classList.add('active');
+                    pill.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                    render();
+                });
+                return pill;
+            };
 
             groups.forEach(g => {
-                const ic   = _GROUP_SVG_ICONS?.find(x => x.id === g.icon);
-                const opt  = document.createElement('option');
-                opt.value       = g.id;
-                opt.textContent = `${ic ? ic.label : (g.icon || '●')}  ${g.name}`;
-                opt.selected    = activeGroupId === g.id;
-                sel.appendChild(opt);
+                const ic = _GROUP_SVG_ICONS?.find(x => x.id === g.icon);
+                const iconHtml = ic
+                    ? `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">${ic.svg.match(/<svg[^>]*>([\s\S]*?)<\/svg>/)?.[1] || ''}</svg>`
+                    : `<span style="font-size:10px;line-height:1">${g.icon || '●'}</span>`;
+                scrollArea.appendChild(makePill(iconHtml, g.name, g.id));
             });
 
-            const optUng = document.createElement('option');
-            optUng.value       = '__ungrouped__';
-            optUng.textContent = '—  Ungrouped';
-            optUng.selected    = activeGroupId === '__ungrouped__';
-            sel.appendChild(optUng);
+            const SVG_DASH = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="2" y1="6" x2="10" y2="6"/></svg>`;
+            scrollArea.appendChild(makePill(SVG_DASH, 'Ungrouped', '__ungrouped__'));
 
-            sel.addEventListener('change', () => {
-                activeGroupId = sel.value === '__all__' ? null : sel.value;
-                render();
-            });
+            groupTabBar.appendChild(btnLeft);
+            groupTabBar.appendChild(scrollArea);
+            groupTabBar.appendChild(btnRight);
 
-            groupTabBar.appendChild(sel);
+            const syncArrows = () => {
+                const canLeft  = scrollArea.scrollLeft > 2;
+                const canRight = scrollArea.scrollLeft < scrollArea.scrollWidth - scrollArea.clientWidth - 2;
+                btnLeft.classList.toggle('visible', canLeft);
+                btnRight.classList.toggle('visible', canRight);
+            };
+            scrollArea.addEventListener('scroll', syncArrows, { passive: true });
+            if (window.ResizeObserver) {
+                const ro = new ResizeObserver(syncArrows);
+                ro.observe(scrollArea);
+            }
+            requestAnimationFrame(syncArrows);
         }
 
         buildGroupTabs();
