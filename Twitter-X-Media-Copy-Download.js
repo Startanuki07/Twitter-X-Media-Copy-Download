@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      2.1.0
+// @version      2.1.1
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -3202,6 +3202,7 @@
     let _starAutoHideTimer = null;
     let _fanNodes          = [];
     let _fanOpen           = false;
+    let _selectedIconId    = null;
 
     function popStarPip(mediaBtnEl) {
         const pip = document.getElementById('tm-star-pip');
