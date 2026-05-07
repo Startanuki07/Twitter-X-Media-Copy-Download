@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      2.0.3
+// @version      2.1.0
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -51,6 +51,7 @@
     const KEY_ONBOARDING_DONE  = 'app_onboarding_done';
     const KEY_FEEDBACK_STYLE   = 'app_feedback_style';
     const KEY_SEEN_FEATURES    = 'app_seen_features';
+    const KEY_GEAR_DOT_SEEN    = 'app_gear_dot_seen';
     const KEY_HISTORY_RECORDS   = 'app_history_records';
     const KEY_HISTORY_PANEL_POS = 'app_history_panel_pos';
     const KEY_HISTORY_VIEW_MODE = 'app_history_view_mode';
@@ -1695,6 +1696,9 @@
             #tm-settings-wrapper:hover, #tm-settings-wrapper[data-open="true"] {
                 opacity: 1;
             }
+            #tm-settings-wrapper:hover #tm-dismiss-btn {
+                opacity: 1 !important;
+            }
 
             #tm-history-btn {
                 position: absolute; right: 28px; top: 2px;
@@ -1731,7 +1735,7 @@
             #tm-settings-wrapper[data-open="true"] #tm-settings-gear-btn {
                 z-index: 4;
                 opacity: 1;
-                transform: scale(1.2) translateX(-22px); 
+                transform: scale(1.3) translateX(-12px); 
                 background: ${C.gearBg};
             }
 
@@ -1748,7 +1752,7 @@
             }
 
             #tm-settings-panel {
-                position: absolute; top: calc(100% + 4px); right: 4px;
+                position: absolute; top: calc(100% - 21px); right: 4px;
                 width: 300px; background: ${C.panel};
                 border-radius: 14px;
                 box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.10);
@@ -2140,8 +2144,7 @@
             
             .tm-group-modal-overlay {
                 position: fixed; inset: 0;
-                background: rgba(0,0,0,.52);
-                backdrop-filter: blur(4px);
+                background: rgba(0,0,0,.65);
                 z-index: 99998;
                 display: flex; align-items: center; justify-content: center;
                 opacity: 0; pointer-events: none;
@@ -2154,6 +2157,9 @@
                 background: #1a1f2e;
                 border: 0.5px solid rgba(255,255,255,.13);
                 border-radius: 14px; padding: 18px 20px; width: 230px;
+                max-height: calc(100dvh - 48px);
+                overflow: hidden;
+                display: flex; flex-direction: column;
                 transform: scale(.88) translateY(10px);
                 transition: transform .26s cubic-bezier(.34,1.56,.64,1);
             }
@@ -2176,19 +2182,6 @@
                 font-family: inherit;
             }
             .tm-group-modal-input:focus { border-color: rgba(29,155,240,.7); }
-            .tm-group-emoji-row {
-                display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap;
-            }
-            .tm-group-emoji-btn {
-                font-size: 17px; cursor: pointer;
-                width: 30px; height: 30px;
-                display: flex; align-items: center; justify-content: center;
-                border-radius: 6px; transition: background .12s;
-                border: none; background: transparent; padding: 0;
-                font-family: inherit;
-            }
-            .tm-group-emoji-btn:hover { background: rgba(255,255,255,.1); }
-            .tm-group-emoji-btn.tm-sel { background: rgba(29,155,240,.28); outline: 1.5px solid rgba(29,155,240,.5); }
             .tm-group-modal-btns {
                 display: flex; gap: 8px; margin-top: 16px;
             }
@@ -2216,8 +2209,10 @@
         wrapper.setAttribute('data-focus', 'hist');
         wrapper.setAttribute('data-open', 'false');
 
-        let focusTimer = null;
+        let focusTimer  = null;
         let currentFocus = 'hist';
+        let _gearLock   = false;
+        let _gearLockTimer = null;
 
         wrapper.addEventListener('mousemove', (e) => {
             if (wrapper.getAttribute('data-open') === 'true') return;
@@ -2225,27 +2220,57 @@
             const x = e.clientX - rect.left;
             const targetFocus = x > 45 ? 'gear' : 'hist';
 
+            if (_gearLock && targetFocus === 'hist') {
+                if (focusTimer) { clearTimeout(focusTimer); focusTimer = null; }
+                return;
+            }
+
             if (targetFocus !== currentFocus) {
                 if (!focusTimer) {
                     focusTimer = setTimeout(() => {
                         currentFocus = targetFocus;
                         wrapper.setAttribute('data-focus', currentFocus);
                         focusTimer = null;
+
+                        if (currentFocus === 'gear') {
+                            _gearLock = true;
+                            if (_gearLockTimer) clearTimeout(_gearLockTimer);
+                            _gearLockTimer = setTimeout(() => { _gearLock = false; }, 500);
+                        }
                     }, 150);
                 }
             } else {
-                if (focusTimer) {
-                    clearTimeout(focusTimer);
-                    focusTimer = null;
-                }
+                if (focusTimer) { clearTimeout(focusTimer); focusTimer = null; }
             }
         });
 
         wrapper.addEventListener('mouseleave', () => {
             if (wrapper.getAttribute('data-open') === 'true') return;
-            if (focusTimer) { clearTimeout(focusTimer); focusTimer = null; }
+            if (focusTimer)     { clearTimeout(focusTimer);     focusTimer     = null; }
+            if (_gearLockTimer) { clearTimeout(_gearLockTimer); _gearLockTimer = null; }
+            _gearLock    = false;
             currentFocus = 'hist';
             wrapper.setAttribute('data-focus', 'hist');
+        });
+
+        const dismissBtn = document.createElement('button');
+        dismissBtn.id = 'tm-dismiss-btn';
+        dismissBtn.title = 'Hide buttons (reload to restore)';
+        dismissBtn.innerHTML = '<svg viewBox="0 0 10 10" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg>';
+        dismissBtn.style.cssText = `
+            position:absolute; left:0; top:0;
+            width:14px; height:14px;
+            border-radius:50%; border:none;
+            background:rgba(255,255,255,.12);
+            color:rgba(255,255,255,.4);
+            cursor:pointer; padding:0;
+            display:flex; align-items:center; justify-content:center;
+            opacity:0; transition:opacity .2s;
+            z-index:10;
+        `;
+        dismissBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            wrapper.style.display = 'none';
         });
 
         const SVG_GEAR = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;
@@ -2254,7 +2279,9 @@
         gearBtn.innerHTML = SVG_GEAR;
         gearBtn.title = '⚙️ Twitter Media Script Settings';
 
-        const _hasUnseenFeature = NEW_FEATURE_IDS.some(id => isFeatureNew(id));
+        const _seenCount    = GM_getValue(KEY_GEAR_DOT_SEEN, 0);
+        const _hasUnseenFeature = _seenCount < NEW_FEATURE_IDS.length
+            && NEW_FEATURE_IDS.some(id => isFeatureNew(id));
         if (_hasUnseenFeature) {
             const dot = document.createElement('span');
             dot.className = 'tm-gear-notify-dot';
@@ -3033,6 +3060,7 @@
             wrapper.setAttribute('data-open', String(!isOpen));
             if (!isOpen) {
                 gearBtn.querySelector('.tm-gear-notify-dot')?.remove();
+                GM_setValue(KEY_GEAR_DOT_SEEN, NEW_FEATURE_IDS.length);
             }
         });
 
@@ -3044,6 +3072,7 @@
             wrapper.setAttribute('data-open', 'false');
         });
 
+        wrapper.appendChild(dismissBtn);
         wrapper.appendChild(histBtn);
         wrapper.appendChild(gearBtn);
         wrapper.appendChild(panel);
@@ -3216,7 +3245,7 @@
     function _fanPositions(n, cx, cy) {
         const pos = [];
         _layerCfg(n).forEach(({c, r}) => {
-            const startDeg = -55, endDeg = 55;
+            const startDeg = -70, endDeg = 70;
             const range = endDeg - startDeg;
             for (let i = 0; i < c; i++) {
                 const deg = c === 1 ? 0 : startDeg + range * i / (c - 1);
@@ -3263,10 +3292,8 @@
                 : _glowClr + '85';
             const half = Math.round(_glowPx / 2);
 
-            const ic   = _GROUP_SVG_ICONS.find(x => x.id === g.icon) || null;
-            const iconHtml = ic
-                ? `<div style="width:18px;height:18px;color:${ic.color};flex-shrink:0">${ic.svg}</div>`
-                : `<span class="tm-fan-icon">${g.icon}</span>`;
+            const ic       = _resolveGroupIcon(g.icon, 18);
+            const iconHtml = ic.html;
 
             const el = document.createElement('div');
             el.className = 'tm-fan-node ' + STAR_FLOAT_CLS[i % STAR_FLOAT_CLS.length];
@@ -3410,8 +3437,48 @@
         { id:'book',    label:'Book',    color:'#ffcc80', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' },
         { id:'star',    label:'Fav',     color:'#fff176', svg:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>' },
         { id:'work',    label:'Work',    color:'#b0bec5', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="12.01"/></svg>' },
+        { id:'sport',   label:'Sport',   color:'#ef9a9a', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93c2.34 2.34 3.07 5.71 2.07 8.71M19.07 4.93c-2.34 2.34-3.07 5.71-2.07 8.71M4.93 19.07c2.34-2.34 5.71-3.07 8.71-2.07M19.07 19.07c-2.34-2.34-5.71-3.07-8.71-2.07"/></svg>' },
+        { id:'video',   label:'Video',   color:'#ff8a65', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="4" width="15" height="16" rx="2"/><path d="M17 8l5-3v14l-5-3V8z"/></svg>' },
+        { id:'pet',     label:'Pet',     color:'#ffab91', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="14" r="6"/><circle cx="7" cy="6" r="2"/><circle cx="17" cy="6" r="2"/><circle cx="4" cy="11" r="1.5"/><circle cx="20" cy="11" r="1.5"/></svg>' },
+        { id:'fashion', label:'Fashion', color:'#f8bbd0', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>' },
+        { id:'finance', label:'Finance', color:'#a5d6a7', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>' },
+        { id:'tech',    label:'Tech',    color:'#90caf9', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>' },
+        { id:'health',  label:'Health',  color:'#ef9a9a', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' },
+        { id:'news',    label:'News',    color:'#b0bec5', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 0-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><line x1="18" y1="2" x2="18" y2="22"/><line x1="8" y1="10" x2="14" y2="10"/><line x1="8" y1="14" x2="14" y2="14"/></svg>' },
+        { id:'flower',  label:'Flower',  color:'#f48fb1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2a3 3 0 0 1 3 3 3 3 0 0 1-3 3 3 3 0 0 1-3-3 3 3 0 0 1 3-3zm0 14a3 3 0 0 1 3 3 3 3 0 0 1-3 3 3 3 0 0 1-3-3 3 3 0 0 1 3-3zm10-7a3 3 0 0 1 0 6 3 3 0 0 1-3-3 3 3 0 0 1 3-3zM2 12a3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3 3 3 0 0 1-3-3zm12.24-5.76a3 3 0 0 1 4.24 0 3 3 0 0 1 0 4.24 3 3 0 0 1-4.24 0 3 3 0 0 1 0-4.24zm-8.48 0a3 3 0 0 1 4.24 0 3 3 0 0 1 0 4.24 3 3 0 0 1-4.24 0 3 3 0 0 1 0-4.24zm0 8.48a3 3 0 0 1 4.24 0 3 3 0 0 1 0 4.24 3 3 0 0 1-4.24 0 3 3 0 0 1 0-4.24zm8.48 0a3 3 0 0 1 4.24 0 3 3 0 0 1 0 4.24 3 3 0 0 1-4.24 0 3 3 0 0 1 0-4.24z"/></svg>' },
+        { id:'fire',    label:'Fire',    color:'#ff7043', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 0-4 4-4 9a4 4 0 0 0 8 0c0-2-1-4-1-4s-1 2-3 2c-1 0-2-1-2-2 0-2 2-5 2-5z"/><path d="M12 22c-3.31 0-6-2.69-6-6 0-2.5 1.5-4.5 1.5-4.5S9 13 12 13s4.5-1.5 4.5-1.5S18 13.5 18 16c0 3.31-2.69 6-6 6z"/></svg>' },
+        { id:'brain',   label:'Brain',   color:'#ce93d8', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3a3 3 0 0 1 6 0"/><path d="M12 3v3"/><path d="M6.6 5A5 5 0 0 0 4 9.5c0 1.8.8 3.4 2 4.5v4a1 1 0 0 0 1 1h2v-3h2v3h2a1 1 0 0 0 1-1v-4a6 6 0 0 0 2-4.5A5 5 0 0 0 17.4 5"/><path d="M9 18h6"/></svg>' },
+        { id:'moon',    label:'Night',   color:'#90caf9', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>' },
+        { id:'plane',   label:'Plane',   color:'#4dd0e1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16l-9-9-9 9"/><path d="M3 8l4.5 4.5L12 8l4.5 4.5L21 8"/><line x1="12" y1="3" x2="12" y2="8"/></svg>' },
+        { id:'run',     label:'Run',     color:'#ffb74d', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="M7 21l2-6 3 3 3-8 3 3"/><path d="M5 12l2-3 4 1 2-4"/></svg>' },
+        { id:'coffee',  label:'Coffee',  color:'#bcaaa4', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>' },
+        { id:'globe',   label:'Globe',   color:'#80deea', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>' },
+        { id:'award',   label:'Award',   color:'#ffd54f', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>' },
+        { id:'magic',   label:'Magic',   color:'#b39ddb', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8L19 13M17.8 6.2L19 5M12.2 6.2L11 5M12.2 11.8L11 13"/><path d="M3 21l9-9"/><circle cx="15" cy="9" r="3"/></svg>' },
+        { id:'clock',   label:'Clock',   color:'#b0bec5', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' },
+        { id:'lock',    label:'Private', color:'#ef9a9a', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' },
+        { id:'chat',    label:'Chat',    color:'#80cbc4', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' },
+        { id:'palette', label:'Palette', color:'#f06292', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2C6.48 2 2 6.48 2 12c0 5.52 4.48 10 10 10 1.1 0 2-.9 2-2v-.5c0-.55-.22-1.05-.59-1.41-.36-.36-.59-.86-.59-1.41 0-1.1.9-2 2-2h2c3.31 0 6-2.69 6-6 0-4.97-4.48-8.58-9-8.59z"/><circle cx="6.5" cy="11.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="9.5" cy="7.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="14.5" cy="7.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="17.5" cy="11.5" r="1.5" fill="currentColor" stroke="none"/></svg>' },
     ];
-    let _selectedIconId = _GROUP_SVG_ICONS[0].id;
+
+    function _resolveGroupIcon(iconId, size = 18) {
+        const ic = _GROUP_SVG_ICONS.find(x => x.id === iconId);
+        if (ic) {
+            return {
+                type: 'svg',
+                color: ic.color,
+                label: ic.label,
+                html: `<div style="width:${size}px;height:${size}px;color:${ic.color};flex-shrink:0">${ic.svg}</div>`,
+            };
+        }
+        const fb = _GROUP_SVG_ICONS[0];
+        return {
+            type: 'svg',
+            color: fb.color,
+            label: fb.label,
+            html: `<div style="width:${size}px;height:${size}px;color:${fb.color};flex-shrink:0">${fb.svg}</div>`,
+        };
+    }
 
     function showGroupCreateModal() {
         const old = document.getElementById('tm-group-modal-overlay');
@@ -3439,7 +3506,7 @@
         iconLabel.textContent = 'Icon';
 
         const iconGrid = document.createElement('div');
-        iconGrid.style.cssText = 'display:grid;grid-template-columns:repeat(5,1fr);gap:5px';
+        iconGrid.style.cssText = 'display:grid;grid-template-columns:repeat(5,1fr);gap:5px;max-height:160px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin';
 
         _GROUP_SVG_ICONS.forEach(ic => {
             const cell = document.createElement('button');
@@ -3545,9 +3612,9 @@
             return;
         }
 
-        const ic       = _GROUP_SVG_ICONS.find(x => x.id === _selectedIconId) || _GROUP_SVG_ICONS[0];
-        const glowIdx  = getGroups().length % STAR_GLOW_COLORS.length;
-        const group    = createGroup(name, ic.id, STAR_GLOW_COLORS[glowIdx]);
+        const ic      = _GROUP_SVG_ICONS.find(x => x.id === _selectedIconId) || _GROUP_SVG_ICONS[0];
+        const glowIdx = getGroups().length % STAR_GLOW_COLORS.length;
+        const group   = createGroup(name, ic.id, STAR_GLOW_COLORS[glowIdx]);
         if (_pendingGroupRecordId !== null) {
             assignGroup(_pendingGroupRecordId, group.id);
             _pendingGroupRecordId = null;
@@ -3601,7 +3668,7 @@
         titleRow.appendChild(newBtn);
 
         const list = document.createElement('div');
-        list.style.cssText = 'max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:14px;scrollbar-width:thin';
+        list.style.cssText = 'flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:14px;scrollbar-width:thin';
 
         let _openIconPicker = null;
 
@@ -3653,12 +3720,72 @@
                 return;
             }
 
-            groups.forEach(g => {
+            let _dragSrcIdx = -1;
+
+            groups.forEach((g, gIdx) => {
                 const wrapper = document.createElement('div');
                 wrapper.style.cssText = 'display:flex;flex-direction:column;gap:0';
+                wrapper.draggable = true;
+                wrapper.dataset.groupId  = g.id;
+                wrapper.dataset.groupIdx = gIdx;
+
+                wrapper.addEventListener('dragstart', e => {
+                    _dragSrcIdx = gIdx;
+                    wrapper.style.opacity = '0.45';
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                wrapper.addEventListener('dragend', () => {
+                    wrapper.style.opacity = '1';
+                    list.querySelectorAll('[data-group-id]').forEach(el => {
+                        el.style.borderTop    = '';
+                        el.style.borderBottom = '';
+                    });
+                });
+                wrapper.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    const rect = wrapper.getBoundingClientRect();
+                    const mid  = rect.top + rect.height / 2;
+                    list.querySelectorAll('[data-group-id]').forEach(el => {
+                        el.style.borderTop = ''; el.style.borderBottom = '';
+                    });
+                    if (e.clientY < mid) wrapper.style.borderTop    = '2px solid rgba(29,155,240,.7)';
+                    else                 wrapper.style.borderBottom = '2px solid rgba(29,155,240,.7)';
+                });
+                wrapper.addEventListener('dragleave', () => {
+                    wrapper.style.borderTop = ''; wrapper.style.borderBottom = '';
+                });
+                wrapper.addEventListener('drop', e => {
+                    e.preventDefault();
+                    wrapper.style.borderTop = ''; wrapper.style.borderBottom = '';
+                    const destIdx = parseInt(wrapper.dataset.groupIdx);
+                    if (_dragSrcIdx === -1 || _dragSrcIdx === destIdx) return;
+                    const rect = wrapper.getBoundingClientRect();
+                    const insertAfter = e.clientY >= rect.top + rect.height / 2;
+                    const arr  = getGroups();
+                    const [moved] = arr.splice(_dragSrcIdx, 1);
+                    const newDest  = insertAfter
+                        ? (_dragSrcIdx < destIdx ? destIdx : destIdx + 1)
+                        : (_dragSrcIdx < destIdx ? destIdx - 1 : destIdx);
+                    arr.splice(Math.max(0, Math.min(arr.length, newDest)), 0, moved);
+                    saveGroups(arr);
+                    _dragSrcIdx = -1;
+                    rebuildList();
+                });
 
                 const row = document.createElement('div');
                 row.style.cssText = 'display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border-radius:8px;padding:7px 8px';
+
+                const dragHandle = document.createElement('span');
+                dragHandle.title = 'Drag to reorder';
+                dragHandle.innerHTML = '<svg viewBox="0 0 10 16" width="8" height="13" fill="currentColor"><circle cx="3" cy="3" r="1.2"/><circle cx="7" cy="3" r="1.2"/><circle cx="3" cy="8" r="1.2"/><circle cx="7" cy="8" r="1.2"/><circle cx="3" cy="13" r="1.2"/><circle cx="7" cy="13" r="1.2"/></svg>';
+                dragHandle.style.cssText = 'flex-shrink:0;color:rgba(255,255,255,.2);cursor:grab;display:flex;align-items:center;transition:color .12s;user-select:none';
+                dragHandle.addEventListener('mouseover', () => dragHandle.style.color = 'rgba(255,255,255,.5)');
+                dragHandle.addEventListener('mouseout',  () => dragHandle.style.color = 'rgba(255,255,255,.2)');
+                dragHandle.addEventListener('mousedown', () => { wrapper.draggable = true; });
+                row.addEventListener('mousedown', e => {
+                    if (!e.target.closest('[title="Drag to reorder"]')) wrapper.draggable = false;
+                });
 
                 const iconWrap = document.createElement('button');
                 iconWrap.type = 'button';
@@ -3668,9 +3795,9 @@
                     background:transparent;cursor:pointer;padding:0;border-radius:4px;
                     transition:background .12s;display:flex;align-items:center;justify-content:center;
                 `;
-                const ic = _GROUP_SVG_ICONS.find(x => x.id === g.icon);
-                iconWrap.style.color = ic?.color || 'rgba(255,255,255,.5)';
-                iconWrap.innerHTML = ic?.svg || `<span style="font-size:14px">${g.icon||'📁'}</span>`;
+                const ic = _resolveGroupIcon(g.icon, 18);
+                iconWrap.style.color = ic.color;
+                iconWrap.innerHTML = ic.html;
                 iconWrap.addEventListener('mouseover', () => iconWrap.style.background = 'rgba(255,255,255,.1)');
                 iconWrap.addEventListener('mouseout',  () => iconWrap.style.background = 'transparent');
                 iconWrap.addEventListener('click', () => {
@@ -3679,9 +3806,10 @@
                         const arr = getGroups();
                         const idx = arr.findIndex(x => x.id === g.id);
                         if (idx > -1) { arr[idx].icon = newIc.id; saveGroups(arr); g.icon = newIc.id; }
-                        iconWrap.style.color = newIc.color;
-                        iconWrap.innerHTML = newIc.svg;
-                        showToast(`Icon → ${newIc.label}`);
+                        const resolved = _resolveGroupIcon(newIc.id, 18);
+                        iconWrap.style.color = resolved.color;
+                        iconWrap.innerHTML = resolved.html;
+                        showToast(`Icon → ${resolved.label}`);
                     });
                     wrapper.appendChild(picker);
                     _openIconPicker = picker;
@@ -3690,16 +3818,42 @@
                 const nameInput = document.createElement('input');
                 nameInput.value     = g.name;
                 nameInput.maxLength = 24;
-                nameInput.style.cssText = 'flex:1;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,.08);outline:none;color:rgba(255,255,255,.88);font-size:12px;font-family:inherit;padding:2px 0;transition:border-color .12s';
-                nameInput.addEventListener('focus', () => nameInput.style.borderColor = 'rgba(29,155,240,.6)');
-                nameInput.addEventListener('blur',  () => nameInput.style.borderColor = 'rgba(255,255,255,.08)');
-                nameInput.addEventListener('change', () => {
+                nameInput.readOnly  = true;
+                nameInput.style.cssText = 'flex:1;min-width:0;background:transparent;border:none;border-bottom:1px solid transparent;outline:none;color:rgba(255,255,255,.88);font-size:12px;font-family:inherit;padding:2px 0;transition:border-color .12s;overflow:hidden;text-overflow:ellipsis;cursor:default';
+                nameInput.addEventListener('blur', () => {
                     const n = nameInput.value.trim();
-                    if (!n) { nameInput.value = g.name; return; }
-                    const arr = getGroups();
-                    const idx = arr.findIndex(x => x.id === g.id);
-                    if (idx > -1) { arr[idx].name = n; saveGroups(arr); g.name = n; showToast(`Renamed → ${n}`); }
+                    if (!n) { nameInput.value = g.name; }
+                    else if (n !== g.name) {
+                        const arr = getGroups();
+                        const idx = arr.findIndex(x => x.id === g.id);
+                        if (idx > -1) { arr[idx].name = n; saveGroups(arr); g.name = n; showToast(`Renamed → ${n}`); }
+                    }
+                    nameInput.readOnly = true;
+                    nameInput.style.borderColor = 'transparent';
+                    nameInput.style.cursor = 'default';
+                    editBtn.style.opacity = '0';
                 });
+                nameInput.addEventListener('keydown', e => {
+                    if (e.key === 'Enter')  nameInput.blur();
+                    if (e.key === 'Escape') { nameInput.value = g.name; nameInput.blur(); }
+                });
+
+                const editBtn = document.createElement('button');
+                editBtn.type = 'button';
+                editBtn.title = 'Rename';
+                editBtn.style.cssText = 'background:transparent;border:none;color:rgba(255,255,255,.3);cursor:pointer;flex-shrink:0;padding:0 2px;line-height:1;transition:color .12s,opacity .15s;opacity:0';
+                editBtn.innerHTML = '<svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 1.5l3 3L4 13H1v-3L9.5 1.5z"/></svg>';
+                editBtn.addEventListener('mouseover', () => editBtn.style.color = 'rgba(255,255,255,.7)');
+                editBtn.addEventListener('mouseout',  () => editBtn.style.color = 'rgba(255,255,255,.3)');
+                editBtn.addEventListener('click', () => {
+                    nameInput.readOnly = false;
+                    nameInput.style.borderBottom = '1px solid rgba(29,155,240,.6)';
+                    nameInput.style.cursor = 'text';
+                    nameInput.focus();
+                    nameInput.select();
+                });
+                row.addEventListener('mouseenter', () => { editBtn.style.opacity = '1'; });
+                row.addEventListener('mouseleave', () => { if (nameInput.readOnly) editBtn.style.opacity = '0'; });
 
                 const cnt = _countGroupRecords(g.id);
                 const cntBadge = document.createElement('span');
@@ -3721,8 +3875,10 @@
                     showToast(`Deleted「${g.name}」`);
                 });
 
+                row.appendChild(dragHandle);
                 row.appendChild(iconWrap);
                 row.appendChild(nameInput);
+                row.appendChild(editBtn);
                 row.appendChild(cntBadge);
                 row.appendChild(delBtn);
                 wrapper.appendChild(row);
@@ -4490,10 +4646,10 @@
             };
 
             groups.forEach(g => {
-                const ic = _GROUP_SVG_ICONS?.find(x => x.id === g.icon);
-                const iconHtml = ic
-                    ? `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">${ic.svg.match(/<svg[^>]*>([\s\S]*?)<\/svg>/)?.[1] || ''}</svg>`
-                    : `<span style="font-size:10px;line-height:1">${g.icon || '●'}</span>`;
+                const ic = _resolveGroupIcon(g.icon, 12);
+                const iconHtml = ic.type === 'svg'
+                    ? `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">${ic.html.match(/<svg[^>]*>([\s\S]*?)<\/svg>/)?.[1] || ''}</svg>`
+                    : `<span style="font-size:10px;line-height:1">${ic.label}</span>`;
                 scrollArea.appendChild(makePill(iconHtml, g.name, g.id));
             });
 
