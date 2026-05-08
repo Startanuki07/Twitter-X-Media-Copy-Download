@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      2.2.0
+// @version      2.2.1
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -5291,6 +5291,8 @@
         function _openThumbLightbox(urls, startIdx, originEl) {
             document.getElementById('tm-thumb-lb-backdrop')?.remove();
 
+            _dialogOpenGlobal = true;
+
             const allUrls = (urls || []).map(u => {
                 try {
                     if (u.includes('pbs.twimg.com') && u.includes('/media/')) {
@@ -5390,6 +5392,7 @@
                     backdrop.remove();
                     closeBtn.remove();
                     nav.remove();
+                    _dialogOpenGlobal = false;
                 }, 320);
                 document.removeEventListener('keydown', _onKey);
             }
