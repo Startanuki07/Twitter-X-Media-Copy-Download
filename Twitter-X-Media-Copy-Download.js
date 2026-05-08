@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      2.1.1
+// @version      2.2.0
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -2111,7 +2111,7 @@
             .tm-fan-icon { font-size: 15px; line-height: 1; position: relative; z-index: 2; }
             .tm-fan-count { display: none; }  
             .tm-fan-label {
-                position: absolute; bottom: -17px; left: 50%;
+                position: absolute; bottom: -1px; left: 58%;
                 transform: translateX(-50%);
                 font-size: 9px; color: rgba(255,255,255,.7);
                 white-space: nowrap; pointer-events: none;
@@ -2270,6 +2270,7 @@
         `;
         dismissBtn.addEventListener('click', e => {
             e.stopPropagation();
+            wrapper.setAttribute('data-open', 'false');
             wrapper.style.display = 'none';
         });
 
@@ -3095,6 +3096,7 @@
     let _dockPeekedGlobal       = false;
     let _dockRetractTimerGlobal = null;
     let _dockSnapshotGlobal     = null;
+    let _dialogOpenGlobal       = false;
 
     (function _restorePersistedDock() {
         const persisted = GM_getValue(KEY_DOCK_PERSISTED, '');
@@ -3237,21 +3239,24 @@
     }
 
     function _layerCfg(n) {
-        if (n <= 5)  return [{c:n,  r:48}];
-        if (n <= 12) return [{c:Math.min(5,n), r:46}, {c:n-Math.min(5,n), r:88}];
+        if (n <= 5)  return [{c:n,  r:62}];
+        if (n <= 12) return [{c:Math.min(5,n), r:60}, {c:n-Math.min(5,n), r:108}];
         const l1=5, l2=Math.min(7,n-5);
-        return [{c:l1,r:46},{c:l2,r:88},{c:n-l1-l2,r:128}];
+        return [{c:l1,r:60},{c:l2,r:108},{c:n-l1-l2,r:155}];
     }
 
     function _fanPositions(n, cx, cy) {
         const pos = [];
+        const spanDeg = n > 10 ? 80 : 70;
         _layerCfg(n).forEach(({c, r}) => {
-            const startDeg = -70, endDeg = 70;
+            const startDeg = -spanDeg, endDeg = spanDeg;
             const range = endDeg - startDeg;
             for (let i = 0; i < c; i++) {
                 const deg = c === 1 ? 0 : startDeg + range * i / (c - 1);
                 const rad = deg * Math.PI / 180;
-                pos.push({ x: cx + r * Math.cos(rad) - 16, y: cy + r * Math.sin(rad) - 16 });
+                const horizBoost = Math.max(0, 1 - Math.abs(deg) / 30) * 14;
+                const rr = r + horizBoost;
+                pos.push({ x: cx + rr * Math.cos(rad) - 16, y: cy + rr * Math.sin(rad) - 16 });
             }
         });
         return pos;
@@ -3293,8 +3298,8 @@
                 : _glowClr + '85';
             const half = Math.round(_glowPx / 2);
 
-            const ic       = _resolveGroupIcon(g.icon, 18);
-            const iconHtml = ic.html;
+            const ic       = _resolveGroupIcon(g.icon);
+            const iconHtml = `<div style="width:18px;height:18px;color:${ic.color};flex-shrink:0">${ic.svg}</div>`;
 
             const el = document.createElement('div');
             el.className = 'tm-fan-node ' + STAR_FLOAT_CLS[i % STAR_FLOAT_CLS.length];
@@ -3462,29 +3467,17 @@
         { id:'palette', label:'Palette', color:'#f06292', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2C6.48 2 2 6.48 2 12c0 5.52 4.48 10 10 10 1.1 0 2-.9 2-2v-.5c0-.55-.22-1.05-.59-1.41-.36-.36-.59-.86-.59-1.41 0-1.1.9-2 2-2h2c3.31 0 6-2.69 6-6 0-4.97-4.48-8.58-9-8.59z"/><circle cx="6.5" cy="11.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="9.5" cy="7.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="14.5" cy="7.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="17.5" cy="11.5" r="1.5" fill="currentColor" stroke="none"/></svg>' },
     ];
 
-    function _resolveGroupIcon(iconId, size = 18) {
+    function _resolveGroupIcon(iconId) {
         const ic = _GROUP_SVG_ICONS.find(x => x.id === iconId);
-        if (ic) {
-            return {
-                type: 'svg',
-                color: ic.color,
-                label: ic.label,
-                html: `<div style="width:${size}px;height:${size}px;color:${ic.color};flex-shrink:0">${ic.svg}</div>`,
-            };
-        }
+        if (ic) return { type: 'svg', color: ic.color, svg: ic.svg, label: ic.label };
         const fb = _GROUP_SVG_ICONS[0];
-        return {
-            type: 'svg',
-            color: fb.color,
-            label: fb.label,
-            html: `<div style="width:${size}px;height:${size}px;color:${fb.color};flex-shrink:0">${fb.svg}</div>`,
-        };
+        return { type: 'svg', color: fb.color, svg: fb.svg, label: fb.label };
     }
 
     function showGroupCreateModal() {
         const old = document.getElementById('tm-group-modal-overlay');
         if (old) old.remove();
-        _selectedIconId = _GROUP_SVG_ICONS[0].id;
+        _selectedIconId = null;
 
         const overlay = document.createElement('div');
         overlay.id        = 'tm-group-modal-overlay';
@@ -3613,7 +3606,7 @@
             return;
         }
 
-        const ic      = _GROUP_SVG_ICONS.find(x => x.id === _selectedIconId) || _GROUP_SVG_ICONS[0];
+        const ic      = (_selectedIconId && _GROUP_SVG_ICONS.find(x => x.id === _selectedIconId)) || _GROUP_SVG_ICONS[0];
         const glowIdx = getGroups().length % STAR_GLOW_COLORS.length;
         const group   = createGroup(name, ic.id, STAR_GLOW_COLORS[glowIdx]);
         if (_pendingGroupRecordId !== null) {
@@ -3796,9 +3789,9 @@
                     background:transparent;cursor:pointer;padding:0;border-radius:4px;
                     transition:background .12s;display:flex;align-items:center;justify-content:center;
                 `;
-                const ic = _resolveGroupIcon(g.icon, 18);
+                const ic = _resolveGroupIcon(g.icon);
                 iconWrap.style.color = ic.color;
-                iconWrap.innerHTML = ic.html;
+                iconWrap.innerHTML = ic.svg;
                 iconWrap.addEventListener('mouseover', () => iconWrap.style.background = 'rgba(255,255,255,.1)');
                 iconWrap.addEventListener('mouseout',  () => iconWrap.style.background = 'transparent');
                 iconWrap.addEventListener('click', () => {
@@ -3807,9 +3800,9 @@
                         const arr = getGroups();
                         const idx = arr.findIndex(x => x.id === g.id);
                         if (idx > -1) { arr[idx].icon = newIc.id; saveGroups(arr); g.icon = newIc.id; }
-                        const resolved = _resolveGroupIcon(newIc.id, 18);
+                        const resolved = _resolveGroupIcon(newIc.id);
                         iconWrap.style.color = resolved.color;
-                        iconWrap.innerHTML = resolved.html;
+                        iconWrap.innerHTML = resolved.svg;
                         showToast(`Icon → ${resolved.label}`);
                     });
                     wrapper.appendChild(picker);
@@ -4584,11 +4577,19 @@
         function buildGroupTabs() {
             groupTabBar.innerHTML = '';
             const groups = getGroups();
-            if (!groups.length) { groupTabBar.style.display = 'none'; return; }
             groupTabBar.style.display = 'flex';
 
             const SVG_LEFT  = `<svg viewBox="0 0 10 10" fill="currentColor"><path d="M6.5 2L3.5 5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>`;
             const SVG_RIGHT = `<svg viewBox="0 0 10 10" fill="currentColor"><path d="M3.5 2L6.5 5l-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>`;
+
+            const btnAddGroup = document.createElement('button');
+            btnAddGroup.type = 'button';
+            btnAddGroup.title = 'New group';
+            btnAddGroup.style.cssText = 'flex-shrink:0;width:26px;height:26px;border-radius:7px;border:none;background:transparent;color:rgba(255,255,255,.35);cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s;margin:0 3px 0 2px';
+            btnAddGroup.innerHTML = '<svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>';
+            btnAddGroup.addEventListener('mouseover', () => { btnAddGroup.style.background = 'rgba(29,155,240,.18)'; btnAddGroup.style.color = '#1d9bf0'; });
+            btnAddGroup.addEventListener('mouseout',  () => { btnAddGroup.style.background = 'transparent'; btnAddGroup.style.color = 'rgba(255,255,255,.35)'; });
+            btnAddGroup.addEventListener('click', e => { e.stopPropagation(); showGroupCreateModal(); });
 
             const btnLeft = document.createElement('button');
             btnLeft.className = 'tm-gtab-scroll-btn left';
@@ -4614,11 +4615,11 @@
             const makePill = (iconHtml, label, value) => {
                 const pill = document.createElement('button');
                 pill.type = 'button';
-                pill.className = 'tm-gtab-pill' + (
-                    (value !== '__ungrouped__' && activeGroupId === value) ||
-                    (value === '__ungrouped__' && activeGroupId === '__ungrouped__')
-                    ? ' active' : ''
-                );
+                const isActive =
+                    (value === '__all__'       && (activeGroupId === null || activeGroupId === '__all__')) ||
+                    (value === '__ungrouped__' && activeGroupId === '__ungrouped__') ||
+                    (value !== '__all__' && value !== '__ungrouped__' && activeGroupId === value);
+                pill.className = 'tm-gtab-pill' + (isActive ? ' active' : '');
                 const iconSpan = document.createElement('span');
                 iconSpan.innerHTML = iconHtml;
                 iconSpan.style.cssText = 'display:inline-flex;align-items:center;flex-shrink:0';
@@ -4626,15 +4627,15 @@
                 txtSpan.textContent = label;
                 pill.appendChild(iconSpan);
                 pill.appendChild(txtSpan);
-                if (value !== '__ungrouped__' && GM_getValue('app_group_unread_' + value, false)) {
+                if (value !== '__ungrouped__' && value !== '__all__' && GM_getValue('app_group_unread_' + value, false)) {
                     const dot = document.createElement('span');
                     dot.className = 'tm-gtab-dot';
                     pill.appendChild(dot);
                 }
                 pill.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    activeGroupId = value;
-                    if (value !== '__ungrouped__') {
+                    activeGroupId = value === '__all__' ? null : value;
+                    if (value !== '__ungrouped__' && value !== '__all__') {
                         GM_deleteValue('app_group_unread_' + value);
                         pill.querySelector('.tm-gtab-dot')?.remove();
                     }
@@ -4643,20 +4644,90 @@
                     pill.scrollIntoView({ block: 'nearest', inline: 'nearest' });
                     render();
                 });
+
+                if (value !== '__ungrouped__' && value !== '__all__') {
+                    pill.addEventListener('contextmenu', e => {
+                        e.preventDefault(); e.stopPropagation();
+                        document.getElementById('tm-pill-ctx')?.remove();
+                        _dialogOpenGlobal = true;
+                        const menu = document.createElement('div');
+                        menu.id = 'tm-pill-ctx';
+                        menu.style.cssText = `
+                            position:fixed;left:${e.clientX}px;top:${e.clientY}px;
+                            background:#1a1f2e;border:0.5px solid rgba(255,255,255,.15);
+                            border-radius:10px;padding:4px;min-width:150px;
+                            z-index:999999;box-shadow:0 8px 32px rgba(0,0,0,.6);
+                            font-size:13px;
+                        `;
+                        const mkItem = (icon, label, color, onClick) => {
+                            const item = document.createElement('button');
+                            item.type = 'button';
+                            item.style.cssText = `display:flex;align-items:center;gap:9px;width:100%;padding:8px 12px;background:transparent;border:none;border-radius:7px;color:${color || 'rgba(255,255,255,.88)'};cursor:pointer;font-size:13px;font-family:inherit;text-align:left;transition:background .1s`;
+                            item.addEventListener('mouseover', () => item.style.background = 'rgba(255,255,255,.08)');
+                            item.addEventListener('mouseout',  () => item.style.background = 'transparent');
+                            const iconEl = document.createElement('span');
+                            iconEl.style.cssText = 'font-size:15px;flex-shrink:0;line-height:1';
+                            iconEl.textContent = icon;
+                            const labelEl = document.createElement('span');
+                            labelEl.textContent = label;
+                            item.appendChild(iconEl); item.appendChild(labelEl);
+                            item.addEventListener('click', () => { menu.remove(); onClick(); });
+                            return item;
+                        };
+                        menu.appendChild(mkItem('✏️', 'Rename', null, () => {
+                            _dialogOpenGlobal = true;
+                            const newName = prompt('Rename group:', label);
+                            _dialogOpenGlobal = false;
+                            if (!newName || !newName.trim()) return;
+                            const arr = getGroups();
+                            const idx = arr.findIndex(x => x.id === value);
+                            if (idx > -1) { arr[idx].name = newName.trim(); saveGroups(arr); }
+                            render();
+                        }));
+                        const sep = document.createElement('div');
+                        sep.style.cssText = 'height:0.5px;background:rgba(255,255,255,.1);margin:3px 8px';
+                        menu.appendChild(sep);
+                        menu.appendChild(mkItem('🗑️', 'Delete group', 'rgba(255,100,100,.9)', () => {
+                            _dialogOpenGlobal = true;
+                            const ok = confirm(`Delete group「${label}」? Records will be ungrouped.`);
+                            _dialogOpenGlobal = false;
+                            if (!ok) return;
+                            deleteGroup(value);
+                            if (activeGroupId === value) activeGroupId = null;
+                            render();
+                        }));
+                        document.body.appendChild(menu);
+                        requestAnimationFrame(() => {
+                            const r = menu.getBoundingClientRect();
+                            if (r.right  > window.innerWidth)  menu.style.left = (e.clientX - r.width)  + 'px';
+                            if (r.bottom > window.innerHeight)  menu.style.top  = (e.clientY - r.height) + 'px';
+                        });
+                        const close = ev => {
+                            if (!menu.contains(ev.target)) {
+                                menu.remove();
+                                _dialogOpenGlobal = false;
+                                document.removeEventListener('mousedown', close, true);
+                            }
+                        };
+                        document.addEventListener('mousedown', close, true);
+                    });
+                }
                 return pill;
             };
 
+            const SVG_ALL = `<svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="8" y="1" width="5" height="5" rx="1"/><rect x="1" y="8" width="5" height="5" rx="1"/><rect x="8" y="8" width="5" height="5" rx="1"/></svg>`;
+            scrollArea.appendChild(makePill(SVG_ALL, 'All', '__all__'));
+
             groups.forEach(g => {
-                const ic = _resolveGroupIcon(g.icon, 12);
-                const iconHtml = ic.type === 'svg'
-                    ? `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">${ic.html.match(/<svg[^>]*>([\s\S]*?)<\/svg>/)?.[1] || ''}</svg>`
-                    : `<span style="font-size:10px;line-height:1">${ic.label}</span>`;
+                const ic = _resolveGroupIcon(g.icon);
+                const iconHtml = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">${ic.svg.match(/<svg[^>]*>([\s\S]*?)<\/svg>/)?.[1] || ''}</svg>`;
                 scrollArea.appendChild(makePill(iconHtml, g.name, g.id));
             });
 
             const SVG_DASH = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="2" y1="6" x2="10" y2="6"/></svg>`;
             scrollArea.appendChild(makePill(SVG_DASH, 'Ungrouped', '__ungrouped__'));
 
+            groupTabBar.appendChild(btnAddGroup);
             groupTabBar.appendChild(btnLeft);
             groupTabBar.appendChild(scrollArea);
             groupTabBar.appendChild(btnRight);
@@ -4879,6 +4950,12 @@
                         _hideZoom();
                         _openThumbLightbox(rec.thumbUrls, 0, thumbWrap.querySelector('img'));
                     });
+                } else if (rec.textOnly) {
+                    const vi = document.createElement('div');
+                    vi.className = 'tm-hist-video-icon';
+                    vi.style.color = 'rgba(29,155,240,.5)';
+                    vi.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg>`;
+                    thumbWrap.appendChild(vi);
                 } else {
                     const vi = document.createElement('div');
                     vi.className = 'tm-hist-video-icon';
@@ -4994,6 +5071,17 @@
                     img.loading = 'lazy';
                     img.alt = '';
                     cell.appendChild(img);
+                } else if (rec.textOnly) {
+                    const tc = document.createElement('div');
+                    tc.style.cssText = 'width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;padding:10px;box-sizing:border-box;background:rgba(29,155,240,.08)';
+                    const tcIcon = document.createElement('div');
+                    tcIcon.innerHTML = `<svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="rgba(29,155,240,.6)" stroke-width="1.6" stroke-linecap="round"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="9" x2="17" y2="9"/><line x1="3" y1="13" x2="12" y2="13"/></svg>`;
+                    const tcText = document.createElement('div');
+                    tcText.style.cssText = 'font-size:10px;color:rgba(255,255,255,.5);text-align:center;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;word-break:break-all';
+                    tcText.textContent = rec.text || '';
+                    tc.appendChild(tcIcon);
+                    tc.appendChild(tcText);
+                    cell.appendChild(tc);
                 } else {
                     const ni = document.createElement('div');
                     ni.className = 'tm-hist-grid-nothumb';
@@ -5018,6 +5106,72 @@
                     const path = new URL(rec.tweetUrl).pathname;
                     history.pushState({ tmNav: true }, '', path);
                     window.dispatchEvent(new Event('popstate'));
+                });
+
+                cell.addEventListener('contextmenu', e => {
+                    e.preventDefault(); e.stopPropagation();
+                    document.getElementById('tm-thumb-ctx')?.remove();
+                    _dialogOpenGlobal = true;
+                    const menu = document.createElement('div');
+                    menu.id = 'tm-thumb-ctx';
+                    menu.style.cssText = `
+                        position:fixed;left:${e.clientX}px;top:${e.clientY}px;
+                        background:#1a1f2e;border:0.5px solid rgba(255,255,255,.15);
+                        border-radius:10px;padding:4px;min-width:160px;
+                        z-index:999999;box-shadow:0 8px 32px rgba(0,0,0,.6);
+                        font-size:13px;
+                    `;
+                    const mkItem = (icon, label, onClick) => {
+                        const item = document.createElement('button');
+                        item.type = 'button';
+                        item.style.cssText = 'display:flex;align-items:center;gap:9px;width:100%;padding:8px 12px;background:transparent;border:none;border-radius:7px;color:rgba(255,255,255,.88);cursor:pointer;font-size:13px;font-family:inherit;text-align:left;transition:background .1s';
+                        item.addEventListener('mouseover', () => item.style.background = 'rgba(255,255,255,.08)');
+                        item.addEventListener('mouseout',  () => item.style.background = 'transparent');
+                        const iconEl = document.createElement('span');
+                        iconEl.style.cssText = 'font-size:15px;flex-shrink:0;line-height:1';
+                        iconEl.textContent = icon;
+                        const labelEl = document.createElement('span');
+                        labelEl.textContent = label;
+                        item.appendChild(iconEl); item.appendChild(labelEl);
+                        item.addEventListener('click', () => { menu.remove(); onClick(); });
+                        return item;
+                    };
+                    const isFav = !!rec.favorited;
+                    menu.appendChild(mkItem(isFav ? '💔' : '💗', isFav ? 'Unfavorite' : 'Favorite', () => {
+                        let records = getRecords();
+                        const target = records.find(r => r.id === rec.id);
+                        if (!target) return;
+                        target.favorited = !target.favorited;
+                        GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
+                        rec.favorited = target.favorited;
+                        render();
+                    }));
+                    menu.appendChild(mkItem('↗', 'Open in new tab', () => {
+                        window.open(rec.tweetUrl, '_blank');
+                    }));
+                    const sep = document.createElement('div');
+                    sep.style.cssText = 'height:0.5px;background:rgba(255,255,255,.1);margin:3px 8px';
+                    menu.appendChild(sep);
+                    const delItem = mkItem('🗑️', 'Delete', () => {
+                        _deleteOne(rec.id, records.indexOf(rec));
+                    });
+                    delItem.style.color = 'rgba(255,100,100,.9)';
+                    menu.appendChild(delItem);
+
+                    document.body.appendChild(menu);
+                    requestAnimationFrame(() => {
+                        const r = menu.getBoundingClientRect();
+                        if (r.right  > window.innerWidth)  menu.style.left = (e.clientX - r.width)  + 'px';
+                        if (r.bottom > window.innerHeight)  menu.style.top  = (e.clientY - r.height) + 'px';
+                    });
+                    const close = ev => {
+                        if (!menu.contains(ev.target)) {
+                            menu.remove();
+                            _dialogOpenGlobal = false;
+                            document.removeEventListener('mousedown', close, true);
+                        }
+                    };
+                    document.addEventListener('mousedown', close, true);
                 });
                 grid.appendChild(cell);
             });
@@ -5792,6 +5946,7 @@
 
         panel.addEventListener('mouseleave', () => {
             if (!_dockSideGlobal || !_dockPeekedGlobal) return;
+            if (_dialogOpenGlobal) return;
             clearTimeout(_dockRetractTimerGlobal);
             _dockRetractTimerGlobal = setTimeout(() => _retract(), 120);
         });
@@ -7160,7 +7315,57 @@
         btn.addEventListener('contextmenu', async (e) => {
             e.preventDefault(); e.stopPropagation();
             const urls = await extractMediaUrls(article);
-            if (urls.length === 0) return;
+
+            if (urls.length === 0) {
+                const info = getTweetInfo(article);
+                const rawText = article.querySelector('[data-testid="tweetText"]')?.innerText?.trim() || '';
+                _dialogOpenGlobal = true;
+                const confirmed = confirm(
+                    `This post has no media.\n\n` +
+                    `"${rawText.slice(0, 100)}${rawText.length > 100 ? '…' : ''}"\n\n` +
+                    `Save it as a text bookmark for grouping?`
+                );
+                _dialogOpenGlobal = false;                if (!confirmed) return;
+                try {
+                    const _now   = new Date();
+                    const _yy    = _now.getFullYear();
+                    const _mm    = String(_now.getMonth() + 1).padStart(2, '0');
+                    const yyyymm = `${_yy}.${_mm}`;
+                    const record = {
+                        id:           Date.now(),
+                        ts:           Date.now(),
+                        yyyymm,
+                        tweetId:      info.id,
+                        tweetUrl:     `https://x.com/${info.screenName}/status/${info.id}`,
+                        tweetDate:    info.date,
+                        downloadDate: `${_yy}-${_mm}-${String(_now.getDate()).padStart(2,'0')}`,
+                        screenName:   info.screenName,
+                        displayName:  info.displayName,
+                        text:         (rawText || info.text || '').slice(0, 280),
+                        thumbUrls:    [],
+                        hasVideo:     false,
+                        count:        0,
+                        textOnly:     true,
+                    };
+                    let records = [];
+                    try { records = JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]')); } catch (_) {}
+                    const _old = records.find(r => r.tweetId === info.id);
+                    if (_old?.favorited) record.favorited = true;
+                    records = records.filter(r => r.tweetId !== info.id);
+                    records.unshift(record);
+                    GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
+                    _downloadedIds.add(info.id);
+                    setMediaIcon('ok', '📌 Saved', 'Saved');
+                    setTimeout(() => setMediaIcon('default'), 1800);
+                    if (GM_getValue(KEY_GROUP_ON_DOWNLOAD, false)) {
+                        _pendingGroupRecordId = record.id;
+                        setTimeout(() => popStarPip(btn || null), 80);
+                    }
+                } catch (err) {
+                    console.warn('[MediaDL] textOnly record failed:', err);
+                }
+                return;
+            }
 
             const info = getTweetInfo(article);
             setMediaIcon('dl');
