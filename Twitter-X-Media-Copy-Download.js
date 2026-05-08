@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      2.2.1
+// @version      2.2.2
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -63,7 +63,6 @@
     const KEY_GROUP_ON_DOWNLOAD = 'app_group_on_download';
     const KEY_GROUPS            = 'app_media_groups';
     const KEY_GROUP_PANEL_CFG   = 'app_group_panel_cfg';
-    const HISTORY_MAX_RECORDS   = 300;
 
     const NEW_FEATURE_IDS = [
         'feedback_style',
@@ -3947,10 +3946,6 @@
             if (_oldRecord?.favorited) record.favorited = true;
             records = records.filter(r => r.tweetId !== info.id);
             records.unshift(record);
-            if (records.length > HISTORY_MAX_RECORDS) {
-                const _overflow = records.slice(HISTORY_MAX_RECORDS).filter(r => r.favorited);
-                records = [...records.slice(0, HISTORY_MAX_RECORDS), ..._overflow];
-            }
             GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
 
             if (GM_getValue(KEY_GROUP_ON_DOWNLOAD, false)) {
@@ -4844,7 +4839,7 @@
         function render() {
             const records  = getRecords();
             const filtered = getFiltered(records);
-            countBadge.textContent = `${records.length} / ${HISTORY_MAX_RECORDS}`;
+            countBadge.textContent = `${records.length} entries`;
             delSelBtn.textContent = `Delete selected (${selectedIds.size})`;
 
             const visibleIds = filtered
@@ -6425,15 +6420,23 @@
             video.play().catch(() => {});
             if (total > 1) {
                 counter.textContent = `${currentIndex + 1} / ${total}`;
-                prevBtn.style.opacity = currentIndex === 0         ? '0.3' : '1';
-                nextBtn.style.opacity = currentIndex === total - 1 ? '0.3' : '1';
-                prevBtn.style.pointerEvents = currentIndex === 0         ? 'none' : 'auto';
-                nextBtn.style.pointerEvents = currentIndex === total - 1 ? 'none' : 'auto';
+                prevBtn.style.opacity      = '1';
+                nextBtn.style.opacity      = '1';
+                prevBtn.style.pointerEvents = 'auto';
+                nextBtn.style.pointerEvents = 'auto';
             }
         }
 
-        prevBtn.onclick = e => { e.stopPropagation(); if (currentIndex > 0)          { currentIndex--; updatePlayer(); } };
-        nextBtn.onclick = e => { e.stopPropagation(); if (currentIndex < total - 1)  { currentIndex++; updatePlayer(); } };
+        prevBtn.onclick = e => {
+            e.stopPropagation();
+            currentIndex = currentIndex > 0 ? currentIndex - 1 : total - 1;
+            updatePlayer();
+        };
+        nextBtn.onclick = e => {
+            e.stopPropagation();
+            currentIndex = currentIndex < total - 1 ? currentIndex + 1 : 0;
+            updatePlayer();
+        };
 
         const closeModal = () => {
             modal.classList.remove('tm-vp-visible');
@@ -6449,8 +6452,14 @@
 
         const keyHandler = (e) => {
             if (e.key === 'Escape') { closeModal(); return; }
-            if ((e.key === 'ArrowRight' || e.key === 'ArrowDown') && currentIndex < total - 1) { currentIndex++; updatePlayer(); }
-            if ((e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   && currentIndex > 0)         { currentIndex--; updatePlayer(); }
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                currentIndex = currentIndex < total - 1 ? currentIndex + 1 : 0;
+                updatePlayer();
+            }
+            if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp') {
+                currentIndex = currentIndex > 0 ? currentIndex - 1 : total - 1;
+                updatePlayer();
+            }
         };
         document.addEventListener('keydown', keyHandler);
 
@@ -6502,6 +6511,10 @@
                         opacity    0.26s ease;
                     will-change: transform, opacity;
                 }
+
+                #tm-image-lightbox .tm-lb-card          { cursor: pointer; z-index: var(--lb-z, 1); }
+                
+                #tm-image-lightbox .tm-lb-card.tm-lb-focused { cursor: default; }
                 
                 #tm-image-lightbox .tm-lb-card { box-shadow: 0 12px 36px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.07); }
                 #tm-image-lightbox .tm-lb-card.tm-lb-focused { box-shadow: 0 28px 80px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.18); }
@@ -6626,10 +6639,8 @@
                 width: ${CARD_W}px; height: ${CARD_H}px;
                 border-radius: 14px; overflow: hidden;
                 background: radial-gradient(ellipse at 50% 38%, #1e1e1e 0%, #0a0a0a 100%);
-                cursor: pointer;
                 transform: translateY(${VH * 0.6}px) scale(0.72) translateZ(0);
                 opacity: 0;
-                z-index: ${i};
             `;
             const img = document.createElement('img');
             img.src = url;
@@ -6712,10 +6723,51 @@
 
         const keyHandler = e => {
             if (e.key === 'Escape') { closeLightbox(); return; }
-            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { focused = Math.min(focused + 1, total - 1); scheduleUpdate(); }
-            if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { focused = Math.max(focused - 1, 0);         scheduleUpdate(); }
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                focused = focused < total - 1 ? focused + 1 : 0;
+                scheduleUpdate();
+            }
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                focused = focused > 0 ? focused - 1 : total - 1;
+                scheduleUpdate();
+            }
         };
         document.addEventListener('keydown', keyHandler);
+
+        const NAV_BTN_BASE = `
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+            color: white; border: none;
+            width: 46px; height: 46px; border-radius: 50%;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s; z-index: 30;
+        `;
+        const SVG_PREV = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15,18 9,12 15,6"/></svg>`;
+        const SVG_NEXT = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,18 15,12 9,6"/></svg>`;
+
+        const lbPrevBtn = total > 1 ? document.createElement('button') : null;
+        const lbNextBtn = total > 1 ? document.createElement('button') : null;
+        if (lbPrevBtn && lbNextBtn) {
+            lbPrevBtn.innerHTML = SVG_PREV;
+            lbPrevBtn.style.cssText = NAV_BTN_BASE + 'left: 20px;';
+            lbPrevBtn.onmouseenter = () => lbPrevBtn.style.background = 'rgba(255,255,255,0.25)';
+            lbPrevBtn.onmouseleave = () => lbPrevBtn.style.background = 'rgba(0,0,0,0.55)';
+            lbPrevBtn.onclick = e => {
+                e.stopPropagation();
+                focused = focused > 0 ? focused - 1 : total - 1;
+                scheduleUpdate();
+            };
+
+            lbNextBtn.innerHTML = SVG_NEXT;
+            lbNextBtn.style.cssText = NAV_BTN_BASE + 'right: 20px;';
+            lbNextBtn.onmouseenter = () => lbNextBtn.style.background = 'rgba(255,255,255,0.25)';
+            lbNextBtn.onmouseleave = () => lbNextBtn.style.background = 'rgba(0,0,0,0.55)';
+            lbNextBtn.onclick = e => {
+                e.stopPropagation();
+                focused = focused < total - 1 ? focused + 1 : 0;
+                scheduleUpdate();
+            };
+        }
 
         function scheduleUpdate() {
             if (_rafId) return;
@@ -6729,9 +6781,8 @@
             cards.forEach((card, i) => {
                 const { dx, rot, scale, zIndex, opacity, focused: isFocused } = calcTransform(i - focused);
                 card.style.transform = `translateX(${dx}px) rotate(${rot}deg) scale(${scale}) translateZ(0)`;
-                card.style.zIndex    = zIndex;
                 card.style.opacity   = opacity;
-                card.style.cursor    = isFocused ? 'default' : 'pointer';
+                card.style.setProperty('--lb-z', zIndex);
                 card.classList.toggle('tm-lb-focused', isFocused);
             });
             dots.forEach((dot, i) => {
@@ -6744,6 +6795,8 @@
         modal.appendChild(stage);
         modal.appendChild(closeBtn);
         if (viewVidBtn) modal.appendChild(viewVidBtn);
+        if (lbPrevBtn)  modal.appendChild(lbPrevBtn);
+        if (lbNextBtn)  modal.appendChild(lbNextBtn);
         if (total > 1) { modal.appendChild(dotsWrap); modal.appendChild(counter); }
         document.body.appendChild(modal);
 
@@ -6759,7 +6812,6 @@
                     `;
                     card.style.transform = `translateX(0) rotate(0deg) scale(1) translateZ(0)`;
                     card.style.opacity   = '1';
-                    card.style.zIndex    = 20 - Math.abs(i);
                 }, 0);
             });
 
@@ -7280,9 +7332,28 @@
                 }, 500);
 
             } else if (e.button === 1) {
-                const videos = await extractVideoUrl(article);
-                const allUrls = await extractMediaUrls(article);
-                const imgUrls = allUrls.filter(u => !u.includes('.mp4'));
+                let videos = [], imgUrls = [];
+
+                let statusId = null;
+                for (const a of article.querySelectorAll('a[href*="/status/"]')) {
+                    const m = a.href.match(/\/status\/(\d+)/);
+                    if (m) { statusId = m[1]; break; }
+                }
+
+                if (statusId) {
+                    const apiData = await fetchTweetMediaFromAPI(statusId);
+                    if (apiData) {
+                        videos  = apiData.videos  || [];
+                        imgUrls = apiData.images   || [];
+                    }
+                }
+
+                if (!videos.length && !imgUrls.length) {
+                    videos  = await extractVideoUrl(article);
+                    const allUrls = await extractMediaUrls(article);
+                    const videoSet = new Set(videos);
+                    imgUrls = allUrls.filter(u => !videoSet.has(u));
+                }
 
                 if (videos.length && imgUrls.length) {
                     showFloatingVideoPlayer(videos, 0, imgUrls);
