@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      2.2.2
+// @version      2.3.0
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -3291,6 +3291,7 @@
         const _glowPx   = Math.max(4, Math.min(60, _glowSz));
 
         const groups = getGroups();
+        const _esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
         groups.forEach((g, i) => {
             const baseGlow = _glowClr === 'multi'
                 ? (g.glow || STAR_GLOW_COLORS[i % STAR_GLOW_COLORS.length])
@@ -3308,7 +3309,7 @@
                     <div class="tm-fan-glow" style="background:radial-gradient(circle,${baseGlow} 0%,transparent 68%);inset:-${half}px"></div>
                     ${iconHtml}
                 </div>
-                <span class="tm-fan-label" style="color:${_txtClr}">${g.name}</span>`;
+                <span class="tm-fan-label" style="color:${_txtClr}">${_esc(g.name)}</span>`;
             el.addEventListener('click', () => _onFanGroupClick(g.id, g.name));
             document.body.appendChild(el);
             _fanNodes.push(el);
@@ -6476,6 +6477,72 @@
         }));
     }
 
+    function _scanPageMedia() {
+        const AVATAR_COLORS = ['#1d9bf0','#7856ff','#ff7a00','#00ba7c','#f91880'];
+        const results = [];
+
+        document.querySelectorAll('article[data-testid="tweet"]').forEach(article => {
+            let author = '', handle = '';
+            try {
+                const userBlock = article.querySelector('[data-testid="User-Name"]');
+                if (userBlock) {
+                    const lines = userBlock.innerText.split('\n').map(s => s.trim()).filter(Boolean);
+                    author = lines[0] || '';
+                    const at = lines.find(l => l.startsWith('@'));
+                    handle = at ? at.slice(1) : '';
+                }
+            } catch(_) {}
+
+            const textRaw = article.querySelector('[data-testid="tweetText"]')?.innerText?.trim() || '';
+            const text = textRaw.length > 40 ? textRaw.slice(0, 40) + '…' : textRaw;
+
+            let tweetId = '';
+            for (const a of article.querySelectorAll('a[href*="/status/"]')) {
+                const m = a.href.match(/\/status\/(\d+)/);
+                if (m) { tweetId = m[1]; break; }
+            }
+
+            const items = [];
+            const seenUrls = new Set();
+
+            article.querySelectorAll('img[src*="pbs.twimg.com/media"]').forEach(img => {
+                if (img.src.includes('profile_images')) return;
+                let thumb = img.src;
+                let full  = img.src;
+                try {
+                    const u = new URL(img.src);
+                    u.searchParams.set('name', 'large');
+                    full  = u.toString();
+                    u.searchParams.set('name', '360x360');
+                    thumb = u.toString();
+                } catch(_) {}
+                if (seenUrls.has(full)) return;
+                seenUrls.add(full);
+                items.push({ type: 'image', thumb, url: full });
+            });
+
+            article.querySelectorAll('video[poster]').forEach(vid => {
+                const poster = vid.getAttribute('poster');
+                if (!poster || seenUrls.has(poster)) return;
+                seenUrls.add(poster);
+                const cached = _fiberVideoCache.get(article);
+                const mp4 = cached?.urls?.[0] || null;
+                items.push({ type: 'video', thumb: poster, url: mp4 });
+            });
+
+            if (!items.length) return;
+
+            let colorIdx = 0;
+            for (let i = 0; i < handle.length; i++) colorIdx += handle.charCodeAt(i);
+            const avatarColor = AVATAR_COLORS[colorIdx % AVATAR_COLORS.length];
+            const avatarLetter = (author[0] || handle[0] || '?').toUpperCase();
+
+            results.push({ tweetId, author, handle, text, items, avatarColor, avatarLetter });
+        });
+
+        return results;
+    }
+
     function showImageLightbox(urls, videoUrls = null) {
         if (!urls.length) return;
 
@@ -6518,6 +6585,90 @@
                 
                 #tm-image-lightbox .tm-lb-card { box-shadow: 0 12px 36px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.07); }
                 #tm-image-lightbox .tm-lb-card.tm-lb-focused { box-shadow: 0 28px 80px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.18); }
+
+                #tm-lb-gallery-btn {
+                    position: absolute; top: 20px; right: 75px;
+                    background: rgba(0,0,0,0.6); color: rgba(255,255,255,0.85); border: none;
+                    width: 40px; height: 40px; border-radius: 50%;
+                    cursor: pointer; display: flex; align-items: center; justify-content: center;
+                    transition: background 0.2s; z-index: 31;
+                }
+                #tm-lb-gallery-btn:hover        { background: rgba(255,255,255,0.25); }
+                #tm-lb-gallery-btn.tm-gb-active { background: rgba(29,155,240,0.75); }
+                #tm-lb-gallery-btn.tm-gb-active:hover { background: rgba(29,155,240,1); }
+
+                #tm-lb-gallery-panel {
+                    position: absolute; top: 0; right: 0; bottom: 0;
+                    width: 212px;
+                    background: rgba(8,8,12,0.82); backdrop-filter: blur(20px) saturate(1.4);
+                    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+                    border-left: 1px solid rgba(255,255,255,0.10);
+                    overflow-y: auto; overflow-x: hidden;
+                    transform: translateX(100%);
+                    transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+                    z-index: 30; padding: 12px 8px 24px;
+                    box-sizing: border-box;
+                    scrollbar-width: thin;
+                    scrollbar-color: rgba(255,255,255,0.15) transparent;
+                }
+                #tm-lb-gallery-panel.tm-gp-open { transform: translateX(0); }
+                #tm-lb-gallery-panel::-webkit-scrollbar { width: 4px; }
+                #tm-lb-gallery-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+                #tm-lb-gallery-panel .tm-gp-grid {
+                    display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+                }
+
+                .tm-gp-item {
+                    position: relative; aspect-ratio: 1/1; border-radius: 6px; overflow: hidden;
+                    cursor: pointer; border: 2px solid transparent;
+                    transition: border-color 0.15s, transform 0.15s;
+                    background: rgba(40,40,40,0.9);
+                    flex-shrink: 0;
+                }
+                .tm-gp-item:hover  { transform: scale(0.96); }
+                .tm-gp-item.tm-gp-selected { border-color: rgba(29,155,240,0.9); }
+                .tm-gp-item img    { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+                .tm-gp-item .tm-gp-vid-badge {
+                    position: absolute; bottom: 4px; right: 4px;
+                    background: rgba(0,0,0,0.65); border-radius: 4px;
+                    padding: 1px 4px; font-size: 10px; color: white;
+                    pointer-events: none; line-height: 1.4;
+                }
+
+                .tm-gp-tweet-label {
+                    font: 10px/1.4 system-ui, sans-serif;
+                    color: rgba(251, 191, 36, 0.85); 
+                    padding: 8px 4px 3px;
+                    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                    grid-column: 1 / -1;
+                }
+
+                #tm-lb-pill {
+                    position: absolute; top: 68px; left: 50%;
+                    transform: translateX(-50%);
+                    background: rgba(0,0,0,0.72); backdrop-filter: blur(8px);
+                    color: rgba(255,255,255,0.9); border-radius: 9999px;
+                    padding: 5px 14px 5px 10px;
+                    font: 12px/1.5 system-ui, sans-serif;
+                    display: flex; align-items: center; gap: 7px;
+                    max-width: min(480px, 60vw);
+                    white-space: nowrap; overflow: hidden;
+                    pointer-events: none; z-index: 31;
+                    opacity: 0; transition: opacity 0.22s ease;
+                }
+                #tm-lb-pill.tm-pill-show { opacity: 1; }
+                #tm-lb-pill .tm-pill-avatar {
+                    width: 20px; height: 20px; border-radius: 50%;
+                    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+                    font: 700 9px system-ui; color: white;
+                }
+                #tm-lb-pill .tm-pill-author { font-weight: 600; flex-shrink: 0; }
+                #tm-lb-pill .tm-pill-text   {
+                    color: rgba(255,255,255,0.6);
+                    overflow: hidden; text-overflow: ellipsis;
+                }
             `;
             document.head.appendChild(s);
         }
@@ -6560,6 +6711,99 @@
             modal.classList.remove('tm-lb-in');
             setTimeout(() => { modal.remove(); }, 220);
             document.removeEventListener('keydown', keyHandler);
+            _dialogOpenGlobal = false;
+        }
+
+        let _galleryOpen   = false;
+        let _galleryItems  = null;
+
+        function _buildGalleryUI(onSelect) {
+            const SVG_GRID_ICON = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1.5" y="1.5" width="5" height="5" rx="1"/>
+                <rect x="9.5" y="1.5" width="5" height="5" rx="1"/>
+                <rect x="1.5" y="9.5" width="5" height="5" rx="1"/>
+                <rect x="9.5" y="9.5" width="5" height="5" rx="1"/>
+            </svg>`;
+            const galleryBtn = document.createElement('button');
+            galleryBtn.id = 'tm-lb-gallery-btn';
+            galleryBtn.innerHTML = SVG_GRID_ICON;
+            galleryBtn.title = '瀏覽頁面媒體';
+
+            const panel = document.createElement('div');
+            panel.id = 'tm-lb-gallery-panel';
+
+            const pill = document.createElement('div');
+            pill.id = 'tm-lb-pill';
+
+            let _allThumbEls = [];
+            function updateSelected(url) {
+                _allThumbEls.forEach(el => {
+                    el.classList.toggle('tm-gp-selected', el.dataset.url === url);
+                });
+            }
+
+            function _toggleGallery(forceOpen) {
+                _galleryOpen = (forceOpen !== undefined) ? forceOpen : !_galleryOpen;
+                galleryBtn.classList.toggle('tm-gb-active', _galleryOpen);
+                panel.classList.toggle('tm-gp-open', _galleryOpen);
+
+                if (_galleryOpen && !_galleryItems) {
+                    _galleryItems = _scanPageMedia();
+                    _allThumbEls = [];
+
+                    if (!_galleryItems.length) {
+                        panel.innerHTML = '<div style="color:rgba(255,255,255,0.4);font:12px system-ui;padding:20px 8px;text-align:center">頁面上沒有找到媒體</div>';
+                        return;
+                    }
+
+                    const grid = document.createElement('div');
+                    grid.className = 'tm-gp-grid';
+
+                    const _esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+                    _galleryItems.forEach(group => {
+                        const label = document.createElement('div');
+                        label.className = 'tm-gp-tweet-label';
+                        label.title = `@${group.handle} · ${group.text}`;
+                        label.textContent = `@${group.handle}${group.text ? ' · ' + group.text : ''}`;
+                        grid.appendChild(label);
+
+                        group.items.forEach(item => {
+                            const el = document.createElement('div');
+                            el.className = 'tm-gp-item';
+                            el.dataset.url = item.url || item.thumb;
+
+                            const img = document.createElement('img');
+                            img.src = item.thumb;
+                            img.alt = '';
+                            img.loading = 'lazy';
+                            el.appendChild(img);
+
+                            if (item.type === 'video') {
+                                const badge = document.createElement('span');
+                                badge.className = 'tm-gp-vid-badge';
+                                badge.textContent = '▶';
+                                el.appendChild(badge);
+                            }
+
+                            el.onclick = ev => {
+                                ev.stopPropagation();
+                                updateSelected(el.dataset.url);
+                                onSelect(item, group);
+                            };
+
+                            _allThumbEls.push(el);
+                            grid.appendChild(el);
+                        });
+                    });
+
+                    panel.appendChild(grid);
+                }
+            }
+
+            galleryBtn.onclick = e => { e.stopPropagation(); _toggleGallery(); };
+
+            return { galleryBtn, panel, pill, updateSelected, toggleGallery: _toggleGallery };
         }
 
         if (isSingleImage) {
@@ -6583,6 +6827,13 @@
             container.appendChild(img);
             modal.appendChild(container);
 
+            container.onclick = e => {
+                e.stopPropagation();
+                if (container._toggleGalleryRef) {
+                    container._toggleGalleryRef();
+                }
+            };
+
             const closeBtn = document.createElement('button');
             closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
             closeBtn.style.cssText = `
@@ -6595,7 +6846,10 @@
             closeBtn.onmouseenter = () => closeBtn.style.background = 'rgba(255,255,255,0.25)';
             closeBtn.onmouseleave = () => closeBtn.style.background = 'rgba(0,0,0,0.6)';
             closeBtn.onclick = closeLightbox;
-            modal.onclick = e => { if (e.target === modal || e.target === container) closeLightbox(); };
+            modal.onclick = e => {
+                if (_galleryOpen) return;
+                if (e.target === modal) closeLightbox();
+            };
             modal.appendChild(closeBtn);
 
             if (videoUrls && videoUrls.length) {
@@ -6616,6 +6870,24 @@
 
             const keyHandler = e => { if (e.key === 'Escape') closeLightbox(); };
             document.addEventListener('keydown', keyHandler);
+
+            const { galleryBtn: gbA, panel: gpA, pill: pillA, updateSelected: updA, toggleGallery: tgA } = _buildGalleryUI((item, group) => {
+                if (item.type === 'video' && item.url) {
+                    closeLightbox();
+                    showFloatingVideoPlayer([item.url], 0, null);
+                } else if (item.type === 'video' && !item.url) {
+                    return;
+                } else {
+                    img.src = item.url || item.thumb;
+                    updA(item.url || item.thumb);
+                }
+                _showPill(pillA, group);
+            });
+            container._toggleGalleryRef = tgA;
+            modal.appendChild(gbA);
+            modal.appendChild(gpA);
+            modal.appendChild(pillA);
+
             document.body.appendChild(modal);
 
             requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -6655,9 +6927,12 @@
             card.appendChild(img);
             card.addEventListener('click', e => {
                 e.stopPropagation();
-                if (i === focused) return;
-                focused = i;
-                scheduleUpdate();
+                if (i !== focused) {
+                    focused = i;
+                    scheduleUpdate();
+                } else if (_toggleGalleryRef) {
+                    _toggleGalleryRef();
+                }
             });
             stage.appendChild(card);
             return card;
@@ -6704,7 +6979,10 @@
         closeBtn.onmouseenter = () => closeBtn.style.background = 'rgba(255,255,255,0.25)';
         closeBtn.onmouseleave = () => closeBtn.style.background = 'rgba(0,0,0,0.6)';
         closeBtn.onclick = closeLightbox;
-        modal.onclick = e => { if (e.target === modal) closeLightbox(); };
+        modal.onclick = e => {
+            if (_galleryOpen) return;
+            if (e.target === modal) closeLightbox();
+        };
 
         const viewVidBtn = videoUrls && videoUrls.length ? document.createElement('button') : null;
         if (viewVidBtn) {
@@ -6792,12 +7070,46 @@
             counter.textContent = `${focused + 1} / ${total}`;
         }
 
+        function _showPill(pillEl, group) {
+            if (!group) { pillEl.classList.remove('tm-pill-show'); return; }
+            const _esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&#39;');
+            pillEl.innerHTML = `
+                <span class="tm-pill-avatar" style="background:${group.avatarColor}">${_esc(group.avatarLetter)}</span>
+                <span class="tm-pill-author">@${_esc(group.handle)}</span>
+                ${group.text ? `<span class="tm-pill-text">${_esc(group.text)}</span>` : ''}
+            `;
+            pillEl.classList.add('tm-pill-show');
+        }
+
+        let _toggleGalleryRef = null;
+        const { galleryBtn: gbB, panel: gpB, pill: pillB, updateSelected: updB, toggleGallery: tgB } = _buildGalleryUI((item, group) => {
+            if (item.type === 'video' && item.url) {
+                closeLightbox();
+                showFloatingVideoPlayer([item.url], 0, null);
+            } else if (item.type === 'image') {
+                const idx = urls.indexOf(item.url);
+                if (idx !== -1) {
+                    focused = idx;
+                    scheduleUpdate();
+                } else {
+                    closeLightbox();
+                    showImageLightbox([item.url]);
+                }
+                updB(item.url);
+            }
+            _showPill(pillB, group);
+        });
+        _toggleGalleryRef = tgB;
+
         modal.appendChild(stage);
         modal.appendChild(closeBtn);
         if (viewVidBtn) modal.appendChild(viewVidBtn);
         if (lbPrevBtn)  modal.appendChild(lbPrevBtn);
         if (lbNextBtn)  modal.appendChild(lbNextBtn);
         if (total > 1) { modal.appendChild(dotsWrap); modal.appendChild(counter); }
+        modal.appendChild(gbB);
+        modal.appendChild(gpB);
+        modal.appendChild(pillB);
         document.body.appendChild(modal);
 
         requestAnimationFrame(() => requestAnimationFrame(() => {
