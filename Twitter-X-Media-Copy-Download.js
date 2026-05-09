@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      2.3.0
+// @version      2.3.1
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -3420,8 +3420,10 @@
         _pendingGroupRecordId = null;
         showToast(`⭐ → ${groupName}`);
         closeGroupFan();
-        const pip = document.getElementById('tm-star-pip');
-        if (pip) {  }
+        _starEscape(() => {
+            const pip = document.getElementById('tm-star-pip');
+            if (pip) pip.remove();
+        });
     }
 
     document.addEventListener('click', e => {
@@ -6399,16 +6401,17 @@
 
         const viewImgBtn = imageUrls && imageUrls.length ? document.createElement('button') : null;
         if (viewImgBtn) {
-            viewImgBtn.innerHTML = '🖼️ Images';
+            viewImgBtn.title = '切換至圖片';
+            viewImgBtn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/><polyline points="21,15 16,10 5,21"/></svg>`;
             viewImgBtn.style.cssText = `
                 position: absolute; top: 20px; right: 75px;
-                background: rgba(29,155,240,0.8); color: white; border: none;
-                padding: 6px 16px; border-radius: 9999px;
+                background: rgba(29,155,240,0.85); color: white; border: none;
+                width: 40px; height: 40px; border-radius: 50%;
                 cursor: pointer; display: flex; align-items: center; justify-content: center;
-                transition: background 0.2s; z-index: 4; font: 13px/1.5 system-ui, sans-serif;
+                transition: background 0.2s; z-index: 4;
             `;
             viewImgBtn.onmouseenter = () => viewImgBtn.style.background = 'rgba(29,155,240,1)';
-            viewImgBtn.onmouseleave = () => viewImgBtn.style.background = 'rgba(29,155,240,0.8)';
+            viewImgBtn.onmouseleave = () => viewImgBtn.style.background = 'rgba(29,155,240,0.85)';
             viewImgBtn.onclick = (e) => {
                 e.stopPropagation();
                 closeModal();
@@ -6439,6 +6442,22 @@
             updatePlayer();
         };
 
+        let _vpGalleryOpen  = false;
+        let _vpGalleryItems = null;
+        let vpGalleryBtn   = null;
+        let vpGalleryPanel = null;
+
+        video.onclick = e => {
+            e.stopPropagation();
+            if (_vpGalleryItems !== null && vpGalleryBtn && vpGalleryPanel) {
+                _vpGalleryOpen = !_vpGalleryOpen;
+                vpGalleryBtn.style.background = _vpGalleryOpen ? 'rgba(29,155,240,0.75)' : 'rgba(0,0,0,0.6)';
+                vpGalleryPanel.classList.toggle('tm-gp-open', _vpGalleryOpen);
+            } else {
+                video.paused ? video.play().catch(() => {}) : video.pause();
+            }
+        };
+
         const closeModal = () => {
             modal.classList.remove('tm-vp-visible');
             video.pause();
@@ -6449,7 +6468,15 @@
         };
 
         closeBtn.onclick = closeModal;
-        modal.onclick = (e) => { if (e.target === modal) closeModal(); };
+        modal.onclick = (e) => {
+            if (_vpGalleryOpen) return;
+            const hit = e.composedPath().some(el => el !== modal && el instanceof Element && (
+                el.tagName === 'VIDEO' || el.tagName === 'BUTTON' ||
+                el.id === 'tm-lb-gallery-panel' || el.id === 'tm-lb-pill' ||
+                (el.className && typeof el.className === 'string' && el.className.includes('tm-'))
+            ));
+            if (!hit) closeModal();
+        };
 
         const keyHandler = (e) => {
             if (e.key === 'Escape') { closeModal(); return; }
@@ -6464,9 +6491,126 @@
         };
         document.addEventListener('keydown', keyHandler);
 
+        const _vpGalleryRightBase = viewImgBtn ? 130 : 75;
+        const SVG_GRID_VP = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1.5" y="1.5" width="5" height="5" rx="1"/>
+            <rect x="9.5" y="1.5" width="5" height="5" rx="1"/>
+            <rect x="1.5" y="9.5" width="5" height="5" rx="1"/>
+            <rect x="9.5" y="9.5" width="5" height="5" rx="1"/>
+        </svg>`;
+        vpGalleryBtn = document.createElement('button');
+        vpGalleryBtn.innerHTML = SVG_GRID_VP;
+        vpGalleryBtn.title = '瀏覽頁面媒體';
+        vpGalleryBtn.style.cssText = `
+            position: absolute; top: 20px; right: ${_vpGalleryRightBase}px;
+            background: rgba(0,0,0,0.6); color: rgba(255,255,255,0.85); border: none;
+            width: 40px; height: 40px; border-radius: 50%;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s; z-index: 4;
+        `;
+        vpGalleryBtn.onmouseenter = () => vpGalleryBtn.style.background = _vpGalleryOpen ? 'rgba(29,155,240,1)' : 'rgba(255,255,255,0.25)';
+        vpGalleryBtn.onmouseleave = () => vpGalleryBtn.style.background = _vpGalleryOpen ? 'rgba(29,155,240,0.75)' : 'rgba(0,0,0,0.6)';
+
+        if (!document.getElementById('tm-lb-style')) {
+            const s = document.createElement('style');
+            s.id = 'tm-lb-style';
+            s.textContent = `
+                #tm-lb-gallery-btn { position:absolute; top:20px; right:75px; background:rgba(0,0,0,0.6); color:rgba(255,255,255,0.85); border:none; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; z-index:31; }
+                #tm-lb-gallery-btn.tm-gb-active { background:rgba(29,155,240,0.75); }
+                #tm-lb-gallery-panel { position:absolute; top:0; right:0; bottom:0; width:212px; background:rgba(8,8,12,0.82); backdrop-filter:blur(20px) saturate(1.4); -webkit-backdrop-filter:blur(20px) saturate(1.4); border-left:1px solid rgba(255,255,255,0.10); overflow-y:auto; overflow-x:hidden; transform:translateX(100%); transition:transform 0.3s cubic-bezier(0.22,1,0.36,1); z-index:30; padding:12px 8px 24px; box-sizing:border-box; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,0.15) transparent; }
+                #tm-lb-gallery-panel.tm-gp-open { transform:translateX(0); }
+                #tm-lb-gallery-panel .tm-gp-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px; }
+                .tm-gp-item { position:relative; aspect-ratio:1/1; border-radius:6px; overflow:hidden; cursor:pointer; border:2px solid transparent; transition:border-color 0.15s, transform 0.15s; background:rgba(40,40,40,0.9); flex-shrink:0; }
+                .tm-gp-item:hover { transform:scale(0.96); }
+                .tm-gp-item.tm-gp-selected { border-color:rgba(29,155,240,0.9); }
+                .tm-gp-item img { width:100%; height:100%; object-fit:cover; display:block; }
+                .tm-gp-item .tm-gp-vid-badge { position:absolute; bottom:4px; right:4px; background:rgba(0,0,0,0.65); border-radius:4px; padding:1px 4px; font-size:10px; color:white; pointer-events:none; line-height:1.4; }
+                .tm-gp-tweet-label { font:10px/1.4 system-ui,sans-serif; color:rgba(251,191,36,0.85); padding:8px 4px 3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; grid-column:1/-1; }
+                #tm-lb-pill { position:absolute; top:68px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.72); backdrop-filter:blur(8px); color:rgba(255,255,255,0.9); border-radius:9999px; padding:5px 14px 5px 10px; font:12px/1.5 system-ui,sans-serif; display:flex; align-items:center; gap:7px; max-width:min(480px,60vw); white-space:nowrap; overflow:hidden; pointer-events:none; z-index:31; opacity:0; transition:opacity 0.22s ease; }
+                #tm-lb-pill.tm-pill-show { opacity:1; }
+                #tm-lb-pill .tm-pill-avatar { width:20px; height:20px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font:700 9px system-ui; color:white; }
+                #tm-lb-pill .tm-pill-author { font-weight:600; flex-shrink:0; }
+                #tm-lb-pill .tm-pill-text { color:rgba(255,255,255,0.6); overflow:hidden; text-overflow:ellipsis; }
+            `;
+            document.head.appendChild(s);
+        }
+
+        vpGalleryPanel = document.createElement('div');
+        vpGalleryPanel.id = 'tm-lb-gallery-panel';
+        const vpPill = document.createElement('div');
+        vpPill.id = 'tm-lb-pill';
+
+        vpGalleryBtn.onclick = e => {
+            e.stopPropagation();
+            _vpGalleryOpen = !_vpGalleryOpen;
+            vpGalleryBtn.style.background = _vpGalleryOpen ? 'rgba(29,155,240,0.75)' : 'rgba(0,0,0,0.6)';
+            vpGalleryPanel.classList.toggle('tm-gp-open', _vpGalleryOpen);
+
+            if (_vpGalleryOpen && !_vpGalleryItems) {
+                _vpGalleryItems = _scanPageMedia();
+                if (!_vpGalleryItems.length) {
+                    vpGalleryPanel.innerHTML = '<div style="color:rgba(255,255,255,0.4);font:12px system-ui;padding:20px 8px;text-align:center">頁面上沒有找到媒體</div>';
+                    return;
+                }
+                const grid = document.createElement('div');
+                grid.className = 'tm-gp-grid';
+                const _esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&#39;');
+                _vpGalleryItems.forEach(group => {
+                    const label = document.createElement('div');
+                    label.className = 'tm-gp-tweet-label';
+                    label.title = `@${group.handle} · ${group.text}`;
+                    label.textContent = `@${group.handle}${group.text ? ' · ' + group.text : ''}`;
+                    grid.appendChild(label);
+                    group.items.forEach(item => {
+                        const el = document.createElement('div');
+                        el.className = 'tm-gp-item';
+                        el.dataset.url = item.url || item.thumb;
+                        const img = document.createElement('img');
+                        img.src = item.thumb; img.alt = ''; img.loading = 'lazy';
+                        el.appendChild(img);
+                        if (item.type === 'video') {
+                            const badge = document.createElement('span');
+                            badge.className = 'tm-gp-vid-badge'; badge.textContent = '▶';
+                            el.appendChild(badge);
+                        }
+                        el.onclick = async ev => {
+                            ev.stopPropagation();
+                            const _pesc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;');
+                            vpPill.innerHTML = `<span class="tm-pill-avatar" style="background:${group.avatarColor}">${_pesc(group.avatarLetter)}</span><span class="tm-pill-author">@${_pesc(group.handle)}</span>${group.text ? `<span class="tm-pill-text">${_pesc(group.text)}</span>` : ''}`;
+                            vpPill.classList.add('tm-pill-show');
+
+                            const isValidUrl = u => typeof u === 'string' && u.startsWith('http');
+                            if (item.type === 'video') {
+                                let mp4Url = isValidUrl(item.url) ? item.url : null;
+                                if (!mp4Url && group.tweetId) {
+                                    try {
+                                        const d = await fetchTweetMediaFromAPI(group.tweetId);
+                                        const c = d?.videos?.[0];
+                                        if (isValidUrl(c)) mp4Url = c;
+                                    } catch(_) {}
+                                }
+                                if (mp4Url) {
+                                    closeModal();
+                                    showFloatingVideoPlayer([mp4Url], 0, null);
+                                }
+                            } else if (isValidUrl(item.url)) {
+                                closeModal();
+                                showImageLightbox([item.url]);
+                            }
+                        };
+                        grid.appendChild(el);
+                    });
+                });
+                vpGalleryPanel.appendChild(grid);
+            }
+        };
+
         modal.appendChild(video);
         modal.appendChild(closeBtn);
         if (viewImgBtn) modal.appendChild(viewImgBtn);
+        modal.appendChild(vpGalleryBtn);
+        modal.appendChild(vpGalleryPanel);
+        modal.appendChild(vpPill);
         modal.appendChild(counter);
         if (total > 1) { modal.appendChild(prevBtn); modal.appendChild(nextBtn); }
         document.body.appendChild(modal);
@@ -6789,7 +6933,7 @@
                             el.onclick = ev => {
                                 ev.stopPropagation();
                                 updateSelected(el.dataset.url);
-                                onSelect(item, group);
+                                onSelect(item, group).catch?.(() => {});
                             };
 
                             _allThumbEls.push(el);
@@ -6828,8 +6972,8 @@
             modal.appendChild(container);
 
             container.onclick = e => {
-                e.stopPropagation();
                 if (container._toggleGalleryRef) {
+                    e.stopPropagation();
                     container._toggleGalleryRef();
                 }
             };
@@ -6848,22 +6992,28 @@
             closeBtn.onclick = closeLightbox;
             modal.onclick = e => {
                 if (_galleryOpen) return;
-                if (e.target === modal) closeLightbox();
+                const hit = e.composedPath().some(el => el !== modal && el instanceof Element && (
+                    el.tagName === 'IMG' || el.tagName === 'BUTTON' ||
+                    el.id === 'tm-lb-gallery-panel' || el.id === 'tm-lb-pill' ||
+                    (el.className && typeof el.className === 'string' && el.className.includes('tm-'))
+                ));
+                if (!hit) closeLightbox();
             };
             modal.appendChild(closeBtn);
 
             if (videoUrls && videoUrls.length) {
                 const viewVidBtn = document.createElement('button');
-                viewVidBtn.innerHTML = '▶️ Videos';
+                viewVidBtn.title = '切換至影片';
+                viewVidBtn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5,3 19,12 5,21" fill="currentColor" stroke="none"/></svg>`;
                 viewVidBtn.style.cssText = `
-                    position: absolute; top: 20px; right: 75px;
-                    background: rgba(29,155,240,0.8); color: white; border: none;
-                    padding: 6px 16px; border-radius: 9999px;
+                    position: absolute; top: 20px; right: 130px;
+                    background: rgba(29,155,240,0.85); color: white; border: none;
+                    width: 40px; height: 40px; border-radius: 50%;
                     cursor: pointer; display: flex; align-items: center; justify-content: center;
-                    transition: background 0.2s; z-index: 30; font: 13px/1.5 system-ui, sans-serif;
+                    transition: background 0.2s; z-index: 31;
                 `;
                 viewVidBtn.onmouseenter = () => viewVidBtn.style.background = 'rgba(29,155,240,1)';
-                viewVidBtn.onmouseleave = () => viewVidBtn.style.background = 'rgba(29,155,240,0.8)';
+                viewVidBtn.onmouseleave = () => viewVidBtn.style.background = 'rgba(29,155,240,0.85)';
                 viewVidBtn.onclick = e => { e.stopPropagation(); closeLightbox(); showFloatingVideoPlayer(videoUrls, 0, urls); };
                 modal.appendChild(viewVidBtn);
             }
@@ -6871,16 +7021,25 @@
             const keyHandler = e => { if (e.key === 'Escape') closeLightbox(); };
             document.addEventListener('keydown', keyHandler);
 
-            const { galleryBtn: gbA, panel: gpA, pill: pillA, updateSelected: updA, toggleGallery: tgA } = _buildGalleryUI((item, group) => {
-                if (item.type === 'video' && item.url) {
-                    closeLightbox();
-                    showFloatingVideoPlayer([item.url], 0, null);
-                } else if (item.type === 'video' && !item.url) {
+            const { galleryBtn: gbA, panel: gpA, pill: pillA, updateSelected: updA, toggleGallery: tgA } = _buildGalleryUI(async (item, group) => {
+                if (item.type === 'video') {
+                    const isValidUrl = u => typeof u === 'string' && u.startsWith('http');
+                    let mp4Url = isValidUrl(item.url) ? item.url : null;
+                    if (!mp4Url && group.tweetId) {
+                        try {
+                            const apiData = await fetchTweetMediaFromAPI(group.tweetId);
+                            const candidate = apiData?.videos?.[0];
+                            if (isValidUrl(candidate)) mp4Url = candidate;
+                        } catch(_) {}
+                    }
+                    if (mp4Url) {
+                        closeLightbox();
+                        showFloatingVideoPlayer([mp4Url], 0, null);
+                    }
                     return;
-                } else {
-                    img.src = item.url || item.thumb;
-                    updA(item.url || item.thumb);
                 }
+                img.src = item.url || item.thumb;
+                updA(item.url || item.thumb);
                 _showPill(pillA, group);
             });
             container._toggleGalleryRef = tgA;
@@ -6981,21 +7140,27 @@
         closeBtn.onclick = closeLightbox;
         modal.onclick = e => {
             if (_galleryOpen) return;
-            if (e.target === modal) closeLightbox();
+            const hit = e.composedPath().some(el => el !== modal && el instanceof Element && (
+                el.tagName === 'IMG' || el.tagName === 'BUTTON' ||
+                el.id === 'tm-lb-gallery-panel' || el.id === 'tm-lb-pill' ||
+                (el.className && typeof el.className === 'string' && el.className.includes('tm-'))
+            ));
+            if (!hit) closeLightbox();
         };
 
         const viewVidBtn = videoUrls && videoUrls.length ? document.createElement('button') : null;
         if (viewVidBtn) {
-            viewVidBtn.innerHTML = '▶️ Videos';
+            viewVidBtn.title = '切換至影片';
+            viewVidBtn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5,3 19,12 5,21" fill="currentColor" stroke="none"/></svg>`;
             viewVidBtn.style.cssText = `
-                position: absolute; top: 20px; right: 75px;
-                background: rgba(29,155,240,0.8); color: white; border: none;
-                padding: 6px 16px; border-radius: 9999px;
+                position: absolute; top: 20px; right: 130px;
+                background: rgba(29,155,240,0.85); color: white; border: none;
+                width: 40px; height: 40px; border-radius: 50%;
                 cursor: pointer; display: flex; align-items: center; justify-content: center;
-                transition: background 0.2s; z-index: 30; font: 13px/1.5 system-ui, sans-serif;
+                transition: background 0.2s; z-index: 31;
             `;
             viewVidBtn.onmouseenter = () => viewVidBtn.style.background = 'rgba(29,155,240,1)';
-            viewVidBtn.onmouseleave = () => viewVidBtn.style.background = 'rgba(29,155,240,0.8)';
+            viewVidBtn.onmouseleave = () => viewVidBtn.style.background = 'rgba(29,155,240,0.85)';
             viewVidBtn.onclick = e => { e.stopPropagation(); closeLightbox(); showFloatingVideoPlayer(videoUrls, 0, urls); };
         }
 
@@ -7082,11 +7247,24 @@
         }
 
         let _toggleGalleryRef = null;
-        const { galleryBtn: gbB, panel: gpB, pill: pillB, updateSelected: updB, toggleGallery: tgB } = _buildGalleryUI((item, group) => {
-            if (item.type === 'video' && item.url) {
-                closeLightbox();
-                showFloatingVideoPlayer([item.url], 0, null);
-            } else if (item.type === 'image') {
+        const { galleryBtn: gbB, panel: gpB, pill: pillB, updateSelected: updB, toggleGallery: tgB } = _buildGalleryUI(async (item, group) => {
+            if (item.type === 'video') {
+                const isValidUrl = u => typeof u === 'string' && u.startsWith('http');
+                let mp4Url = isValidUrl(item.url) ? item.url : null;
+                if (!mp4Url && group.tweetId) {
+                    try {
+                        const apiData = await fetchTweetMediaFromAPI(group.tweetId);
+                        const candidate = apiData?.videos?.[0];
+                        if (isValidUrl(candidate)) mp4Url = candidate;
+                    } catch(_) {}
+                }
+                if (mp4Url) {
+                    closeLightbox();
+                    showFloatingVideoPlayer([mp4Url], 0, null);
+                }
+                return;
+            }
+            if (item.type === 'image') {
                 const idx = urls.indexOf(item.url);
                 if (idx !== -1) {
                     focused = idx;
