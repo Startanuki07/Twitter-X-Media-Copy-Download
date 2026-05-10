@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      2.3.2
+// @version      2.3.3
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -4237,6 +4237,28 @@
             }
             .tm-hist-grid-cell .tm-hist-grid-nothumb svg { width: 28px; height: 28px; }
             
+            .tm-hist-grid-cell.selected {
+                outline: 2.5px solid rgba(29,155,240,0.9);
+                outline-offset: -2px;
+            }
+            .tm-hist-grid-cell.selected::after {
+                content: '';
+                position: absolute; top: 6px; right: 6px;
+                width: 18px; height: 18px;
+                background: rgba(29,155,240,1) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='2,6 5,9 10,3'/%3E%3C/svg%3E") center/12px no-repeat;
+                border-radius: 50%;
+                pointer-events: none; z-index: 2;
+            }
+            
+            .tm-hist-grid-cell.tm-grid-fav-lock::after {
+                content: '♥';
+                position: absolute; top: 6px; right: 6px;
+                width: 18px; height: 18px; line-height: 18px;
+                background: rgba(0,0,0,0.55); color: rgba(255,255,255,0.5);
+                border-radius: 50%; font-size: 9px; text-align: center;
+                pointer-events: none; z-index: 2;
+            }
+            
             #tm-thumb-lb-backdrop {
                 position: fixed; inset: 0; z-index: 10000010;
                 background: rgba(0,0,0,0); backdrop-filter: blur(0px);
@@ -5067,7 +5089,7 @@
             const grid = document.createElement('div');
             grid.id = 'tm-hist-thumb-grid';
 
-            records.forEach(rec => {
+            records.forEach((rec, idx) => {
                 const cell = document.createElement('div');
                 cell.className = 'tm-hist-grid-cell';
                 cell.title = `${rec.displayName} @${rec.screenName}`;
@@ -5108,11 +5130,26 @@
                 overlay.appendChild(govText);
                 cell.appendChild(overlay);
 
+                if (editMode) {
+                    if (rec.favorited) {
+                        cell.classList.add('tm-grid-fav-lock');
+                        cell.style.cursor = 'default';
+                    } else {
+                        if (selectedIds.has(rec.id)) cell.classList.add('selected');
+                        cell.style.cursor = 'pointer';
+                    }
+                }
+
                 cell.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    const path = new URL(rec.tweetUrl).pathname;
-                    history.pushState({ tmNav: true }, '', path);
-                    window.dispatchEvent(new Event('popstate'));
+                    if (editMode) {
+                        if (rec.favorited) return;
+                        _handleCheckbox(rec.id, idx, e.shiftKey);
+                    } else {
+                        const path = new URL(rec.tweetUrl).pathname;
+                        history.pushState({ tmNav: true }, '', path);
+                        window.dispatchEvent(new Event('popstate'));
+                    }
                 });
 
                 cell.addEventListener('contextmenu', e => {
