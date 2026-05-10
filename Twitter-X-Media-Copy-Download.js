@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      2.3.3
+// @version      2.4.0
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -4183,22 +4183,41 @@
             }
             .tm-hist-url:hover { text-decoration: underline; }
             .tm-hist-actions {
-                display: flex; flex-direction: row; gap: 1px;
+                display: flex; flex-direction: row; gap: 0px;
                 flex-shrink: 0; align-items: center;
             }
             .tm-hist-act-btn {
-                width: 24px; height: 24px; border-radius: 5px; border: none;
+                width: 22px; height: 22px; border-radius: 5px; border: none;
                 background: transparent; cursor: pointer;
                 display: flex; align-items: center; justify-content: center;
                 color: ${C.sub}; transition: background 0.1s, color 0.1s;
             }
             .tm-hist-act-btn:hover { background: ${C.rowHover}; color: ${C.text}; }
             .tm-hist-act-btn.danger:hover { color: ${C.danger}; }
-            .tm-hist-act-btn svg { width: 13px; height: 13px; pointer-events: none; }
+            .tm-hist-act-btn svg { width: 12px; height: 12px; pointer-events: none; }
             
             .tm-hist-act-btn.tm-fav-active { color: #e0245e; }
             .tm-hist-act-btn.tm-fav-btn:hover { color: #e0245e; }
-            .tm-hist-act-btn.tm-fav-btn svg { width: 17px; height: 17px; }
+            .tm-hist-act-btn.tm-fav-btn svg { width: 15px; height: 15px; }
+            .tm-hist-act-btn.tm-copy-btn svg { width: 12px; height: 12px; }
+            
+            .tm-hist-grid-cell .tm-grid-copy-btn {
+                position: absolute; top: 5px; right: 5px;
+                width: 24px; height: 24px; border-radius: 6px; border: none;
+                background: rgba(0,0,0,0.38); backdrop-filter: blur(4px);
+                color: rgba(255,255,255,0.75); cursor: pointer;
+                display: flex; align-items: center; justify-content: center;
+                opacity: 0; transition: opacity 0.15s, background 0.1s;
+                z-index: 3; pointer-events: none;
+            }
+            .tm-hist-grid-cell .tm-grid-copy-btn svg { width: 12px; height: 12px; pointer-events: none; }
+            .tm-hist-grid-cell:hover .tm-grid-copy-btn {
+                opacity: 1; pointer-events: auto;
+            }
+            .tm-hist-grid-cell .tm-grid-copy-btn:hover { background: rgba(29,155,240,0.75); }
+            
+            .tm-hist-grid-cell.selected .tm-grid-copy-btn,
+            .tm-hist-grid-cell.tm-grid-fav-lock .tm-grid-copy-btn { display: none; }
             
             #tm-hist-thumb-grid {
                 display: grid;
@@ -5029,8 +5048,29 @@
 
                 const SVG_JUMP    = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 2h4v4"/><path d="M7 9L14 2"/><path d="M12 10v4H2V4h4"/></svg>`;
                 const SVG_DEL     = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><polyline points="2,4 4,4 14,4"/><path d="M13 4l-.9 9H3.9L3 4"/><path d="M6.5 7v4M9.5 7v4"/><path d="M5.5 4V2.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5V4"/></svg>`;
+                const SVG_COPY    = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="9" height="10" rx="1.5"/><path d="M3 11H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v1"/></svg>`;
                 const SVG_HEART_EMPTY = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
                 const SVG_HEART_FULL  = `<svg viewBox="0 0 16 16" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
+
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'tm-hist-act-btn tm-copy-btn';
+                copyBtn.innerHTML = SVG_COPY;
+                copyBtn.title = 'Copy media URL(s)';
+                copyBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
+                        ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
+                    const _toUrl = u => {
+                        try { const o = new URL(u); o.hostname = _dom; return o.toString(); }
+                        catch(_) { return u; }
+                    };
+                    const urls = (rec.mediaUrls || []).length
+                        ? rec.mediaUrls.join('\n')
+                        : _toUrl(rec.tweetUrl);
+                    GM_setClipboard(urls);
+                    copyBtn.style.color = '#1d9bf0';
+                    setTimeout(() => { copyBtn.style.color = ''; }, 800);
+                });
 
                 const jmpBtn = document.createElement('button');
                 jmpBtn.className = 'tm-hist-act-btn';
@@ -5067,6 +5107,7 @@
                 delBtn.title = 'Delete';
                 delBtn.addEventListener('click', (e) => { e.stopPropagation(); _deleteOne(rec.id, idx); });
 
+                acts.appendChild(copyBtn);
                 acts.appendChild(favBtn);
                 acts.appendChild(jmpBtn);
                 acts.appendChild(delBtn);
@@ -5130,6 +5171,28 @@
                 overlay.appendChild(govText);
                 cell.appendChild(overlay);
 
+                const SVG_COPY_SM = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="9" height="10" rx="1.5"/><path d="M3 11H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v1"/></svg>`;
+                const gridCopyBtn = document.createElement('button');
+                gridCopyBtn.className = 'tm-grid-copy-btn';
+                gridCopyBtn.innerHTML = SVG_COPY_SM;
+                gridCopyBtn.title = 'Copy media URL(s)';
+                gridCopyBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
+                        ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
+                    const _toUrl = u => {
+                        try { const o = new URL(u); o.hostname = _dom; return o.toString(); }
+                        catch(_) { return u; }
+                    };
+                    const urls = (rec.mediaUrls || []).length
+                        ? rec.mediaUrls.join('\n')
+                        : _toUrl(rec.tweetUrl);
+                    GM_setClipboard(urls);
+                    gridCopyBtn.style.background = 'rgba(29,155,240,0.9)';
+                    setTimeout(() => { gridCopyBtn.style.background = ''; }, 700);
+                });
+                cell.appendChild(gridCopyBtn);
+
                 if (editMode) {
                     if (rec.favorited) {
                         cell.classList.add('tm-grid-fav-lock');
@@ -5165,23 +5228,49 @@
                         z-index:999999;box-shadow:0 8px 32px rgba(0,0,0,.6);
                         font-size:13px;
                     `;
-                    const mkItem = (icon, label, onClick) => {
+                    const mkItem = (svgOrEmoji, label, onClick, danger = false) => {
                         const item = document.createElement('button');
                         item.type = 'button';
-                        item.style.cssText = 'display:flex;align-items:center;gap:9px;width:100%;padding:8px 12px;background:transparent;border:none;border-radius:7px;color:rgba(255,255,255,.88);cursor:pointer;font-size:13px;font-family:inherit;text-align:left;transition:background .1s';
-                        item.addEventListener('mouseover', () => item.style.background = 'rgba(255,255,255,.08)');
+                        item.style.cssText = `display:flex;align-items:center;gap:9px;width:100%;padding:7px 12px;background:transparent;border:none;border-radius:7px;color:${danger ? 'rgba(255,100,100,.9)' : 'rgba(255,255,255,.88)'};cursor:pointer;font-size:13px;font-family:inherit;text-align:left;transition:background .1s`;
+                        item.addEventListener('mouseover', () => item.style.background = danger ? 'rgba(255,80,80,.1)' : 'rgba(255,255,255,.08)');
                         item.addEventListener('mouseout',  () => item.style.background = 'transparent');
                         const iconEl = document.createElement('span');
-                        iconEl.style.cssText = 'font-size:15px;flex-shrink:0;line-height:1';
-                        iconEl.textContent = icon;
+                        iconEl.style.cssText = 'width:16px;height:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:inherit;opacity:0.8';
+                        if (svgOrEmoji.trim().startsWith('<svg')) {
+                            iconEl.innerHTML = svgOrEmoji;
+                            iconEl.querySelector('svg')?.setAttribute('width', '14');
+                            iconEl.querySelector('svg')?.setAttribute('height', '14');
+                        } else {
+                            iconEl.style.fontSize = '14px';
+                            iconEl.textContent = svgOrEmoji;
+                        }
                         const labelEl = document.createElement('span');
                         labelEl.textContent = label;
                         item.appendChild(iconEl); item.appendChild(labelEl);
-                        item.addEventListener('click', () => { menu.remove(); onClick(); });
+                        item.addEventListener('click', () => { menu.remove(); _dialogOpenGlobal = false; onClick(); });
                         return item;
                     };
+
+                    const CTX_FAV_ON  = `<svg viewBox="0 0 16 16" fill="currentColor"  stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
+                    const CTX_FAV_OFF = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
+                    const CTX_COPY    = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="9" height="10" rx="1.5"/><path d="M3 11H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v1"/></svg>`;
+                    const CTX_OPEN    = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 2h4v4"/><path d="M7 9L14 2"/><path d="M12 10v4H2V4h4"/></svg>`;
+                    const CTX_DEL     = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><polyline points="2,4 4,4 14,4"/><path d="M13 4l-.9 9H3.9L3 4"/><path d="M6.5 7v4M9.5 7v4"/><path d="M5.5 4V2.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5V4"/></svg>`;
+
+                    menu.appendChild(mkItem(CTX_COPY, 'Copy media URL(s)', () => {
+                        const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
+                            ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
+                        const _toUrl = u => {
+                            try { const o = new URL(u); o.hostname = _dom; return o.toString(); }
+                            catch(_) { return u; }
+                        };
+                        const urls = (rec.mediaUrls || []).length
+                            ? rec.mediaUrls.join('\n')
+                            : _toUrl(rec.tweetUrl);
+                        GM_setClipboard(urls);
+                    }));
                     const isFav = !!rec.favorited;
-                    menu.appendChild(mkItem(isFav ? '💔' : '💗', isFav ? 'Unfavorite' : 'Favorite', () => {
+                    menu.appendChild(mkItem(isFav ? CTX_FAV_ON : CTX_FAV_OFF, isFav ? 'Unfavorite' : 'Favorite', () => {
                         let records = getRecords();
                         const target = records.find(r => r.id === rec.id);
                         if (!target) return;
@@ -5190,17 +5279,15 @@
                         rec.favorited = target.favorited;
                         render();
                     }));
-                    menu.appendChild(mkItem('↗', 'Open in new tab', () => {
+                    menu.appendChild(mkItem(CTX_OPEN, 'Open in new tab', () => {
                         window.open(rec.tweetUrl, '_blank');
                     }));
                     const sep = document.createElement('div');
                     sep.style.cssText = 'height:0.5px;background:rgba(255,255,255,.1);margin:3px 8px';
                     menu.appendChild(sep);
-                    const delItem = mkItem('🗑️', 'Delete', () => {
+                    menu.appendChild(mkItem(CTX_DEL, 'Delete', () => {
                         _deleteOne(rec.id, records.indexOf(rec));
-                    });
-                    delItem.style.color = 'rgba(255,100,100,.9)';
-                    menu.appendChild(delItem);
+                    }, true));
 
                     document.body.appendChild(menu);
                     requestAnimationFrame(() => {
@@ -7016,13 +7103,6 @@
 
             container.appendChild(img);
             modal.appendChild(container);
-
-            container.onclick = e => {
-                if (container._toggleGalleryRef) {
-                    e.stopPropagation();
-                    container._toggleGalleryRef();
-                }
-            };
 
             const closeBtn = document.createElement('button');
             closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
