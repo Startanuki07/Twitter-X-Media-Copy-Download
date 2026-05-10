@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      2.3.1
+// @version      2.3.2
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -1396,9 +1396,18 @@
     }
     registerMenus();
 
+    const _isTwitterDomain = ['twitter.com', 'x.com'].includes(location.hostname);
+
     function _initSettingsPanel() {
-        if (document.body) { createSettingsPanel(); _initStarPip(); }
-        else { document.addEventListener('DOMContentLoaded', () => { createSettingsPanel(); _initStarPip(); }, { once: true }); }
+        if (document.body) {
+            createSettingsPanel();
+            if (_isTwitterDomain) _initStarPip();
+        } else {
+            document.addEventListener('DOMContentLoaded', () => {
+                createSettingsPanel();
+                if (_isTwitterDomain) _initStarPip();
+            }, { once: true });
+        }
     }
 
     function _initStarPip() {
@@ -7485,7 +7494,7 @@
         } catch (_) {}
     }
 
-    (function _interceptFetch() {
+    if (_isTwitterDomain) (function _interceptFetch() {
         const _origFetch = unsafeWindow.fetch;
         unsafeWindow.fetch = function(...args) {
             const url = typeof args[0] === 'string' ? args[0] : args[0]?.url ?? '';
@@ -8085,6 +8094,7 @@
         }
     }
 
+    if (_isTwitterDomain) {
     let _tmdDebounceTimer = null;
 
     const _processedArticles = new WeakSet();
@@ -8117,4 +8127,5 @@
     setInterval(scanAndInsert, 1500);
 
     setTimeout(scanAndInsert, 1000);
+    }
 })();
