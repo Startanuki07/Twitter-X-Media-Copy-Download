@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      2.4.0
+// @version      2.4.1
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -136,7 +136,7 @@
                 • <b>Long Press:</b> Copy with custom prefix + long-press embed domain (e.g. fixupx).</p>
                 <hr>
                 <p><b>📋 Download History:</b><br>
-                • Right-click downloads are automatically logged (up to 300 entries).<br>
+                • Right-click downloads are automatically logged.<br>
                 • Downloaded tweets show a 🟢 badge on the 🎞️ button.<br>
                 • Click 📋 (top-right) to browse history: list / thumbnail view, search, export CSV / JSON.</p>
                 <hr>
@@ -201,7 +201,7 @@
                 • <b>長按：</b> 複製前綴 + 長按域名網址（如 fixupx.com）。</p>
                 <hr>
                 <p><b>📋 下載履歷：</b><br>
-                • 右鍵下載後自動記錄（最多 300 筆）。<br>
+                • 右鍵下載後自動記錄。<br>
                 • 滑鼠移至右上角 → 點擊 🕐 開啟履歷面板。<br>
                 • 支援列表/縮圖切換、搜尋、Shift 區間選取、批次刪除、CSV/JSON 匯出。</p>
                 <hr>
@@ -266,7 +266,7 @@
                 • <b>长按：</b> 复制前缀 + 长按域名链接（如 fixupx.com）。</p>
                 <hr>
                 <p><b>📋 下载历史：</b><br>
-                • 右键下载后自动记录（最多 300 条）。<br>
+                • 右键下载后自动记录。<br>
                 • 鼠标移至右上角 → 点击 🕐 打开历史面板。<br>
                 • 支持列表/缩略图切换、搜索、Shift 区间选择、批量删除、CSV/JSON 导出。</p>
                 <hr>
@@ -331,7 +331,7 @@
                 • <b>長押し：</b> プレフィックス + 長押しドメインURLをコピー（例：fixupx.com）。</p>
                 <hr>
                 <p><b>📋 ダウンロード履歴：</b><br>
-                • 右クリックダウンロードは自動記録（最大300件）。<br>
+                • 右クリックダウンロードは自動記録。<br>
                 • 右上にカーソルを合わせ → 🕐 をクリックして履歴パネルを開く。<br>
                 • リスト/サムネイル表示、検索、Shift選択一括削除、CSV/JSONエクスポート対応。</p>
                 <hr>
@@ -396,7 +396,7 @@
                 • <b>길게 누르기：</b> 접두사 + 길게 누르기 도메인 URL 복사（예：fixupx.com）。</p>
                 <hr>
                 <p><b>📋 다운로드 기록：</b><br>
-                • 우클릭 다운로드 후 자동 기록（최대 300건）。<br>
+                • 우클릭 다운로드 후 자동 기록。<br>
                 • 오른쪽 상단에 마우스를 올려 → 🕐 클릭으로 기록 패널 열기。<br>
                 • 목록/썸네일 보기, 검색, Shift 범위 선택, 일괄 삭제, CSV/JSON 내보내기 지원。</p>
                 <hr>
@@ -461,7 +461,7 @@
                 • <b>Pulsación larga:</b> Copiar con prefijo + dominio de pulsación larga (ej. fixupx).</p>
                 <hr>
                 <p><b>📋 Historial de descargas:</b><br>
-                • Se registra automáticamente tras descargar con clic derecho (máx. 300 entradas).<br>
+                • Se registra automáticamente tras descargar con clic derecho.<br>
                 • Los tweets descargados muestran un 🟢 badge en el botón 🎞️.<br>
                 • Clic en 📋 (esquina superior derecha): vista lista/miniaturas, búsqueda, exportar CSV/JSON.</p>
                 <hr>
@@ -526,7 +526,7 @@
                 • <b>Pressão longa:</b> Copiar com prefixo + domínio de pressão longa (ex. fixupx).</p>
                 <hr>
                 <p><b>📋 Histórico de downloads:</b><br>
-                • Registrado automaticamente após download com clique direito (máx. 300 entradas).<br>
+                • Registrado automaticamente após download com clique direito.<br>
                 • Tweets baixados mostram 🟢 badge no botão 🎞️.<br>
                 • Clique em 📋 (canto superior direito): lista/miniaturas, pesquisa, exportar CSV/JSON.</p>
                 <hr>
@@ -591,7 +591,7 @@
                 • <b>Appui long :</b> Copier avec préfixe + domaine appui long (ex. fixupx).</p>
                 <hr>
                 <p><b>📋 Historique des téléchargements :</b><br>
-                • Enregistré automatiquement après téléchargement par clic droit (max. 300 entrées).<br>
+                • Enregistré automatiquement après téléchargement par clic droit.<br>
                 • Les tweets téléchargés affichent un 🟢 badge sur le bouton 🎞️.<br>
                 • Cliquez sur 📋 (coin supérieur droit) : liste/miniatures, recherche, export CSV/JSON.</p>
                 <hr>
@@ -656,7 +656,7 @@
                 • <b>Долгое нажатие:</b> Копировать с префиксом + домен долгого нажатия (напр. fixupx).</p>
                 <hr>
                 <p><b>📋 История загрузок:</b><br>
-                • Автоматически записывается после правого клика (макс. 300 записей).<br>
+                • Автоматически записывается после правого клика.<br>
                 • Скачанные твиты показывают 🟢 значок на кнопке 🎞️.<br>
                 • Нажмите 📋 (верхний правый угол): список/миниатюры, поиск, экспорт CSV/JSON.</p>
                 <hr>
@@ -3429,7 +3429,7 @@
         _pendingGroupRecordId = null;
         showToast(`⭐ → ${groupName}`);
         closeGroupFan();
-        _starEscape(() => {
+        _runStarEscapeAnim(() => {
             const pip = document.getElementById('tm-star-pip');
             if (pip) pip.remove();
         });
@@ -6426,7 +6426,7 @@
         });
     }
 
-    function showFloatingVideoPlayer(videoUrls, startIndex = 0, imageUrls = null) {
+    function showFloatingVideoPlayer(videoUrls, startIndex = 0, imageUrls = null, openGallery = false) {
         document.querySelectorAll('video, audio').forEach(media => {
             if (!media.paused) media.pause();
         });
@@ -6633,7 +6633,7 @@
         </svg>`;
         vpGalleryBtn = document.createElement('button');
         vpGalleryBtn.innerHTML = SVG_GRID_VP;
-        vpGalleryBtn.title = '瀏覽頁面媒體';
+        vpGalleryBtn.title = 'Browse page media';
         vpGalleryBtn.style.cssText = `
             position: absolute; top: 20px; right: ${_vpGalleryRightBase}px;
             background: rgba(0,0,0,0.6); color: rgba(255,255,255,0.85); border: none;
@@ -6672,6 +6672,7 @@
         vpGalleryPanel.id = 'tm-lb-gallery-panel';
         const vpPill = document.createElement('div');
         vpPill.id = 'tm-lb-pill';
+        let _vpPillTimer = null;
 
         vpGalleryBtn.onclick = e => {
             e.stopPropagation();
@@ -6682,7 +6683,10 @@
             if (_vpGalleryOpen && !_vpGalleryItems) {
                 _vpGalleryItems = _scanPageMedia();
                 if (!_vpGalleryItems.length) {
-                    vpGalleryPanel.innerHTML = '<div style="color:rgba(255,255,255,0.4);font:12px system-ui;padding:20px 8px;text-align:center">頁面上沒有找到媒體</div>';
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.style.cssText = 'color:rgba(255,255,255,0.4);font:12px system-ui;padding:20px 8px;text-align:center';
+                    emptyDiv.textContent = 'No media found on this page';
+                    vpGalleryPanel.appendChild(emptyDiv);
                     return;
                 }
                 const grid = document.createElement('div');
@@ -6708,9 +6712,12 @@
                         }
                         el.onclick = async ev => {
                             ev.stopPropagation();
+                            await new Promise(r => setTimeout(r, 0));
                             const _pesc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;');
                             vpPill.innerHTML = `<span class="tm-pill-avatar" style="background:${group.avatarColor}">${_pesc(group.avatarLetter)}</span><span class="tm-pill-author">@${_pesc(group.handle)}</span>${group.text ? `<span class="tm-pill-text">${_pesc(group.text)}</span>` : ''}`;
                             vpPill.classList.add('tm-pill-show');
+                            clearTimeout(_vpPillTimer);
+                            _vpPillTimer = setTimeout(() => { vpPill.classList.remove('tm-pill-show'); }, 3000);
 
                             const isValidUrl = u => typeof u === 'string' && u.startsWith('http');
                             if (item.type === 'video') {
@@ -6724,11 +6731,15 @@
                                 }
                                 if (mp4Url) {
                                     closeModal();
-                                    showFloatingVideoPlayer([mp4Url], 0, null);
+                                    showFloatingVideoPlayer([mp4Url], 0, null, true);
+                                } else {
+                                    showToast(T.msg_no_video || '❌ No Video');
                                 }
                             } else if (isValidUrl(item.url)) {
                                 closeModal();
-                                showImageLightbox([item.url]);
+                                showImageLightbox([item.url], null, true);
+                            } else {
+                                showToast(T.msg_no_media || '❌ No Media');
                             }
                         };
                         grid.appendChild(el);
@@ -6751,6 +6762,7 @@
         updatePlayer();
         requestAnimationFrame(() => requestAnimationFrame(() => {
             modal.classList.add('tm-vp-visible');
+            if (openGallery && vpGalleryBtn) vpGalleryBtn.onclick({ stopPropagation: () => {} });
         }));
     }
 
@@ -6802,8 +6814,26 @@
                 const poster = vid.getAttribute('poster');
                 if (!poster || seenUrls.has(poster)) return;
                 seenUrls.add(poster);
-                const cached = _fiberVideoCache.get(article);
-                const mp4 = cached?.urls?.[0] || null;
+
+                let mp4 = _fiberVideoCache.get(article)?.urls?.[0] || null;
+
+                if (!mp4 && tweetId) {
+                    const entry = _apiVideoCache.get(tweetId);
+                    if (entry && (Date.now() - entry.ts < _API_CACHE_TTL)) {
+                        mp4 = entry.urls?.[0] || null;
+                    }
+                }
+
+                if (!mp4) {
+                    const m = poster.match(/(?:amplify_video_thumb|ext_tw_video_thumb|tweet_video_thumb)\/(\d+)/);
+                    if (m) {
+                        const entry = _apiVideoCache.get(m[1]);
+                        if (entry && (Date.now() - entry.ts < _API_CACHE_TTL)) {
+                            mp4 = entry.urls?.[0] || null;
+                        }
+                    }
+                }
+
                 items.push({ type: 'video', thumb: poster, url: mp4 });
             });
 
@@ -6820,7 +6850,7 @@
         return results;
     }
 
-    function showImageLightbox(urls, videoUrls = null) {
+    function showImageLightbox(urls, videoUrls = null, openGallery = false) {
         if (!urls.length) return;
 
         const old = document.getElementById('tm-image-lightbox');
@@ -6984,6 +7014,8 @@
         modal.addEventListener('wheel',     e => e.preventDefault(), { passive: false });
         modal.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
 
+        let keyHandler = () => {};
+
         function closeLightbox() {
             modal.classList.remove('tm-lb-in');
             setTimeout(() => { modal.remove(); }, 220);
@@ -7004,7 +7036,7 @@
             const galleryBtn = document.createElement('button');
             galleryBtn.id = 'tm-lb-gallery-btn';
             galleryBtn.innerHTML = SVG_GRID_ICON;
-            galleryBtn.title = '瀏覽頁面媒體';
+            galleryBtn.title = 'Browse page media';
 
             const panel = document.createElement('div');
             panel.id = 'tm-lb-gallery-panel';
@@ -7029,7 +7061,10 @@
                     _allThumbEls = [];
 
                     if (!_galleryItems.length) {
-                        panel.innerHTML = '<div style="color:rgba(255,255,255,0.4);font:12px system-ui;padding:20px 8px;text-align:center">頁面上沒有找到媒體</div>';
+                        const emptyDiv = document.createElement('div');
+                        emptyDiv.style.cssText = 'color:rgba(255,255,255,0.4);font:12px system-ui;padding:20px 8px;text-align:center';
+                        emptyDiv.textContent = 'No media found on this page';
+                        panel.appendChild(emptyDiv);
                         return;
                     }
 
@@ -7144,10 +7179,10 @@
                 modal.appendChild(viewVidBtn);
             }
 
-            const keyHandler = e => { if (e.key === 'Escape') closeLightbox(); };
+            keyHandler = e => { if (e.key === 'Escape') closeLightbox(); };
             document.addEventListener('keydown', keyHandler);
-
             const { galleryBtn: gbA, panel: gpA, pill: pillA, updateSelected: updA, toggleGallery: tgA } = _buildGalleryUI(async (item, group) => {
+                await new Promise(r => setTimeout(r, 0));
                 if (item.type === 'video') {
                     const isValidUrl = u => typeof u === 'string' && u.startsWith('http');
                     let mp4Url = isValidUrl(item.url) ? item.url : null;
@@ -7160,12 +7195,16 @@
                     }
                     if (mp4Url) {
                         closeLightbox();
-                        showFloatingVideoPlayer([mp4Url], 0, null);
+                        showFloatingVideoPlayer([mp4Url], 0, null, true);
+                    } else {
+                        showToast(T.msg_no_video || '❌ No Video');
                     }
                     return;
                 }
-                img.src = item.url || item.thumb;
-                updA(item.url || item.thumb);
+                const targetUrl = item.url || item.thumb;
+                if (!targetUrl) return;
+                img.src = targetUrl;
+                updA(targetUrl);
                 _showPill(pillA, group);
             });
             container._toggleGalleryRef = tgA;
@@ -7177,6 +7216,7 @@
 
             requestAnimationFrame(() => requestAnimationFrame(() => {
                 modal.classList.add('tm-lb-in');
+                if (openGallery) tgA(true);
             }));
             return;
         }
@@ -7290,7 +7330,7 @@
             viewVidBtn.onclick = e => { e.stopPropagation(); closeLightbox(); showFloatingVideoPlayer(videoUrls, 0, urls); };
         }
 
-        const keyHandler = e => {
+        keyHandler = e => {
             if (e.key === 'Escape') { closeLightbox(); return; }
             if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
                 focused = focused < total - 1 ? focused + 1 : 0;
@@ -7361,6 +7401,7 @@
             counter.textContent = `${focused + 1} / ${total}`;
         }
 
+        let _pillTimer = null;
         function _showPill(pillEl, group) {
             if (!group) { pillEl.classList.remove('tm-pill-show'); return; }
             const _esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&#39;');
@@ -7370,12 +7411,15 @@
                 ${group.text ? `<span class="tm-pill-text">${_esc(group.text)}</span>` : ''}
             `;
             pillEl.classList.add('tm-pill-show');
+            clearTimeout(_pillTimer);
+            _pillTimer = setTimeout(() => { pillEl.classList.remove('tm-pill-show'); }, 3000);
         }
 
         let _toggleGalleryRef = null;
         const { galleryBtn: gbB, panel: gpB, pill: pillB, updateSelected: updB, toggleGallery: tgB } = _buildGalleryUI(async (item, group) => {
+            await new Promise(r => setTimeout(r, 0));
+            const isValidUrl = u => typeof u === 'string' && u.startsWith('http');
             if (item.type === 'video') {
-                const isValidUrl = u => typeof u === 'string' && u.startsWith('http');
                 let mp4Url = isValidUrl(item.url) ? item.url : null;
                 if (!mp4Url && group.tweetId) {
                     try {
@@ -7386,20 +7430,24 @@
                 }
                 if (mp4Url) {
                     closeLightbox();
-                    showFloatingVideoPlayer([mp4Url], 0, null);
+                    showFloatingVideoPlayer([mp4Url], 0, null, true);
+                } else {
+                    showToast(T.msg_no_video || '❌ No Video');
                 }
                 return;
             }
             if (item.type === 'image') {
-                const idx = urls.indexOf(item.url);
+                const targetUrl = item.url;
+                if (!isValidUrl(targetUrl)) return;
+                const idx = urls.indexOf(targetUrl);
                 if (idx !== -1) {
                     focused = idx;
                     scheduleUpdate();
                 } else {
                     closeLightbox();
-                    showImageLightbox([item.url]);
+                    showImageLightbox([targetUrl], null, true);
                 }
-                updB(item.url);
+                updB(targetUrl);
             }
             _showPill(pillB, group);
         });
@@ -7435,6 +7483,7 @@
             setTimeout(() => {
                 cards.forEach(card => card.classList.add('tm-lb-animated'));
                 _flushUpdate();
+                if (openGallery) tgB(true);
             }, totalStagger);
         }));
     }
@@ -7532,6 +7581,33 @@
 
     const _apiVideoCache = new Map();
     const _API_CACHE_TTL = 300_000;
+
+    const _FALLBACK_BEARER = 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA';
+    let _cachedBearerToken = null;
+    let _bearerResolvePending = false;
+
+    async function _resolveBearerToken() {
+        if (_cachedBearerToken) return _cachedBearerToken;
+        if (_bearerResolvePending) {
+            for (let i = 0; i < 30 && !_cachedBearerToken; i++) {
+                await new Promise(r => setTimeout(r, 100));
+            }
+            return _cachedBearerToken || _FALLBACK_BEARER;
+        }
+        _bearerResolvePending = true;
+        try {
+            for (const script of document.querySelectorAll('script[src*="main."]')) {
+                if (!script.src) continue;
+                const resp = await fetch(script.src);
+                if (!resp.ok) continue;
+                const text = await resp.text();
+                const m = text.match(/Bearer (AAAAAAA[A-Za-z0-9%_-]{20,})/);
+                if (m) { _cachedBearerToken = 'Bearer ' + m[1]; break; }
+            }
+        } catch(_) {}
+        _bearerResolvePending = false;
+        return _cachedBearerToken || _FALLBACK_BEARER;
+    }
 
     function _parseVideosFromTweetResult(tweetResult) {
         try {
@@ -7664,6 +7740,9 @@
     }
 
     async function fetchTweetMediaFromAPI(statusId) {
+        const _cacheHit = _apiVideoCache.get(statusId);
+        if (_cacheHit && (Date.now() - _cacheHit.ts < _API_CACHE_TTL)) return { videos: _cacheHit.urls, images: [] };
+
         try {
             let cookies = {};
             document.cookie.split(';').forEach(c => {
@@ -7671,7 +7750,8 @@
                 if (k && v) cookies[k.trim()] = v.trim();
             });
 
-            const AUTH_TOKEN = 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA';
+            const AUTH_TOKEN = await _resolveBearerToken();
+
             const variables = {"tweetId":statusId,"with_rux_injections":false,"includePromotedContent":true,"withCommunity":true,"withQuickPromoteEligibilityTweetFields":true,"withBirdwatchNotes":true,"withVoice":true,"withV2Timeline":true};
             const features = {"articles_preview_enabled":true,"c9s_tweet_anatomy_moderator_badge_enabled":true,"freedom_of_speech_not_reach_fetch_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"view_counts_everywhere_api_enabled":true};
 
@@ -7682,7 +7762,12 @@
             if (cookies.gt) headers['x-guest-token'] = cookies.gt;
 
             let res = await fetch(url, { headers });
-            if (!res.ok) return null;
+            if (!res.ok) {
+                if (res.status === 401 || res.status === 403) {
+                    showToast('⚠️ Twitter API token may be outdated. Video fetch may fail.');
+                }
+                return null;
+            }
             let json = await res.json();
             let core = json.data?.tweetResult?.result?.tweet || json.data?.tweetResult?.result;
             if (!core) return null;
