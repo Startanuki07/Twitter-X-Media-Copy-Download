@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      2.4.2
+// @version      2.4.4.0
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -111,6 +111,7 @@
             msg_downloaded: 'Downloaded',
             msg_no_media: '❌ No Media',
             play_btn_tooltip: 'Click: Preview Video in Floating Player',
+            btn_switch_to_video: 'Switch to Video',
             msg_no_video: '❌ No Video',
             reload_msg: 'Settings Saved',
             toast_domain_click: '🔗 Single-Click Domain → ',
@@ -176,6 +177,7 @@
             msg_downloaded: '已下載',
             msg_no_media: '❌ 無媒體',
             play_btn_tooltip: '點擊：在浮動播放器中預覽影片',
+            btn_switch_to_video: '切換至影片',
             msg_no_video: '❌ 無影片',
             reload_msg: '設定已儲存',
             toast_domain_click: '🔗 單擊域名 → ',
@@ -241,6 +243,7 @@
             msg_downloaded: '已下载',
             msg_no_media: '❌ 无媒体',
             play_btn_tooltip: '点击：在浮动播放器中预览视频',
+            btn_switch_to_video: '切换至视频',
             msg_no_video: '❌ 无视频',
             reload_msg: '设置已保存',
             toast_domain_click: '🔗 单击域名 → ',
@@ -252,7 +255,7 @@
             menu_date_format: '📅 日期格式',
             status_date_asian: '亚洲惯用 (YYYY.MM.DD)',
             status_date_western: '欧美惯用 (DD.MM.YYYY)',
-                        help_title: '推特媒体脚本 — 说明书',
+            help_title: '推特媒体脚本 — 说明书',
             help_content: `
                 <p><b>🖱️ 媒体按钮 (🎞️)：</b><br>
                 • <b>左键单击：</b> 复制推文中所有图片/视频链接。<br>
@@ -306,6 +309,7 @@
             msg_downloaded: 'ダウンロード完了',
             msg_no_media: '❌ メディアなし',
             play_btn_tooltip: 'クリック：フローティングプレーヤーで動画を再生',
+            btn_switch_to_video: '動画に切り替え',
             msg_no_video: '❌ 動画なし',
             reload_msg: '設定が保存されました',
             toast_domain_click: '🔗 クリックドメイン → ',
@@ -317,7 +321,7 @@
             menu_date_format: '📅 日付フォーマット',
             status_date_asian: 'アジア式 (YYYY.MM.DD)',
             status_date_western: '欧米式 (DD.MM.YYYY)',
-                        help_title: 'Twitter メディアスクリプト — マニュアル',
+            help_title: 'Twitter メディアスクリプト — マニュアル',
             help_content: `
                 <p><b>🖱️ メディアボタン (🎞️)：</b><br>
                 • <b>左クリック：</b> ツイート内の画像/動画URLをすべてコピー。<br>
@@ -371,6 +375,7 @@
             msg_downloaded: '다운로드 완료',
             msg_no_media: '❌ 미디어 없음',
             play_btn_tooltip: '클릭: 플로팅 플레이어에서 동영상 재생',
+            btn_switch_to_video: '동영상으로 전환',
             msg_no_video: '❌ 동영상 없음',
             reload_msg: '설정이 저장되었습니다',
             toast_domain_click: '🔗 클릭 도메인 → ',
@@ -382,7 +387,7 @@
             menu_date_format: '📅 날짜 형식',
             status_date_asian: '아시아식 (YYYY.MM.DD)',
             status_date_western: '서양식 (DD.MM.YYYY)',
-                        help_title: '트위터 미디어 스크립트 — 설명서',
+            help_title: '트위터 미디어 스크립트 — 설명서',
             help_content: `
                 <p><b>🖱️ 미디어 버튼 (🎞️)：</b><br>
                 • <b>좌클릭：</b> 트윗 내 모든 이미지/동영상 URL 복사。<br>
@@ -436,6 +441,7 @@
             msg_downloaded: 'Descargado',
             msg_no_media: '❌ Sin medios',
             play_btn_tooltip: 'Clic: Ver video en reproductor flotante',
+            btn_switch_to_video: 'Cambiar a vídeo',
             msg_no_video: '❌ Sin video',
             reload_msg: 'Configuración guardada',
             toast_domain_click: '🔗 Dominio de clic → ',
@@ -501,6 +507,7 @@
             msg_downloaded: 'Baixado',
             msg_no_media: '❌ Sem mídia',
             play_btn_tooltip: 'Clique: Reproduzir vídeo no player flutuante',
+            btn_switch_to_video: 'Trocar para vídeo',
             msg_no_video: '❌ Sem vídeo',
             reload_msg: 'Configurações salvas',
             toast_domain_click: '🔗 Domínio de clique → ',
@@ -566,6 +573,7 @@
             msg_downloaded: 'Téléchargé',
             msg_no_media: '❌ Aucun média',
             play_btn_tooltip: 'Clic : Lire la vidéo dans le lecteur flottant',
+            btn_switch_to_video: 'Basculer vers la vidéo',
             msg_no_video: '❌ Aucune vidéo',
             reload_msg: 'Paramètres enregistrés',
             toast_domain_click: '🔗 Domaine clic → ',
@@ -631,6 +639,7 @@
             msg_downloaded: 'Загружено',
             msg_no_media: '❌ Нет медиа',
             play_btn_tooltip: 'Клик: Воспроизвести видео во всплывающем плеере',
+            btn_switch_to_video: 'Переключить на видео',
             msg_no_video: '❌ Нет видео',
             reload_msg: 'Настройки сохранены',
             toast_domain_click: '🔗 Домен клика → ',
@@ -1070,6 +1079,7 @@
             menu_lang: base.menu_lang,
             menu_help: base.menu_help,
             prompt_prefix: base.prompt_prefix,
+            prompt_lang: base.prompt_lang,
             prompt_domain: base.prompt_domain,
             status_default: base.status_default,
             status_custom: base.status_custom,
@@ -1081,6 +1091,7 @@
             msg_downloaded: base.msg_downloaded,
             msg_no_media: base.msg_no_media,
             play_btn_tooltip: base.play_btn_tooltip,
+            btn_switch_to_video: base.btn_switch_to_video,
             msg_no_video: base.msg_no_video,
             reload_msg: base.reload_msg,
             toast_domain_click: base.toast_domain_click,
@@ -1092,6 +1103,11 @@
             menu_date_format: base.menu_date_format,
             status_date_asian: base.status_date_asian,
             status_date_western: base.status_date_western,
+            menu_feedback_style: base.menu_feedback_style,
+            status_feedback_toast: base.status_feedback_toast,
+            status_feedback_icon: base.status_feedback_icon,
+            status_feedback_silent: base.status_feedback_silent,
+            toast_feedback_style: base.toast_feedback_style,
             help_title: base.help_title,
             help_content: base.help_content.trim(),
             onboard_title: base.onboard_title,
@@ -1704,7 +1720,8 @@
             #tm-settings-wrapper:hover, #tm-settings-wrapper[data-open="true"] {
                 opacity: 1;
             }
-            #tm-settings-wrapper:hover #tm-dismiss-btn {
+            #tm-settings-wrapper:hover #tm-dismiss-btn,
+            #tm-settings-wrapper:hover #tm-refresh-hist-btn {
                 opacity: 1 !important;
             }
 
@@ -1733,6 +1750,14 @@
                 transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
             }
             #tm-settings-gear-btn svg { width: 20px; height: 20px; display: block; transition: transform 0.3s ease; }
+
+            @keyframes tm-spin-once {
+                from { transform: rotate(0deg); }
+                to   { transform: rotate(-360deg); }
+            }
+            #tm-refresh-hist-btn.tm-refreshing svg {
+                animation: tm-spin-once 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            }
 
             #tm-settings-wrapper[data-focus="hist"] #tm-history-btn {
                 transform: scale(1.15);
@@ -2119,7 +2144,7 @@
             .tm-fan-icon { font-size: 15px; line-height: 1; position: relative; z-index: 2; }
             .tm-fan-count { display: none; }  
             .tm-fan-label {
-                position: absolute; bottom: -1px; left: 58%;
+                position: absolute; bottom: -1px; left: 50%;
                 transform: translateX(-50%);
                 font-size: 9px; color: rgba(255,255,255,.7);
                 white-space: nowrap; pointer-events: none;
@@ -2226,7 +2251,7 @@
             if (wrapper.getAttribute('data-open') === 'true') return;
             const rect = wrapper.getBoundingClientRect();
             const x = e.clientX - rect.left;
-            const targetFocus = x > 45 ? 'gear' : 'hist';
+            const targetFocus = x > 60 ? 'gear' : 'hist';
 
             if (_gearLock && targetFocus === 'hist') {
                 if (focusTimer) { clearTimeout(focusTimer); focusTimer = null; }
@@ -3083,6 +3108,48 @@
 
         wrapper.appendChild(dismissBtn);
         wrapper.appendChild(histBtn);
+
+        if (!_isTwitterDomain) {
+            const SVG_REFRESH = `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.93"/></svg>`;
+            const refreshBtn = document.createElement('button');
+            refreshBtn.id    = 'tm-refresh-hist-btn';
+            refreshBtn.title = 'Refresh Download History';
+            refreshBtn.innerHTML = SVG_REFRESH;
+            refreshBtn.style.cssText = `
+                position:absolute; right:0; top:0;
+                width:20px; height:20px;
+                border-radius:50%; border:none;
+                background:rgba(255,255,255,.12);
+                color:rgba(255,255,255,.4);
+                cursor:pointer; padding:0;
+                display:flex; align-items:center; justify-content:center;
+                opacity:0; transition:opacity .2s, color .15s;
+                z-index:10;
+            `;
+            refreshBtn.onmouseenter = () => refreshBtn.style.color = 'rgba(255,255,255,.85)';
+            refreshBtn.onmouseleave = () => refreshBtn.style.color = 'rgba(255,255,255,.4)';
+
+            refreshBtn.addEventListener('click', e => {
+                e.stopPropagation();
+
+                refreshBtn.classList.remove('tm-refreshing');
+                void refreshBtn.offsetWidth;
+                refreshBtn.classList.add('tm-refreshing');
+                setTimeout(() => refreshBtn.classList.remove('tm-refreshing'), 650);
+
+                const panel = document.getElementById('tm-hist-panel');
+                if (panel) {
+                    panel.dispatchEvent(new CustomEvent('tm-hist-refresh'));
+                }
+
+                let count = 0;
+                try { count = JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]')).length; } catch (_) {}
+                showToast(`🔄 History refreshed · ${count} record${count !== 1 ? 's' : ''}`);
+            });
+
+            wrapper.appendChild(refreshBtn);
+        }
+
         wrapper.appendChild(gearBtn);
         wrapper.appendChild(panel);
         document.body.appendChild(wrapper);
@@ -7164,7 +7231,7 @@
 
             if (videoUrls && videoUrls.length) {
                 const viewVidBtn = document.createElement('button');
-                viewVidBtn.title = '切換至影片';
+                viewVidBtn.title = T.btn_switch_to_video || 'Switch to Video';
                 viewVidBtn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5,3 19,12 5,21" fill="currentColor" stroke="none"/></svg>`;
                 viewVidBtn.style.cssText = `
                     position: absolute; top: 20px; right: 130px;
@@ -7316,7 +7383,7 @@
 
         const viewVidBtn = videoUrls && videoUrls.length ? document.createElement('button') : null;
         if (viewVidBtn) {
-            viewVidBtn.title = '切換至影片';
+            viewVidBtn.title = T.btn_switch_to_video || 'Switch to Video';
             viewVidBtn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5,3 19,12 5,21" fill="currentColor" stroke="none"/></svg>`;
             viewVidBtn.style.cssText = `
                 position: absolute; top: 20px; right: 130px;
@@ -7584,29 +7651,28 @@
 
     const _FALLBACK_BEARER = 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA';
     let _cachedBearerToken = null;
-    let _bearerResolvePending = false;
+    let _bearerPendingPromise = null;
 
     async function _resolveBearerToken() {
         if (_cachedBearerToken) return _cachedBearerToken;
-        if (_bearerResolvePending) {
-            for (let i = 0; i < 30 && !_cachedBearerToken; i++) {
-                await new Promise(r => setTimeout(r, 100));
-            }
+        if (_bearerPendingPromise) return _bearerPendingPromise;
+
+        _bearerPendingPromise = (async () => {
+            try {
+                for (const script of document.querySelectorAll('script[src*="main."]')) {
+                    if (!script.src) continue;
+                    const resp = await fetch(script.src);
+                    if (!resp.ok) continue;
+                    const text = await resp.text();
+                    const m = text.match(/Bearer (AAAAAAA[A-Za-z0-9%_-]{20,})/);
+                    if (m) { _cachedBearerToken = 'Bearer ' + m[1]; break; }
+                }
+            } catch(_) {}
+            _bearerPendingPromise = null;
             return _cachedBearerToken || _FALLBACK_BEARER;
-        }
-        _bearerResolvePending = true;
-        try {
-            for (const script of document.querySelectorAll('script[src*="main."]')) {
-                if (!script.src) continue;
-                const resp = await fetch(script.src);
-                if (!resp.ok) continue;
-                const text = await resp.text();
-                const m = text.match(/Bearer (AAAAAAA[A-Za-z0-9%_-]{20,})/);
-                if (m) { _cachedBearerToken = 'Bearer ' + m[1]; break; }
-            }
-        } catch(_) {}
-        _bearerResolvePending = false;
-        return _cachedBearerToken || _FALLBACK_BEARER;
+        })();
+
+        return _bearerPendingPromise;
     }
 
     function _parseVideosFromTweetResult(tweetResult) {
@@ -7708,7 +7774,6 @@
 
     const _fiberVideoCache = new WeakMap();
     const _FIBER_CACHE_TTL = 60_000;
-    const _fiberImageCache = new WeakMap();
 
     function _collectCandidateIds(article) {
         const ids = new Set();
@@ -8326,7 +8391,7 @@
 
     observer.observe(document.body, { childList: true, subtree: true, attributes: false, characterData: false });
 
-    setInterval(scanAndInsert, 1500);
+    const _scanIntervalId = setInterval(scanAndInsert, 1500);
 
     setTimeout(scanAndInsert, 1000);
     }
