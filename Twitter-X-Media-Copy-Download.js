@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      2.4.5.0
+// @version      2.4.6.0
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -6883,10 +6883,12 @@
 
         vpGalleryPanel = document.createElement('div');
         vpGalleryPanel.id = 'tm-lb-gallery-panel';
-        document.getElementById('tm-lb-pill')?.remove();
-        const vpPill = document.createElement('div');
-        vpPill.id = 'tm-lb-pill';
-        let _vpPillTimer = null;
+        let vpPill = document.getElementById('tm-lb-pill');
+        if (!vpPill) {
+            vpPill = document.createElement('div');
+            vpPill.id = 'tm-lb-pill';
+            document.body.appendChild(vpPill);
+        }
 
         vpGalleryBtn.onclick = e => {
             e.stopPropagation();
@@ -6930,8 +6932,8 @@
                             const _pesc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;');
                             vpPill.innerHTML = `<span class="tm-pill-avatar" style="background:${group.avatarColor}">${_pesc(group.avatarLetter)}</span><span class="tm-pill-author">@${_pesc(group.handle)}</span>${group.text ? `<span class="tm-pill-text">${_pesc(group.text)}</span>` : ''}`;
                             vpPill.classList.add('tm-pill-show');
-                            clearTimeout(_vpPillTimer);
-                            _vpPillTimer = setTimeout(() => { vpPill.classList.remove('tm-pill-show'); }, 1500);
+                            clearTimeout(vpPill._autoTimer);
+                            vpPill._autoTimer = setTimeout(() => { vpPill.classList.remove('tm-pill-show'); }, 1500);
 
                             const isValidUrl = u => typeof u === 'string' && u.startsWith('http');
                             if (item.type === 'video') {
@@ -6968,7 +6970,6 @@
         if (viewImgBtn) modal.appendChild(viewImgBtn);
         modal.appendChild(vpGalleryBtn);
         modal.appendChild(vpGalleryPanel);
-        document.body.appendChild(vpPill);
         modal.appendChild(counter);
         if (total > 1) { modal.appendChild(prevBtn); modal.appendChild(nextBtn); }
         document.body.appendChild(modal);
@@ -7255,9 +7256,11 @@
             const panel = document.createElement('div');
             panel.id = 'tm-lb-gallery-panel';
 
-            document.getElementById('tm-lb-pill')?.remove();
-            const pill = document.createElement('div');
-            pill.id = 'tm-lb-pill';
+            let pill = document.getElementById('tm-lb-pill');
+            if (!pill) {
+                pill = document.createElement('div');
+                pill.id = 'tm-lb-pill';
+            }
 
             let _allThumbEls = [];
             function updateSelected(url) {
@@ -7624,7 +7627,6 @@
             counter.textContent = `${focused + 1} / ${total}`;
         }
 
-        let _pillTimer = null;
         function _showPill(pillEl, group) {
             if (!group) { pillEl.classList.remove('tm-pill-show'); return; }
             const _esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&#39;');
@@ -7634,8 +7636,8 @@
                 ${group.text ? `<span class="tm-pill-text">${_esc(group.text)}</span>` : ''}
             `;
             pillEl.classList.add('tm-pill-show');
-            clearTimeout(_pillTimer);
-            _pillTimer = setTimeout(() => { pillEl.classList.remove('tm-pill-show'); }, 1500);
+            clearTimeout(pillEl._autoTimer);
+            pillEl._autoTimer = setTimeout(() => { pillEl.classList.remove('tm-pill-show'); }, 1500);
         }
 
         let _toggleGalleryRef = null;
@@ -7709,10 +7711,9 @@
                     card.style.transition = '';
                     card.classList.add('tm-lb-animated');
                 });
-                requestAnimationFrame(() => {
-                    _flushUpdate();
-                    if (openGallery) tgB(true);
-                });
+                void cards[0]?.offsetHeight;
+                _flushUpdate();
+                if (openGallery) tgB(true);
             }, totalStagger);
         }));
     }
