@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      2.4.4.0
+// @version      2.4.5.0
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -151,6 +151,9 @@
             onboard_title: '⚙ Settings Panel',
             onboard_body:  'Hover the top-right corner to reveal the settings button. Click it to quickly manage domains, prefix, language and more — no script manager menu needed.',
             onboard_got_it: 'Got it!',
+            onboard_step1_title: '📋 Twitter / X — Media Buttons',
+            onboard_step1_body:  'This script adds a Copy button and a Download button directly to every tweet with photos or videos. Hover any media tweet to see them in the action bar.',
+            onboard_next: 'Next →',
             menu_feedback_style:    '🔔 Feedback Style',
             status_feedback_toast:  'Toast',
             status_feedback_icon:   'Icon Only',
@@ -217,6 +220,9 @@
             onboard_title: '⚙ 設定面板',
             onboard_body:  '將滑鼠移至右上角即可叫出設定按鈕，點擊後可快速管理域名、前綴、語言等設定，無需開啟腳本管理器選單。',
             onboard_got_it: '知道了！',
+            onboard_step1_title: '📋 Twitter / X — 媒體按鈕',
+            onboard_step1_body:  '本腳本會在所有含有圖片或影片的推文上直接注入「複製連結」與「下載」按鈕，滑鼠移到媒體推文的操作列即可看到它們。',
+            onboard_next: '下一步 →',
             menu_feedback_style:    '🔔 提示風格',
             status_feedback_toast:  'Toast 提示',
             status_feedback_icon:   '僅圖示',
@@ -283,6 +289,9 @@
             onboard_title: '⚙ 设置面板',
             onboard_body:  '将鼠标移到右上角即可呼出设置按钮，点击后可快速管理域名、前缀、语言等设置，无需打开脚本管理器菜单。',
             onboard_got_it: '知道了！',
+            onboard_step1_title: '📋 Twitter / X — 媒体按钮',
+            onboard_step1_body:  '本脚本会在所有含图片或视频的推文上直接注入「复制链接」与「下载」按钮，鼠标移到媒体推文的操作栏即可看到它们。',
+            onboard_next: '下一步 →',
             menu_feedback_style:    '🔔 提示风格',
             status_feedback_toast:  'Toast 提示',
             status_feedback_icon:   '仅图标',
@@ -349,6 +358,9 @@
             onboard_title: '⚙ 設定パネル',
             onboard_body:  '右上隅にカーソルを合わせると設定ボタンが現れます。クリックすればスクリプト管理器を開かずにドメイン・プレフィックス・言語などをすばやく管理できます。',
             onboard_got_it: 'わかった！',
+            onboard_step1_title: '📋 Twitter / X — メディアボタン',
+            onboard_step1_body:  '画像や動画を含むすべてのツイートに「リンクをコピー」と「ダウンロード」ボタンを直接追加します。メディアツイートにカーソルを合わせると操作バーに表示されます。',
+            onboard_next: '次へ →',
             menu_feedback_style:    '🔔 フィードバックスタイル',
             status_feedback_toast:  'トースト通知',
             status_feedback_icon:   'アイコンのみ',
@@ -415,6 +427,9 @@
             onboard_title: '⚙ 설정 패널',
             onboard_body:  '오른쪽 상단 모서리에 마우스를 올리면 설정 버튼이 나타납니다. 클릭하면 스크립트 관리자 없이 도메인, 접두사, 언어 등을 빠르게 관리할 수 있습니다.',
             onboard_got_it: '알겠어요!',
+            onboard_step1_title: '📋 Twitter / X — 미디어 버튼',
+            onboard_step1_body:  '이 스크립트는 사진이나 동영상이 포함된 모든 트윗에 링크 복사 및 다운로드 버튼을 직접 추가합니다. 미디어 트윗에 마우스를 올리면 작업 표시줄에서 확인할 수 있습니다.',
+            onboard_next: '다음 →',
             menu_feedback_style:    '🔔 피드백 스타일',
             status_feedback_toast:  '토스트',
             status_feedback_icon:   '아이콘만',
@@ -481,6 +496,9 @@
             onboard_title: '⚙ Panel de Configuración',
             onboard_body:  'Mueve el cursor a la esquina superior derecha para revelar el botón de configuración. Haz clic para gestionar dominios, prefijo, idioma y más sin abrir el administrador de scripts.',
             onboard_got_it: '¡Entendido!',
+            onboard_step1_title: '📋 Twitter / X — Botones de Medios',
+            onboard_step1_body:  'Este script añade botones de Copiar y Descargar directamente a todos los tweets con fotos o videos. Pasa el cursor sobre cualquier tweet con medios para verlos en la barra de acciones.',
+            onboard_next: 'Siguiente →',
             menu_feedback_style:    '🔔 Estilo de Aviso',
             status_feedback_toast:  'Toast',
             status_feedback_icon:   'Solo icono',
@@ -547,6 +565,9 @@
             onboard_title: '⚙ Painel de Configurações',
             onboard_body:  'Passe o mouse no canto superior direito para revelar o botão de configurações. Clique para gerenciar domínios, prefixo, idioma e mais sem abrir o gerenciador de scripts.',
             onboard_got_it: 'Entendi!',
+            onboard_step1_title: '📋 Twitter / X — Botões de Mídia',
+            onboard_step1_body:  'Este script adiciona botões de Copiar e Baixar diretamente em todos os tweets com fotos ou vídeos. Passe o mouse sobre qualquer tweet com mídia para vê-los na barra de ações.',
+            onboard_next: 'Próximo →',
             menu_feedback_style:    '🔔 Estilo de Aviso',
             status_feedback_toast:  'Toast',
             status_feedback_icon:   'Só ícone',
@@ -613,6 +634,9 @@
             onboard_title: '⚙ Panneau de Paramètres',
             onboard_body:  'Survolez le coin supérieur droit pour afficher le bouton de paramètres. Cliquez pour gérer les domaines, le préfixe, la langue et plus en utilisant le panneau de paramètres intégré.',
             onboard_got_it: "Compris !",
+            onboard_step1_title: '📋 Twitter / X — Boutons Médias',
+            onboard_step1_body:  "Ce script ajoute des boutons Copier et Télécharger directement sur tous les tweets avec des photos ou vidéos. Survolez n'importe quel tweet avec des médias pour les voir dans la barre d'actions.",
+            onboard_next: 'Suivant →',
             menu_feedback_style:    '🔔 Style de Retour',
             status_feedback_toast:  'Toast',
             status_feedback_icon:   'Icône seul',
@@ -679,6 +703,9 @@
             onboard_title: '⚙ Панель настроек',
             onboard_body:  'Наведите курсор в правый верхний угол, чтобы показать кнопку настроек. Нажмите для быстрого управления доменами, префиксом, языком и другими параметрами.',
             onboard_got_it: 'Понятно!',
+            onboard_step1_title: '📋 Twitter / X — Кнопки медиа',
+            onboard_step1_body:  'Скрипт добавляет кнопки «Копировать» и «Скачать» прямо на все твиты с фотографиями или видео. Наведите курсор на медиатвит, чтобы увидеть их на панели действий.',
+            onboard_next: 'Далее →',
             menu_feedback_style:    '🔔 Стиль уведомлений',
             status_feedback_toast:  'Тост',
             status_feedback_icon:   'Только иконка',
@@ -1113,6 +1140,9 @@
             onboard_title: base.onboard_title,
             onboard_body:  base.onboard_body,
             onboard_got_it: base.onboard_got_it,
+            onboard_step1_title: base.onboard_step1_title,
+            onboard_step1_body:  base.onboard_step1_body,
+            onboard_next: base.onboard_next,
         };
         return template;
     }
@@ -1448,22 +1478,9 @@
     function showOnboardingOverlay() {
         if (GM_getValue(KEY_ONBOARDING_DONE, false)) return;
 
-        const gearEl = document.getElementById('tm-settings-gear-btn');
-        if (!gearEl) { setTimeout(showOnboardingOverlay, 400); return; }
-
-        const rect = gearEl.getBoundingClientRect();
-        const cx   = rect.left + rect.width  / 2;
-        const cy   = rect.top  + rect.height / 2;
-        const r1   = 26;
-        const r2   = 42;
-
         const wrapperEl = document.getElementById('tm-settings-wrapper');
-        if (wrapperEl) {
-            wrapperEl.style.setProperty('opacity', '1', 'important');
-            wrapperEl.style.setProperty('transition', 'none', 'important');
-        }
-        gearEl.style.setProperty('opacity', '1', 'important');
-        gearEl.style.setProperty('transition', 'none', 'important');
+        const gearEl    = document.getElementById('tm-settings-gear-btn');
+        if (!wrapperEl || !gearEl) { setTimeout(showOnboardingOverlay, 400); return; }
 
         const obStyle = document.createElement('style');
         obStyle.id = 'tm-ob-style';
@@ -1490,7 +1507,7 @@
                 z-index:999988;
             }
             #tm-ob-card {
-                position:fixed; z-index:999988;
+                position:fixed; z-index:999989;
                 animation: tm-ob-card-in 0.4s 0.2s cubic-bezier(0.34,1.56,0.64,1) both;
                 pointer-events:all;
             }
@@ -1498,87 +1515,207 @@
                 width:100%; padding:9px; border-radius:9999px;
                 border:none; background:#1d9bf0; color:#fff;
                 font-size:14px; font-weight:700; cursor:pointer;
-                text-align:center; display:block;
-                transition:background 0.15s;
+                text-align:center; display:block; transition:background 0.15s;
             }
             #tm-ob-got-it:hover { background:#1a8cd8; }
+            #tm-ob-next {
+                width:100%; padding:9px; border-radius:9999px;
+                border:none; background:rgba(29,155,240,.15); color:#1d9bf0;
+                font-size:14px; font-weight:700; cursor:pointer;
+                text-align:center; display:block; margin-bottom:8px;
+                transition:background 0.15s;
+            }
+            #tm-ob-next:hover { background:rgba(29,155,240,.26); }
+            .tm-ob-dots { display:flex; gap:5px; justify-content:center; margin-bottom:12px; }
+            .tm-ob-dot  { width:6px; height:6px; border-radius:50%; display:inline-block; }
         `;
         document.head.appendChild(obStyle);
 
-        const overlay = document.createElement('div');
-        overlay.id = 'tm-ob-overlay';
-        overlay.style.background =
-            `radial-gradient(circle at ${cx}px ${cy}px, transparent ${r1}px, rgba(0,0,0,0.80) ${r2}px)`;
-
-        const ring = document.createElement('div');
-        ring.id = 'tm-ob-ring';
-        ring.style.cssText = `width:${r1 * 2}px; height:${r1 * 2}px; left:${cx}px; top:${cy}px; transform:translate(-50%,-50%);`;
-
-        const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const dark     = window.matchMedia('(prefers-color-scheme: dark)').matches;
         const cardBg   = dark ? '#16202b' : '#ffffff';
         const cardText = dark ? '#e7e9ea' : '#0f1419';
         const cardSub  = dark ? '#8b98a5' : '#536471';
         const arrowClr = dark ? '#16202b' : '#ffffff';
-        const cardW    = 270;
-        const cardLeft = Math.max(8, Math.min(cx - cardW / 2, window.innerWidth - cardW - 8));
-        const cardTop   = cy + r2 + 10;
+        const cardW    = 280;
 
-        const card = document.createElement('div');
-        card.id = 'tm-ob-card';
-        card.style.cssText = `
-            width:${cardW}px; left:${cardLeft}px; top:${cardTop}px;
-            background:${cardBg}; border-radius:14px;
-            box-shadow:0 8px 32px rgba(0,0,0,0.32);
-            padding:18px 18px 14px;
-            z-index:999989;
-        `;
+        let _overlay, _ring, _card;
 
-        const arrow = document.createElement('div');
-        arrow.style.cssText = `
-            position:absolute; top:-10px; right:16px; width:0; height:0;
-            border-left:10px solid transparent; border-right:10px solid transparent;
-            border-bottom:10px solid ${arrowClr};
-        `;
-
-        const titleEl = document.createElement('div');
-        titleEl.style.cssText = `font-size:15px;font-weight:700;color:${cardText};margin-bottom:8px;`;
-        titleEl.textContent = T.onboard_title || '⚙ Settings Panel';
-
-        const bodyEl = document.createElement('div');
-        bodyEl.style.cssText = `font-size:13px;color:${cardSub};line-height:1.55;margin-bottom:14px;`;
-        bodyEl.textContent = T.onboard_body || 'Hover the top-right corner to reveal the settings button.';
-
-        const gotItBtn = document.createElement('button');
-        gotItBtn.id = 'tm-ob-got-it';
-        gotItBtn.textContent = T.onboard_got_it || 'Got it!';
-
-        const dismiss = () => {
-            GM_setValue(KEY_ONBOARDING_DONE, true);
-            [overlay, card, ring].forEach(el => {
-                el.style.transition = 'opacity 0.3s ease';
-                el.style.opacity = '0';
-            });
-            setTimeout(() => {
-                [overlay, card, ring, obStyle].forEach(el => el.remove());
-                gearEl.style.removeProperty('opacity');
-                gearEl.style.removeProperty('transition');
-                if (wrapperEl) {
-                    wrapperEl.style.removeProperty('opacity');
-                    wrapperEl.style.removeProperty('transition');
-                }
-            }, 320);
+        const _mkOverlay = (cx, cy, r1, r2) => {
+            const el = document.createElement('div');
+            el.id = 'tm-ob-overlay';
+            el.style.background = cx !== null
+                ? `radial-gradient(circle at ${cx}px ${cy}px, transparent ${r1}px, rgba(0,0,0,0.80) ${r2}px)`
+                : 'rgba(0,0,0,0.78)';
+            return el;
         };
 
-        gotItBtn.addEventListener('click', e => { e.stopPropagation(); dismiss(); });
-        overlay.addEventListener('click', dismiss);
+        const _mkRing = (cx, cy, r1) => {
+            if (cx === null) return null;
+            const el = document.createElement('div');
+            el.id = 'tm-ob-ring';
+            el.style.cssText = `width:${r1*2}px;height:${r1*2}px;left:${cx}px;top:${cy}px;transform:translate(-50%,-50%);`;
+            return el;
+        };
 
-        card.appendChild(arrow);
-        card.appendChild(titleEl);
-        card.appendChild(bodyEl);
-        card.appendChild(gotItBtn);
-        document.body.appendChild(overlay);
-        document.body.appendChild(ring);
-        document.body.appendChild(card);
+        const _mkCard = (left, top, arrowRight) => {
+            const el = document.createElement('div');
+            el.id = 'tm-ob-card';
+            el.style.cssText = `
+                width:${cardW}px; left:${left}px; top:${top}px;
+                background:${cardBg}; border-radius:14px;
+                box-shadow:0 8px 32px rgba(0,0,0,0.32);
+                padding:18px 18px 14px;
+            `;
+            if (arrowRight !== null) {
+                const a = document.createElement('div');
+                a.style.cssText = `
+                    position:absolute; top:-10px; right:${arrowRight}px; width:0; height:0;
+                    border-left:10px solid transparent; border-right:10px solid transparent;
+                    border-bottom:10px solid ${arrowClr};
+                `;
+                el.appendChild(a);
+            }
+            return el;
+        };
+
+        const _mkDots = (active) => {
+            const d = document.createElement('div');
+            d.className = 'tm-ob-dots';
+            [0, 1].forEach(i => {
+                const s = document.createElement('span');
+                s.className = 'tm-ob-dot';
+                s.style.background = i === active ? '#1d9bf0' : 'rgba(29,155,240,.3)';
+                d.appendChild(s);
+            });
+            return d;
+        };
+
+        const _fadeOut = (els, cb) => {
+            els.filter(Boolean).forEach(el => {
+                el.style.transition = 'opacity 0.2s ease';
+                el.style.opacity = '0';
+            });
+            setTimeout(cb, 230);
+        };
+
+        const _cleanup = () => {
+            [_overlay, _ring, _card, obStyle].forEach(el => el?.remove());
+            wrapperEl.style.removeProperty('opacity');
+            wrapperEl.style.removeProperty('transition');
+        };
+
+        function renderStep1() {
+            const btn = document.querySelector(`article .${BUTTON_CLASS}`);
+            let cx = null, cy = null, r1 = 0, r2 = 0, arrowRight = null;
+            let cardLeft, cardTop;
+
+            if (btn) {
+                const rect = btn.getBoundingClientRect();
+                cx = rect.left + rect.width  / 2;
+                cy = rect.top  + rect.height / 2;
+                r1 = Math.max(rect.width, rect.height) / 2 + 14;
+                r2 = r1 + 20;
+                cardLeft = Math.max(8, Math.min(cx - cardW / 2, window.innerWidth - cardW - 8));
+                const spaceBelow = window.innerHeight - (cy + r2 + 10);
+                cardTop = spaceBelow >= 190 ? cy + r2 + 10
+                                             : Math.max(8, cy - r2 - 200);
+            } else {
+                cardTop  = Math.round(window.innerHeight * 0.30);
+                cardLeft = Math.max(8, Math.min(Math.round(window.innerWidth / 2 - cardW / 2),
+                                                window.innerWidth - cardW - 8));
+            }
+
+            _overlay = _mkOverlay(cx, cy, r1, r2);
+            _ring    = _mkRing(cx, cy, r1);
+            _card    = _mkCard(cardLeft, cardTop, arrowRight);
+
+            const titleEl = document.createElement('div');
+            titleEl.style.cssText = `font-size:15px;font-weight:700;color:${cardText};margin-bottom:8px;`;
+            titleEl.textContent = T.onboard_step1_title || '📋 Twitter / X — Media Buttons';
+
+            const bodyEl = document.createElement('div');
+            bodyEl.style.cssText = `font-size:13px;color:${cardSub};line-height:1.55;margin-bottom:14px;`;
+            bodyEl.textContent = T.onboard_step1_body ||
+                'This script adds a Copy button and a Download button directly to every tweet with photos or videos. Hover any media tweet to see them in the action bar.';
+
+            const nextBtn = document.createElement('button');
+            nextBtn.id = 'tm-ob-next';
+            nextBtn.textContent = T.onboard_next || 'Next →';
+            nextBtn.addEventListener('click', e => {
+                e.stopPropagation();
+                _fadeOut([_overlay, _ring, _card], () => {
+                    _overlay?.remove(); _ring?.remove(); _card?.remove();
+                    renderStep2();
+                });
+            });
+
+            _card.appendChild(titleEl);
+            _card.appendChild(bodyEl);
+            _card.appendChild(_mkDots(0));
+            _card.appendChild(nextBtn);
+
+            document.body.appendChild(_overlay);
+            if (_ring) document.body.appendChild(_ring);
+            document.body.appendChild(_card);
+            _overlay.addEventListener('click', () => nextBtn.click());
+        }
+
+        function renderStep2() {
+            wrapperEl.style.setProperty('opacity', '1', 'important');
+            wrapperEl.style.setProperty('transition', 'none', 'important');
+
+            const rect = wrapperEl.getBoundingClientRect();
+            const cx = rect.left + rect.width  / 2;
+            const cy = rect.top  + rect.height / 2;
+            const r1 = Math.ceil(Math.sqrt((rect.width / 2) ** 2 + (rect.height / 2) ** 2)) + 10;
+            const r2 = r1 + 20;
+
+            const cardLeft = Math.max(8, Math.min(cx - cardW / 2, window.innerWidth - cardW - 8));
+            const cardTop  = cy + r2 + 10;
+
+            _overlay = _mkOverlay(cx, cy, r1, r2);
+            _ring    = _mkRing(cx, cy, r1);
+            _card    = _mkCard(cardLeft, cardTop, 16);
+
+            const titleEl = document.createElement('div');
+            titleEl.style.cssText = `font-size:15px;font-weight:700;color:${cardText};margin-bottom:8px;`;
+            titleEl.textContent = T.onboard_title || '⚙ Settings Panel';
+
+            const bodyEl = document.createElement('div');
+            bodyEl.style.cssText = `font-size:13px;color:${cardSub};line-height:1.55;margin-bottom:14px;`;
+            bodyEl.textContent = T.onboard_body ||
+                'Hover the top-right corner to reveal the settings button. Click it to quickly manage domains, prefix, language and more.';
+
+            const gotItBtn = document.createElement('button');
+            gotItBtn.id = 'tm-ob-got-it';
+            gotItBtn.textContent = T.onboard_got_it || 'Got it!';
+            gotItBtn.addEventListener('click', e => {
+                e.stopPropagation();
+                GM_setValue(KEY_ONBOARDING_DONE, true);
+                _fadeOut([_overlay, _ring, _card], () => {
+                    _cleanup();
+                    setTimeout(showHistoryPanel, 150);
+                });
+            });
+
+            _card.appendChild(titleEl);
+            _card.appendChild(bodyEl);
+            _card.appendChild(_mkDots(1));
+            _card.appendChild(gotItBtn);
+
+            document.body.appendChild(_overlay);
+            document.body.appendChild(_ring);
+            document.body.appendChild(_card);
+            _overlay.addEventListener('click', () => {
+                GM_setValue(KEY_ONBOARDING_DONE, true);
+                _fadeOut([_overlay, _ring, _card], () => {
+                    _cleanup();
+                    setTimeout(showHistoryPanel, 150);
+                });
+            });
+        }
+
+        renderStep1();
     }
 
     setTimeout(showOnboardingOverlay, 1200);
@@ -2695,15 +2832,23 @@
 
             const showDockSpotlight = () => {
                 if (GM_getValue('app_dock_spotlight_done', false)) return;
-                GM_setValue('app_dock_spotlight_done', true);
-
                 if (document.getElementById('tm-dock-spotlight')) return;
+
                 const histPanel = document.getElementById('tm-hist-panel');
-                if (!histPanel) return;
+                if (!histPanel) {
+                    showHistoryPanel();
+                    setTimeout(showDockSpotlight, 450);
+                    return;
+                }
 
                 const trigL = histPanel.querySelector('.tm-dock-trigger.left');
                 const trigR = histPanel.querySelector('.tm-dock-trigger.right');
-                if (!trigL && !trigR) return;
+                if (!trigL && !trigR) {
+                    setTimeout(showDockSpotlight, 200);
+                    return;
+                }
+
+                GM_setValue('app_dock_spotlight_done', true);
 
                 const overlay = document.createElement('div');
                 overlay.id = 'tm-dock-spotlight';
@@ -3140,11 +3285,12 @@
                 const panel = document.getElementById('tm-hist-panel');
                 if (panel) {
                     panel.dispatchEvent(new CustomEvent('tm-hist-refresh'));
+                    let count = 0;
+                    try { count = JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]')).length; } catch (_) {}
+                    showToast(`🔄 History refreshed · ${count} record${count !== 1 ? 's' : ''}`);
+                } else {
+                    showHistoryPanel();
                 }
-
-                let count = 0;
-                try { count = JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]')).length; } catch (_) {}
-                showToast(`🔄 History refreshed · ${count} record${count !== 1 ? 's' : ''}`);
             });
 
             wrapper.appendChild(refreshBtn);
@@ -4077,7 +4223,7 @@
         };
 
         let pos = {
-            x: Math.max(8, window.innerWidth - 408),
+            x: Math.max(8, Math.min(Math.round(window.innerWidth * 0.55 - 195), window.innerWidth - 398)),
             y: 60, w: 390, h: 540,
         };
         try {
@@ -6726,7 +6872,7 @@
                 .tm-gp-item img { width:100%; height:100%; object-fit:cover; display:block; }
                 .tm-gp-item .tm-gp-vid-badge { position:absolute; bottom:4px; right:4px; background:rgba(0,0,0,0.65); border-radius:4px; padding:1px 4px; font-size:10px; color:white; pointer-events:none; line-height:1.4; }
                 .tm-gp-tweet-label { font:10px/1.4 system-ui,sans-serif; color:rgba(251,191,36,0.85); padding:8px 4px 3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; grid-column:1/-1; }
-                #tm-lb-pill { position:absolute; top:68px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.72); backdrop-filter:blur(8px); color:rgba(255,255,255,0.9); border-radius:9999px; padding:5px 14px 5px 10px; font:12px/1.5 system-ui,sans-serif; display:flex; align-items:center; gap:7px; max-width:min(480px,60vw); white-space:nowrap; overflow:hidden; pointer-events:none; z-index:31; opacity:0; transition:opacity 0.22s ease; }
+                #tm-lb-pill { position:fixed; top:68px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.42); backdrop-filter:blur(8px); color:rgba(255,255,255,0.9); border-radius:9999px; padding:5px 14px 5px 10px; font:12px/1.5 system-ui,sans-serif; display:flex; align-items:center; gap:7px; max-width:min(480px,60vw); white-space:nowrap; overflow:hidden; pointer-events:none; z-index:9999998; opacity:0; transition:opacity 0.22s ease; }
                 #tm-lb-pill.tm-pill-show { opacity:1; }
                 #tm-lb-pill .tm-pill-avatar { width:20px; height:20px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font:700 9px system-ui; color:white; }
                 #tm-lb-pill .tm-pill-author { font-weight:600; flex-shrink:0; }
@@ -6737,6 +6883,7 @@
 
         vpGalleryPanel = document.createElement('div');
         vpGalleryPanel.id = 'tm-lb-gallery-panel';
+        document.getElementById('tm-lb-pill')?.remove();
         const vpPill = document.createElement('div');
         vpPill.id = 'tm-lb-pill';
         let _vpPillTimer = null;
@@ -6784,7 +6931,7 @@
                             vpPill.innerHTML = `<span class="tm-pill-avatar" style="background:${group.avatarColor}">${_pesc(group.avatarLetter)}</span><span class="tm-pill-author">@${_pesc(group.handle)}</span>${group.text ? `<span class="tm-pill-text">${_pesc(group.text)}</span>` : ''}`;
                             vpPill.classList.add('tm-pill-show');
                             clearTimeout(_vpPillTimer);
-                            _vpPillTimer = setTimeout(() => { vpPill.classList.remove('tm-pill-show'); }, 3000);
+                            _vpPillTimer = setTimeout(() => { vpPill.classList.remove('tm-pill-show'); }, 1500);
 
                             const isValidUrl = u => typeof u === 'string' && u.startsWith('http');
                             if (item.type === 'video') {
@@ -6821,7 +6968,7 @@
         if (viewImgBtn) modal.appendChild(viewImgBtn);
         modal.appendChild(vpGalleryBtn);
         modal.appendChild(vpGalleryPanel);
-        modal.appendChild(vpPill);
+        document.body.appendChild(vpPill);
         modal.appendChild(counter);
         if (total > 1) { modal.appendChild(prevBtn); modal.appendChild(nextBtn); }
         document.body.appendChild(modal);
@@ -7020,16 +7167,16 @@
                 }
 
                 #tm-lb-pill {
-                    position: absolute; top: 68px; left: 50%;
+                    position: fixed; top: 68px; left: 50%;
                     transform: translateX(-50%);
-                    background: rgba(0,0,0,0.72); backdrop-filter: blur(8px);
+                    background: rgba(0,0,0,0.42); backdrop-filter: blur(8px);
                     color: rgba(255,255,255,0.9); border-radius: 9999px;
                     padding: 5px 14px 5px 10px;
                     font: 12px/1.5 system-ui, sans-serif;
                     display: flex; align-items: center; gap: 7px;
                     max-width: min(480px, 60vw);
                     white-space: nowrap; overflow: hidden;
-                    pointer-events: none; z-index: 31;
+                    pointer-events: none; z-index: 9999998;
                     opacity: 0; transition: opacity 0.22s ease;
                 }
                 #tm-lb-pill.tm-pill-show { opacity: 1; }
@@ -7108,6 +7255,7 @@
             const panel = document.createElement('div');
             panel.id = 'tm-lb-gallery-panel';
 
+            document.getElementById('tm-lb-pill')?.remove();
             const pill = document.createElement('div');
             pill.id = 'tm-lb-pill';
 
@@ -7219,13 +7367,22 @@
             closeBtn.onmouseleave = () => closeBtn.style.background = 'rgba(0,0,0,0.6)';
             closeBtn.onclick = closeLightbox;
             modal.onclick = e => {
-                if (_galleryOpen) return;
-                const hit = e.composedPath().some(el => el !== modal && el instanceof Element && (
-                    el.tagName === 'IMG' || el.tagName === 'BUTTON' ||
-                    el.id === 'tm-lb-gallery-panel' || el.id === 'tm-lb-pill' ||
-                    (el.className && typeof el.className === 'string' && el.className.includes('tm-'))
-                ));
-                if (!hit) closeLightbox();
+                const path = e.composedPath();
+                if (path.some(el => el !== modal && el instanceof Element && (
+                    el.tagName === 'BUTTON' ||
+                    el.id === 'tm-lb-gallery-panel' || el.id === 'tm-lb-pill'
+                ))) return;
+
+                const imgEl = container.querySelector('.tm-lb-single-img');
+                const r = imgEl?.getBoundingClientRect();
+                const overImg = r && e.clientX >= r.left && e.clientX <= r.right
+                                   && e.clientY >= r.top  && e.clientY <= r.bottom;
+
+                if (overImg && _galleryOpen) {
+                    container._toggleGalleryRef?.();
+                } else if (!overImg) {
+                    closeLightbox();
+                }
             };
             modal.appendChild(closeBtn);
 
@@ -7277,7 +7434,7 @@
             container._toggleGalleryRef = tgA;
             modal.appendChild(gbA);
             modal.appendChild(gpA);
-            modal.appendChild(pillA);
+            document.body.appendChild(pillA);
 
             document.body.appendChild(modal);
 
@@ -7372,7 +7529,6 @@
         closeBtn.onmouseleave = () => closeBtn.style.background = 'rgba(0,0,0,0.6)';
         closeBtn.onclick = closeLightbox;
         modal.onclick = e => {
-            if (_galleryOpen) return;
             const hit = e.composedPath().some(el => el !== modal && el instanceof Element && (
                 el.tagName === 'IMG' || el.tagName === 'BUTTON' ||
                 el.id === 'tm-lb-gallery-panel' || el.id === 'tm-lb-pill' ||
@@ -7458,7 +7614,7 @@
                 const { dx, rot, scale, zIndex, opacity, focused: isFocused } = calcTransform(i - focused);
                 card.style.transform = `translateX(${dx}px) rotate(${rot}deg) scale(${scale}) translateZ(0)`;
                 card.style.opacity   = opacity;
-                card.style.setProperty('--lb-z', zIndex);
+                card.style.zIndex = String(zIndex);
                 card.classList.toggle('tm-lb-focused', isFocused);
             });
             dots.forEach((dot, i) => {
@@ -7479,7 +7635,7 @@
             `;
             pillEl.classList.add('tm-pill-show');
             clearTimeout(_pillTimer);
-            _pillTimer = setTimeout(() => { pillEl.classList.remove('tm-pill-show'); }, 3000);
+            _pillTimer = setTimeout(() => { pillEl.classList.remove('tm-pill-show'); }, 1500);
         }
 
         let _toggleGalleryRef = null;
@@ -7528,7 +7684,7 @@
         if (total > 1) { modal.appendChild(dotsWrap); modal.appendChild(counter); }
         modal.appendChild(gbB);
         modal.appendChild(gpB);
-        modal.appendChild(pillB);
+        document.body.appendChild(pillB);
         document.body.appendChild(modal);
 
         requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -7536,6 +7692,7 @@
 
             cards.forEach((card, i) => {
                 const delay = i * 55;
+                card.style.zIndex = String(calcTransform(i - focused).zIndex);
                 setTimeout(() => {
                     card.style.transition = `
                         transform 0.42s cubic-bezier(0.22,1,0.36,1) ${delay}ms,
@@ -7548,9 +7705,14 @@
 
             const totalStagger = (total - 1) * 55 + 420;
             setTimeout(() => {
-                cards.forEach(card => card.classList.add('tm-lb-animated'));
-                _flushUpdate();
-                if (openGallery) tgB(true);
+                cards.forEach(card => {
+                    card.style.transition = '';
+                    card.classList.add('tm-lb-animated');
+                });
+                requestAnimationFrame(() => {
+                    _flushUpdate();
+                    if (openGallery) tgB(true);
+                });
             }, totalStagger);
         }));
     }
