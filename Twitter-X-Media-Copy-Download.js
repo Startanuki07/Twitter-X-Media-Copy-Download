@@ -8,8 +8,9 @@
 // @name:pt-BR   Twitter / X — Copiar e Baixar Mídia
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
-// @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07?locale_override=1
-// @version      2.4.6.0
+// @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
+// @version      2.4.7.0
+// @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
@@ -2581,7 +2582,7 @@
 
             const makePickerRow = (label, options, currentVal, onSelect, featureId = null) => {
                 const wrap = document.createElement('div');
-                wrap.style.cssText = 'border-bottom: 1px solid ${C.border};';
+                wrap.style.cssText = `border-bottom: 1px solid ${C.border};`;
 
                 const row = document.createElement('div');
                 row.className = 'tm-sp-row';
@@ -2658,7 +2659,7 @@
 
             const makeFeedbackPickerRow = (label, options, currentVal, onSelect, featureId = null) => {
                 const wrap = document.createElement('div');
-                wrap.style.cssText = 'border-bottom: 1px solid ${C.border};';
+                wrap.style.cssText = `border-bottom: 1px solid ${C.border};`;
 
                 const row = document.createElement('div');
                 row.className = 'tm-sp-row';
@@ -3356,7 +3357,7 @@
     let _pendingStarPipEl     = null;
 
     window.addEventListener('scroll', () => { if (!_fanOpen) hideStarPip(); }, { passive: true, capture: true });
-    document.addEventListener('visibilitychange', () => { if (document.hidden) hideStarPip(); });
+    document.addEventListener('visibilitychange', () => { if (document.hidden) { if (_fanOpen) closeGroupFan(); hideStarPip(); } });
     (() => {
         const _wrap = fn => function(...args) { const r = fn.apply(this, args); hideStarPip?.(); return r; };
         history.pushState    = _wrap(history.pushState);
@@ -3642,10 +3643,7 @@
         _pendingGroupRecordId = null;
         showToast(`⭐ → ${groupName}`);
         closeGroupFan();
-        _runStarEscapeAnim(() => {
-            const pip = document.getElementById('tm-star-pip');
-            if (pip) pip.remove();
-        });
+        _runStarEscapeAnim(() => hideStarPip());
     }
 
     document.addEventListener('click', e => {
@@ -7974,8 +7972,11 @@
         try {
             let cookies = {};
             document.cookie.split(';').forEach(c => {
-                let [k, v] = c.split('=');
-                if (k && v) cookies[k.trim()] = v.trim();
+                const eqIdx = c.indexOf('=');
+                if (eqIdx < 0) return;
+                const k = c.slice(0, eqIdx).trim();
+                const v = c.slice(eqIdx + 1).trim();
+                if (k) cookies[k] = v;
             });
 
             const AUTH_TOKEN = await _resolveBearerToken();
@@ -8328,7 +8329,8 @@
                     `"${rawText.slice(0, 100)}${rawText.length > 100 ? '…' : ''}"\n\n` +
                     `Save it as a text bookmark for grouping?`
                 );
-                _dialogOpenGlobal = false;                if (!confirmed) return;
+                _dialogOpenGlobal = false;
+                if (!confirmed) return;
                 try {
                     const _now   = new Date();
                     const _yy    = _now.getFullYear();
