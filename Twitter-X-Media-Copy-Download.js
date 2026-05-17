@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.5.0.0
+// @version      2.5.1.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -1511,6 +1511,22 @@
         if (corner === 'lc') { panel.style.left = '100%'; panel.style.right = 'auto'; }
         if (corner === 'rc') { panel.style.right = '100%'; panel.style.left = 'auto'; }
         panel.style.transformOrigin = (isBottom ? 'bottom' : 'top') + ' ' + (isLeft ? 'left' : isCenter ? 'center' : 'right');
+
+        if (corner === 'lc' || corner === 'rc') {
+            const vpH       = window.innerHeight;
+            const wH        = wrapper.offsetHeight || 50;
+            const pH        = panel.scrollHeight   || 540;
+            const maxH      = Math.min(pH, vpH - 20);
+            const wrapTopVP  = vpH / 2 - wH / 2;
+            const panelTopVP = Math.max(8, Math.min((vpH - maxH) / 2, vpH - maxH - 8));
+            panel.style.top       = Math.round(panelTopVP - wrapTopVP) + 'px';
+            panel.style.maxHeight = maxH + 'px';
+            panel.style.overflowY = pH > maxH ? 'auto' : '';
+            panel.style.transformOrigin = 'center ' + (corner === 'lc' ? 'left' : 'right');
+        } else {
+            panel.style.maxHeight = '';
+            panel.style.overflowY = '';
+        }
     }
 
     function _initSettingsPanel() {
