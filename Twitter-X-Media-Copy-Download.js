@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.4.7.0
+// @version      2.5.0.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -64,6 +64,8 @@
     const KEY_GROUP_ON_DOWNLOAD = 'app_group_on_download';
     const KEY_GROUPS            = 'app_media_groups';
     const KEY_GROUP_PANEL_CFG   = 'app_group_panel_cfg';
+    const KEY_GEAR_VISIBLE      = 'app_gear_visible';
+    const KEY_GEAR_CORNER       = 'app_gear_corner';
 
     const NEW_FEATURE_IDS = [
         'feedback_style',
@@ -79,6 +81,7 @@
         'sp_group_glow_color',
         'sp_group_glow_size',
         'sp_group_text_color',
+        'sp_corner_position',
     ];
 
     const DOMAIN_LIST = [
@@ -1440,18 +1443,93 @@
         }));
 
         menuIds.push(GM_registerMenuCommand(T.menu_help, showHelpModal));
+
+        menuIds.push(GM_registerMenuCommand('⚙️ Open Settings Panel', () => {
+            const wrapper = document.getElementById('tm-settings-wrapper');
+            if (!wrapper) return;
+            wrapper.style.display = '';
+            wrapper.setAttribute('data-open', 'true');
+            const panel = document.getElementById('tm-settings-panel');
+            if (panel) panel.style.display = 'block';
+        }));
+
+        menuIds.push(GM_registerMenuCommand('📋 Open History Panel', () => {
+            showHistoryPanel();
+        }));
+
+        const gearVisible = GM_getValue(KEY_GEAR_VISIBLE, true);
+        const gearStatusText = gearVisible ? 'Visible' : 'Hidden';
+        menuIds.push(GM_registerMenuCommand(`👁 Corner Buttons [${gearStatusText}]`, () => {
+            const next = !GM_getValue(KEY_GEAR_VISIBLE, true);
+            GM_setValue(KEY_GEAR_VISIBLE, next);
+            const wrapper = document.getElementById('tm-settings-wrapper');
+            if (wrapper) wrapper.style.display = next ? '' : 'none';
+            showToast(next ? '👁 Corner buttons: Visible' : '👁 Corner buttons: Hidden');
+            registerMenus();
+        }));
     }
     registerMenus();
 
     const _isTwitterDomain = ['twitter.com', 'x.com'].includes(location.hostname);
 
+    function _applyGearCorner(corner) {
+        const wrapper = document.getElementById('tm-settings-wrapper');
+        if (!wrapper) return;
+        const wMap = {
+            tr: { top: '12px',  right: '12px', bottom: 'auto', left: 'auto'  },
+            tl: { top: '12px',  right: 'auto', bottom: 'auto', left: '12px'  },
+            br: { top: 'auto',  right: '12px', bottom: '12px', left: 'auto'  },
+            bl: { top: 'auto',  right: 'auto', bottom: '12px', left: '12px'  },
+            tc: { top: '12px',  right: 'auto', bottom: 'auto', left: '50%'   },
+            bc: { top: 'auto',  right: 'auto', bottom: '12px', left: '50%'   },
+            lc: { top: '50%',   right: 'auto', bottom: 'auto', left: '12px'  },
+            rc: { top: '50%',   right: '12px', bottom: 'auto', left: 'auto'  },
+            cc: { top: '50%',   right: 'auto', bottom: 'auto', left: '50%'   },
+        };
+        const wPos = wMap[corner] || wMap['tr'];
+        wrapper.style.top    = wPos.top;
+        wrapper.style.right  = wPos.right;
+        wrapper.style.bottom = wPos.bottom;
+        wrapper.style.left   = wPos.left;
+        wrapper.style.transform = (corner === 'tc' || corner === 'bc') ? 'translateX(-50%)'
+                                : (corner === 'lc' || corner === 'rc') ? 'translateY(-50%)'
+                                : (corner === 'cc')                    ? 'translate(-50%, -50%)'
+                                : '';
+
+        const panel = document.getElementById('tm-settings-panel');
+        if (!panel) return;
+        const isBottom = corner === 'br' || corner === 'bl' || corner === 'bc';
+        const isLeft   = corner === 'tl' || corner === 'bl' || corner === 'lc';
+        const isCenter = corner === 'tc' || corner === 'bc' || corner === 'cc';
+        panel.style.top         = isBottom ? 'auto' : 'calc(100% - 21px)';
+        panel.style.bottom      = isBottom ? 'calc(100% - 21px)' : 'auto';
+        panel.style.right       = isLeft   ? 'auto' : isCenter ? 'auto' : '4px';
+        panel.style.left        = isLeft   ? '4px'  : isCenter ? '50%'  : 'auto';
+        panel.style.transform   = (isCenter && !isBottom) ? 'translateX(-50%) scale(0.88) translateY(-8px)'
+                                : (isCenter && isBottom)  ? 'translateX(-50%) scale(0.88) translateY(8px)'
+                                : '';
+        if (corner === 'lc') { panel.style.left = '100%'; panel.style.right = 'auto'; }
+        if (corner === 'rc') { panel.style.right = '100%'; panel.style.left = 'auto'; }
+        panel.style.transformOrigin = (isBottom ? 'bottom' : 'top') + ' ' + (isLeft ? 'left' : isCenter ? 'center' : 'right');
+    }
+
     function _initSettingsPanel() {
+        const _applyGearVisibility = () => {
+            const wrapper = document.getElementById('tm-settings-wrapper');
+            if (wrapper && !GM_getValue(KEY_GEAR_VISIBLE, true)) {
+                wrapper.style.display = 'none';
+            }
+        };
         if (document.body) {
             createSettingsPanel();
+            _applyGearVisibility();
+            _applyGearCorner(GM_getValue(KEY_GEAR_CORNER, 'tr'));
             if (_isTwitterDomain) _initStarPip();
         } else {
             document.addEventListener('DOMContentLoaded', () => {
                 createSettingsPanel();
+                _applyGearVisibility();
+                _applyGearCorner(GM_getValue(KEY_GEAR_CORNER, 'tr'));
                 if (_isTwitterDomain) _initStarPip();
             }, { once: true });
         }
@@ -3186,6 +3264,235 @@
                 });
             };
             _syncGroupChildrenDisabled();
+
+            const grpCorner = makeGroup('📌  Corner Position', true, null, () => {
+                markFeatureSeen('sp_corner_position');
+            });
+
+            if (isFeatureNew('sp_corner_position')) {
+                const grpCornerHeader = panel.querySelector('.tm-sp-group-header:last-of-type') ||
+                    panel.querySelectorAll('.tm-sp-group-header')[panel.querySelectorAll('.tm-sp-group-header').length - 1];
+                if (grpCornerHeader) {
+                    const newBadge = document.createElement('span');
+                    newBadge.className = 'tm-sp-new-badge';
+                    newBadge.textContent = 'NEW';
+                    newBadge.style.marginLeft = '6px';
+                    const chevron = grpCornerHeader.querySelector('.tm-sp-group-chevron');
+                    grpCornerHeader.insertBefore(newBadge, chevron);
+                }
+            }
+
+            const _curCorner = GM_getValue(KEY_GEAR_CORNER, 'tr');
+            const cornerRow = document.createElement('div');
+            cornerRow.style.cssText = `padding: 10px 12px 12px;`;
+
+            const cornerGrid = document.createElement('div');
+            cornerGrid.style.cssText = `
+                display: grid; grid-template-columns: 1fr 1fr 1fr;
+                gap: 6px; max-width: 210px;
+            `;
+
+            const CORNERS = [
+                { value: 'tl', label: '↖ Top Left',      row: 1, col: 1, dotH: 'flex-start', dotV: 'flex-start' },
+                { value: 'tc', label: '↑ Top Center',     row: 1, col: 2, dotH: 'center',      dotV: 'flex-start' },
+                { value: 'tr', label: '↗ Top Right',      row: 1, col: 3, dotH: 'flex-end',    dotV: 'flex-start' },
+                { value: 'lc', label: '← Left Center',    row: 2, col: 1, dotH: 'flex-start', dotV: 'center'      },
+                { value: 'rc', label: '→ Right Center',   row: 2, col: 3, dotH: 'flex-end',    dotV: 'center'      },
+                { value: 'bl', label: '↙ Bottom Left',    row: 3, col: 1, dotH: 'flex-start', dotV: 'flex-end'    },
+                { value: 'bc', label: '↓ Bottom Center',  row: 3, col: 2, dotH: 'center',      dotV: 'flex-end'    },
+                { value: 'br', label: '↘ Bottom Right',   row: 3, col: 3, dotH: 'flex-end',    dotV: 'flex-end'    },
+            ];
+
+            let _centerClicks = 0;
+
+            const _eggBubble = (() => {
+                const el = document.createElement('div');
+                el.style.cssText = `
+                    display: none; position: fixed; z-index: 9999999;
+                    background: #fff; color: #111;
+                    border: 2.5px solid #111; border-radius: 12px;
+                    padding: 10px 14px; font-size: 12px; font-weight: 700;
+                    font-family: system-ui, sans-serif; line-height: 1.6;
+                    white-space: pre-line; pointer-events: none;
+                    box-shadow: 3px 3px 0 #111;
+                    max-width: 240px;
+                    animation: none;
+                `;
+                const tail = document.createElement('div');
+                tail.style.cssText = `
+                    position: absolute; top: 100%; left: 50%;
+                    transform: translateX(-50%);
+                    width: 0; height: 0;
+                    border-left: 9px solid transparent;
+                    border-right: 9px solid transparent;
+                    border-top: 10px solid #111;
+                `;
+                const tailInner = document.createElement('div');
+                tailInner.style.cssText = `
+                    position: absolute; top: -12px; left: 50%;
+                    transform: translateX(-50%);
+                    width: 0; height: 0;
+                    border-left: 7px solid transparent;
+                    border-right: 7px solid transparent;
+                    border-top: 9px solid #fff;
+                `;
+                tail.appendChild(tailInner);
+                el.appendChild(tail);
+                document.body.appendChild(el);
+                return el;
+            })();
+
+            const _positionBubble = (anchorEl) => {
+                const r = anchorEl.getBoundingClientRect();
+                _eggBubble.style.left = (r.left + r.width / 2) + 'px';
+                _eggBubble.style.transform = 'translateX(-50%)';
+                _eggBubble.style.top = (r.top - 10) + 'px';
+                requestAnimationFrame(() => {
+                    const bh = _eggBubble.offsetHeight;
+                    const topAbove = r.top - bh - 10;
+                    if (topAbove < 8) {
+                        _eggBubble.style.top = (r.bottom + 10) + 'px';
+                        const tail = _eggBubble.lastChild;
+                        tail.style.top = '-10px';
+                        tail.style.bottom = 'auto';
+                        tail.style.borderTop = 'none';
+                        tail.style.borderBottom = '10px solid #111';
+                        tail.firstChild.style.top = '3px';
+                        tail.firstChild.style.borderTop = 'none';
+                        tail.firstChild.style.borderBottom = '9px solid #fff';
+                    } else {
+                        _eggBubble.style.top = topAbove + 'px';
+                        const tail = _eggBubble.lastChild;
+                        tail.style.top = '100%';
+                        tail.style.bottom = 'auto';
+                        tail.style.borderTop = '10px solid #111';
+                        tail.style.borderBottom = 'none';
+                        tail.firstChild.style.top = '-12px';
+                        tail.firstChild.style.borderTop = '9px solid #fff';
+                        tail.firstChild.style.borderBottom = 'none';
+                    }
+                });
+            };
+
+            const _showEggBubble = (text, anchorEl) => {
+                const tail = _eggBubble.lastChild;
+                _eggBubble.textContent = text;
+                _eggBubble.appendChild(tail);
+                _eggBubble.style.display = 'block';
+                _positionBubble(anchorEl);
+            };
+
+            const _hideEggBubble = () => { _eggBubble.style.display = 'none'; };
+
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#tm-settings-wrapper')) _hideEggBubble();
+            }, { capture: true, passive: true });
+
+            for (let r = 1; r <= 3; r++) {
+                for (let cl = 1; cl <= 3; cl++) {
+                    if (r === 2 && cl === 2) {
+                        const eggCell = document.createElement('button');
+                        eggCell.type = 'button';
+                        eggCell.title = '·';
+                        eggCell.dataset.cornerValue = 'cc';
+                        eggCell.style.cssText = `
+                            width: 64px; height: 44px; border-radius: 8px; cursor: pointer;
+                            border: 1.5px solid ${C.border}; background: transparent;
+                            position: relative; display: flex;
+                            align-items: center; justify-content: center;
+                            padding: 6px; transition: border-color .12s, background .12s;
+                            font-family: inherit;
+                        `;
+                        const eggDot = document.createElement('div');
+                        eggDot.style.cssText = `
+                            width: 6px; height: 6px; border-radius: 50%;
+                            background: ${C.sub}; opacity: 0.35;
+                        `;
+                        eggCell.appendChild(eggDot);
+
+                        eggCell.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            _centerClicks++;
+
+                            if (_centerClicks === 1) {
+                                let blinks = 0;
+                                const blink = () => {
+                                    cornerGrid.style.opacity = cornerGrid.style.opacity === '0.15' ? '1' : '0.15';
+                                    blinks++;
+                                    if (blinks < 6) setTimeout(blink, 75);
+                                    else cornerGrid.style.opacity = '1';
+                                };
+                                blink();
+                                setTimeout(() => _showEggBubble('Are you sure? 🤔', eggCell), 500);
+
+                            } else if (_centerClicks === 2) {
+                                _showEggBubble(
+                                    "Okay, I admit it.\nTop / Bottom / Left / Right Center?\nCompletely made up — just to fill the grid. 😅\n\nClick again if you really mean it.",
+                                    eggCell
+                                );
+
+                            } else if (_centerClicks >= 3) {
+                                _applyGearCorner('cc');
+                                wrapper.setAttribute('data-open', 'false');
+                                _centerClicks = 999;
+                                const _gearBtn = document.getElementById('tm-settings-gear-btn');
+                                setTimeout(() => {
+                                    const anchor = _gearBtn || eggCell;
+                                    _showEggBubble("See? You and I both messed this up.\nCongrats on finding it! 🎉", anchor);
+                                    setTimeout(() => {
+                                        _hideEggBubble();
+                                        eggCell.remove();
+                                    }, 3500);
+                                }, 120);
+                            }
+                        });
+
+                        cornerGrid.appendChild(eggCell);
+                        continue;
+                    }
+                    const c = CORNERS.find(x => x.row === r && x.col === cl);
+                    if (!c) continue;
+                    const cell = document.createElement('button');
+                    cell.type = 'button';
+                    cell.title = c.label;
+                    const isActive = _curCorner === c.value;
+                    cell.style.cssText = `
+                        width: 64px; height: 44px; border-radius: 8px; cursor: pointer;
+                        border: 1.5px solid ${isActive ? '#1d9bf0' : C.border};
+                        background: ${isActive ? 'rgba(29,155,240,.12)' : 'transparent'};
+                        position: relative; display: flex;
+                        align-items: ${c.dotV}; justify-content: ${c.dotH};
+                        padding: 6px; transition: border-color .12s, background .12s;
+                        font-family: inherit;
+                    `;
+                    const dot = document.createElement('div');
+                    dot.style.cssText = `
+                        width: 10px; height: 10px; border-radius: 50%;
+                        background: ${isActive ? '#1d9bf0' : C.sub};
+                        transition: background .12s;
+                    `;
+                    cell.appendChild(dot);
+                    cell.addEventListener('click', () => {
+                        GM_setValue(KEY_GEAR_CORNER, c.value);
+                        _applyGearCorner(c.value);
+                        wrapper.setAttribute('data-open', 'false');
+                        showToast('📌 Corner → ' + c.label);
+                        cornerGrid.querySelectorAll('button').forEach(b => {
+                            const bv = b.dataset.cornerValue;
+                            const bActive = bv === c.value;
+                            b.style.border = `1.5px solid ${bActive ? '#1d9bf0' : C.border}`;
+                            b.style.background = bActive ? 'rgba(29,155,240,.12)' : 'transparent';
+                            const bDot = b.querySelector('div');
+                            if (bDot) bDot.style.background = bActive ? '#1d9bf0' : C.sub;
+                        });
+                    });
+                    cell.dataset.cornerValue = c.value;
+                    cornerGrid.appendChild(cell);
+                }
+            }
+
+            cornerRow.appendChild(cornerGrid);
+            grpCorner.append(cornerRow);
 
             const HIST_TOOLTIP = 'Hidden feature: The history panel has invisible dock triggers on its left & right edges. Click them to auto-hide the panel to the screen edge!';
             const grpHist = makeGroup('🗂  History Panel', false, HIST_TOOLTIP, showDockSpotlight);
@@ -6855,9 +7162,9 @@
         vpGalleryBtn.onmouseenter = () => vpGalleryBtn.style.background = _vpGalleryOpen ? 'rgba(29,155,240,1)' : 'rgba(255,255,255,0.25)';
         vpGalleryBtn.onmouseleave = () => vpGalleryBtn.style.background = _vpGalleryOpen ? 'rgba(29,155,240,0.75)' : 'rgba(0,0,0,0.6)';
 
-        if (!document.getElementById('tm-lb-style')) {
+        if (!document.getElementById('tm-lb-style-gallery')) {
             const s = document.createElement('style');
-            s.id = 'tm-lb-style';
+            s.id = 'tm-lb-style-gallery';
             s.textContent = `
                 #tm-lb-gallery-btn { position:absolute; top:20px; right:75px; background:rgba(0,0,0,0.6); color:rgba(255,255,255,0.85); border:none; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; z-index:31; }
                 #tm-lb-gallery-btn.tm-gb-active { background:rgba(29,155,240,0.75); }
@@ -7830,7 +8137,8 @@
                 }
             } catch(_) {}
             _bearerPendingPromise = null;
-            return _cachedBearerToken || _FALLBACK_BEARER;
+            if (!_cachedBearerToken) _cachedBearerToken = _FALLBACK_BEARER;
+            return _cachedBearerToken;
         })();
 
         return _bearerPendingPromise;
@@ -7909,6 +8217,14 @@
                 const now = Date.now();
                 for (const [id, entry] of _apiVideoCache) {
                     if (now - entry.ts >= _API_CACHE_TTL) _apiVideoCache.delete(id);
+                }
+                if (_apiVideoCache.size > 150) {
+                    const overflow = _apiVideoCache.size - 150;
+                    let i = 0;
+                    for (const id of _apiVideoCache.keys()) {
+                        if (i++ >= overflow) break;
+                        _apiVideoCache.delete(id);
+                    }
                 }
             }
         } catch (_) {}
