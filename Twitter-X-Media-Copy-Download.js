@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.5.1.0
+// @version      2.6.0.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -1472,6 +1472,7 @@
 
     const _isTwitterDomain = ['twitter.com', 'x.com'].includes(location.hostname);
 
+    let _lcRcResizeHandler = null;
     function _applyGearCorner(corner) {
         const wrapper = document.getElementById('tm-settings-wrapper');
         if (!wrapper) return;
@@ -1512,21 +1513,70 @@
         if (corner === 'rc') { panel.style.right = '100%'; panel.style.left = 'auto'; }
         panel.style.transformOrigin = (isBottom ? 'bottom' : 'top') + ' ' + (isLeft ? 'left' : isCenter ? 'center' : 'right');
 
-        if (corner === 'lc' || corner === 'rc') {
-            const vpH       = window.innerHeight;
-            const wH        = wrapper.offsetHeight || 50;
-            const pH        = panel.scrollHeight   || 540;
-            const maxH      = Math.min(pH, vpH - 20);
-            const wrapTopVP  = vpH / 2 - wH / 2;
-            const panelTopVP = Math.max(8, Math.min((vpH - maxH) / 2, vpH - maxH - 8));
-            panel.style.top       = Math.round(panelTopVP - wrapTopVP) + 'px';
-            panel.style.maxHeight = maxH + 'px';
-            panel.style.overflowY = pH > maxH ? 'auto' : '';
-            panel.style.transformOrigin = 'center ' + (corner === 'lc' ? 'left' : 'right');
+        if (corner === 'lc' || corner === 'rc' || corner === 'cc') {
+            const _calcLcRcPos = () => {
+                const vpH2    = window.innerHeight;
+                const wH2     = wrapper.offsetHeight || 50;
+                const pH2     = panel.scrollHeight   || 540;
+                const maxH2   = Math.min(pH2, vpH2 - 20);
+                const wTVP2   = vpH2 / 2 - wH2 / 2;
+                const pTVP2   = Math.max(8, Math.min((vpH2 - maxH2) / 2, vpH2 - maxH2 - 8));
+                panel.style.top       = Math.round(pTVP2 - wTVP2) + 'px';
+                panel.style.maxHeight = maxH2 + 'px';
+                panel.style.overflowY = pH2 > maxH2 ? 'auto' : '';
+            };
+            _calcLcRcPos();
+            if (corner !== 'cc') {
+                panel.style.transformOrigin = 'center ' + (corner === 'lc' ? 'left' : 'right');
+            }
+            const _hdr = panel.querySelector('.tm-sp-header');
+            if (_hdr) { _hdr.style.position = 'sticky'; _hdr.style.top = '0'; _hdr.style.zIndex = '2'; }
+            if (_lcRcResizeHandler) window.removeEventListener('resize', _lcRcResizeHandler);
+            _lcRcResizeHandler = _calcLcRcPos;
+            window.addEventListener('resize', _lcRcResizeHandler, { passive: true });
         } else {
+            if (_lcRcResizeHandler) {
+                window.removeEventListener('resize', _lcRcResizeHandler);
+                _lcRcResizeHandler = null;
+            }
+            const _hdr = panel.querySelector('.tm-sp-header');
+            if (_hdr) { _hdr.style.position = ''; _hdr.style.top = ''; _hdr.style.zIndex = ''; }
             panel.style.maxHeight = '';
             panel.style.overflowY = '';
         }
+    }
+
+    let _cornerAnimEndHandler = null;
+
+    function _animateWrapperToCorner(corner) {
+        const wrapper = document.getElementById('tm-settings-wrapper');
+        if (!wrapper) { _applyGearCorner(corner); return; }
+
+        _applyGearCorner(corner);
+
+        const gear = document.getElementById('tm-settings-gear-btn');
+        const ref  = gear ? gear.getBoundingClientRect() : wrapper.getBoundingClientRect();
+        const cx   = ref.left + ref.width  / 2;
+        const cy   = ref.top  + ref.height / 2;
+
+        const pulse = document.createElement('div');
+        pulse.className = 'tm-corner-pulse';
+        pulse.style.cssText = `left:${Math.round(cx - 38)}px; top:${Math.round(cy - 38)}px;`;
+
+        const RING_TOTAL = 6;
+        let doneCount = 0;
+        [0, 150, 300, 900, 1050, 1200].forEach(delay => {
+            const ring = document.createElement('div');
+            ring.className = 'tm-pulse-ring';
+            ring.style.animationDelay = delay + 'ms';
+            ring.addEventListener('animationend', () => {
+                doneCount++;
+                if (doneCount === RING_TOTAL) pulse.remove();
+            }, { once: true });
+            pulse.appendChild(ring);
+        });
+
+        document.body.appendChild(pulse);
     }
 
     function _initSettingsPanel() {
@@ -1982,6 +2032,23 @@
                 transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
             }
             #tm-settings-gear-btn svg { width: 20px; height: 20px; display: block; transition: transform 0.3s ease; }
+
+            @keyframes tm-pulse-ring {
+                0%   { transform: scale(0.10); opacity: 0.85; }
+                45%  { opacity: 0.5; }
+                75%  { opacity: 0; }
+                100% { transform: scale(0.88); opacity: 0; }
+            }
+            .tm-corner-pulse {
+                position: fixed; border-radius: 50%;
+                width: 76px; height: 76px;
+                pointer-events: none; z-index: 9999998;
+            }
+            .tm-pulse-ring {
+                position: absolute; inset: 0; border-radius: 50%;
+                border: 2.5px solid #1d9bf0;
+                animation: tm-pulse-ring 0.52s cubic-bezier(0.15,0,0.5,1) forwards;
+            }
 
             @keyframes tm-spin-once {
                 from { transform: rotate(0deg); }
@@ -3300,12 +3367,12 @@
 
             const _curCorner = GM_getValue(KEY_GEAR_CORNER, 'tr');
             const cornerRow = document.createElement('div');
-            cornerRow.style.cssText = `padding: 10px 12px 12px;`;
+            cornerRow.style.cssText = `padding: 10px 12px 12px; display: flex; justify-content: center;`;
 
             const cornerGrid = document.createElement('div');
             cornerGrid.style.cssText = `
                 display: grid; grid-template-columns: 1fr 1fr 1fr;
-                gap: 6px; max-width: 210px;
+                gap: 6px; width: 210px;
             `;
 
             const CORNERS = [
@@ -3448,7 +3515,7 @@
                                 );
 
                             } else if (_centerClicks >= 3) {
-                                _applyGearCorner('cc');
+                                _animateWrapperToCorner('cc');
                                 wrapper.setAttribute('data-open', 'false');
                                 _centerClicks = 999;
                                 const _gearBtn = document.getElementById('tm-settings-gear-btn');
@@ -3457,7 +3524,8 @@
                                     _showEggBubble("See? You and I both messed this up.\nCongrats on finding it! 🎉", anchor);
                                     setTimeout(() => {
                                         _hideEggBubble();
-                                        eggCell.remove();
+                                        eggCell.style.visibility = 'hidden';
+                                        eggCell.style.pointerEvents = 'none';
                                     }, 3500);
                                 }, 120);
                             }
@@ -3490,7 +3558,7 @@
                     cell.appendChild(dot);
                     cell.addEventListener('click', () => {
                         GM_setValue(KEY_GEAR_CORNER, c.value);
-                        _applyGearCorner(c.value);
+                        _animateWrapperToCorner(c.value);
                         wrapper.setAttribute('data-open', 'false');
                         showToast('📌 Corner → ' + c.label);
                         cornerGrid.querySelectorAll('button').forEach(b => {
@@ -7184,8 +7252,24 @@
             s.textContent = `
                 #tm-lb-gallery-btn { position:absolute; top:20px; right:75px; background:rgba(0,0,0,0.6); color:rgba(255,255,255,0.85); border:none; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; z-index:31; }
                 #tm-lb-gallery-btn.tm-gb-active { background:rgba(29,155,240,0.75); }
-                #tm-lb-gallery-panel { position:absolute; top:0; right:0; bottom:0; width:212px; background:rgba(8,8,12,0.82); backdrop-filter:blur(20px) saturate(1.4); -webkit-backdrop-filter:blur(20px) saturate(1.4); border-left:1px solid rgba(255,255,255,0.10); overflow-y:auto; overflow-x:hidden; transform:translateX(100%); transition:transform 0.3s cubic-bezier(0.22,1,0.36,1); z-index:30; padding:12px 8px 24px; box-sizing:border-box; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,0.15) transparent; }
-                #tm-lb-gallery-panel.tm-gp-open { transform:translateX(0); }
+                #tm-lb-gallery-panel {
+                    position:absolute; top:0; right:0; bottom:0; width:212px;
+                    background:rgba(8,8,12,0.82);
+                    
+                    border-left:1px solid rgba(255,255,255,0.10);
+                    overflow-y:auto; overflow-x:hidden;
+                    transform:translateX(100%);
+                    transition:transform 0.3s cubic-bezier(0.22,1,0.36,1),
+                               backdrop-filter 0.3s ease,
+                               -webkit-backdrop-filter 0.3s ease;
+                    z-index:30; padding:12px 8px 24px; box-sizing:border-box;
+                    scrollbar-width:thin; scrollbar-color:rgba(255,255,255,0.15) transparent;
+                }
+                #tm-lb-gallery-panel.tm-gp-open {
+                    transform:translateX(0);
+                    backdrop-filter:blur(20px) saturate(1.4);
+                    -webkit-backdrop-filter:blur(20px) saturate(1.4);
+                }
                 #tm-lb-gallery-panel .tm-gp-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px; }
                 .tm-gp-item { position:relative; aspect-ratio:1/1; border-radius:6px; overflow:hidden; cursor:pointer; border:2px solid transparent; transition:border-color 0.15s, transform 0.15s; background:rgba(40,40,40,0.9); flex-shrink:0; }
                 .tm-gp-item:hover { transform:scale(0.96); }
@@ -7193,8 +7277,8 @@
                 .tm-gp-item img { width:100%; height:100%; object-fit:cover; display:block; }
                 .tm-gp-item .tm-gp-vid-badge { position:absolute; bottom:4px; right:4px; background:rgba(0,0,0,0.65); border-radius:4px; padding:1px 4px; font-size:10px; color:white; pointer-events:none; line-height:1.4; }
                 .tm-gp-tweet-label { font:10px/1.4 system-ui,sans-serif; color:rgba(251,191,36,0.85); padding:8px 4px 3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; grid-column:1/-1; }
-                #tm-lb-pill { position:fixed; top:68px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.42); backdrop-filter:blur(8px); color:rgba(255,255,255,0.9); border-radius:9999px; padding:5px 14px 5px 10px; font:12px/1.5 system-ui,sans-serif; display:flex; align-items:center; gap:7px; max-width:min(480px,60vw); white-space:nowrap; overflow:hidden; pointer-events:none; z-index:9999998; opacity:0; transition:opacity 0.22s ease; }
-                #tm-lb-pill.tm-pill-show { opacity:1; }
+                #tm-lb-pill { position:fixed; top:68px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.62); color:rgba(255,255,255,0.9); border-radius:9999px; padding:5px 14px 5px 10px; font:12px/1.5 system-ui,sans-serif; display:flex; align-items:center; gap:7px; max-width:min(480px,60vw); white-space:nowrap; overflow:hidden; pointer-events:none; z-index:9999998; opacity:0; transition:opacity 0.22s ease; }
+                #tm-lb-pill.tm-pill-show { opacity:1; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
                 #tm-lb-pill .tm-pill-avatar { width:20px; height:20px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font:700 9px system-ui; color:white; }
                 #tm-lb-pill .tm-pill-author { font-weight:600; flex-shrink:0; }
                 #tm-lb-pill .tm-pill-text { color:rgba(255,255,255,0.6); overflow:hidden; text-overflow:ellipsis; }
@@ -7443,18 +7527,24 @@
                 #tm-lb-gallery-panel {
                     position: absolute; top: 0; right: 0; bottom: 0;
                     width: 212px;
-                    background: rgba(8,8,12,0.82); backdrop-filter: blur(20px) saturate(1.4);
-                    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+                    background: rgba(8,8,12,0.82);
+                    
                     border-left: 1px solid rgba(255,255,255,0.10);
                     overflow-y: auto; overflow-x: hidden;
                     transform: translateX(100%);
-                    transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+                    transition: transform 0.3s cubic-bezier(0.22,1,0.36,1),
+                                backdrop-filter 0.3s ease,
+                                -webkit-backdrop-filter 0.3s ease;
                     z-index: 30; padding: 12px 8px 24px;
                     box-sizing: border-box;
                     scrollbar-width: thin;
                     scrollbar-color: rgba(255,255,255,0.15) transparent;
                 }
-                #tm-lb-gallery-panel.tm-gp-open { transform: translateX(0); }
+                #tm-lb-gallery-panel.tm-gp-open {
+                    transform: translateX(0);
+                    backdrop-filter: blur(20px) saturate(1.4);
+                    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+                }
                 #tm-lb-gallery-panel::-webkit-scrollbar { width: 4px; }
                 #tm-lb-gallery-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
 
@@ -7491,7 +7581,7 @@
                 #tm-lb-pill {
                     position: fixed; top: 68px; left: 50%;
                     transform: translateX(-50%);
-                    background: rgba(0,0,0,0.42); backdrop-filter: blur(8px);
+                    background: rgba(0,0,0,0.62);
                     color: rgba(255,255,255,0.9); border-radius: 9999px;
                     padding: 5px 14px 5px 10px;
                     font: 12px/1.5 system-ui, sans-serif;
@@ -7501,7 +7591,7 @@
                     pointer-events: none; z-index: 9999998;
                     opacity: 0; transition: opacity 0.22s ease;
                 }
-                #tm-lb-pill.tm-pill-show { opacity: 1; }
+                #tm-lb-pill.tm-pill-show { opacity: 1; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
                 #tm-lb-pill .tm-pill-avatar {
                     width: 20px; height: 20px; border-radius: 50%;
                     flex-shrink: 0; display: flex; align-items: center; justify-content: center;
