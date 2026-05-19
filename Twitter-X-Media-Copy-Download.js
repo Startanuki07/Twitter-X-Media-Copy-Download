@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.6.0.7
+// @version      2.6.0.9
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -57,6 +57,7 @@
     const KEY_HISTORY_RECORDS   = 'app_history_records';
     const KEY_HISTORY_PANEL_POS = 'app_history_panel_pos';
     const KEY_HISTORY_VIEW_MODE = 'app_history_view_mode';
+    const KEY_HIST_PINNED       = 'app_hist_pinned';
     const KEY_DOCK_STYLE        = 'app_dock_style';
     const KEY_DOCK_HOVER_DELAY  = 'app_dock_hover_delay';
     const KEY_DOCK_TRIGGER_L    = 'app_dock_trigger_l';
@@ -1559,7 +1560,7 @@
             ring.className = 'tm-load-ring';
             ring.style.cssText = `left:${Math.round(cx - 26)}px; top:${Math.round(cy - 26)}px;`;
             document.body.appendChild(ring);
-            ring.addEventListener('animationend', () => ring.remove(), { once: true });
+            setTimeout(() => ring.remove(), 2000);
         }, 600);
     }
 
@@ -1609,6 +1610,7 @@
             _applyGearCorner(GM_getValue(KEY_GEAR_CORNER, 'tr'));
             _triggerLoadRing();
             if (_isTwitterDomain) _initStarPip();
+            if (GM_getValue(KEY_HIST_PINNED, false)) setTimeout(showHistoryPanel, 800);
         } else {
             document.addEventListener('DOMContentLoaded', () => {
                 createSettingsPanel();
@@ -1616,6 +1618,7 @@
                 _applyGearCorner(GM_getValue(KEY_GEAR_CORNER, 'tr'));
                 _triggerLoadRing();
                 if (_isTwitterDomain) _initStarPip();
+                if (GM_getValue(KEY_HIST_PINNED, false)) setTimeout(showHistoryPanel, 800);
             }, { once: true });
         }
     }
@@ -2069,7 +2072,7 @@
                 width: 52px; height: 52px;
                 pointer-events: none; z-index: 9999998;
                 border: 1.5px solid #1d9bf0;
-                animation: tm-load-ring 2s cubic-bezier(0.1,0,0.4,1) forwards;
+                animation: tm-load-ring 0.9s cubic-bezier(0.1,0,0.4,1) infinite;
             }
             .tm-corner-pulse {
                 position: fixed; border-radius: 50%;
@@ -3805,7 +3808,18 @@
     window.addEventListener('scroll', () => { if (!_fanOpen) hideStarPip(); }, { passive: true, capture: true });
     document.addEventListener('visibilitychange', () => { if (document.hidden) { if (_fanOpen) closeGroupFan(); hideStarPip(); } });
     (() => {
-        const _wrap = fn => function(...args) { const r = fn.apply(this, args); hideStarPip?.(); return r; };
+        const _wrap = fn => function(...args) {
+            const r = fn.apply(this, args);
+            hideStarPip?.();
+            if (GM_getValue(KEY_HIST_PINNED, false) && !document.getElementById('tm-hist-panel')) {
+                setTimeout(() => {
+                    if (GM_getValue(KEY_HIST_PINNED, false) && !document.getElementById('tm-hist-panel')) {
+                        showHistoryPanel();
+                    }
+                }, 300);
+            }
+            return r;
+        };
         history.pushState    = _wrap(history.pushState);
         history.replaceState = _wrap(history.replaceState);
     })();
@@ -4644,6 +4658,7 @@
                 existing.dispatchEvent(new CustomEvent('tm-hist-toggle-peek'));
                 return;
             }
+            if (GM_getValue(KEY_HIST_PINNED, false)) return;
 
             if (typeof existing._tmCleanup === 'function') existing._tmCleanup();
             existing.remove();
@@ -4712,6 +4727,37 @@
                 padding: 9px 12px; cursor: grab;
                 background: ${C.header}; border-bottom: 1px solid ${C.border};
                 user-select: none; flex-shrink: 0;
+            }
+
+            @keyframes tm-pin-on {
+                0%   { transform: rotate(-45deg) scale(0.7); opacity: 0; }
+                60%  { transform: rotate(8deg)   scale(1.15); opacity: 1; }
+                100% { transform: rotate(0deg)   scale(1);   opacity: 1; }
+            }
+            @keyframes tm-pin-off {
+                0%   { transform: rotate(0deg)   scale(1);   opacity: 1; }
+                40%  { transform: rotate(-15deg) scale(0.85); }
+                100% { transform: rotate(45deg)  scale(0.7); opacity: 0.4; }
+            }
+            #tm-hist-btn-pin {
+                background: transparent; border: none; cursor: pointer;
+                display: inline-flex; align-items: center; justify-content: center;
+                width: 24px; height: 24px; border-radius: 6px; padding: 0;
+                color: ${C.sub}; opacity: 0.45;
+                transition: opacity 0.18s, background 0.15s, color 0.15s;
+                flex-shrink: 0;
+            }
+            #tm-hist-btn-pin:hover { opacity: 1; background: ${C.rowHover}; }
+            #tm-hist-btn-pin.pinned {
+                opacity: 0.85; color: #1d9bf0;
+                animation: tm-pin-on 0.38s cubic-bezier(0.34,1.56,0.64,1) forwards;
+            }
+            #tm-hist-btn-pin.unpinning {
+                animation: tm-pin-off 0.28s ease forwards;
+            }
+            
+            #tm-hist-panel.tm-pinned .tm-dock-trigger {
+                opacity: 0.15 !important; pointer-events: none !important; cursor: default !important;
             }
             #tm-hist-titlebar:active { cursor: grabbing; }
             .tm-hist-title {
@@ -5199,6 +5245,12 @@
                 z-index: 2;
             }
             .tm-gtab-scroll-btn:hover { background: ${C.rowHover}; color: ${C.text}; }
+            @keyframes tm-gtab-btn-flash {
+                0%   { color: ${C.text};   background: ${C.accent}33; }
+                50%  { color: #1d9bf0;     background: #1d9bf022; }
+                100% { color: ${C.sub};    background: transparent; }
+            }
+            .tm-gtab-scroll-btn.tm-end-flash { animation: tm-gtab-btn-flash 0.45s ease forwards; }
             .tm-gtab-scroll-btn.visible { display: flex; }
             .tm-gtab-scroll-btn svg { width: 10px; height: 10px; pointer-events: none; }
             .tm-gtab-scroll-btn.left {
@@ -5258,9 +5310,45 @@
         const btnExp   = _mkIconBtn(SVG_EXP,   'Export');
         const btnClose = _mkIconBtn(SVG_CLOSE, 'Close');
 
+        const SVG_PIN = `<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 1.5l5 5-2.5 2.5L10.5 7.5l-4 4-.5 2.5-1.5-1.5L3 11 1.5 9.5l2.5-.5 4-4L6.5 3.5z"/><line x1="2" y1="14" x2="5.5" y2="10.5"/></svg>`;
+        const SVG_PIN_FILLED = `<svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor" stroke="none"><path d="M9.5 1.5l5 5-2.5 2.5L10.5 7.5l-4 4-.5 2.5-1.5-1.5L3 11 1.5 9.5l2.5-.5 4-4L6.5 3.5z"/><line x1="2" y1="14" x2="5.5" y2="10.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>`;
+
+        let _pinned = GM_getValue(KEY_HIST_PINNED, false);
+        const btnPin = document.createElement('button');
+        btnPin.id = 'tm-hist-btn-pin';
+        btnPin.type = 'button';
+        btnPin.innerHTML = _pinned ? SVG_PIN_FILLED : SVG_PIN;
+        btnPin.title = _pinned ? 'Unpin panel (currently persistent across navigation)' : 'Pin panel (keep visible across SPA navigation)';
+        if (_pinned) {
+            btnPin.classList.add('pinned');
+            panel.classList.add('tm-pinned');
+        }
+
+        btnPin.addEventListener('click', e => {
+            e.stopPropagation();
+            _pinned = !_pinned;
+            GM_setValue(KEY_HIST_PINNED, _pinned);
+            if (_pinned) {
+                btnPin.classList.remove('unpinning');
+                void btnPin.offsetWidth;
+                btnPin.classList.add('pinned');
+                btnPin.innerHTML = SVG_PIN_FILLED;
+                btnPin.title = 'Unpin panel (currently persistent across navigation)';
+                panel.classList.add('tm-pinned');
+            } else {
+                btnPin.classList.remove('pinned');
+                btnPin.classList.add('unpinning');
+                btnPin.innerHTML = SVG_PIN;
+                btnPin.title = 'Pin panel (keep visible across SPA navigation)';
+                panel.classList.remove('tm-pinned');
+                btnPin.addEventListener('animationend', () => btnPin.classList.remove('unpinning'), { once: true });
+            }
+        });
+
         titlebar.appendChild(titleIcon);
         titlebar.appendChild(titleEl);
         titlebar.appendChild(countBadge);
+        titlebar.appendChild(btnPin);
         titlebar.appendChild(btnViewToggle);
         titlebar.appendChild(btnEdit);
         titlebar.appendChild(btnExp);
@@ -5316,6 +5404,10 @@
                 e.stopPropagation();
                 const maxScroll = scrollArea.scrollWidth - scrollArea.clientWidth;
                 if (scrollArea.scrollLeft >= maxScroll - 2) {
+                    btnRight.classList.remove('tm-end-flash');
+                    void btnRight.offsetWidth;
+                    btnRight.classList.add('tm-end-flash');
+                    btnRight.addEventListener('animationend', () => btnRight.classList.remove('tm-end-flash'), { once: true });
                     scrollArea.scrollTo({ left: 0, behavior: 'smooth' });
                 } else {
                     scrollArea.scrollBy({ left: 120, behavior: 'smooth' });
