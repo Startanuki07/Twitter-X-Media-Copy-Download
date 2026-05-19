@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.6.0.0
+// @version      2.6.0.7
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -52,6 +52,7 @@
     const KEY_ONBOARDING_DONE  = 'app_onboarding_done';
     const KEY_FEEDBACK_STYLE   = 'app_feedback_style';
     const KEY_SEEN_FEATURES    = 'app_seen_features';
+    const KEY_SP_GROUP_OPEN    = 'app_sp_group_open';
     const KEY_GEAR_DOT_SEEN    = 'app_gear_dot_seen';
     const KEY_HISTORY_RECORDS   = 'app_history_records';
     const KEY_HISTORY_PANEL_POS = 'app_history_panel_pos';
@@ -1506,9 +1507,9 @@
         panel.style.bottom      = isBottom ? 'calc(100% - 21px)' : 'auto';
         panel.style.right       = isLeft   ? 'auto' : isCenter ? 'auto' : '4px';
         panel.style.left        = isLeft   ? '4px'  : isCenter ? '50%'  : 'auto';
-        panel.style.transform   = (isCenter && !isBottom) ? 'translateX(-50%) scale(0.88) translateY(-8px)'
-                                : (isCenter && isBottom)  ? 'translateX(-50%) scale(0.88) translateY(8px)'
-                                : '';
+        panel.style.transform = '';
+        panel.classList.toggle('tm-panel-hcenter', isCenter);
+        panel.classList.toggle('tm-panel-bottom',  isCenter && isBottom);
         if (corner === 'lc') { panel.style.left = '100%'; panel.style.right = 'auto'; }
         if (corner === 'rc') { panel.style.right = '100%'; panel.style.left = 'auto'; }
         panel.style.transformOrigin = (isBottom ? 'bottom' : 'top') + ' ' + (isLeft ? 'left' : isCenter ? 'center' : 'right');
@@ -1544,6 +1545,22 @@
             panel.style.maxHeight = '';
             panel.style.overflowY = '';
         }
+    }
+
+    function _triggerLoadRing() {
+        setTimeout(() => {
+            const gear = document.getElementById('tm-settings-gear-btn');
+            const wrapper = document.getElementById('tm-settings-wrapper');
+            const ref = gear ? gear.getBoundingClientRect() : wrapper?.getBoundingClientRect();
+            if (!ref) return;
+            const cx = ref.left + ref.width  / 2;
+            const cy = ref.top  + ref.height / 2;
+            const ring = document.createElement('div');
+            ring.className = 'tm-load-ring';
+            ring.style.cssText = `left:${Math.round(cx - 26)}px; top:${Math.round(cy - 26)}px;`;
+            document.body.appendChild(ring);
+            ring.addEventListener('animationend', () => ring.remove(), { once: true });
+        }, 600);
     }
 
     let _cornerAnimEndHandler = null;
@@ -1590,12 +1607,14 @@
             createSettingsPanel();
             _applyGearVisibility();
             _applyGearCorner(GM_getValue(KEY_GEAR_CORNER, 'tr'));
+            _triggerLoadRing();
             if (_isTwitterDomain) _initStarPip();
         } else {
             document.addEventListener('DOMContentLoaded', () => {
                 createSettingsPanel();
                 _applyGearVisibility();
                 _applyGearCorner(GM_getValue(KEY_GEAR_CORNER, 'tr'));
+                _triggerLoadRing();
                 if (_isTwitterDomain) _initStarPip();
             }, { once: true });
         }
@@ -2039,6 +2058,19 @@
                 75%  { opacity: 0; }
                 100% { transform: scale(0.88); opacity: 0; }
             }
+            
+            @keyframes tm-load-ring {
+                0%   { transform: scale(0.08); opacity: 0.55; }
+                50%  { opacity: 0.28; }
+                100% { transform: scale(1.1);  opacity: 0; }
+            }
+            .tm-load-ring {
+                position: fixed; border-radius: 50%;
+                width: 52px; height: 52px;
+                pointer-events: none; z-index: 9999998;
+                border: 1.5px solid #1d9bf0;
+                animation: tm-load-ring 2s cubic-bezier(0.1,0,0.4,1) forwards;
+            }
             .tm-corner-pulse {
                 position: fixed; border-radius: 50%;
                 width: 76px; height: 76px;
@@ -2099,6 +2131,16 @@
             #tm-settings-wrapper[data-open="true"] #tm-settings-panel {
                 transform: scale(1) translateY(0); opacity: 1;
                 pointer-events: all;
+            }
+
+            #tm-settings-panel.tm-panel-hcenter {
+                transform: translateX(-50%) scale(0.88) translateY(-8px);
+            }
+            #tm-settings-panel.tm-panel-hcenter.tm-panel-bottom {
+                transform: translateX(-50%) scale(0.88) translateY(8px);
+            }
+            #tm-settings-wrapper[data-open="true"] #tm-settings-panel.tm-panel-hcenter {
+                transform: translateX(-50%) scale(1) translateY(0);
             }
 
             .tm-sp-header { display: flex; align-items: center; padding: 11px 14px 10px; background: ${C.header}; border-bottom: 1px solid ${C.border}; font-size: 12px; font-weight: 700; color: ${C.sub}; letter-spacing: 0.04em; text-transform: uppercase; }
@@ -2700,8 +2742,14 @@
                 const SVG_CHEVRON = `<svg viewBox="0 0 10 10" width="9" height="9" fill="currentColor"><path d="M1 3l4 4 4-4z"/></svg>`;
                 const SVG_HELP    = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"/><path d="M6 6.2C6 5.1 6.9 4.2 8 4.2s2 .9 2 2c0 1-1 1.5-2 2v.6"/><circle cx="8" cy="11.2" r=".6" fill="currentColor" stroke="none"/></svg>`;
 
+                let openState = defaultOpen;
+                try {
+                    const saved = JSON.parse(GM_getValue(KEY_SP_GROUP_OPEN, '{}'));
+                    if (label in saved) openState = saved[label];
+                } catch (_) {}
+
                 const g = document.createElement('div');
-                g.className = 'tm-sp-group-header' + (defaultOpen ? '' : ' collapsed');
+                g.className = 'tm-sp-group-header' + (openState ? '' : ' collapsed');
 
                 const labelSpan = document.createElement('span');
                 labelSpan.textContent = label;
@@ -2718,12 +2766,12 @@
                 const chevron = document.createElement('span');
                 chevron.className = 'tm-sp-group-chevron';
                 chevron.innerHTML = SVG_CHEVRON;
-                if (defaultOpen) chevron.style.transform = 'rotate(0deg)';
-                else             chevron.style.transform = 'rotate(-90deg)';
+                if (openState) chevron.style.transform = 'rotate(0deg)';
+                else           chevron.style.transform = 'rotate(-90deg)';
                 g.appendChild(chevron);
 
                 const body = document.createElement('div');
-                body.className = 'tm-sp-group-body' + (defaultOpen ? '' : ' collapsed');
+                body.className = 'tm-sp-group-body' + (openState ? '' : ' collapsed');
 
                 g.addEventListener('click', (e) => {
                     if (e.target.closest('.tm-sp-help-badge')) return;
@@ -2731,6 +2779,11 @@
                     g.classList.toggle('collapsed', isCollapsed);
                     chevron.style.transform = isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
                     if (!isCollapsed && onOpen) onOpen();
+                    try {
+                        const saved = JSON.parse(GM_getValue(KEY_SP_GROUP_OPEN, '{}'));
+                        saved[label] = !isCollapsed;
+                        GM_setValue(KEY_SP_GROUP_OPEN, JSON.stringify(saved));
+                    } catch (_) {}
                 });
 
                 panel.appendChild(g);
@@ -2809,6 +2862,7 @@
                     const isOpen = picker.classList.toggle('open');
                     arrow.style.transform = isOpen ? 'rotate(90deg)' : '';
                     if (featureId && isOpen) markFeatureSeen(featureId);
+                    if (_lcRcResizeHandler) requestAnimationFrame(_lcRcResizeHandler);
                 });
 
                 wrap.addEventListener('click', e => e.stopPropagation());
@@ -2932,6 +2986,7 @@
                             d.classList.add('tm-fb-playing');
                         });
                     }
+                    if (_lcRcResizeHandler) requestAnimationFrame(_lcRcResizeHandler);
                 });
 
                 wrap.addEventListener('click', e => e.stopPropagation());
@@ -4622,7 +4677,7 @@
                     x: Math.min(saved.x, window.innerWidth  - 300),
                     y: Math.min(saved.y, window.innerHeight - 200),
                     w: Math.max(300, Math.min(saved.w || 390, 680)),
-                    h: Math.max(280, Math.min(saved.h || 540, window.innerHeight - 80)),
+                    h: Math.max(280, Math.min(saved.h || 540, window.innerHeight - 20)),
                 };
             }
         } catch (_) {}
@@ -5254,12 +5309,17 @@
             scrollArea.id = 'tm-group-tab-scroll';
 
             const btnRight = document.createElement('button');
-            btnRight.className = 'tm-gtab-scroll-btn right';
+            btnRight.className = 'tm-gtab-scroll-btn right visible';
             btnRight.innerHTML = SVG_RIGHT;
             btnRight.title = 'Scroll right';
             btnRight.addEventListener('click', (e) => {
                 e.stopPropagation();
-                scrollArea.scrollBy({ left: 120, behavior: 'smooth' });
+                const maxScroll = scrollArea.scrollWidth - scrollArea.clientWidth;
+                if (scrollArea.scrollLeft >= maxScroll - 2) {
+                    scrollArea.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    scrollArea.scrollBy({ left: 120, behavior: 'smooth' });
+                }
             });
 
             const makePill = (iconHtml, label, value) => {
@@ -5273,10 +5333,12 @@
                 const iconSpan = document.createElement('span');
                 iconSpan.innerHTML = iconHtml;
                 iconSpan.style.cssText = 'display:inline-flex;align-items:center;flex-shrink:0';
-                const txtSpan = document.createElement('span');
-                txtSpan.textContent = label;
                 pill.appendChild(iconSpan);
-                pill.appendChild(txtSpan);
+                if (label) {
+                    const txtSpan = document.createElement('span');
+                    txtSpan.textContent = label;
+                    pill.appendChild(txtSpan);
+                }
                 if (value !== '__ungrouped__' && value !== '__all__' && GM_getValue('app_group_unread_' + value, false)) {
                     const dot = document.createElement('span');
                     dot.className = 'tm-gtab-dot';
@@ -5285,7 +5347,7 @@
                 pill.addEventListener('click', (e) => {
                     e.stopPropagation();
                     activeGroupId = value === '__all__' ? null : value;
-                    if (value !== '__ungrouped__' && value !== '__all__') {
+                    if (value !== '__ungrouped__' && value !== '__all__' && value !== '__favorites__') {
                         GM_deleteValue('app_group_unread_' + value);
                         pill.querySelector('.tm-gtab-dot')?.remove();
                     }
@@ -5295,7 +5357,7 @@
                     render();
                 });
 
-                if (value !== '__ungrouped__' && value !== '__all__') {
+                if (value !== '__ungrouped__' && value !== '__all__' && value !== '__favorites__') {
                     pill.addEventListener('contextmenu', e => {
                         e.preventDefault(); e.stopPropagation();
                         document.getElementById('tm-pill-ctx')?.remove();
@@ -5368,6 +5430,9 @@
             const SVG_ALL = `<svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="8" y="1" width="5" height="5" rx="1"/><rect x="1" y="8" width="5" height="5" rx="1"/><rect x="8" y="8" width="5" height="5" rx="1"/></svg>`;
             scrollArea.appendChild(makePill(SVG_ALL, 'All', '__all__'));
 
+            const SVG_HEART = `<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" stroke="none"><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91z"/></svg>`;
+            scrollArea.appendChild(makePill(SVG_HEART, '', '__favorites__'));
+
             groups.forEach(g => {
                 const ic = _resolveGroupIcon(g.icon);
                 const iconHtml = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">${ic.svg.match(/<svg[^>]*>([\s\S]*?)<\/svg>/)?.[1] || ''}</svg>`;
@@ -5383,10 +5448,8 @@
             groupTabBar.appendChild(btnRight);
 
             const syncArrows = () => {
-                const canLeft  = scrollArea.scrollLeft > 2;
-                const canRight = scrollArea.scrollLeft < scrollArea.scrollWidth - scrollArea.clientWidth - 2;
+                const canLeft = scrollArea.scrollLeft > 2;
                 btnLeft.classList.toggle('visible', canLeft);
-                btnRight.classList.toggle('visible', canRight);
             };
             scrollArea.addEventListener('scroll', syncArrows, { passive: true });
             if (window.ResizeObserver) {
@@ -5462,7 +5525,9 @@
 
         function getFiltered(records) {
             let result = records;
-            if (activeGroupId === '__ungrouped__') {
+            if (activeGroupId === '__favorites__') {
+                result = result.filter(r => r.favorited === true);
+            } else if (activeGroupId === '__ungrouped__') {
                 result = result.filter(r => !r.groupId);
             } else if (activeGroupId) {
                 result = result.filter(r => r.groupId === activeGroupId);
@@ -6412,7 +6477,7 @@
         document.addEventListener('mousemove', (e) => {
             if (!_resizing) return;
             const nw = Math.max(300, Math.min(_rsw + (e.clientX - _rsx), 680));
-            const nh = Math.max(280, Math.min(_rsh + (e.clientY - _rsy), window.innerHeight - 80));
+            const nh = Math.max(280, Math.min(_rsh + (e.clientY - _rsy), window.innerHeight - 20));
             panel.style.width  = nw + 'px';
             panel.style.height = nh + 'px';
         }, _acSignal);
@@ -7092,7 +7157,7 @@
         const counter = document.createElement('div');
         counter.style.cssText = `
             position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.55); backdrop-filter: blur(6px);
+            background: rgba(0,0,0,0.72);
             color: rgba(255,255,255,0.85); padding: 4px 14px;
             border-radius: 9999px; font: 13px/1.5 system-ui, sans-serif;
             z-index: 3; pointer-events: none; white-space: nowrap;
@@ -7879,6 +7944,7 @@
             `;
             const img = document.createElement('img');
             img.src = url;
+            img.decoding = 'async';
             img.loading = i === 0 ? 'eager' : 'lazy';
             img.draggable = false;
             img.style.cssText = `
@@ -7911,8 +7977,9 @@
             const dot = document.createElement('div');
             dot.style.cssText = `
                 width: 7px; height: 7px; border-radius: 50%;
-                background: rgba(255,255,255,0.35); cursor: pointer;
-                transition: background 0.22s, transform 0.22s;
+                background: rgba(255,255,255,0.95); cursor: pointer;
+                opacity: 0.35;
+                transition: opacity 0.22s, transform 0.22s;
             `;
             dot.addEventListener('click', e => { e.stopPropagation(); focused = i; scheduleUpdate(); });
             dotsWrap.appendChild(dot);
@@ -7923,7 +7990,7 @@
         counter.style.cssText = `
             position: absolute; top: 20px; left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.55); backdrop-filter: blur(6px);
+            background: rgba(0,0,0,0.72);
             color: rgba(255,255,255,0.85);
             padding: 4px 14px; border-radius: 9999px;
             font: 13px/1.5 system-ui, sans-serif; z-index: 30;
@@ -8032,8 +8099,8 @@
                 card.classList.toggle('tm-lb-focused', isFocused);
             });
             dots.forEach((dot, i) => {
-                dot.style.background = i === focused ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.35)';
-                dot.style.transform  = i === focused ? 'scale(1.4)' : 'scale(1)';
+                dot.style.opacity   = i === focused ? '1' : '0.35';
+                dot.style.transform = i === focused ? 'scale(1.4)' : 'scale(1)';
             });
             counter.textContent = `${focused + 1} / ${total}`;
         }
@@ -8540,6 +8607,11 @@
     }
 
     function insertCopyButton(article) {
+        if (!article.querySelector('time')) {
+            article.querySelector(`.${BUTTON_CLASS}`)?.remove();
+            article.querySelector('.custom-copy-icon')?.remove();
+            return;
+        }
         if (article.querySelector(`.${BUTTON_CLASS}`)) return;
         const actions = Array.from(article.querySelectorAll('[role="group"]')).pop();
         if (!actions) return;
