@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.6.0.14
+// @version      2.7.0.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -2126,6 +2126,9 @@
                 border: 1px solid ${C.border};
                 font-family: system-ui, -apple-system, sans-serif;
                 overflow: hidden;
+                
+                max-height: calc(100vh - 60px);
+                overflow-y: auto;
                 transform-origin: top right;
                 transform: scale(0.88) translateY(-8px); opacity: 0;
                 transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), opacity 0.18s ease;
@@ -2146,7 +2149,7 @@
                 transform: translateX(-50%) scale(1) translateY(0);
             }
 
-            .tm-sp-header { display: flex; align-items: center; padding: 11px 14px 10px; background: ${C.header}; border-bottom: 1px solid ${C.border}; font-size: 12px; font-weight: 700; color: ${C.sub}; letter-spacing: 0.04em; text-transform: uppercase; }
+            .tm-sp-header { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; padding: 11px 14px 10px; background: ${C.header}; border-bottom: 1px solid ${C.border}; font-size: 12px; font-weight: 700; color: ${C.sub}; letter-spacing: 0.04em; text-transform: uppercase; }
             
             .tm-sp-group-header {
                 padding: 8px 14px 5px;
@@ -2871,6 +2874,103 @@
 
                 wrap.addEventListener('click', e => e.stopPropagation());
 
+                wrap.appendChild(row);
+                wrap.appendChild(picker);
+                return wrap;
+            };
+
+            const makeDockStylePickerRow = (label, options, currentVal, onSelect, featureId = null) => {
+                const wrap = document.createElement('div');
+                wrap.className = 'tm-sp-picker-wrap';
+
+                const row = document.createElement('div');
+                row.className = 'tm-sp-row tm-sp-row-picker';
+
+                const lbl = document.createElement('span');
+                lbl.className = 'tm-sp-label';
+                lbl.textContent = label;
+                row.appendChild(lbl);
+
+                const val = document.createElement('span');
+                val.className = 'tm-sp-val';
+                val.textContent = options.find(o => o.value === currentVal)?.label ?? currentVal;
+                row.appendChild(val);
+
+                if (featureId && isFeatureNew(featureId)) {
+                    const badge = document.createElement('span');
+                    badge.className = 'tm-sp-new-badge';
+                    badge.textContent = 'NEW';
+                    row.appendChild(badge);
+                }
+
+                const arrow = document.createElement('span');
+                arrow.className = 'tm-sp-arrow';
+                arrow.textContent = '›';
+                arrow.style.cssText = 'transition: transform 0.18s ease;';
+                row.appendChild(arrow);
+
+                const picker = document.createElement('div');
+                picker.className = 'tm-sp-picker';
+                picker.style.cssText = 'display:none; grid-template-columns:1fr 1fr; gap:6px; padding:10px 12px;';
+
+                options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.style.cssText = `
+                        display:flex; flex-direction:column; align-items:center; gap:5px;
+                        padding:8px 6px; border-radius:8px; border:none; cursor:pointer;
+                        background:${opt.value === currentVal ? 'rgba(29,155,240,0.12)' : 'rgba(255,255,255,0.04)'};
+                        outline:${opt.value === currentVal ? '1.5px solid rgba(29,155,240,0.5)' : '1px solid rgba(255,255,255,0.08)'};
+                        transition:background 0.15s, outline 0.15s;
+                    `;
+
+                    const tmpDiv = document.createElement('div');
+                    tmpDiv.innerHTML = opt.svg;
+                    const svgEl = tmpDiv.querySelector('svg');
+                    if (svgEl) {
+                        svgEl.setAttribute('width', '28');
+                        svgEl.setAttribute('height', '52');
+                        btn.appendChild(svgEl);
+                    }
+
+                    const nameLbl = document.createElement('span');
+                    nameLbl.textContent = opt.label;
+                    nameLbl.style.cssText = `font-size:10px; color:${opt.value === currentVal ? '#1d9bf0' : 'rgba(255,255,255,0.55)'}; font-weight:${opt.value === currentVal ? '600' : '400'};`;
+                    btn.appendChild(nameLbl);
+
+                    btn.addEventListener('click', e => {
+                        e.stopPropagation();
+                        if (featureId) markFeatureSeen(featureId);
+                        onSelect(opt.value);
+                        val.textContent = opt.label;
+                        picker.querySelectorAll('button').forEach(b => {
+                            b.style.background = 'rgba(255,255,255,0.04)';
+                            b.style.outline = '1px solid rgba(255,255,255,0.08)';
+                            b.querySelector('span:last-child').style.color = 'rgba(255,255,255,0.55)';
+                            b.querySelector('span:last-child').style.fontWeight = '400';
+                        });
+                        btn.style.background = 'rgba(29,155,240,0.12)';
+                        btn.style.outline = '1.5px solid rgba(29,155,240,0.5)';
+                        nameLbl.style.color = '#1d9bf0';
+                        nameLbl.style.fontWeight = '600';
+                        picker.classList.remove('open');
+                        picker.style.display = 'none';
+                        arrow.style.transform = '';
+                        if (_lcRcResizeHandler) requestAnimationFrame(_lcRcResizeHandler);
+                    });
+                    picker.appendChild(btn);
+                });
+
+                row.addEventListener('click', e => {
+                    e.stopPropagation();
+                    const isOpen = picker.style.display === 'grid';
+                    picker.style.display = isOpen ? 'none' : 'grid';
+                    arrow.style.transform = isOpen ? '' : 'rotate(90deg)';
+                    if (featureId && !isOpen) markFeatureSeen(featureId);
+                    if (_lcRcResizeHandler) requestAnimationFrame(_lcRcResizeHandler);
+                });
+
+                wrap.addEventListener('click', e => e.stopPropagation());
                 wrap.appendChild(row);
                 wrap.appendChild(picker);
                 return wrap;
@@ -3640,17 +3740,58 @@
             const HIST_TOOLTIP = 'Hidden feature: The history panel has invisible dock triggers on its left & right edges. Click them to auto-hide the panel to the screen edge!';
             const grpHist = makeGroup('🗂  History Panel', false, HIST_TOOLTIP, showDockSpotlight);
 
+            const _DS = {
+                bg:    'rgba(255,255,255,0.06)',
+                strip: 'rgba(255,255,255,0.12)',
+                blue:  'rgba(29,155,240,0.7)',
+                blueL: 'rgba(29,155,240,0.35)',
+                sub:   'rgba(255,255,255,0.25)',
+            };
             const dockStyleOpts = [
-                { value: 'ruler', label: '— Ruler  📏' },
-                { value: 'ghost', label: '· Ghost' },
-                { value: 'notch', label: '| Notch' },
+                {
+                    value: 'notch', label: 'Notch',
+                    svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="0" width="10" height="52" rx="1" fill="${_DS.bg}"/><rect x="12" y="20" width="4" height="12" rx="2" fill="${_DS.blue}"/></svg>`,
+                },
+                {
+                    value: 'ruler', label: 'Ruler',
+                    svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="0" width="10" height="52" rx="1" fill="${_DS.strip}"/><line x1="9" y1="4"  x2="19" y2="4"  stroke="${_DS.blue}"  stroke-width="1.5"/><line x1="9" y1="10" x2="15" y2="10" stroke="${_DS.blueL}" stroke-width="0.8"/><line x1="9" y1="16" x2="15" y2="16" stroke="${_DS.blueL}" stroke-width="0.8"/><line x1="9" y1="22" x2="19" y2="22" stroke="${_DS.blue}"  stroke-width="1.5"/><line x1="9" y1="28" x2="15" y2="28" stroke="${_DS.blueL}" stroke-width="0.8"/><line x1="9" y1="34" x2="15" y2="34" stroke="${_DS.blueL}" stroke-width="0.8"/><line x1="9" y1="40" x2="19" y2="40" stroke="${_DS.blue}"  stroke-width="1.5"/><line x1="9" y1="46" x2="15" y2="46" stroke="${_DS.blueL}" stroke-width="0.8"/></svg>`,
+                },
+                {
+                    value: 'ghost', label: 'Ghost',
+                    svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="0" width="8" height="52" rx="1" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="1" stroke-dasharray="3 4"/><line x1="10" y1="7"  x2="18" y2="7"  stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><line x1="10" y1="14" x2="18" y2="14" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><line x1="10" y1="21" x2="18" y2="21" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><line x1="10" y1="28" x2="18" y2="28" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><line x1="10" y1="35" x2="18" y2="35" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><line x1="10" y1="42" x2="18" y2="42" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/></svg>`,
+                },
+                {
+                    value: 'pill', label: 'Pill',
+                    svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="11" y="0" width="6" height="52" rx="0" fill="${_DS.bg}"/><rect x="11" y="16" width="6" height="20" rx="3" fill="${_DS.blue}"/></svg>`,
+                },
+                {
+                    value: 'arrow', label: 'Arrow',
+                    svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="0" width="8" height="52" rx="1" fill="${_DS.bg}"/><path d="M12 21 L17 26 L12 31" stroke="${_DS.blue}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+                },
+                {
+                    value: 'dots', label: 'Dots',
+                    svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="0" width="8" height="52" rx="1" fill="${_DS.bg}"/><circle cx="14" cy="19" r="1.8" fill="${_DS.sub}"/><circle cx="14" cy="26" r="1.8" fill="${_DS.blue}"/><circle cx="14" cy="33" r="1.8" fill="${_DS.sub}"/></svg>`,
+                },
             ];
-            grpHist.append(makePickerRow('Dock Style', dockStyleOpts, dockStyle, (next) => {
+            grpHist.append(makeDockStylePickerRow('Dock Style', dockStyleOpts, dockStyle, (next) => {
                 GM_setValue(KEY_DOCK_STYLE, next);
-                showToast('🗂 Dock Style → ' + (dockStyleOpts.find(o => o.value === next)?.label || next));
+                showToast('🗂 Dock Style → ' + (dockStyleOpts.find(o => o.value === next)?.label ?? next));
                 const curTab = document.getElementById('tm-hist-dock-tab');
-                if (curTab) { curTab.className = 'style-' + next; curTab.innerHTML = ''; }
-                buildContent();
+                if (curTab) {
+                    curTab.className = 'style-' + next;
+                    curTab.innerHTML = '';
+                    if (next === 'dots') {
+                        for (let i = 0; i < 3; i++) {
+                            const d = document.createElement('span');
+                            d.className = 'tm-dock-dot';
+                            curTab.appendChild(d);
+                        }
+                    }
+                    if (next === 'arrow') {
+                        const dockSide = document.getElementById('tm-hist-panel')?._dockSide ?? 'left';
+                        curTab.classList.add('side-' + dockSide);
+                    }
+                }
             }, 'sp_dock_picker'));
 
             grpHist.append(makeSliderRow(
@@ -3661,16 +3802,22 @@
             ));
 
             grpHist.append(makeSliderRow(
-                'Trigger Distance ◀ Left', dockTriggerL, 20, 300, 5, 'px',
-                null,
-                (n) => { GM_setValue(KEY_DOCK_TRIGGER_L, String(n)); showToast('◀ Trigger → ' + n + ' px'); },
+                'Trigger Distance ◀ Left', dockTriggerL, 20, 120, 5, 'px',
+                (n) => {
+                    const hotzone = document.querySelector('#tm-hist-dock-tab.side-left .tm-dock-hotzone');
+                    if (hotzone) hotzone.style.width = n + 'px';
+                },
+                (n) => { GM_setValue(KEY_DOCK_TRIGGER_L, String(n)); },
                 'sp_slider_controls'
             ));
 
             grpHist.append(makeSliderRow(
-                'Trigger Distance ▶ Right', dockTriggerR, 20, 300, 5, 'px',
-                null,
-                (n) => { GM_setValue(KEY_DOCK_TRIGGER_R, String(n)); showToast('▶ Trigger → ' + n + ' px'); },
+                'Trigger Distance ▶ Right', dockTriggerR, 20, 120, 5, 'px',
+                (n) => {
+                    const hotzone = document.querySelector('#tm-hist-dock-tab.side-right .tm-dock-hotzone');
+                    if (hotzone) hotzone.style.width = n + 'px';
+                },
+                (n) => { GM_setValue(KEY_DOCK_TRIGGER_R, String(n)); },
                 'sp_slider_controls'
             ));
 
@@ -5111,10 +5258,11 @@
                 border-radius: 3px;
                 pointer-events: all;
                 cursor: pointer;
-                overflow: hidden;
-                transition: width 0.22s ease, opacity 0.22s ease;
+                
+                overflow: visible;
+                transition: opacity 0.22s ease;
             }
-            #tm-hist-dock-tab:hover { width: 9px; }
+            #tm-hist-dock-tab:hover { width: 9px; transition: width 0.18s ease, opacity 0.22s ease; }
 
             #tm-hist-dock-tab.style-ruler {
                 background: ${C.border};
@@ -5180,8 +5328,65 @@
                 background: rgba(29,155,240,0.45);
                 box-shadow: 0 0 4px rgba(29,155,240,0.5);
             }
+
+            #tm-hist-dock-tab.style-pill {
+                background: transparent;
+                display: flex; align-items: center; justify-content: center;
+            }
+            #tm-hist-dock-tab.style-pill::before {
+                content: '';
+                width: 4px; height: 36px; border-radius: 2px;
+                background: rgba(29,155,240,0.55);
+                transition: height 0.2s, background 0.2s, box-shadow 0.2s;
+            }
+            #tm-hist-dock-tab.style-pill:hover::before {
+                height: 52px;
+                background: rgba(29,155,240,0.85);
+                box-shadow: 0 0 8px rgba(29,155,240,0.5);
+            }
+
+            #tm-hist-dock-tab.style-arrow {
+                background: transparent;
+                display: flex; align-items: center; justify-content: center;
+            }
+            #tm-hist-dock-tab.style-arrow::before {
+                content: '';
+                width: 0; height: 0;
+                border-top: 7px solid transparent;
+                border-bottom: 7px solid transparent;
+                opacity: 0.35;
+                transition: opacity 0.2s, filter 0.2s;
+            }
             
-            .tm-hist-empty {
+            #tm-hist-dock-tab.style-arrow.side-left::before  { border-left:  8px solid ${C.text}; }
+            #tm-hist-dock-tab.style-arrow.side-right::before { border-right: 8px solid ${C.text}; }
+            #tm-hist-dock-tab.style-arrow:hover::before {
+                opacity: 1;
+                filter: drop-shadow(0 0 3px rgba(29,155,240,0.6));
+                border-left-color:  #1d9bf0;
+                border-right-color: #1d9bf0;
+            }
+
+            #tm-hist-dock-tab.style-dots {
+                background: transparent;
+                display: flex; flex-direction: column;
+                align-items: center; justify-content: center; gap: 6px;
+            }
+            #tm-hist-dock-tab.style-dots::before,
+            #tm-hist-dock-tab.style-dots::after {
+                display: none; 
+            }
+            .tm-dock-dot {
+                width: 3px; height: 3px; border-radius: 50%;
+                background: ${C.sub}; opacity: 0.45;
+                transition: background 0.18s, opacity 0.18s, transform 0.18s;
+            }
+            #tm-hist-dock-tab.style-dots:hover .tm-dock-dot {
+                background: #1d9bf0; opacity: 1;
+            }
+            #tm-hist-dock-tab.style-dots:hover .tm-dock-dot:nth-child(2) {
+                transform: scale(1.4);
+            }
                 display: flex; flex-direction: column; align-items: center;
                 justify-content: center; padding: 40px 20px;
                 color: ${C.sub}; font-size: 13px; gap: 10px; text-align: center;
@@ -6618,22 +6823,28 @@
 
             const tab = document.createElement('div');
             tab.id = 'tm-hist-dock-tab';
-            tab.className = 'style-' + style;
+            tab.className = 'style-' + style + ' side-' + side;
             tab.style.cssText = [
                 'top:'    + top + 'px',
                 'height:' + h   + 'px',
-                side === 'left' ? 'left:2px' : 'right:2px',
+                side === 'left' ? 'left:0' : 'right:0',
             ].join(';');
+            if (style === 'dots') {
+                for (let i = 0; i < 3; i++) {
+                    const d = document.createElement('span');
+                    d.className = 'tm-dock-dot';
+                    tab.appendChild(d);
+                }
+            }
 
             const hotzone = document.createElement('div');
+            hotzone.className = 'tm-dock-hotzone';
             hotzone.style.cssText = [
                 'position:absolute',
                 'top:0',
                 'height:100%',
                 'width:' + triggerDist + 'px',
-                side === 'left'
-                    ? 'left:0'
-                    : 'right:0',
+                side === 'left' ? 'left:0' : 'right:0',
                 'cursor:pointer',
                 'z-index:1',
             ].join(';');
