@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.6.0.9
+// @version      2.6.0.14
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -2787,6 +2787,7 @@
                         saved[label] = !isCollapsed;
                         GM_setValue(KEY_SP_GROUP_OPEN, JSON.stringify(saved));
                     } catch (_) {}
+                    if (_lcRcResizeHandler) requestAnimationFrame(_lcRcResizeHandler);
                 });
 
                 panel.appendChild(g);
@@ -4652,6 +4653,8 @@
     }
 
     function showHistoryPanel() {
+        let _pinned = GM_getValue(KEY_HIST_PINNED, false);
+
         const existing = document.getElementById('tm-hist-panel');
         if (existing) {
             if (_dockSideGlobal) {
@@ -5278,7 +5281,7 @@
         panel.id = 'tm-hist-panel';
         panel.style.cssText = `left:${pos.x}px; top:${pos.y}px; width:${pos.w}px; height:${pos.h}px;`;
 
-        if (_dockSideGlobal) {
+        if (_dockSideGlobal && !_pinned) {
             panel.style.opacity = '0';
             panel.style.transition = 'none';
         }
@@ -5310,10 +5313,17 @@
         const btnExp   = _mkIconBtn(SVG_EXP,   'Export');
         const btnClose = _mkIconBtn(SVG_CLOSE, 'Close');
 
-        const SVG_PIN = `<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 1.5l5 5-2.5 2.5L10.5 7.5l-4 4-.5 2.5-1.5-1.5L3 11 1.5 9.5l2.5-.5 4-4L6.5 3.5z"/><line x1="2" y1="14" x2="5.5" y2="10.5"/></svg>`;
-        const SVG_PIN_FILLED = `<svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor" stroke="none"><path d="M9.5 1.5l5 5-2.5 2.5L10.5 7.5l-4 4-.5 2.5-1.5-1.5L3 11 1.5 9.5l2.5-.5 4-4L6.5 3.5z"/><line x1="2" y1="14" x2="5.5" y2="10.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>`;
+        const SVG_PIN = `<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8" cy="4.5" r="2.5"/>
+            <line x1="8" y1="7" x2="8" y2="11.5"/>
+            <path d="M5 11.5 Q8 14.5 11 11.5Z"/>
+        </svg>`;
+        const SVG_PIN_FILLED = `<svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8" cy="4.5" r="2.5"/>
+            <line x1="8" y1="7" x2="8" y2="11.5" stroke-width="1.8"/>
+            <path d="M5 11.5 Q8 14.5 11 11.5Z"/>
+        </svg>`;
 
-        let _pinned = GM_getValue(KEY_HIST_PINNED, false);
         const btnPin = document.createElement('button');
         btnPin.id = 'tm-hist-btn-pin';
         btnPin.type = 'button';
@@ -6757,6 +6767,7 @@
 
         function _retract() {
             if (!_dockSideGlobal || !_dockPeekedGlobal) return;
+            if (_pinned) return;
             _dockPeekedGlobal = false;
 
             const r   = panel.getBoundingClientRect();
@@ -6840,6 +6851,7 @@
         panel.addEventListener('mouseleave', () => {
             if (!_dockSideGlobal || !_dockPeekedGlobal) return;
             if (_dialogOpenGlobal) return;
+            if (_pinned) return;
             clearTimeout(_dockRetractTimerGlobal);
             _dockRetractTimerGlobal = setTimeout(() => _retract(), 120);
         });
@@ -6859,15 +6871,25 @@
             if (_dockTabElGlobal) { _dockTabElGlobal.remove(); _dockTabElGlobal = null; }
         };
 
-        if (_dockSideGlobal) {
+        if (_dockSideGlobal && !_pinned) {
             requestAnimationFrame(() => {
                 const side = _dockSideGlobal;
                 _dockSideGlobal = null;
                 _dock(side);
-
                 requestAnimationFrame(() => {
                     panel.style.transition = '';
                     panel.style.opacity = '';
+                });
+            });
+        } else if (_dockSideGlobal && _pinned) {
+            requestAnimationFrame(() => {
+                const side = _dockSideGlobal;
+                _dockSideGlobal = null;
+                _dock(side);
+                requestAnimationFrame(() => {
+                    panel.style.transition = '';
+                    panel.style.opacity = '';
+                    _peek();
                 });
             });
         }
