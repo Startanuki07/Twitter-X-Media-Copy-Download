@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.7.0.0
+// @version      2.7.1.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -28,15 +28,15 @@
 // @connect      x.com
 // @connect      twimg.com
 // @run-at       document-idle
-// @description      Adds a media button and a link button to every tweet for one-click URL copying and media downloading.
-// @description:zh-TW 在每則推文新增媒體與連結按鈕，提供一鍵複製網址及下載媒體的功能。
-// @description:zh-CN 在每条推文新增媒体与链接按钮，提供一键复制网址及下载媒体的功能。
-// @description:ja    各ツイートにメディアボタンとリンクボタンを追加し、URLのコピーとメディアのダウンロードをワンクリックで行えます。
-// @description:ko    모든 트윗에 미디어 및 링크 버튼을 추가하여 원클릭으로 URL 복사 및 미디어 다운로드를 제공합니다.
-// @description:es    Agrega botones de medios y enlaces a cada tweet para copiar URLs y descargar medios con un solo clic.
-// @description:pt-BR Adiciona botões de mídia e links a cada tweet para copiar URLs e baixar mídia com um clique.
-// @description:fr    Ajoute des boutons de médias et de liens à chaque tweet pour copier les URL et télécharger des médias en un clic.
-// @description:ru    Добавляет кнопки медиа и ссылок к каждому твиту для копирования URL и скачивания медиа в один клик.
+// @description      One-click media copy & download on every tweet, with download history.
+// @description:zh-TW 在每則推文一鍵複製連結與下載媒體，附下載紀錄。
+// @description:zh-CN 在每条推文一键复制链接与下载媒体，附下载记录。
+// @description:ja    ツイートごとにURLコピーとメディアダウンロードをワンクリックで。ダウンロード履歴付き。
+// @description:ko    모든 트윗에서 원클릭으로 URL 복사 및 미디어 다운로드. 다운로드 기록 포함.
+// @description:es    Copia enlaces y descarga medios en un clic por tweet, con historial de descargas.
+// @description:pt-BR Copie links e baixe mídias com um clique em cada tweet, com histórico de downloads.
+// @description:fr    Copiez des liens et téléchargez des médias en un clic par tweet, avec historique.
+// @description:ru    Копирование ссылок и скачивание медиа в один клик на каждом твите. С историей загрузок.
 // ==/UserScript==
 
 (function () {
@@ -1556,6 +1556,7 @@
             if (!ref) return;
             const cx = ref.left + ref.width  / 2;
             const cy = ref.top  + ref.height / 2;
+            if (cx === 0 && cy === 0) return;
             const ring = document.createElement('div');
             ring.className = 'tm-load-ring';
             ring.style.cssText = `left:${Math.round(cx - 26)}px; top:${Math.round(cy - 26)}px;`;
@@ -2125,10 +2126,10 @@
                 box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.10);
                 border: 1px solid ${C.border};
                 font-family: system-ui, -apple-system, sans-serif;
-                overflow: hidden;
                 
-                max-height: calc(100vh - 60px);
                 overflow-y: auto;
+                overflow-x: hidden;
+                max-height: calc(100vh - 60px);
                 transform-origin: top right;
                 transform: scale(0.88) translateY(-8px); opacity: 0;
                 transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), opacity 0.18s ease;
@@ -3778,7 +3779,8 @@
                 showToast('🗂 Dock Style → ' + (dockStyleOpts.find(o => o.value === next)?.label ?? next));
                 const curTab = document.getElementById('tm-hist-dock-tab');
                 if (curTab) {
-                    curTab.className = 'style-' + next;
+                    const sideClass = [...curTab.classList].find(c => c.startsWith('side-')) ?? '';
+                    curTab.className = 'style-' + next + (sideClass ? ' ' + sideClass : '');
                     curTab.innerHTML = '';
                     if (next === 'dots') {
                         for (let i = 0; i < 3; i++) {
@@ -3786,10 +3788,6 @@
                             d.className = 'tm-dock-dot';
                             curTab.appendChild(d);
                         }
-                    }
-                    if (next === 'arrow') {
-                        const dockSide = document.getElementById('tm-hist-panel')?._dockSide ?? 'left';
-                        curTab.classList.add('side-' + dockSide);
                     }
                 }
             }, 'sp_dock_picker'));
