@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.7.1.0
+// @version      2.7.1.3
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -41,6 +41,13 @@
 
 (function () {
     'use strict';
+
+    const _escHtml = s => String(s)
+        .replace(/&/g,  '&amp;')
+        .replace(/</g,  '&lt;')
+        .replace(/>/g,  '&gt;')
+        .replace(/"/g,  '&quot;')
+        .replace(/'/g,  '&#39;');
 
     const KEY_PREFIX_TEXT = 'discord_prefix_text';
     const KEY_LANG = 'app_language';
@@ -118,6 +125,7 @@
             msg_no_media: '❌ No Media',
             play_btn_tooltip: 'Click: Preview Video in Floating Player',
             btn_switch_to_video: 'Switch to Video',
+            btn_switch_to_image: 'Switch to Image',
             msg_no_video: '❌ No Video',
             reload_msg: 'Settings Saved',
             toast_domain_click: '🔗 Single-Click Domain → ',
@@ -187,6 +195,7 @@
             msg_no_media: '❌ 無媒體',
             play_btn_tooltip: '點擊：在浮動播放器中預覽影片',
             btn_switch_to_video: '切換至影片',
+            btn_switch_to_image: '切換至圖片',
             msg_no_video: '❌ 無影片',
             reload_msg: '設定已儲存',
             toast_domain_click: '🔗 單擊域名 → ',
@@ -256,6 +265,7 @@
             msg_no_media: '❌ 无媒体',
             play_btn_tooltip: '点击：在浮动播放器中预览视频',
             btn_switch_to_video: '切换至视频',
+            btn_switch_to_image: '切换至图片',
             msg_no_video: '❌ 无视频',
             reload_msg: '设置已保存',
             toast_domain_click: '🔗 单击域名 → ',
@@ -325,6 +335,7 @@
             msg_no_media: '❌ メディアなし',
             play_btn_tooltip: 'クリック：フローティングプレーヤーで動画を再生',
             btn_switch_to_video: '動画に切り替え',
+            btn_switch_to_image: '画像に切り替え',
             msg_no_video: '❌ 動画なし',
             reload_msg: '設定が保存されました',
             toast_domain_click: '🔗 クリックドメイン → ',
@@ -394,6 +405,7 @@
             msg_no_media: '❌ 미디어 없음',
             play_btn_tooltip: '클릭: 플로팅 플레이어에서 동영상 재생',
             btn_switch_to_video: '동영상으로 전환',
+            btn_switch_to_image: '이미지로 전환',
             msg_no_video: '❌ 동영상 없음',
             reload_msg: '설정이 저장되었습니다',
             toast_domain_click: '🔗 클릭 도메인 → ',
@@ -463,6 +475,7 @@
             msg_no_media: '❌ Sin medios',
             play_btn_tooltip: 'Clic: Ver video en reproductor flotante',
             btn_switch_to_video: 'Cambiar a vídeo',
+            btn_switch_to_image: 'Cambiar a imagen',
             msg_no_video: '❌ Sin video',
             reload_msg: 'Configuración guardada',
             toast_domain_click: '🔗 Dominio de clic → ',
@@ -532,6 +545,7 @@
             msg_no_media: '❌ Sem mídia',
             play_btn_tooltip: 'Clique: Reproduzir vídeo no player flutuante',
             btn_switch_to_video: 'Trocar para vídeo',
+            btn_switch_to_image: 'Trocar para imagem',
             msg_no_video: '❌ Sem vídeo',
             reload_msg: 'Configurações salvas',
             toast_domain_click: '🔗 Domínio de clique → ',
@@ -601,6 +615,7 @@
             msg_no_media: '❌ Aucun média',
             play_btn_tooltip: 'Clic : Lire la vidéo dans le lecteur flottant',
             btn_switch_to_video: 'Basculer vers la vidéo',
+            btn_switch_to_image: 'Basculer vers l\'image',
             msg_no_video: '❌ Aucune vidéo',
             reload_msg: 'Paramètres enregistrés',
             toast_domain_click: '🔗 Domaine clic → ',
@@ -670,6 +685,7 @@
             msg_no_media: '❌ Нет медиа',
             play_btn_tooltip: 'Клик: Воспроизвести видео во всплывающем плеере',
             btn_switch_to_video: 'Переключить на видео',
+            btn_switch_to_image: 'Переключить на изображение',
             msg_no_video: '❌ Нет видео',
             reload_msg: 'Настройки сохранены',
             toast_domain_click: '🔗 Домен клика → ',
@@ -1125,6 +1141,7 @@
             msg_no_media: base.msg_no_media,
             play_btn_tooltip: base.play_btn_tooltip,
             btn_switch_to_video: base.btn_switch_to_video,
+            btn_switch_to_image: base.btn_switch_to_image,
             msg_no_video: base.msg_no_video,
             reload_msg: base.reload_msg,
             toast_domain_click: base.toast_domain_click,
@@ -4120,7 +4137,6 @@
         const _glowPx   = Math.max(4, Math.min(60, _glowSz));
 
         const groups = getGroups();
-        const _esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
         groups.forEach((g, i) => {
             const baseGlow = _glowClr === 'multi'
                 ? (g.glow || STAR_GLOW_COLORS[i % STAR_GLOW_COLORS.length])
@@ -4138,7 +4154,7 @@
                     <div class="tm-fan-glow" style="background:radial-gradient(circle,${baseGlow} 0%,transparent 68%);inset:-${half}px"></div>
                     ${iconHtml}
                 </div>
-                <span class="tm-fan-label" style="color:${_txtClr}">${_esc(g.name)}</span>`;
+                <span class="tm-fan-label" style="color:${_txtClr}">${_escHtml(g.name)}</span>`;
             el.addEventListener('click', () => _onFanGroupClick(g.id, g.name));
             document.body.appendChild(el);
             _fanNodes.push(el);
@@ -4765,6 +4781,7 @@
                 displayName: info.displayName,
                 text:        (info.text || '').slice(0, 80),
                 thumbUrls,
+                mediaUrls:   urls,
                 hasVideo,
                 count:       urls.length,
             };
@@ -4861,7 +4878,7 @@
         }
         histStyleEl.textContent = `
             #tm-hist-panel {
-                position: fixed; z-index: 999980;
+                position: fixed; z-index: 999992; 
                 font-family: system-ui, -apple-system, sans-serif;
                 display: flex; flex-direction: column;
                 background: ${C.bg}; border: 1px solid ${C.border};
@@ -5026,6 +5043,11 @@
                 font-size: 11px; color: ${C.sub}; margin: 2px 0;
                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
                 line-height: 1.4;
+            }
+            .tm-hist-date {
+                font-size: 10px; color: ${C.sub}; opacity: 0.6;
+                white-space: nowrap; margin: 1px 0;
+                font-variant-numeric: tabular-nums;
             }
             .tm-hist-url {
                 font-size: 10px; color: #1d9bf0;
@@ -5968,7 +5990,7 @@
                     thumbWrap.addEventListener('click', (e) => {
                         e.stopPropagation();
                         _hideZoom();
-                        _openThumbLightbox(rec.thumbUrls, 0, thumbWrap.querySelector('img'));
+                        _openHistMediaLightbox(rec, 0, thumbWrap.querySelector('img'));
                     });
                 } else if (rec.textOnly) {
                     const vi = document.createElement('div');
@@ -5999,6 +6021,18 @@
                 textEl.className = 'tm-hist-text';
                 textEl.textContent = rec.text || '(no caption)';
 
+                const dateEl = document.createElement('div');
+                dateEl.className = 'tm-hist-date';
+                if (rec.downloadDate) {
+                    const [dy, dm, dd] = rec.downloadDate.split('-');
+                    if (_cachedDateFormat === 'western') {
+                        const MON = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                        dateEl.textContent = `${parseInt(dd, 10)} ${MON[parseInt(dm, 10)] || dm} ${dy}`;
+                    } else {
+                        dateEl.textContent = `${dy}.${dm}.${dd}`;
+                    }
+                }
+
                 const urlEl = document.createElement('div');
                 urlEl.className = 'tm-hist-url';
                 urlEl.textContent = rec.tweetUrl;
@@ -6012,6 +6046,7 @@
 
                 info.appendChild(author);
                 info.appendChild(textEl);
+                if (rec.downloadDate) info.appendChild(dateEl);
                 info.appendChild(urlEl);
                 row.appendChild(info);
 
@@ -6027,22 +6062,49 @@
                 const copyBtn = document.createElement('button');
                 copyBtn.className = 'tm-hist-act-btn tm-copy-btn';
                 copyBtn.innerHTML = SVG_COPY;
-                copyBtn.title = 'Copy media URL(s)';
-                copyBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
+                copyBtn.title = 'Click: Copy media URL(s)\nHold: Copy with prefix';
+
+                const _getMediaUrls = () => {
                     const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
                         ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
                     const _toUrl = u => {
                         try { const o = new URL(u); o.hostname = _dom; return o.toString(); }
                         catch(_) { return u; }
                     };
-                    const urls = (rec.mediaUrls || []).length
-                        ? rec.mediaUrls.join('\n')
+                    return (rec.mediaUrls || []).length
+                        ? rec.mediaUrls.map(_toUrl).join('\n')
                         : _toUrl(rec.tweetUrl);
-                    GM_setClipboard(urls);
-                    copyBtn.style.color = '#1d9bf0';
-                    setTimeout(() => { copyBtn.style.color = ''; }, 800);
+                };
+
+                let _cpTimer = null;
+
+                copyBtn.addEventListener('mousedown', e => {
+                    if (e.button !== 0) return;
+                    e.stopPropagation();
+                    _cpTimer = setTimeout(() => {
+                        _cpTimer = null;
+                        const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
+                            ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
+                        let tUrl = rec.tweetUrl;
+                        try { const o = new URL(tUrl); o.hostname = _dom; tUrl = o.toString(); } catch(_) {}
+                        const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
+                        GM_setClipboard(`${prefix}(${tUrl})`);
+                        copyBtn.style.color = '#f59e0b';
+                        setTimeout(() => { copyBtn.style.color = ''; }, 900);
+                    }, 500);
                 });
+
+                copyBtn.addEventListener('mouseup', e => {
+                    if (_cpTimer) {
+                        clearTimeout(_cpTimer); _cpTimer = null;
+                        GM_setClipboard(_getMediaUrls());
+                        copyBtn.style.color = '#1d9bf0';
+                        setTimeout(() => { copyBtn.style.color = ''; }, 800);
+                    }
+                });
+
+                copyBtn.addEventListener('mouseleave', () => { if (_cpTimer) { clearTimeout(_cpTimer); _cpTimer = null; } });
+                copyBtn.addEventListener('click', e => e.stopPropagation());
 
                 const jmpBtn = document.createElement('button');
                 jmpBtn.className = 'tm-hist-act-btn';
@@ -6079,9 +6141,27 @@
                 delBtn.title = 'Delete';
                 delBtn.addEventListener('click', (e) => { e.stopPropagation(); _deleteOne(rec.id, idx); });
 
+                const SVG_DLOAD = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 2v8"/><path d="M5 7l3 3 3-3"/><path d="M2 13h12"/></svg>`;
+                const dlBtn = document.createElement('button');
+                dlBtn.className = 'tm-hist-act-btn';
+                dlBtn.innerHTML = SVG_DLOAD;
+                const hasMedia = rec.mediaUrls && rec.mediaUrls.length > 0;
+                dlBtn.title = hasMedia ? `Re-download (${rec.mediaUrls.length} file${rec.mediaUrls.length > 1 ? 's' : ''})` : 'Open tweet to re-download';
+                dlBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (!hasMedia) { window.open(rec.tweetUrl, '_blank'); return; }
+                    const safeScreen = rec.screenName?.replace(/[^a-zA-Z0-9_]/g, '_') || 'unknown';
+                    rec.mediaUrls.forEach((url, i) => {
+                        const ext = url.includes('.mp4') ? 'mp4' : (url.match(/\.(\w{3,4})(?:\?|$)/)?.[1] || 'jpg');
+                        const fname = `${safeScreen}_${rec.tweetId || rec.id}_${i + 1}.${ext}`;
+                        setTimeout(() => forceDownloadBlob(url, fname), i * 600);
+                    });
+                });
+
                 acts.appendChild(copyBtn);
                 acts.appendChild(favBtn);
                 acts.appendChild(jmpBtn);
+                acts.appendChild(dlBtn);
                 acts.appendChild(delBtn);
                 row.appendChild(acts);
 
@@ -6147,22 +6227,46 @@
                 const gridCopyBtn = document.createElement('button');
                 gridCopyBtn.className = 'tm-grid-copy-btn';
                 gridCopyBtn.innerHTML = SVG_COPY_SM;
-                gridCopyBtn.title = 'Copy media URL(s)';
-                gridCopyBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
+                gridCopyBtn.title = 'Click: Copy media URL(s)\nHold: Copy with prefix';
+
+                const _gcGetUrls = () => {
                     const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
                         ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
                     const _toUrl = u => {
                         try { const o = new URL(u); o.hostname = _dom; return o.toString(); }
                         catch(_) { return u; }
                     };
-                    const urls = (rec.mediaUrls || []).length
-                        ? rec.mediaUrls.join('\n')
+                    return (rec.mediaUrls || []).length
+                        ? rec.mediaUrls.map(_toUrl).join('\n')
                         : _toUrl(rec.tweetUrl);
-                    GM_setClipboard(urls);
-                    gridCopyBtn.style.background = 'rgba(29,155,240,0.9)';
-                    setTimeout(() => { gridCopyBtn.style.background = ''; }, 700);
+                };
+
+                let _gcTimer = null;
+                gridCopyBtn.addEventListener('mousedown', e => {
+                    if (e.button !== 0) return;
+                    e.stopPropagation();
+                    _gcTimer = setTimeout(() => {
+                        _gcTimer = null;
+                        const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
+                            ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
+                        let tUrl = rec.tweetUrl;
+                        try { const o = new URL(tUrl); o.hostname = _dom; tUrl = o.toString(); } catch(_) {}
+                        const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
+                        GM_setClipboard(`${prefix}(${tUrl})`);
+                        gridCopyBtn.style.background = 'rgba(245,158,11,0.9)';
+                        setTimeout(() => { gridCopyBtn.style.background = ''; }, 800);
+                    }, 500);
                 });
+                gridCopyBtn.addEventListener('mouseup', e => {
+                    if (_gcTimer) {
+                        clearTimeout(_gcTimer); _gcTimer = null;
+                        GM_setClipboard(_gcGetUrls());
+                        gridCopyBtn.style.background = 'rgba(29,155,240,0.9)';
+                        setTimeout(() => { gridCopyBtn.style.background = ''; }, 700);
+                    }
+                });
+                gridCopyBtn.addEventListener('mouseleave', () => { if (_gcTimer) { clearTimeout(_gcTimer); _gcTimer = null; } });
+                gridCopyBtn.addEventListener('click', e => e.stopPropagation());
                 cell.appendChild(gridCopyBtn);
 
                 if (editMode) {
@@ -6181,9 +6285,7 @@
                         if (rec.favorited) return;
                         _handleCheckbox(rec.id, idx, e.shiftKey);
                     } else {
-                        const path = new URL(rec.tweetUrl).pathname;
-                        history.pushState({ tmNav: true }, '', path);
-                        window.dispatchEvent(new Event('popstate'));
+                        _openHistMediaLightbox(rec, 0, cell.querySelector('img'));
                     }
                 });
 
@@ -6237,9 +6339,18 @@
                             catch(_) { return u; }
                         };
                         const urls = (rec.mediaUrls || []).length
-                            ? rec.mediaUrls.join('\n')
+                            ? rec.mediaUrls.map(_toUrl).join('\n')
                             : _toUrl(rec.tweetUrl);
                         GM_setClipboard(urls);
+                    }));
+                    const CTX_PREFIX = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="10" height="8" rx="1.2"/><path d="M11 6h2a2 2 0 0 1 0 4h-2"/></svg>`;
+                    menu.appendChild(mkItem(CTX_PREFIX, 'Copy with prefix', () => {
+                        const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
+                            ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
+                        let tUrl = rec.tweetUrl;
+                        try { const o = new URL(tUrl); o.hostname = _dom; tUrl = o.toString(); } catch(_) {}
+                        const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
+                        GM_setClipboard(`${prefix}(${tUrl})`);
                     }));
                     const isFav = !!rec.favorited;
                     menu.appendChild(mkItem(isFav ? CTX_FAV_ON : CTX_FAV_OFF, isFav ? 'Unfavorite' : 'Favorite', () => {
@@ -6253,6 +6364,21 @@
                     }));
                     menu.appendChild(mkItem(CTX_OPEN, 'Open in new tab', () => {
                         window.open(rec.tweetUrl, '_blank');
+                    }));
+                    const CTX_VIEW = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="1" y="3" width="14" height="10" rx="1.5"/><circle cx="5.5" cy="7.5" r="1.5"/><path d="M9 10l2-2.5 2.5 2.5"/></svg>`;
+                    menu.appendChild(mkItem(CTX_VIEW, 'View media', () => {
+                        _openHistMediaLightbox(rec, 0, null);
+                    }));
+                    const CTX_DLOAD = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 2v8"/><path d="M5 7l3 3 3-3"/><path d="M2 13h12"/></svg>`;
+                    const hasMedia = rec.mediaUrls && rec.mediaUrls.length > 0;
+                    menu.appendChild(mkItem(CTX_DLOAD, hasMedia ? 'Re-download' : 'Open tweet to re-download', () => {
+                        if (!hasMedia) { window.open(rec.tweetUrl, '_blank'); return; }
+                        const safeScreen = rec.screenName?.replace(/[^a-zA-Z0-9_]/g, '_') || 'unknown';
+                        rec.mediaUrls.forEach((url, i) => {
+                            const ext = url.includes('.mp4') ? 'mp4' : (url.match(/\.(\w{3,4})(?:\?|$)/)?.[1] || 'jpg');
+                            const fname = `${safeScreen}_${rec.tweetId || rec.id}_${i + 1}.${ext}`;
+                            setTimeout(() => forceDownloadBlob(url, fname), i * 600);
+                        });
                     }));
                     const sep = document.createElement('div');
                     sep.style.cssText = 'height:0.5px;background:rgba(255,255,255,.1);margin:3px 8px';
@@ -6390,6 +6516,23 @@
             z.style.cssText = `position:fixed;z-index:9999999;width:${w}px;height:${h}px;left:${left}px;top:${top}px;border-radius:8px;overflow:hidden;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.2);`;
         }
         function _hideZoom() { document.getElementById('tm-hist-zoom')?.remove(); }
+
+        function _openHistMediaLightbox(rec, startIdx, originEl) {
+            const media = rec.mediaUrls && rec.mediaUrls.length > 0 ? rec.mediaUrls : null;
+            if (media) {
+                const imgUrls = media.filter(u => !u.includes('.mp4'));
+                const vidUrls = media.filter(u =>  u.includes('.mp4'));
+                if (imgUrls.length > 0) {
+                    showImageLightbox(imgUrls, vidUrls.length > 0 ? vidUrls : null, vidUrls.length > 0);
+                } else if (vidUrls.length > 0) {
+                    showFloatingVideoPlayer(vidUrls, 0);
+                } else {
+                    _openThumbLightbox(rec.thumbUrls || [], startIdx, originEl);
+                }
+            } else {
+                _openThumbLightbox(rec.thumbUrls || [], startIdx, originEl);
+            }
+        }
 
         function _openThumbLightbox(urls, startIdx, originEl) {
             document.getElementById('tm-thumb-lb-backdrop')?.remove();
@@ -7524,7 +7667,7 @@
 
         const viewImgBtn = imageUrls && imageUrls.length ? document.createElement('button') : null;
         if (viewImgBtn) {
-            viewImgBtn.title = '切換至圖片';
+            viewImgBtn.title = T.btn_switch_to_image || 'Switch to Image';
             viewImgBtn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/><polyline points="21,15 16,10 5,21"/></svg>`;
             viewImgBtn.style.cssText = `
                 position: absolute; top: 20px; right: 75px;
@@ -7700,7 +7843,6 @@
                 }
                 const grid = document.createElement('div');
                 grid.className = 'tm-gp-grid';
-                const _esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&#39;');
                 _vpGalleryItems.forEach(group => {
                     const label = document.createElement('div');
                     label.className = 'tm-gp-tweet-label';
@@ -7710,7 +7852,7 @@
                     group.items.forEach(item => {
                         const el = document.createElement('div');
                         el.className = 'tm-gp-item';
-                        el.dataset.url = item.url || item.thumb;
+                        el.dataset.url = item.url ?? item.thumb ?? '';
                         const img = document.createElement('img');
                         img.src = item.thumb; img.alt = ''; img.loading = 'lazy';
                         el.appendChild(img);
@@ -7722,8 +7864,7 @@
                         el.onclick = async ev => {
                             ev.stopPropagation();
                             await new Promise(r => setTimeout(r, 0));
-                            const _pesc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;');
-                            vpPill.innerHTML = `<span class="tm-pill-avatar" style="background:${group.avatarColor}">${_pesc(group.avatarLetter)}</span><span class="tm-pill-author">@${_pesc(group.handle)}</span>${group.text ? `<span class="tm-pill-text">${_pesc(group.text)}</span>` : ''}`;
+                            vpPill.innerHTML = `<span class="tm-pill-avatar" style="background:${group.avatarColor}">${_escHtml(group.avatarLetter)}</span><span class="tm-pill-author">@${_escHtml(group.handle)}</span>${group.text ? `<span class="tm-pill-text">${_escHtml(group.text)}</span>` : ''}`;
                             vpPill.classList.add('tm-pill-show');
                             clearTimeout(vpPill._autoTimer);
                             vpPill._autoTimer = setTimeout(() => { vpPill.classList.remove('tm-pill-show'); }, 1500);
@@ -8088,8 +8229,6 @@
                     const grid = document.createElement('div');
                     grid.className = 'tm-gp-grid';
 
-                    const _esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-
                     _galleryItems.forEach(group => {
                         const label = document.createElement('div');
                         label.className = 'tm-gp-tweet-label';
@@ -8100,7 +8239,7 @@
                         group.items.forEach(item => {
                             const el = document.createElement('div');
                             el.className = 'tm-gp-item';
-                            el.dataset.url = item.url || item.thumb;
+                            el.dataset.url = item.url ?? item.thumb ?? '';
 
                             const img = document.createElement('img');
                             img.src = item.thumb;
@@ -8430,11 +8569,10 @@
 
         function _showPill(pillEl, group) {
             if (!group) { pillEl.classList.remove('tm-pill-show'); return; }
-            const _esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&#39;');
             pillEl.innerHTML = `
-                <span class="tm-pill-avatar" style="background:${group.avatarColor}">${_esc(group.avatarLetter)}</span>
-                <span class="tm-pill-author">@${_esc(group.handle)}</span>
-                ${group.text ? `<span class="tm-pill-text">${_esc(group.text)}</span>` : ''}
+                <span class="tm-pill-avatar" style="background:${group.avatarColor}">${_escHtml(group.avatarLetter)}</span>
+                <span class="tm-pill-author">@${_escHtml(group.handle)}</span>
+                ${group.text ? `<span class="tm-pill-text">${_escHtml(group.text)}</span>` : ''}
             `;
             pillEl.classList.add('tm-pill-show');
             clearTimeout(pillEl._autoTimer);
@@ -8782,14 +8920,8 @@
         if (_cacheHit && (Date.now() - _cacheHit.ts < _API_CACHE_TTL)) return { videos: _cacheHit.urls, images: [] };
 
         try {
-            let cookies = {};
-            document.cookie.split(';').forEach(c => {
-                const eqIdx = c.indexOf('=');
-                if (eqIdx < 0) return;
-                const k = c.slice(0, eqIdx).trim();
-                const v = c.slice(eqIdx + 1).trim();
-                if (k) cookies[k] = v;
-            });
+            const ct0 = document.cookie.match(/(?:^|;\s*)ct0=([^;]+)/)?.[1]?.trim() ?? '';
+            const gt   = document.cookie.match(/(?:^|;\s*)gt=([^;]+)/)?.[1]?.trim()  ?? '';
 
             const AUTH_TOKEN = await _resolveBearerToken();
 
@@ -8799,8 +8931,8 @@
             let url = `https://${location.hostname}/i/api/graphql/2ICDjqPd81tulZcYrtpTuQ/TweetResultByRestId?variables=${encodeURIComponent(JSON.stringify(variables))}&features=${encodeURIComponent(JSON.stringify(features))}`;
 
             let headers = { 'authorization': AUTH_TOKEN, 'x-twitter-active-user': 'yes' };
-            if (cookies.ct0) headers['x-csrf-token'] = cookies.ct0;
-            if (cookies.gt) headers['x-guest-token'] = cookies.gt;
+            if (ct0) headers['x-csrf-token'] = ct0;
+            if (gt)  headers['x-guest-token'] = gt;
 
             let res = await fetch(url, { headers });
             if (!res.ok) {
@@ -9165,6 +9297,7 @@
                         displayName:  info.displayName,
                         text:         (rawText || info.text || '').slice(0, 280),
                         thumbUrls:    [],
+                        mediaUrls:    [],
                         hasVideo:     false,
                         count:        0,
                         textOnly:     true,
