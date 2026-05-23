@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.7.1.3
+// @version      2.7.1.9
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -2611,8 +2611,15 @@
         let currentFocus = 'hist';
         let _gearLock   = false;
         let _gearLockTimer = null;
+        let _leaveTimer = null;
+
+        wrapper.addEventListener('mouseenter', () => {
+            if (_leaveTimer) { clearTimeout(_leaveTimer); _leaveTimer = null; }
+        });
 
         wrapper.addEventListener('mousemove', (e) => {
+            if (_leaveTimer) { clearTimeout(_leaveTimer); _leaveTimer = null; }
+
             if (wrapper.getAttribute('data-open') === 'true') return;
             const rect = wrapper.getBoundingClientRect();
             const x = e.clientX - rect.left;
@@ -2633,7 +2640,7 @@
                         if (currentFocus === 'gear') {
                             _gearLock = true;
                             if (_gearLockTimer) clearTimeout(_gearLockTimer);
-                            _gearLockTimer = setTimeout(() => { _gearLock = false; }, 500);
+                            _gearLockTimer = setTimeout(() => { _gearLock = false; }, 800);
                         }
                     }, 150);
                 }
@@ -2644,11 +2651,15 @@
 
         wrapper.addEventListener('mouseleave', () => {
             if (wrapper.getAttribute('data-open') === 'true') return;
-            if (focusTimer)     { clearTimeout(focusTimer);     focusTimer     = null; }
-            if (_gearLockTimer) { clearTimeout(_gearLockTimer); _gearLockTimer = null; }
-            _gearLock    = false;
-            currentFocus = 'hist';
-            wrapper.setAttribute('data-focus', 'hist');
+            if (focusTimer) { clearTimeout(focusTimer); focusTimer = null; }
+            if (_leaveTimer) clearTimeout(_leaveTimer);
+            _leaveTimer = setTimeout(() => {
+                _leaveTimer = null;
+                if (_gearLockTimer) { clearTimeout(_gearLockTimer); _gearLockTimer = null; }
+                _gearLock    = false;
+                currentFocus = 'hist';
+                wrapper.setAttribute('data-focus', 'hist');
+            }, 400);
         });
 
         const dismissBtn = document.createElement('button');
@@ -5666,7 +5677,7 @@
                     txtSpan.textContent = label;
                     pill.appendChild(txtSpan);
                 }
-                if (value !== '__ungrouped__' && value !== '__all__' && GM_getValue('app_group_unread_' + value, false)) {
+                if (value !== '__ungrouped__' && value !== '__all__' && value !== '__favorites__' && GM_getValue('app_group_unread_' + value, false)) {
                     const dot = document.createElement('span');
                     dot.className = 'tm-gtab-dot';
                     pill.appendChild(dot);
@@ -6036,7 +6047,7 @@
                 const urlEl = document.createElement('div');
                 urlEl.className = 'tm-hist-url';
                 urlEl.textContent = rec.tweetUrl;
-                urlEl.title = rec.tweetUrl + '\n（點擊前往推文）';
+                urlEl.title = rec.tweetUrl + '\nClick to navigate to tweet';
                 urlEl.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const path = new URL(rec.tweetUrl).pathname;
@@ -6062,18 +6073,21 @@
                 const copyBtn = document.createElement('button');
                 copyBtn.className = 'tm-hist-act-btn tm-copy-btn';
                 copyBtn.innerHTML = SVG_COPY;
-                copyBtn.title = 'Click: Copy media URL(s)\nHold: Copy with prefix';
+                copyBtn.title = 'Click: Copy tweet URL\nHold: Copy with prefix';
 
                 const _getMediaUrls = () => {
                     const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
                         ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
                     const _toUrl = u => {
-                        try { const o = new URL(u); o.hostname = _dom; return o.toString(); }
+                        try {
+                            const o = new URL(u);
+                            if (o.hostname.includes('twimg.com') || u.includes('.mp4')) return u;
+                            o.hostname = _dom;
+                            return o.toString();
+                        }
                         catch(_) { return u; }
                     };
-                    return (rec.mediaUrls || []).length
-                        ? rec.mediaUrls.map(_toUrl).join('\n')
-                        : _toUrl(rec.tweetUrl);
+                    return _toUrl(rec.tweetUrl);
                 };
 
                 let _cpTimer = null;
@@ -6150,10 +6164,22 @@
                 dlBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     if (!hasMedia) { window.open(rec.tweetUrl, '_blank'); return; }
-                    const safeScreen = rec.screenName?.replace(/[^a-zA-Z0-9_]/g, '_') || 'unknown';
+                    const safeDisplay = sanitizeForFilename(rec.displayName || rec.screenName || 'unknown');
+                    const safeScreen  = sanitizeForFilename(rec.screenName  || 'unknown');
+                    const datePart    = rec.tweetDate || rec.downloadDate || 'unknown';
+                    const textPart    = rec.text ? `_${sanitizeForFilename(rec.text, 40)}` : '';
+                    const idPart      = rec.tweetId || rec.id;
                     rec.mediaUrls.forEach((url, i) => {
-                        const ext = url.includes('.mp4') ? 'mp4' : (url.match(/\.(\w{3,4})(?:\?|$)/)?.[1] || 'jpg');
-                        const fname = `${safeScreen}_${rec.tweetId || rec.id}_${i + 1}.${ext}`;
+                        let ext = 'jpg';
+                        if (url.includes('.mp4')) {
+                            ext = 'mp4';
+                        } else {
+                            try {
+                                const fmtParam = new URL(url).searchParams.get('format');
+                                ext = fmtParam || url.match(/\.(\w{3,4})(?:\?|$)/)?.[1] || 'jpg';
+                            } catch (_) {}
+                        }
+                        const fname = `[twitter] ${safeDisplay}(@${safeScreen})_${datePart}${textPart}_${idPart}_${i + 1}.${ext}`;
                         setTimeout(() => forceDownloadBlob(url, fname), i * 600);
                     });
                 });
@@ -6227,18 +6253,21 @@
                 const gridCopyBtn = document.createElement('button');
                 gridCopyBtn.className = 'tm-grid-copy-btn';
                 gridCopyBtn.innerHTML = SVG_COPY_SM;
-                gridCopyBtn.title = 'Click: Copy media URL(s)\nHold: Copy with prefix';
+                gridCopyBtn.title = 'Click: Copy tweet URL\nHold: Copy with prefix';
 
                 const _gcGetUrls = () => {
                     const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
                         ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
                     const _toUrl = u => {
-                        try { const o = new URL(u); o.hostname = _dom; return o.toString(); }
+                        try {
+                            const o = new URL(u);
+                            if (o.hostname.includes('twimg.com') || u.includes('.mp4')) return u;
+                            o.hostname = _dom;
+                            return o.toString();
+                        }
                         catch(_) { return u; }
                     };
-                    return (rec.mediaUrls || []).length
-                        ? rec.mediaUrls.map(_toUrl).join('\n')
-                        : _toUrl(rec.tweetUrl);
+                    return _toUrl(rec.tweetUrl);
                 };
 
                 let _gcTimer = null;
@@ -6335,7 +6364,12 @@
                         const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
                             ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
                         const _toUrl = u => {
-                            try { const o = new URL(u); o.hostname = _dom; return o.toString(); }
+                            try {
+                                const o = new URL(u);
+                                if (o.hostname.includes('twimg.com') || u.includes('.mp4')) return u;
+                                o.hostname = _dom;
+                                return o.toString();
+                            }
                             catch(_) { return u; }
                         };
                         const urls = (rec.mediaUrls || []).length
@@ -6373,10 +6407,22 @@
                     const hasMedia = rec.mediaUrls && rec.mediaUrls.length > 0;
                     menu.appendChild(mkItem(CTX_DLOAD, hasMedia ? 'Re-download' : 'Open tweet to re-download', () => {
                         if (!hasMedia) { window.open(rec.tweetUrl, '_blank'); return; }
-                        const safeScreen = rec.screenName?.replace(/[^a-zA-Z0-9_]/g, '_') || 'unknown';
+                        const safeDisplay = sanitizeForFilename(rec.displayName || rec.screenName || 'unknown');
+                        const safeScreen  = sanitizeForFilename(rec.screenName  || 'unknown');
+                        const datePart    = rec.tweetDate || rec.downloadDate || 'unknown';
+                        const textPart    = rec.text ? `_${sanitizeForFilename(rec.text, 40)}` : '';
+                        const idPart      = rec.tweetId || rec.id;
                         rec.mediaUrls.forEach((url, i) => {
-                            const ext = url.includes('.mp4') ? 'mp4' : (url.match(/\.(\w{3,4})(?:\?|$)/)?.[1] || 'jpg');
-                            const fname = `${safeScreen}_${rec.tweetId || rec.id}_${i + 1}.${ext}`;
+                            let ext = 'jpg';
+                            if (url.includes('.mp4')) {
+                                ext = 'mp4';
+                            } else {
+                                try {
+                                    const fmtParam = new URL(url).searchParams.get('format');
+                                    ext = fmtParam || url.match(/\.(\w{3,4})(?:\?|$)/)?.[1] || 'jpg';
+                                } catch (_) {}
+                            }
+                            const fname = `[twitter] ${safeDisplay}(@${safeScreen})_${datePart}${textPart}_${idPart}_${i + 1}.${ext}`;
                             setTimeout(() => forceDownloadBlob(url, fname), i * 600);
                         });
                     }));
@@ -6523,7 +6569,11 @@
                 const imgUrls = media.filter(u => !u.includes('.mp4'));
                 const vidUrls = media.filter(u =>  u.includes('.mp4'));
                 if (imgUrls.length > 0) {
-                    showImageLightbox(imgUrls, vidUrls.length > 0 ? vidUrls : null, vidUrls.length > 0);
+                    showImageLightbox(imgUrls, vidUrls.length > 0 ? vidUrls : null, false);
+                    requestAnimationFrame(() => {
+                        const gb = document.getElementById('tm-lb-gallery-btn');
+                        if (gb) gb.style.display = 'none';
+                    });
                 } else if (vidUrls.length > 0) {
                     showFloatingVideoPlayer(vidUrls, 0);
                 } else {
@@ -7205,7 +7255,7 @@
             if (_dialogOpenGlobal) return;
             if (_pinned) return;
             clearTimeout(_dockRetractTimerGlobal);
-            _dockRetractTimerGlobal = setTimeout(() => _retract(), 120);
+            _dockRetractTimerGlobal = setTimeout(() => _retract(), 800);
         });
         panel.addEventListener('mouseenter', () => {
             if (!_dockSideGlobal) return;
