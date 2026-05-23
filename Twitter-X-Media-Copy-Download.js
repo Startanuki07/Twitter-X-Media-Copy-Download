@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.7.1.9
+// @version      2.7.2.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -172,6 +172,8 @@
             status_feedback_toast:  'Toast',
             status_feedback_icon:   'Icon Only',
             status_feedback_silent: 'Silent',
+            status_on:  'On',
+            status_off: 'Off',
             toast_feedback_style:   '🔔 Feedback Style → ',
         },
         'zh-TW': {
@@ -242,6 +244,8 @@
             status_feedback_toast:  'Toast 提示',
             status_feedback_icon:   '僅圖示',
             status_feedback_silent: '靜默（僅圖示）',
+            status_on:  '開啟',
+            status_off: '關閉',
             toast_feedback_style:   '🔔 提示風格 → ',
         },
         'zh-CN': {
@@ -312,6 +316,8 @@
             status_feedback_toast:  'Toast 提示',
             status_feedback_icon:   '仅图标',
             status_feedback_silent: '静默（仅图标）',
+            status_on:  '开启',
+            status_off: '关闭',
             toast_feedback_style:   '🔔 提示风格 → ',
         },
         'ja': {
@@ -382,6 +388,8 @@
             status_feedback_toast:  'トースト通知',
             status_feedback_icon:   'アイコンのみ',
             status_feedback_silent: 'サイレント（アイコンのみ）',
+            status_on:  'オン',
+            status_off: 'オフ',
             toast_feedback_style:   '🔔 フィードバックスタイル → ',
         },
         'ko': {
@@ -452,6 +460,8 @@
             status_feedback_toast:  '토스트',
             status_feedback_icon:   '아이콘만',
             status_feedback_silent: '조용히 (아이콘만)',
+            status_on:  '켜짐',
+            status_off: '꺼짐',
             toast_feedback_style:   '🔔 피드백 스타일 → ',
         },
         'es': {
@@ -522,6 +532,8 @@
             status_feedback_toast:  'Toast',
             status_feedback_icon:   'Solo icono',
             status_feedback_silent: 'Silencioso (solo icono)',
+            status_on:  'Activado',
+            status_off: 'Desactivado',
             toast_feedback_style:   '🔔 Estilo de Aviso → ',
         },
         'pt-BR': {
@@ -592,6 +604,8 @@
             status_feedback_toast:  'Toast',
             status_feedback_icon:   'Só ícone',
             status_feedback_silent: 'Silencioso (só ícone)',
+            status_on:  'Ativado',
+            status_off: 'Desativado',
             toast_feedback_style:   '🔔 Estilo de Aviso → ',
         },
         'fr': {
@@ -662,6 +676,8 @@
             status_feedback_toast:  'Toast',
             status_feedback_icon:   'Icône seul',
             status_feedback_silent: 'Silencieux (icône seul)',
+            status_on:  'Activé',
+            status_off: 'Désactivé',
             toast_feedback_style:   '🔔 Style de Retour → ',
         },
         'ru': {
@@ -732,6 +748,8 @@
             status_feedback_toast:  'Тост',
             status_feedback_icon:   'Только иконка',
             status_feedback_silent: 'Тихий (только иконка)',
+            status_on:  'Включено',
+            status_off: 'Выключено',
             toast_feedback_style:   '🔔 Стиль уведомлений → ',
         }
     };
@@ -1157,6 +1175,8 @@
             status_feedback_toast: base.status_feedback_toast,
             status_feedback_icon: base.status_feedback_icon,
             status_feedback_silent: base.status_feedback_silent,
+            status_on:  base.status_on,
+            status_off: base.status_off,
             toast_feedback_style: base.toast_feedback_style,
             help_title: base.help_title,
             help_content: base.help_content.trim(),
@@ -5721,7 +5741,7 @@
                             const labelEl = document.createElement('span');
                             labelEl.textContent = label;
                             item.appendChild(iconEl); item.appendChild(labelEl);
-                            item.addEventListener('click', () => { menu.remove(); onClick(); });
+                            item.addEventListener('click', () => { menu.remove(); _dialogOpenGlobal = false; onClick(); });
                             return item;
                         };
                         menu.appendChild(mkItem('✏️', 'Rename', null, () => {
@@ -9245,11 +9265,18 @@
         setMediaIcon('default');
 
         let timer = null;
+        let longFired = false;
+        let _pressing = false;
         btn.addEventListener('mousedown', async (e) => {
             e.preventDefault(); e.stopPropagation();
 
             if (e.button === 0) {
+                longFired = false;
+                _pressing = true;
                 timer = setTimeout(async () => {
+                    longFired = true;
+                    _pressing = false;
+                    timer = null;
                     const urls = await extractMediaUrls(article);
                     if (!urls.length) return;
                     const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
@@ -9257,8 +9284,7 @@
                     GM_setClipboard(txt);
                     setMediaIcon('ok', T.msg_prefix_copied, 'Prefix Copied', 'prefix');
                     setTimeout(() => setMediaIcon('default'), 1500);
-                    timer = null;
-                }, 500);
+                }, 400);
 
             } else if (e.button === 1) {
                 let videos = [], imgUrls = [];
@@ -9301,6 +9327,8 @@
             if (e.button !== 0) return;
             if (timer) {
                 clearTimeout(timer); timer = null;
+                _pressing = false;
+                if (longFired) return;
                 const urls = await extractMediaUrls(article);
                 if (!urls.length) {
                     setMediaIcon('msg', T.msg_no_media, 'No Media');
@@ -9312,7 +9340,7 @@
                 setTimeout(() => setMediaIcon('default'), 1500);
             }
         });
-        btn.addEventListener('mouseleave', () => { if (timer) { clearTimeout(timer); timer = null; } });
+        btn.addEventListener('mouseleave', () => { if (timer && !_pressing) { clearTimeout(timer); timer = null; } });
         btn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
 
         btn.addEventListener('contextmenu', async (e) => {
