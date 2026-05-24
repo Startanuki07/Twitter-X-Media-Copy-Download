@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.7.2.4
+// @version      2.7.2.6
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -3782,9 +3782,9 @@
                                             s.id = 'tm-egg-anim-style';
                                             s.textContent = `
                                                 @keyframes tm-egg-ptcl {
-                                                    0%   { opacity: 1; transform: translate(0, 0) scale(1); }
+                                                    0%   { opacity: 1; transform: translate(0, 0) scale(1) rotate(var(--ptcl-rot, 0deg)); }
                                                     60%  { opacity: 0.75; }
-                                                    100% { opacity: 0; transform: translate(var(--ptcl-dx), var(--ptcl-dy)) scale(0.15); }
+                                                    100% { opacity: 0; transform: translate(var(--ptcl-dx), var(--ptcl-dy)) scale(0.15) rotate(var(--ptcl-rot, 0deg)); }
                                                 }
                                             `;
                                             document.head.appendChild(s);
@@ -3806,6 +3806,7 @@
                                             const color = COLORS[i % COLORS.length];
                                             const dur   = 950 + (i % 3) * 80;
                                             const delay = i * 30;
+                                            const rot = i % 2 !== 0 ? '45deg' : '0deg';
 
                                             const p = document.createElement('div');
                                             p.style.cssText = `
@@ -3815,8 +3816,7 @@
                                                 width:${size}px; height:${size}px;
                                                 background:${color};
                                                 border-radius:${i % 2 === 0 ? '50%' : '1.5px'};
-                                                ${i % 2 !== 0 ? 'transform:rotate(45deg);' : ''}
-                                                --ptcl-dx:${dx}px; --ptcl-dy:${dy}px;
+                                                --ptcl-dx:${dx}px; --ptcl-dy:${dy}px; --ptcl-rot:${rot};
                                                 animation: tm-egg-ptcl ${dur}ms ${delay}ms ease-out forwards;
                                             `;
                                             document.body.appendChild(p);
@@ -6199,9 +6199,11 @@
                 urlEl.title = rec.tweetUrl + '\nClick to navigate to tweet';
                 urlEl.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    const path = new URL(rec.tweetUrl).pathname;
-                    history.pushState({ tmNav: true }, '', path);
-                    window.dispatchEvent(new Event('popstate'));
+                    try {
+                        const path = new URL(rec.tweetUrl).pathname;
+                        history.pushState({ tmNav: true }, '', path);
+                        window.dispatchEvent(new Event('popstate'));
+                    } catch (_) { window.open(rec.tweetUrl, '_blank'); }
                 });
 
                 info.appendChild(author);
@@ -6420,11 +6422,14 @@
                 };
 
                 let _gcTimer = null;
+                let _gcPressing = false;
                 gridCopyBtn.addEventListener('mousedown', e => {
                     if (e.button !== 0) return;
                     e.stopPropagation();
+                    _gcPressing = true;
                     _gcTimer = setTimeout(() => {
                         _gcTimer = null;
+                        _gcPressing = false;
                         const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
                             ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
                         let tUrl = rec.tweetUrl;
@@ -6436,6 +6441,7 @@
                     }, 500);
                 });
                 gridCopyBtn.addEventListener('mouseup', e => {
+                    _gcPressing = false;
                     if (_gcTimer) {
                         clearTimeout(_gcTimer); _gcTimer = null;
                         GM_setClipboard(_gcGetUrls());
@@ -6443,7 +6449,7 @@
                         setTimeout(() => { gridCopyBtn.style.background = ''; }, 700);
                     }
                 });
-                gridCopyBtn.addEventListener('mouseleave', () => { if (_gcTimer) { clearTimeout(_gcTimer); _gcTimer = null; } });
+                gridCopyBtn.addEventListener('mouseleave', () => { if (_gcTimer && !_gcPressing) { clearTimeout(_gcTimer); _gcTimer = null; } });
                 gridCopyBtn.addEventListener('click', e => e.stopPropagation());
                 cell.appendChild(gridCopyBtn);
 
@@ -6765,6 +6771,7 @@
 
         function _openHistMediaLightbox(rec, startIdx, originEl) {
             const media = rec.mediaUrls && rec.mediaUrls.length > 0 ? rec.mediaUrls : null;
+            _dialogOpenGlobal = true;
             if (media) {
                 const imgUrls = media.filter(u => !u.includes('.mp4'));
                 const vidUrls = media.filter(u =>  u.includes('.mp4'));
@@ -6776,6 +6783,13 @@
                     });
                 } else if (vidUrls.length > 0) {
                     showFloatingVideoPlayer(vidUrls, 0);
+                    const _vpObs = new MutationObserver(() => {
+                        if (!document.getElementById('tm-floating-video-modal')) {
+                            _dialogOpenGlobal = false;
+                            _vpObs.disconnect();
+                        }
+                    });
+                    _vpObs.observe(document.body, { childList: true });
                 } else {
                     _openThumbLightbox(rec.thumbUrls || [], startIdx, originEl);
                 }
