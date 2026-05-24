@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.7.2.0
+// @version      2.7.2.4
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -159,6 +159,11 @@
                 • Hover the top-right corner → 📋 history / ⚙️ gear button appears.<br>
                 • Configure: click domain, long-press domain, Discord prefix, date format, language, feedback style.</p>
                 <hr>
+                <hr>
+                <p><b>⭐ Groups &amp; ⊞ Gallery:</b><br>
+                • <b>Groups:</b> In ⚙️ Settings → <b>⭐ Groups</b>, enable <b>Group on Download</b>. After each right-click download, a ⭐ button briefly appears at the screen edge — hover or click to assign the media to a group via a fan-style picker.<br>
+                • <b>Gallery:</b> Inside the floating video player or image lightbox, click the <b>⊞ grid button</b> to open a side panel and browse all media found on the current page.</p>
+                <hr>
                 <p style="color: #e0245e; font-size: 0.9em;"><b>⚠️ Disclaimer:</b><br>
                 Embed domains (e.g. fixupx, vxtwitter) are third-party services unaffiliated with this script.</p>
             `,
@@ -230,6 +235,11 @@
                 <p><b>⚙️ 設定面板：</b><br>
                 • 將滑鼠移至右上角，顯示齒輪 ⚙️ 與履歷 🕐 按鈕。<br>
                 • 點擊 ⚙️ 可設定：單擊域名、長按域名、Discord 前綴、提示風格、日期格式、語言。</p>
+                <hr>
+                <hr>
+                <p><b>⭐ 媒體分組 &amp; ⊞ 頁面相簿：</b><br>
+                • <b>分組：</b>在 ⚙️ 設定 → <b>⭐ Groups</b> 中開啟 <b>Group on Download</b>。右鍵下載後，畫面邊角短暫出現 ⭐ 按鈕，hover 或點擊可用扇形選單將媒體歸入群組。<br>
+                • <b>頁面相簿：</b>在浮動影片播放器或圖片燈箱中，點擊上方 <b>⊞ 田字鈕</b>，可在側欄瀏覽當前頁面上找到的所有媒體。</p>
                 <hr>
                 <p style="color: #e0245e; font-size: 0.9em;"><b>⚠️ 免責聲明：</b><br>
                 fixupx / vxtwitter 等域名皆為第三方服務，與本腳本無關，請僅使用您信任的域名。</p>
@@ -303,6 +313,11 @@
                 • 将鼠标移至右上角，显示齿轮 ⚙️ 与历史 🕐 按钮。<br>
                 • 点击 ⚙️ 可设置：单击域名、长按域名、Discord 前缀、提示风格、日期格式、语言。</p>
                 <hr>
+                <hr>
+                <p><b>⭐ 媒体分组 &amp; ⊞ 页面相册：</b><br>
+                • <b>分组：</b>在 ⚙️ 设置 → <b>⭐ Groups</b> 中开启 <b>Group on Download</b>。右键下载后，屏幕边角短暂出现 ⭐ 按钮，悬停或点击可通过扇形选单将媒体归入分组。<br>
+                • <b>页面相册：</b>在浮动视频播放器或图片灯箱中，点击上方 <b>⊞ 田字按钮</b>，可在侧栏浏览当前页面找到的所有媒体。</p>
+                <hr>
                 <p style="color: #e0245e; font-size: 0.9em;"><b>⚠️ 免责声明：</b><br>
                 fixupx / vxtwitter 等域名均为第三方服务，与本脚本无关，请仅使用您信任的域名。</p>
             `,
@@ -374,6 +389,11 @@
                 <p><b>⚙️ 設定パネル：</b><br>
                 • 右上隅にカーソルを合わせると ⚙️ と 🕐 ボタンが表示される。<br>
                 • ⚙️ をクリックして設定：クリックドメイン、長押しドメイン、プレフィックス、通知スタイル、日付形式、言語。</p>
+                <hr>
+                <hr>
+                <p><b>⭐ グループ &amp; ⊞ ギャラリー：</b><br>
+                • <b>グループ：</b>⚙️ 設定 → <b>⭐ Groups</b> で <b>Group on Download</b> を有効にすると、右クリックダウンロード後に画面端へ ⭐ が短時間表示されます。ホバーまたはクリックするとファン型の選択メニューが開き、グループに分類できます。<br>
+                • <b>ギャラリー：</b>フローティング動画プレーヤーまたは画像ライトボックスで上部の <b>⊞ グリッドボタン</b> をクリックすると、現在のページで見つかったすべてのメディアをサイドパネルで閲覧できます。</p>
                 <hr>
                 <p style="color: #e0245e; font-size: 0.9em;"><b>⚠️ 免責事項：</b><br>
                 fixupx / vxtwitter 等のドメインは第三者サービスであり、このスクリプトとは無関係です。信頼できるドメインのみご使用ください。</p>
@@ -447,6 +467,11 @@
                 • 오른쪽 상단에 마우스를 올리면 ⚙️ 와 🕐 버튼이 나타납니다。<br>
                 • ⚙️ 클릭으로 설정：클릭 도메인, 길게 누르기 도메인, 접두사, 알림 스타일, 날짜 형식, 언어。</p>
                 <hr>
+                <hr>
+                <p><b>⭐ 그룹 &amp; ⊞ 갤러리：</b><br>
+                • <b>그룹：</b>⚙️ 설정 → <b>⭐ Groups</b>에서 <b>Group on Download</b>를 활성화하세요. 우클릭 다운로드 후 화면 가장자리에 ⭐ 버튼이 잠깐 표시됩니다. 호버하거나 클릭하면 부채꼴 선택 메뉴가 열려 미디어를 그룹에 분류할 수 있습니다.<br>
+                • <b>갤러리：</b>플로팅 동영상 플레이어 또는 이미지 라이트박스에서 상단의 <b>⊞ 그리드 버튼</b>을 클릭하면 현재 페이지의 모든 미디어를 사이드 패널에서 탐색할 수 있습니다.</p>
+                <hr>
                 <p style="color: #e0245e; font-size: 0.9em;"><b>⚠️ 면책 조항：</b><br>
                 fixupx / vxtwitter 등은 본 스크립트와 무관한 제3자 서비스입니다. 신뢰할 수 있는 도메인만 사용하세요。</p>
             `,
@@ -518,6 +543,11 @@
                 <p><b>⚙️ Panel de configuración:</b><br>
                 • Pasa el ratón por la esquina superior derecha → aparecen 📋 y ⚙️.<br>
                 • Configura: dominio de clic, dominio de pulsación larga, prefijo Discord, formato de fecha, idioma, estilo de notificación.</p>
+                <hr>
+                <hr>
+                <p><b>⭐ Grupos &amp; ⊞ Galería:</b><br>
+                • <b>Grupos:</b> En ⚙️ Ajustes → <b>⭐ Groups</b>, activa <b>Group on Download</b>. Tras descargar con clic derecho, aparece ⭐ brevemente en el borde de la pantalla — pasa el cursor o haz clic para abrir el selector en abanico y asignar a un grupo.<br>
+                • <b>Galería:</b> En el reproductor flotante o el visor de imágenes, haz clic en el <b>botón de cuadrícula ⊞</b> para abrir un panel lateral y explorar todos los medios de la página actual.</p>
                 <hr>
                 <p style="color: #e0245e; font-size: 0.9em;"><b>⚠️ Aviso legal:</b><br>
                 Los dominios de conversión (ej. fixupx, vxtwitter) son servicios de terceros sin relación con este script.</p>
@@ -591,6 +621,11 @@
                 • Passe o mouse pelo canto superior direito → 📋 e ⚙️ aparecem.<br>
                 • Configure: domínio de clique, domínio de pressão longa, prefixo Discord, formato de data, idioma, estilo de aviso.</p>
                 <hr>
+                <hr>
+                <p><b>⭐ Grupos &amp; ⊞ Galeria:</b><br>
+                • <b>Grupos:</b> Em ⚙️ Configurações → <b>⭐ Groups</b>, ative <b>Group on Download</b>. Após baixar com clique direito, ⭐ aparece brevemente na borda da tela — passe o mouse ou clique para abrir o seletor em leque e atribuir a um grupo.<br>
+                • <b>Galeria:</b> No player flutuante ou lightbox de imagens, clique no <b>botão de grade ⊞</b> para abrir um painel lateral e explorar todas as mídias da página atual.</p>
+                <hr>
                 <p style="color: #e0245e; font-size: 0.9em;"><b>⚠️ Aviso legal:</b><br>
                 Os domínios de conversão (ex. fixupx, vxtwitter) são serviços de terceiros sem relação com este script.</p>
             `,
@@ -663,6 +698,11 @@
                 • Survolez le coin supérieur droit → 📋 et ⚙️ apparaissent.<br>
                 • Configurez : domaine de clic, domaine d'appui long, préfixe Discord, format de date, langue, style de retour.</p>
                 <hr>
+                <hr>
+                <p><b>⭐ Groupes &amp; ⊞ Galerie :</b><br>
+                • <b>Groupes :</b> Dans ⚙️ Paramètres → <b>⭐ Groups</b>, activez <b>Group on Download</b>. Après chaque téléchargement par clic droit, ⭐ apparaît brièvement en bordure d'écran — survolez ou cliquez pour ouvrir le sélecteur en éventail et classer le média dans un groupe.<br>
+                • <b>Galerie :</b> Dans le lecteur flottant ou le visionneur d'images, cliquez sur le <b>bouton de grille ⊞</b> pour ouvrir un panneau latéral et parcourir tous les médias de la page actuelle.</p>
+                <hr>
                 <p style="color: #e0245e; font-size: 0.9em;"><b>⚠️ Avertissement :</b><br>
                 Les domaines de conversion (ex. fixupx, vxtwitter) sont des services tiers sans lien avec ce script.</p>
             `,
@@ -734,6 +774,11 @@
                 <p><b>⚙️ Панель настроек:</b><br>
                 • Наведите курсор в правый верхний угол → появятся 📋 и ⚙️.<br>
                 • Настройте: домен клика, домен долгого нажатия, префикс Discord, формат даты, язык, стиль уведомлений.</p>
+                <hr>
+                <hr>
+                <p><b>⭐ Группы &amp; ⊞ Галерея:</b><br>
+                • <b>Группы:</b> В ⚙️ Настройках → <b>⭐ Groups</b> включите <b>Group on Download</b>. После каждой загрузки правой кнопкой мыши у края экрана кратко появляется ⭐ — наведите курсор или нажмите, чтобы открыть веерный выбор и отнести медиа к группе.<br>
+                • <b>Галерея:</b> В плавающем видеоплеере или лайтбоксе нажмите <b>кнопку сетки ⊞</b> — откроется боковая панель со всеми медиафайлами текущей страницы.</p>
                 <hr>
                 <p style="color: #e0245e; font-size: 0.9em;"><b>⚠️ Отказ от ответственности:</b><br>
                 Домены конвертации (fixupx, vxtwitter и др.) — сторонние сервисы, не связанные с этим скриптом. Используйте только те домены, которым доверяете.</p>
@@ -3730,6 +3775,58 @@
                                 setTimeout(() => {
                                     const anchor = _gearBtn || eggCell;
                                     _showEggBubble("See? You and I both messed this up.\nCongrats on finding it! 🎉", anchor);
+
+                                    setTimeout(() => {
+                                        if (!document.getElementById('tm-egg-anim-style')) {
+                                            const s = document.createElement('style');
+                                            s.id = 'tm-egg-anim-style';
+                                            s.textContent = `
+                                                @keyframes tm-egg-ptcl {
+                                                    0%   { opacity: 1; transform: translate(0, 0) scale(1); }
+                                                    60%  { opacity: 0.75; }
+                                                    100% { opacity: 0; transform: translate(var(--ptcl-dx), var(--ptcl-dy)) scale(0.15); }
+                                                }
+                                            `;
+                                            document.head.appendChild(s);
+                                        }
+
+                                        const wRect  = wrapper.getBoundingClientRect();
+                                        const cx     = Math.round(wRect.left + wRect.width  / 2);
+                                        const cy     = Math.round(wRect.top  + wRect.height / 2);
+                                        const N      = 10;
+                                        const COLORS = ['#1d9bf0', '#f59e0b', '#e2e8f0', '#f472b6', '#a78bfa'];
+                                        const ptcls  = [];
+
+                                        for (let i = 0; i < N; i++) {
+                                            const angle = (i / N) * Math.PI * 2;
+                                            const dist  = 55 + (i % 3) * 18;
+                                            const dx    = Math.round(Math.cos(angle) * dist);
+                                            const dy    = Math.round(Math.sin(angle) * dist);
+                                            const size  = 4 + (i % 3);
+                                            const color = COLORS[i % COLORS.length];
+                                            const dur   = 950 + (i % 3) * 80;
+                                            const delay = i * 30;
+
+                                            const p = document.createElement('div');
+                                            p.style.cssText = `
+                                                position:fixed; pointer-events:none; z-index:9999991;
+                                                left:${cx - Math.floor(size / 2)}px;
+                                                top:${cy  - Math.floor(size / 2)}px;
+                                                width:${size}px; height:${size}px;
+                                                background:${color};
+                                                border-radius:${i % 2 === 0 ? '50%' : '1.5px'};
+                                                ${i % 2 !== 0 ? 'transform:rotate(45deg);' : ''}
+                                                --ptcl-dx:${dx}px; --ptcl-dy:${dy}px;
+                                                animation: tm-egg-ptcl ${dur}ms ${delay}ms ease-out forwards;
+                                            `;
+                                            document.body.appendChild(p);
+                                            ptcls.push(p);
+                                        }
+
+                                        setTimeout(() => ptcls.forEach(p => p.remove()), 1500);
+
+                                    }, 400);
+
                                     setTimeout(() => {
                                         _hideEggBubble();
                                         eggCell.style.visibility = 'hidden';
@@ -5123,6 +5220,38 @@
             .tm-hist-grid-cell.selected .tm-grid-copy-btn,
             .tm-hist-grid-cell.tm-grid-fav-lock .tm-grid-copy-btn { display: none; }
             
+            .tm-hist-grid-cell .tm-grid-dl-btn {
+                position: absolute; top: 33px; right: 5px;
+                width: 24px; height: 24px; border-radius: 6px; border: none;
+                background: rgba(0,0,0,0.38); backdrop-filter: blur(4px);
+                color: rgba(255,255,255,0.75); cursor: pointer;
+                display: flex; align-items: center; justify-content: center;
+                opacity: 0; transition: opacity 0.15s, background 0.1s;
+                z-index: 3; pointer-events: none;
+            }
+            .tm-hist-grid-cell .tm-grid-dl-btn svg { width: 12px; height: 12px; pointer-events: none; }
+            .tm-hist-grid-cell:hover .tm-grid-dl-btn { opacity: 1; pointer-events: auto; }
+            .tm-hist-grid-cell .tm-grid-dl-btn:hover { background: rgba(16,185,129,0.75); }
+            .tm-hist-grid-cell.selected .tm-grid-dl-btn,
+            .tm-hist-grid-cell.tm-grid-fav-lock .tm-grid-dl-btn { display: none; }
+
+            .tm-hist-grid-cell .tm-grid-goto-btn {
+                position: absolute; bottom: 0; right: 0;
+                width: 30px; height: 30px;
+                clip-path: polygon(100% 0, 100% 100%, 0 100%);
+                background: rgba(29,155,240,0.65); backdrop-filter: blur(2px);
+                border: none; cursor: pointer;
+                display: flex; align-items: flex-end; justify-content: flex-end;
+                padding: 4px;
+                opacity: 0; transition: opacity 0.15s, background 0.1s;
+                z-index: 3; pointer-events: none;
+            }
+            .tm-hist-grid-cell .tm-grid-goto-btn svg { width: 10px; height: 10px; pointer-events: none; }
+            .tm-hist-grid-cell:hover .tm-grid-goto-btn { opacity: 1; pointer-events: auto; }
+            .tm-hist-grid-cell .tm-grid-goto-btn:hover { background: rgba(29,155,240,0.9); }
+            .tm-hist-grid-cell.selected .tm-grid-goto-btn,
+            .tm-hist-grid-cell.tm-grid-fav-lock .tm-grid-goto-btn { display: none; }
+            
             #tm-hist-thumb-grid {
                 display: grid;
                 grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
@@ -6317,6 +6446,57 @@
                 gridCopyBtn.addEventListener('mouseleave', () => { if (_gcTimer) { clearTimeout(_gcTimer); _gcTimer = null; } });
                 gridCopyBtn.addEventListener('click', e => e.stopPropagation());
                 cell.appendChild(gridCopyBtn);
+
+                const SVG_DL_SM = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 2v8"/><path d="M5 7l3 3 3-3"/><path d="M2 13h12"/></svg>`;
+                const gridDlBtn = document.createElement('button');
+                gridDlBtn.className = 'tm-grid-dl-btn';
+                gridDlBtn.innerHTML = SVG_DL_SM;
+                const _gcHasMedia = rec.mediaUrls && rec.mediaUrls.length > 0;
+                gridDlBtn.title = _gcHasMedia
+                    ? `Re-download (${rec.mediaUrls.length} file${rec.mediaUrls.length > 1 ? 's' : ''})`
+                    : 'Open tweet to re-download';
+                gridDlBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    if (!_gcHasMedia) { window.open(rec.tweetUrl, '_blank'); return; }
+                    const safeDisplay = sanitizeForFilename(rec.displayName || rec.screenName || 'unknown');
+                    const safeScreen  = sanitizeForFilename(rec.screenName  || 'unknown');
+                    const datePart    = rec.tweetDate || rec.downloadDate || 'unknown';
+                    const textPart    = rec.text ? `_${sanitizeForFilename(rec.text, 40)}` : '';
+                    const idPart      = rec.tweetId || rec.id;
+                    rec.mediaUrls.forEach((url, i) => {
+                        let ext = 'jpg';
+                        if (url.includes('.mp4')) {
+                            ext = 'mp4';
+                        } else {
+                            try {
+                                const fmtParam = new URL(url).searchParams.get('format');
+                                ext = fmtParam || url.match(/\.(\w{3,4})(?:\?|$)/)?.[1] || 'jpg';
+                            } catch (_) {}
+                        }
+                        const fname = `[twitter] ${safeDisplay}(@${safeScreen})_${datePart}${textPart}_${idPart}_${i + 1}.${ext}`;
+                        setTimeout(() => forceDownloadBlob(url, fname), i * 600);
+                    });
+                });
+                cell.appendChild(gridDlBtn);
+
+                const SVG_GOTO_SM = `<svg viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10 L10 4"/><path d="M6.5 4h3.5v3.5"/></svg>`;
+                const gridGotoBtn = document.createElement('button');
+                gridGotoBtn.className = 'tm-grid-goto-btn';
+                gridGotoBtn.innerHTML = SVG_GOTO_SM;
+                gridGotoBtn.title = 'Go to tweet';
+                gridGotoBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    if (_isTwitterDomain) {
+                        try {
+                            const path = new URL(rec.tweetUrl).pathname;
+                            history.pushState({ tmNav: true }, '', path);
+                            window.dispatchEvent(new Event('popstate'));
+                        } catch (_) { window.open(rec.tweetUrl, '_blank'); }
+                    } else {
+                        window.open(rec.tweetUrl, '_blank');
+                    }
+                });
+                cell.appendChild(gridGotoBtn);
 
                 if (editMode) {
                     if (rec.favorited) {
