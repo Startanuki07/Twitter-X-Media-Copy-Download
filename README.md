@@ -1,6 +1,5 @@
 # ✨ Copy, Preview, and Download Tweet Media Without Leaving Your Feed
 
-
 <details open>
   <summary><small style="color: #666;">Hide image</small></summary>
   <img src="https://greasyfork.s3.us-east-2.amazonaws.com/luyc9kq3bjayzn41qyeo8d94u8ap" alt="Image">
@@ -11,20 +10,20 @@
 ---
 
 > 💡 **Overview**
-> After installation, a 🎞️ **Media Button** and a 🔗 **Link Button** appear on every tweet. The media button lets you copy image and video URLs, preview them inline, or download them with structured filenames. A floating **Download History Panel** tracks every file you have saved, with group-based organisation, search, and export. A lightweight settings panel, accessible by hovering the top-right corner of the page, centralises all configuration without requiring the userscript manager menu.
+> After installation, a 🎞️ **Media Button** and a 🔗 **Link Button** appear on every tweet. The media button lets you copy image and video URLs, preview them inline, or download them with structured filenames. A floating **Download History Panel** tracks every file you have saved, with group-based organisation, search, export, and a pin option that keeps it open as you navigate. A lightweight settings panel — accessible by hovering a configurable corner of the page — centralises all configuration without requiring the userscript manager menu.
 
 ---
 
 ## 🎛 Toolbar Controls
 
-After installation, two buttons are appended to the right side of every tweet's action row, alongside the native reply, retweet, and like buttons. A history tracker and settings panel are accessible from the top-right corner of any page.
+After installation, two buttons are appended to the right side of every tweet's action row, alongside the native reply, retweet, and like buttons. A history tracker and settings panel are accessible from a configurable corner of any page (top-right by default).
 
 | Icon | Feature Name | Where It Appears |
 |---|---|---|
 | 🎞️ | Media Button | Tweet action bar — rightmost position |
 | 🔗 | Link Button | Tweet action bar — second from right |
-| 📋 | History Panel | Top-right corner of the page (appears after first download) |
-| ⚙️ | Settings Panel | Top-right corner of the page (hover to reveal) |
+| 📋 | History Panel | Configured corner of the page (appears after first download) |
+| ⚙️ | Settings Panel | Configured corner of the page (hover to reveal) |
 
 ---
 
@@ -83,7 +82,8 @@ Available domains for both behaviours:
 
 Keeps a complete record of every file you’ve downloaded with no history limit.
 
-* **Open** — Access it from the 📋 button in the top-right corner or through the History section in the Settings Panel.
+* **Open** — Access it from the 📋 button in the configured corner or through the History section in the Settings Panel.
+* **Pin** — Click the 📌 icon in the panel's title bar to keep it open as you navigate between pages. A pinned panel cannot be dismissed by clicking the toolbar button — only the close button inside the panel removes it.
 * **Views** — Switch between a compact list view and a thumbnail grid. Clicking a thumbnail opens a full-size zoom overlay with multi-image navigation.
 * **Search** — Instantly filter records by display name, screen name, or tweet text using the search bar.
 * **Favorites** — Mark records with ♡ to protect them from bulk deletion. Favorited items are always preserved.
@@ -198,7 +198,7 @@ By default, userscript managers only run a script on the domains listed in its `
 
 ### Settings Panel
 
-Hover the **top-right corner** of any twitter.com or x.com page to reveal the ⚙️ button. Click it to open the panel. Changes take effect immediately without a page reload, except for language changes (which require a reload to apply).
+Hover the **configured corner** of any twitter.com or x.com page (top-right by default) to reveal the ⚙️ button. Click it to open the panel. Changes take effect immediately without a page reload, except for language changes (which require a reload to apply).
 
 **🔗 Link section**
 - **Single-click domain** — Set the domain used when clicking 🔗. Click the same row again to toggle back to `x.com`.
@@ -206,7 +206,7 @@ Hover the **top-right corner** of any twitter.com or x.com page to reveal the �
 
 **🎞 Media section**
 - **Date format** — Toggle between Asian (`YYYY.MM.DD`) and Western (`DD.MM.YYYY`) formats used in downloaded filenames.
-- **Feedback style** — Choose how the script signals completion: **Toast** (brief popup message) or **Icon Only** (button icon changes briefly).
+- **Feedback style** — Choose how the script signals completion: **Toast** (brief popup message), **Icon Only** (button icon changes briefly), or **Silent** (no visible notification).
 - **Language** — Switch between nine built-in languages, or load a fully custom translation.
 
 **⭐ Groups section**
@@ -215,6 +215,9 @@ Hover the **top-right corner** of any twitter.com or x.com page to reveal the �
 - **Glow size** — Adjust the radius of the glow effect behind group icons in the fan menu.
 - **Label colour** — Set the text colour used for group labels in the fan menu.
 - **Manage Groups** — Open the full group manager to create, rename, reorder, and delete groups.
+
+**📌 Corner Position section**
+- **Button corner** — Choose where the ⚙️ and 📋 buttons appear using a 3×3 position grid. Eight positions are available: four corners, plus top, bottom, left, and right edge centres. The default is top-right. Changing the position takes effect immediately and is remembered across sessions.
 
 **🗂 History Panel section**
 - **Open History** — Launch the History Panel directly from settings.
