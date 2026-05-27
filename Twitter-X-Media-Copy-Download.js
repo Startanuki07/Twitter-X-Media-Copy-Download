@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.7.2.6
+// @version      2.7.2.8
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -91,6 +91,9 @@
         'sp_group_glow_size',
         'sp_group_text_color',
         'sp_corner_position',
+        'sp_feedback_pulse',
+        'sp_feedback_flash',
+        'sp_feedback_slide',
     ];
 
     const DOMAIN_LIST = [
@@ -2478,6 +2481,128 @@
                 100% { opacity: 0;   }
             }
 
+            .tm-fb-demo-pulse-wrap {
+                position: relative;
+                width: 22px; height: 22px;
+                display: inline-flex; align-items: center; justify-content: center;
+            }
+            .tm-fb-demo-pulse-ring {
+                position: absolute; inset: -1px; border-radius: 50%;
+                border: 1.5px solid rgba(29,155,240,0.7);
+                opacity: 0; transform: scale(0.9);
+            }
+            .tm-fb-playing.tm-fb-demo-pulse .tm-fb-demo-pulse-ring:nth-child(1) {
+                animation: tm-fb-pulse-ring 1.0s ease-out 0.05s forwards;
+            }
+            .tm-fb-playing.tm-fb-demo-pulse .tm-fb-demo-pulse-ring:nth-child(2) {
+                animation: tm-fb-pulse-ring 1.0s ease-out 0.28s forwards;
+            }
+            .tm-fb-playing.tm-fb-demo-pulse .tm-fb-demo-pulse-ring:nth-child(3) {
+                animation: tm-fb-pulse-ring 1.0s ease-out 0.52s forwards;
+            }
+            @keyframes tm-fb-pulse-ring {
+                0%   { opacity: 0.8; transform: scale(0.9); }
+                100% { opacity: 0;   transform: scale(2.4); }
+            }
+            .tm-fb-demo-pulse-icon {
+                width: 20px; height: 20px; border-radius: 50%;
+                background: rgba(29,155,240,0.10);
+                border: 1.5px solid rgba(29,155,240,0.25);
+                display: flex; align-items: center; justify-content: center;
+                color: #1d9bf0;
+                z-index: 1; position: relative;
+            }
+            .tm-fb-playing.tm-fb-demo-pulse .tm-fb-demo-pulse-icon {
+                animation: tm-fb-pulse-icon-flash 0.35s ease 0.05s forwards;
+            }
+            @keyframes tm-fb-pulse-icon-flash {
+                0%   { background: rgba(29,155,240,0.10); }
+                40%  { background: rgba(29,155,240,0.42); }
+                100% { background: rgba(29,155,240,0.10); }
+            }
+
+            .tm-fb-demo-flash-box {
+                width: 34px; height: 18px; border-radius: 4px;
+                background: rgba(29,155,240,0.08);
+                border: 1px solid rgba(29,155,240,0.20);
+                display: flex; align-items: center; justify-content: center;
+                overflow: hidden; position: relative;
+            }
+            .tm-fb-demo-flash-sweep {
+                position: absolute; inset: 0;
+                background: linear-gradient(90deg, transparent 0%, rgba(29,155,240,0.55) 50%, transparent 100%);
+                transform: translateX(-100%); opacity: 0;
+            }
+            .tm-fb-demo-flash-check {
+                color: #1d9bf0; font-size: 10px;
+                position: relative; z-index: 1; opacity: 0;
+            }
+            .tm-fb-playing.tm-fb-demo-flash .tm-fb-demo-flash-check {
+                animation: tm-fb-flash-fade 1.1s ease forwards;
+            }
+            .tm-fb-playing.tm-fb-demo-flash .tm-fb-demo-flash-sweep {
+                animation: tm-fb-flash-sweep 0.55s ease 0.08s forwards;
+            }
+            @keyframes tm-fb-flash-sweep {
+                0%   { transform: translateX(-100%); opacity: 1; }
+                100% { transform: translateX(110%);  opacity: 1; }
+            }
+            @keyframes tm-fb-flash-fade {
+                0%   { opacity: 0; }
+                15%  { opacity: 1; }
+                75%  { opacity: 1; }
+                100% { opacity: 0; }
+            }
+
+            .tm-fb-demo-slide-clip {
+                overflow: hidden; height: 16px;
+                display: flex; align-items: center;
+            }
+            .tm-fb-demo-slide-text {
+                font-size: 9px; font-weight: 700; color: ${C.sub};
+                white-space: nowrap;
+                transform: translateY(14px); opacity: 0;
+            }
+            .tm-fb-playing.tm-fb-demo-slide .tm-fb-demo-slide-text {
+                animation: tm-fb-slide-up 1.1s cubic-bezier(0.34,1.3,0.64,1) forwards;
+            }
+            @keyframes tm-fb-slide-up {
+                0%   { transform: translateY(14px); opacity: 0; }
+                28%  { transform: translateY(0);     opacity: 1; }
+                72%  { transform: translateY(0);     opacity: 1; }
+                100% { transform: translateY(-8px);  opacity: 0; }
+            }
+
+            @keyframes tm-fb-btn-pulse {
+                0%   { box-shadow: 0 0 0 0   rgba(29,155,240,0.65), 0 0 0 0   rgba(29,155,240,0.3); }
+                55%  { box-shadow: 0 0 0 7px rgba(29,155,240,0),    0 0 0 14px rgba(29,155,240,0); }
+                100% { box-shadow: 0 0 0 0   rgba(29,155,240,0),    0 0 0 0   rgba(29,155,240,0); }
+            }
+            .tm-anim-pulse {
+                border-radius: 50%;
+                animation: tm-fb-btn-pulse 0.62s ease-out forwards;
+            }
+            
+            @keyframes tm-fb-btn-flash {
+                0%   { background: transparent; }
+                25%  { background: rgba(29,155,240,0.28); }
+                100% { background: transparent; }
+            }
+            .tm-anim-flash {
+                border-radius: 4px;
+                animation: tm-fb-btn-flash 0.55s ease forwards;
+            }
+            
+            @keyframes tm-anim-slide-up-text {
+                0%   { opacity: 0; transform: translateY(5px); }
+                28%  { opacity: 1; transform: translateY(0);   }
+                72%  { opacity: 1; transform: translateY(0);   }
+                100% { opacity: 0; transform: translateY(-4px); }
+            }
+            .tm-anim-pop-text.tm-slide {
+                animation: tm-anim-slide-up-text 0.9s cubic-bezier(0.34,1.2,0.64,1) forwards;
+            }
+
             @keyframes tm-float-new-pulse {
                 0%, 100% { box-shadow: 0 0 0 0   rgba(249, 24, 128, 0.6); }
                 50%       { box-shadow: 0 0 0 4px rgba(249, 24, 128, 0);    }
@@ -3124,6 +3249,29 @@
                             </span>`;
                     } else if (value === 'silent') {
                         demo.innerHTML = `<span class="tm-fb-demo-silent-text">Copied</span>`;
+                    } else if (value === 'pulse') {
+                        demo.innerHTML = `
+                            <span class="tm-fb-demo-pulse-wrap">
+                                <span class="tm-fb-demo-pulse-ring"></span>
+                                <span class="tm-fb-demo-pulse-ring"></span>
+                                <span class="tm-fb-demo-pulse-ring"></span>
+                                <span class="tm-fb-demo-pulse-icon">
+                                    <svg viewBox="0 0 14 14" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
+                                </span>
+                            </span>`;
+                    } else if (value === 'flash') {
+                        demo.innerHTML = `
+                            <span class="tm-fb-demo-flash-box">
+                                <span class="tm-fb-demo-flash-sweep"></span>
+                                <span class="tm-fb-demo-flash-check">
+                                    <svg viewBox="0 0 14 14" width="9" height="9" fill="none" stroke="#1d9bf0" stroke-width="2.4" stroke-linecap="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
+                                </span>
+                            </span>`;
+                    } else if (value === 'slide') {
+                        demo.innerHTML = `
+                            <span class="tm-fb-demo-slide-clip">
+                                <span class="tm-fb-demo-slide-text">Copied</span>
+                            </span>`;
                     }
                     return demo;
                 };
@@ -3144,11 +3292,18 @@
 
                     btn.appendChild(check);
                     btn.appendChild(txt);
+                    if (opt.featureId && isFeatureNew(opt.featureId)) {
+                        const optBadge = document.createElement('span');
+                        optBadge.className = 'tm-sp-new-badge';
+                        optBadge.textContent = 'NEW';
+                        btn.appendChild(optBadge);
+                    }
                     btn.appendChild(demoEl);
 
                     btn.addEventListener('click', (e) => {
                         e.stopPropagation();
                         if (featureId) markFeatureSeen(featureId);
+                        if (opt.featureId) markFeatureSeen(opt.featureId);
                         onSelect(opt.value);
                         val.textContent = opt.label;
                         picker.querySelectorAll('.tm-sp-picker-opt').forEach(b => {
@@ -3357,6 +3512,10 @@
             const fbOpts = [
                 { value: 'toast',  label: T.status_feedback_toast  || 'Toast' },
                 { value: 'icon',   label: T.status_feedback_icon   || 'Icon Only' },
+                { value: 'silent', label: T.status_feedback_silent || 'Silent' },
+                { value: 'pulse',  label: T.status_feedback_pulse  || 'Pulse Ring',   featureId: 'sp_feedback_pulse' },
+                { value: 'flash',  label: T.status_feedback_flash  || 'Flash Sweep',  featureId: 'sp_feedback_flash' },
+                { value: 'slide',  label: T.status_feedback_slide  || 'Slide Up',     featureId: 'sp_feedback_slide' },
             ];
             const fbLabel = T.menu_feedback_style ? T.menu_feedback_style.replace(/^🔔\s*/, '') : 'Feedback Style';
             grpMedia.append(makeFeedbackPickerRow(fbLabel, fbOpts, _fbStyle, (newFb) => {
@@ -3419,11 +3578,12 @@
                 multiToggle.type = 'button';
                 const isMulti = _grpGlowClr === 'multi';
                 multiToggle.style.cssText = `
-                    padding:2px 8px;border-radius:99px;border:none;font-size:10px;
+                    padding:2px 8px;border-radius:99px;font-size:10px;
                     cursor:pointer;font-family:inherit;line-height:1.4;
-                    background:${isMulti ? 'rgba(29,155,240,.7)' : 'rgba(255,255,255,.1)'};
-                    color:${isMulti ? '#fff' : 'rgba(255,255,255,.5)'};
-                    transition:background .12s,color .12s;
+                    background:${isMulti ? 'rgba(29,155,240,.7)' : 'transparent'};
+                    color:${isMulti ? '#fff' : 'rgba(255,255,255,.65)'};
+                    border:${isMulti ? '1px solid transparent' : '1px solid rgba(255,255,255,.3)'};
+                    transition:background .12s,color .12s,border-color .12s;
                 `;
                 multiToggle.textContent = 'Multi';
                 multiToggle.title = 'Use individual color per group';
@@ -3432,8 +3592,9 @@
                     const next = cfg.glowColor !== 'multi' ? 'multi' : '#1d9bf0';
                     cfg.glowColor = next;
                     GM_setValue(KEY_GROUP_PANEL_CFG, JSON.stringify(cfg));
-                    multiToggle.style.background = next === 'multi' ? 'rgba(29,155,240,.7)' : 'rgba(255,255,255,.1)';
-                    multiToggle.style.color      = next === 'multi' ? '#fff' : 'rgba(255,255,255,.5)';
+                    multiToggle.style.background    = next === 'multi' ? 'rgba(29,155,240,.7)' : 'transparent';
+                    multiToggle.style.color         = next === 'multi' ? '#fff' : 'rgba(255,255,255,.65)';
+                    multiToggle.style.borderColor   = next === 'multi' ? 'transparent' : 'rgba(255,255,255,.3)';
                     showToast('Glow Color → ' + (next === 'multi' ? 'Multi' : next));
                 });
 
@@ -9388,6 +9549,8 @@
         const setMediaIcon = (state, extra, silentText, actionType = 'copy') => {
             const fbStyle = GM_getValue(KEY_FEEDBACK_STYLE, 'toast');
             btn.classList.remove('tm-anim-pop');
+            btn.classList.remove('tm-anim-pulse');
+            btn.classList.remove('tm-anim-flash');
 
             const setTextMode = (text, customColor) => {
                 const safeColor = (customColor && /^#[0-9a-fA-F]{3,8}$/.test(customColor)) ? customColor : null;
@@ -9421,6 +9584,20 @@
             } else if (state === 'ok') {
                 if (fbStyle === 'silent') {
                     setTextMode(getSilentText() || 'Copied');
+                } else if (fbStyle === 'slide') {
+                    const span = document.createElement('span');
+                    span.className = 'tm-anim-pop-text tm-slide';
+                    span.textContent = getSilentText() || 'Copied';
+                    btn.innerHTML = '';
+                    btn.appendChild(span);
+                } else if (fbStyle === 'pulse') {
+                    if (actionType === 'prefix') setIconMode(SVG_PREFIX_COPY);
+                    else setIconMode(SVG_CHECK_SM);
+                    btn.classList.add('tm-anim-pulse');
+                } else if (fbStyle === 'flash') {
+                    if (actionType === 'prefix') setIconMode(SVG_PREFIX_COPY);
+                    else setIconMode(SVG_CHECK_SM);
+                    btn.classList.add('tm-anim-flash');
                 } else if (fbStyle === 'icon') {
                     if (actionType === 'prefix') setIconMode(SVG_PREFIX_COPY);
                     else if (actionType === 'download') setIconMode(SVG_CHECK_SM);
@@ -9660,6 +9837,8 @@
             const setLinkIcon = (state, extra, silentText, actionType = 'copy') => {
                 const fbStyle = GM_getValue(KEY_FEEDBACK_STYLE, 'toast');
                 icon.classList.remove('tm-anim-pop');
+                icon.classList.remove('tm-anim-pulse');
+                icon.classList.remove('tm-anim-flash');
 
                 const setTextMode = (text) => {
                     const span = document.createElement('span');
@@ -9677,6 +9856,20 @@
                 if (state === 'ok') {
                     if (fbStyle === 'silent') {
                         setTextMode(silentText || extra || 'Copied');
+                    } else if (fbStyle === 'slide') {
+                        const span = document.createElement('span');
+                        span.className = 'tm-anim-pop-text tm-slide';
+                        span.textContent = silentText || extra || 'Copied';
+                        icon.innerHTML = '';
+                        icon.appendChild(span);
+                    } else if (fbStyle === 'pulse') {
+                        const useSvg = actionType === 'prefix' ? SVG_PREFIX_COPY : SVG_CHECK;
+                        setIconMode(useSvg);
+                        icon.classList.add('tm-anim-pulse');
+                    } else if (fbStyle === 'flash') {
+                        const useSvg = actionType === 'prefix' ? SVG_PREFIX_COPY : SVG_CHECK;
+                        setIconMode(useSvg);
+                        icon.classList.add('tm-anim-flash');
                     } else if (fbStyle === 'icon') {
                         const useSvg = actionType === 'prefix' ? SVG_PREFIX_COPY : SVG_CHECK;
                         setIconMode(useSvg);
