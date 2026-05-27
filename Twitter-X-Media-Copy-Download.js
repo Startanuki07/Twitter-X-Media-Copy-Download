@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.7.2.8
+// @version      2.7.2.10
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -180,6 +180,9 @@
             status_feedback_toast:  'Toast',
             status_feedback_icon:   'Icon Only',
             status_feedback_silent: 'Silent',
+            status_feedback_pulse:  'Pulse Ring',
+            status_feedback_flash:  'Flash Sweep',
+            status_feedback_slide:  'Slide Up',
             status_on:  'On',
             status_off: 'Off',
             toast_feedback_style:   '🔔 Feedback Style → ',
@@ -257,6 +260,9 @@
             status_feedback_toast:  'Toast 提示',
             status_feedback_icon:   '僅圖示',
             status_feedback_silent: '靜默（僅圖示）',
+            status_feedback_pulse:  '脈衝光環',
+            status_feedback_flash:  '閃光掃描',
+            status_feedback_slide:  '文字滑入',
             status_on:  '開啟',
             status_off: '關閉',
             toast_feedback_style:   '🔔 提示風格 → ',
@@ -334,6 +340,9 @@
             status_feedback_toast:  'Toast 提示',
             status_feedback_icon:   '仅图标',
             status_feedback_silent: '静默（仅图标）',
+            status_feedback_pulse:  '脉冲光环',
+            status_feedback_flash:  '闪光扫描',
+            status_feedback_slide:  '文字滑入',
             status_on:  '开启',
             status_off: '关闭',
             toast_feedback_style:   '🔔 提示风格 → ',
@@ -411,6 +420,9 @@
             status_feedback_toast:  'トースト通知',
             status_feedback_icon:   'アイコンのみ',
             status_feedback_silent: 'サイレント（アイコンのみ）',
+            status_feedback_pulse:  'パルスリング',
+            status_feedback_flash:  'フラッシュスイープ',
+            status_feedback_slide:  'スライドアップ',
             status_on:  'オン',
             status_off: 'オフ',
             toast_feedback_style:   '🔔 フィードバックスタイル → ',
@@ -488,6 +500,9 @@
             status_feedback_toast:  '토스트',
             status_feedback_icon:   '아이콘만',
             status_feedback_silent: '조용히 (아이콘만)',
+            status_feedback_pulse:  '펄스 링',
+            status_feedback_flash:  '플래시 스윕',
+            status_feedback_slide:  '슬라이드 업',
             status_on:  '켜짐',
             status_off: '꺼짐',
             toast_feedback_style:   '🔔 피드백 스타일 → ',
@@ -565,6 +580,9 @@
             status_feedback_toast:  'Toast',
             status_feedback_icon:   'Solo icono',
             status_feedback_silent: 'Silencioso (solo icono)',
+            status_feedback_pulse:  'Anillo de Pulso',
+            status_feedback_flash:  'Destello Rápido',
+            status_feedback_slide:  'Deslizar Texto',
             status_on:  'Activado',
             status_off: 'Desactivado',
             toast_feedback_style:   '🔔 Estilo de Aviso → ',
@@ -642,6 +660,9 @@
             status_feedback_toast:  'Toast',
             status_feedback_icon:   'Só ícone',
             status_feedback_silent: 'Silencioso (só ícone)',
+            status_feedback_pulse:  'Anel de Pulso',
+            status_feedback_flash:  'Varredura Flash',
+            status_feedback_slide:  'Deslizar Texto',
             status_on:  'Ativado',
             status_off: 'Desativado',
             toast_feedback_style:   '🔔 Estilo de Aviso → ',
@@ -719,6 +740,9 @@
             status_feedback_toast:  'Toast',
             status_feedback_icon:   'Icône seul',
             status_feedback_silent: 'Silencieux (icône seul)',
+            status_feedback_pulse:  'Anneau de Pulse',
+            status_feedback_flash:  'Balayage Flash',
+            status_feedback_slide:  'Glissement Texte',
             status_on:  'Activé',
             status_off: 'Désactivé',
             toast_feedback_style:   '🔔 Style de Retour → ',
@@ -796,6 +820,9 @@
             status_feedback_toast:  'Тост',
             status_feedback_icon:   'Только иконка',
             status_feedback_silent: 'Тихий (только иконка)',
+            status_feedback_pulse:  'Пульсирующее кольцо',
+            status_feedback_flash:  'Вспышка',
+            status_feedback_slide:  'Текст снизу',
             status_on:  'Включено',
             status_off: 'Выключено',
             toast_feedback_style:   '🔔 Стиль уведомлений → ',
@@ -1223,6 +1250,9 @@
             status_feedback_toast: base.status_feedback_toast,
             status_feedback_icon: base.status_feedback_icon,
             status_feedback_silent: base.status_feedback_silent,
+            status_feedback_pulse: base.status_feedback_pulse,
+            status_feedback_flash: base.status_feedback_flash,
+            status_feedback_slide: base.status_feedback_slide,
             status_on:  base.status_on,
             status_off: base.status_off,
             toast_feedback_style: base.toast_feedback_style,
@@ -9574,6 +9604,9 @@
                     }
                 }
             };
+            const setIconModeOnly = (svg) => {
+                btn.innerHTML = svg;
+            };
 
             const getSilentText = () => silentText || extra;
 
@@ -9590,13 +9623,14 @@
                     span.textContent = getSilentText() || 'Copied';
                     btn.innerHTML = '';
                     btn.appendChild(span);
+                    span.addEventListener('animationend', () => setMediaIcon('default'), { once: true });
                 } else if (fbStyle === 'pulse') {
-                    if (actionType === 'prefix') setIconMode(SVG_PREFIX_COPY);
-                    else setIconMode(SVG_CHECK_SM);
+                    if (actionType === 'prefix') setIconModeOnly(SVG_PREFIX_COPY);
+                    else setIconModeOnly(SVG_CHECK_SM);
                     btn.classList.add('tm-anim-pulse');
                 } else if (fbStyle === 'flash') {
-                    if (actionType === 'prefix') setIconMode(SVG_PREFIX_COPY);
-                    else setIconMode(SVG_CHECK_SM);
+                    if (actionType === 'prefix') setIconModeOnly(SVG_PREFIX_COPY);
+                    else setIconModeOnly(SVG_CHECK_SM);
                     btn.classList.add('tm-anim-flash');
                 } else if (fbStyle === 'icon') {
                     if (actionType === 'prefix') setIconMode(SVG_PREFIX_COPY);
@@ -9852,6 +9886,9 @@
                     icon.innerHTML = svg;
                     icon.classList.add('tm-anim-pop');
                 };
+                const setIconModeOnly = (svg) => {
+                    icon.innerHTML = svg;
+                };
 
                 if (state === 'ok') {
                     if (fbStyle === 'silent') {
@@ -9862,13 +9899,14 @@
                         span.textContent = silentText || extra || 'Copied';
                         icon.innerHTML = '';
                         icon.appendChild(span);
+                        span.addEventListener('animationend', () => setLinkIcon('default'), { once: true });
                     } else if (fbStyle === 'pulse') {
                         const useSvg = actionType === 'prefix' ? SVG_PREFIX_COPY : SVG_CHECK;
-                        setIconMode(useSvg);
+                        setIconModeOnly(useSvg);
                         icon.classList.add('tm-anim-pulse');
                     } else if (fbStyle === 'flash') {
                         const useSvg = actionType === 'prefix' ? SVG_PREFIX_COPY : SVG_CHECK;
-                        setIconMode(useSvg);
+                        setIconModeOnly(useSvg);
                         icon.classList.add('tm-anim-flash');
                     } else if (fbStyle === 'icon') {
                         const useSvg = actionType === 'prefix' ? SVG_PREFIX_COPY : SVG_CHECK;
