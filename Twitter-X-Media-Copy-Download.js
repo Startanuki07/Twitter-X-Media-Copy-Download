@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.7.2.10
+// @version      2.8.0.2
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -77,7 +77,6 @@
     const KEY_GEAR_CORNER       = 'app_gear_corner';
 
     const NEW_FEATURE_IDS = [
-        'feedback_style',
         'history_panel',
         'dock_style',
         'sp_feedback_picker',
@@ -179,7 +178,6 @@
             menu_feedback_style:    '🔔 Feedback Style',
             status_feedback_toast:  'Toast',
             status_feedback_icon:   'Icon Only',
-            status_feedback_silent: 'Silent',
             status_feedback_pulse:  'Pulse Ring',
             status_feedback_flash:  'Flash Sweep',
             status_feedback_slide:  'Slide Up',
@@ -259,7 +257,6 @@
             menu_feedback_style:    '🔔 提示風格',
             status_feedback_toast:  'Toast 提示',
             status_feedback_icon:   '僅圖示',
-            status_feedback_silent: '靜默（僅圖示）',
             status_feedback_pulse:  '脈衝光環',
             status_feedback_flash:  '閃光掃描',
             status_feedback_slide:  '文字滑入',
@@ -339,7 +336,6 @@
             menu_feedback_style:    '🔔 提示风格',
             status_feedback_toast:  'Toast 提示',
             status_feedback_icon:   '仅图标',
-            status_feedback_silent: '静默（仅图标）',
             status_feedback_pulse:  '脉冲光环',
             status_feedback_flash:  '闪光扫描',
             status_feedback_slide:  '文字滑入',
@@ -419,7 +415,6 @@
             menu_feedback_style:    '🔔 フィードバックスタイル',
             status_feedback_toast:  'トースト通知',
             status_feedback_icon:   'アイコンのみ',
-            status_feedback_silent: 'サイレント（アイコンのみ）',
             status_feedback_pulse:  'パルスリング',
             status_feedback_flash:  'フラッシュスイープ',
             status_feedback_slide:  'スライドアップ',
@@ -499,7 +494,6 @@
             menu_feedback_style:    '🔔 피드백 스타일',
             status_feedback_toast:  '토스트',
             status_feedback_icon:   '아이콘만',
-            status_feedback_silent: '조용히 (아이콘만)',
             status_feedback_pulse:  '펄스 링',
             status_feedback_flash:  '플래시 스윕',
             status_feedback_slide:  '슬라이드 업',
@@ -579,7 +573,6 @@
             menu_feedback_style:    '🔔 Estilo de Aviso',
             status_feedback_toast:  'Toast',
             status_feedback_icon:   'Solo icono',
-            status_feedback_silent: 'Silencioso (solo icono)',
             status_feedback_pulse:  'Anillo de Pulso',
             status_feedback_flash:  'Destello Rápido',
             status_feedback_slide:  'Deslizar Texto',
@@ -659,7 +652,6 @@
             menu_feedback_style:    '🔔 Estilo de Aviso',
             status_feedback_toast:  'Toast',
             status_feedback_icon:   'Só ícone',
-            status_feedback_silent: 'Silencioso (só ícone)',
             status_feedback_pulse:  'Anel de Pulso',
             status_feedback_flash:  'Varredura Flash',
             status_feedback_slide:  'Deslizar Texto',
@@ -739,7 +731,6 @@
             menu_feedback_style:    '🔔 Style de Retour',
             status_feedback_toast:  'Toast',
             status_feedback_icon:   'Icône seul',
-            status_feedback_silent: 'Silencieux (icône seul)',
             status_feedback_pulse:  'Anneau de Pulse',
             status_feedback_flash:  'Balayage Flash',
             status_feedback_slide:  'Glissement Texte',
@@ -819,7 +810,6 @@
             menu_feedback_style:    '🔔 Стиль уведомлений',
             status_feedback_toast:  'Тост',
             status_feedback_icon:   'Только иконка',
-            status_feedback_silent: 'Тихий (только иконка)',
             status_feedback_pulse:  'Пульсирующее кольцо',
             status_feedback_flash:  'Вспышка',
             status_feedback_slide:  'Текст снизу',
@@ -1249,7 +1239,6 @@
             menu_feedback_style: base.menu_feedback_style,
             status_feedback_toast: base.status_feedback_toast,
             status_feedback_icon: base.status_feedback_icon,
-            status_feedback_silent: base.status_feedback_silent,
             status_feedback_pulse: base.status_feedback_pulse,
             status_feedback_flash: base.status_feedback_flash,
             status_feedback_slide: base.status_feedback_slide,
@@ -2497,20 +2486,6 @@
                 100% { opacity: 0; transform: scale(1) rotate(0deg);    }
             }
             
-            .tm-fb-demo-silent-text {
-                font-size: 9px; font-weight: 700; color: ${C.sub};
-                white-space: nowrap;
-                opacity: 0;
-            }
-            .tm-fb-playing.tm-fb-demo-silent .tm-fb-demo-silent-text {
-                animation: tm-fb-silent-fade 1.1s ease forwards;
-            }
-            @keyframes tm-fb-silent-fade {
-                0%   { opacity: 0.9; }
-                30%  { opacity: 0.9; }
-                100% { opacity: 0;   }
-            }
-
             .tm-fb-demo-pulse-wrap {
                 position: relative;
                 width: 22px; height: 22px;
@@ -3277,8 +3252,6 @@
                             <span class="tm-fb-demo-icon-wrap">
                                 <svg class="tm-fb-demo-icon-svg" viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
                             </span>`;
-                    } else if (value === 'silent') {
-                        demo.innerHTML = `<span class="tm-fb-demo-silent-text">Copied</span>`;
                     } else if (value === 'pulse') {
                         demo.innerHTML = `
                             <span class="tm-fb-demo-pulse-wrap">
@@ -3542,7 +3515,6 @@
             const fbOpts = [
                 { value: 'toast',  label: T.status_feedback_toast  || 'Toast' },
                 { value: 'icon',   label: T.status_feedback_icon   || 'Icon Only' },
-                { value: 'silent', label: T.status_feedback_silent || 'Silent' },
                 { value: 'pulse',  label: T.status_feedback_pulse  || 'Pulse Ring',   featureId: 'sp_feedback_pulse' },
                 { value: 'flash',  label: T.status_feedback_flash  || 'Flash Sweep',  featureId: 'sp_feedback_flash' },
                 { value: 'slide',  label: T.status_feedback_slide  || 'Slide Up',     featureId: 'sp_feedback_slide' },
@@ -7912,7 +7884,6 @@
     document.head.appendChild(_toastStyle);
 
     function showActionToast(anchorEl, message, type = 'ok') {
-        if (GM_getValue(KEY_FEEDBACK_STYLE, 'toast') === 'silent') return;
         const rect = anchorEl.getBoundingClientRect();
         const viewW = window.innerWidth;
         const cx = Math.max(48, Math.min(rect.left + rect.width / 2, viewW - 48));
@@ -9570,6 +9541,7 @@
         const SVG_CHECK_SM = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`;
         const SVG_PREFIX_COPY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
         const SVG_DL = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M6 9l4 4 4-4"/><line x1="3" y1="17" x2="17" y2="17"/></svg>`;
+        const COLOR_DL_OK = '#00ba7c';
 
         const btn = document.createElement('button');
         btn.className = BUTTON_CLASS;
@@ -9581,16 +9553,6 @@
             btn.classList.remove('tm-anim-pop');
             btn.classList.remove('tm-anim-pulse');
             btn.classList.remove('tm-anim-flash');
-
-            const setTextMode = (text, customColor) => {
-                const safeColor = (customColor && /^#[0-9a-fA-F]{3,8}$/.test(customColor)) ? customColor : null;
-                const span = document.createElement('span');
-                span.className = 'tm-anim-pop-text';
-                span.textContent = text;
-                if (safeColor) span.style.cssText = `color: ${safeColor} !important;`;
-                btn.innerHTML = '';
-                btn.appendChild(span);
-            };
 
             const setIconMode = (svg, customColor) => {
                 const safeColor = (customColor && /^#[0-9a-fA-F]{3,8}$/.test(customColor)) ? customColor : null;
@@ -9604,56 +9566,60 @@
                     }
                 }
             };
-            const setIconModeOnly = (svg) => {
+            const setIconModeOnly = (svg, customColor) => {
+                const safeColor = (customColor && /^#[0-9a-fA-F]{3,8}$/.test(customColor)) ? customColor : null;
                 btn.innerHTML = svg;
+                if (safeColor) {
+                    const svgEl = btn.querySelector('svg');
+                    if (svgEl) {
+                        svgEl.style.color = safeColor;
+                        svgEl.style.filter = `drop-shadow(0 0 4px ${safeColor}66)`;
+                    }
+                }
             };
 
-            const getSilentText = () => silentText || extra;
+            const getFeedbackText = () => silentText || extra;
 
             if (state === 'default') {
                 btn.innerHTML = SVG_FILM;
             } else if (state === 'dl') {
                 btn.innerHTML = SVG_DL;
             } else if (state === 'ok') {
-                if (fbStyle === 'silent') {
-                    setTextMode(getSilentText() || 'Copied');
-                } else if (fbStyle === 'slide') {
+                if (fbStyle === 'slide') {
                     const span = document.createElement('span');
                     span.className = 'tm-anim-pop-text tm-slide';
-                    span.textContent = getSilentText() || 'Copied';
+                    span.textContent = getFeedbackText() || 'Copied';
                     btn.innerHTML = '';
                     btn.appendChild(span);
                     span.addEventListener('animationend', () => setMediaIcon('default'), { once: true });
                 } else if (fbStyle === 'pulse') {
-                    if (actionType === 'prefix') setIconModeOnly(SVG_PREFIX_COPY);
-                    else setIconModeOnly(SVG_CHECK_SM);
+                    if (actionType === 'prefix')   setIconModeOnly(SVG_PREFIX_COPY);
+                    else if (actionType === 'download') setIconModeOnly(SVG_DL, COLOR_DL_OK);
+                    else                           setIconModeOnly(SVG_CHECK_SM);
                     btn.classList.add('tm-anim-pulse');
                 } else if (fbStyle === 'flash') {
-                    if (actionType === 'prefix') setIconModeOnly(SVG_PREFIX_COPY);
-                    else setIconModeOnly(SVG_CHECK_SM);
+                    if (actionType === 'prefix')   setIconModeOnly(SVG_PREFIX_COPY);
+                    else if (actionType === 'download') setIconModeOnly(SVG_DL, COLOR_DL_OK);
+                    else                           setIconModeOnly(SVG_CHECK_SM);
                     btn.classList.add('tm-anim-flash');
                 } else if (fbStyle === 'icon') {
-                    if (actionType === 'prefix') setIconMode(SVG_PREFIX_COPY);
-                    else if (actionType === 'download') setIconMode(SVG_CHECK_SM);
-                    else setIconMode(SVG_CHECK_SM);
+                    if (actionType === 'prefix')        setIconMode(SVG_PREFIX_COPY);
+                    else if (actionType === 'download') setIconMode(SVG_DL, COLOR_DL_OK);
+                    else                                setIconMode(SVG_CHECK_SM);
                 } else {
                     btn.innerHTML = SVG_CHECK_SM;
                     btn.classList.add('tm-anim-pop');
                     showActionToast(btn, extra || T.msg_copied, 'ok');
                 }
             } else if (state === 'warn') {
-                if (fbStyle === 'silent') {
-                    setTextMode(getSilentText(), '#ff8c00');
-                } else if (fbStyle === 'icon') {
+                if (fbStyle === 'icon') {
                     setIconMode(SVG_FILM, '#ff8c00');
                 } else {
                     btn.innerHTML = SVG_FILM;
                     showActionToast(btn, extra, 'warn');
                 }
             } else {
-                if (fbStyle === 'silent' && getSilentText()) {
-                    setTextMode(getSilentText(), state === 'error' ? '#e0245e' : null);
-                } else if (fbStyle === 'icon') {
+                if (fbStyle === 'icon') {
                     setIconMode(SVG_FILM, state === 'error' ? '#e0245e' : null);
                 } else {
                     btn.innerHTML = SVG_FILM;
@@ -9874,26 +9840,24 @@
                 icon.classList.remove('tm-anim-pulse');
                 icon.classList.remove('tm-anim-flash');
 
-                const setTextMode = (text) => {
-                    const span = document.createElement('span');
-                    span.className = 'tm-anim-pop-text';
-                    span.textContent = text;
-                    icon.innerHTML = '';
-                    icon.appendChild(span);
-                };
-
                 const setIconMode = (svg) => {
                     icon.innerHTML = svg;
                     icon.classList.add('tm-anim-pop');
                 };
-                const setIconModeOnly = (svg) => {
+                const setIconModeOnly = (svg, customColor) => {
+                    const safeColor = (customColor && /^#[0-9a-fA-F]{3,8}$/.test(customColor)) ? customColor : null;
                     icon.innerHTML = svg;
+                    if (safeColor) {
+                        const svgEl = icon.querySelector('svg');
+                        if (svgEl) {
+                            svgEl.style.color = safeColor;
+                            svgEl.style.filter = `drop-shadow(0 0 4px ${safeColor}66)`;
+                        }
+                    }
                 };
 
                 if (state === 'ok') {
-                    if (fbStyle === 'silent') {
-                        setTextMode(silentText || extra || 'Copied');
-                    } else if (fbStyle === 'slide') {
+                    if (fbStyle === 'slide') {
                         const span = document.createElement('span');
                         span.className = 'tm-anim-pop-text tm-slide';
                         span.textContent = silentText || extra || 'Copied';
