@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.8.0.2
+// @version      2.8.0.3
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -2923,7 +2923,10 @@
         const panel = document.createElement('div');
         panel.id = 'tm-settings-panel';
 
+        let _lastEggBubbleAC = null;
         function buildContent() {
+            if (_lastEggBubbleAC) { _lastEggBubbleAC.abort(); _lastEggBubbleAC = null; }
+            document.getElementById('tm-egg-bubble-el')?.remove();
             panel.innerHTML = '';
 
             const s = _readSettings();
@@ -3804,8 +3807,11 @@
 
             let _centerClicks = 0;
 
+            const _eggBubbleAC = new AbortController();
+            _lastEggBubbleAC = _eggBubbleAC;
             const _eggBubble = (() => {
                 const el = document.createElement('div');
+                el.id = 'tm-egg-bubble-el';
                 el.style.cssText = `
                     display: none; position: fixed; z-index: 9999999;
                     background: #fff; color: #111;
@@ -3885,7 +3891,7 @@
 
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('#tm-settings-wrapper')) _hideEggBubble();
-            }, { capture: true, passive: true });
+            }, { capture: true, passive: true, signal: _eggBubbleAC.signal });
 
             for (let r = 1; r <= 3; r++) {
                 for (let cl = 1; cl <= 3; cl++) {
@@ -4422,16 +4428,21 @@
         const _glowClr  = _cfg.glowColor || 'multi';
         const _glowSz   = Number(_cfg.glowSize  ?? 12);
         const _txtClrMap = { white: 'rgba(255,255,255,.7)', yellow: 'rgba(255,220,60,.85)', blue: 'rgba(29,155,240,.9)', gray: 'rgba(180,180,180,.65)' };
+        const _isSafeColor = v => typeof v === 'string' &&
+            /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3}([0-9a-fA-F]{2})?)?$/.test(v.trim()) ||
+            /^rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(,\s*[\d.]+\s*)?\)$/.test(v.trim());
         const _txtClr   = _cfg.textColor
-            ? (_txtClrMap[_cfg.textColor] || _cfg.textColor)
+            ? (_txtClrMap[_cfg.textColor] || (_isSafeColor(_cfg.textColor) ? _cfg.textColor : _txtClrMap.white))
             : _txtClrMap.white;
         const _glowPx   = Math.max(4, Math.min(60, _glowSz));
 
         const groups = getGroups();
         groups.forEach((g, i) => {
-            const baseGlow = _glowClr === 'multi'
+            const _rawGlow = _glowClr === 'multi'
                 ? (g.glow || STAR_GLOW_COLORS[i % STAR_GLOW_COLORS.length])
-                : _glowClr + '85';
+                : _glowClr;
+            const _safeGlow = _isSafeColor(_rawGlow) ? _rawGlow : STAR_GLOW_COLORS[i % STAR_GLOW_COLORS.length];
+            const baseGlow = _glowClr === 'multi' ? _safeGlow : (_safeGlow + '85');
             const half = Math.round(_glowPx / 2);
 
             const ic       = _resolveGroupIcon(g.icon);
