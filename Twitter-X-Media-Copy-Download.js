@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.8.0.3
+// @version      2.8.0.7
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -75,6 +75,8 @@
     const KEY_GROUP_PANEL_CFG   = 'app_group_panel_cfg';
     const KEY_GEAR_VISIBLE      = 'app_gear_visible';
     const KEY_GEAR_CORNER       = 'app_gear_corner';
+    const KEY_HIST_CLEANUP_NOTIFIED = 'app_hist_cleanup_notified';
+    const KEY_CLICK_MODE        = 'app_click_mode';
 
     const NEW_FEATURE_IDS = [
         'history_panel',
@@ -93,6 +95,8 @@
         'sp_feedback_pulse',
         'sp_feedback_flash',
         'sp_feedback_slide',
+        'right_click_tip',
+        'click_mode_menu',
     ];
 
     const DOMAIN_LIST = [
@@ -869,10 +873,11 @@
             dockHoverDelay: parseInt(GM_getValue(KEY_DOCK_HOVER_DELAY, '500'), 10) || 500,
             dockTriggerL:   parseInt(GM_getValue(KEY_DOCK_TRIGGER_L, '80'), 10) || 80,
             dockTriggerR:   parseInt(GM_getValue(KEY_DOCK_TRIGGER_R, '80'), 10) || 80,
+            clickMode:      GM_getValue(KEY_CLICK_MODE, 'classic'),
         };
     }
 
-    function showToast(message) {
+    function showToast(message, duration = 2500) {
         const existing = document.getElementById('tm-reload-toast');
         if (existing) existing.remove();
 
@@ -881,11 +886,12 @@
         toast.style.cssText = `
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
             background: #1d9bf0; color: white; padding: 10px 20px;
-            border-radius: 9999px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            border-radius: 16px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);
             font-family: system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: bold;
             z-index: 999999; display: flex; align-items: center; gap: 8px;
             transition: opacity 0.3s ease-in-out; opacity: 0; pointer-events: none;
-            white-space: nowrap; max-width: 90vw; overflow: hidden; text-overflow: ellipsis;
+            white-space: normal; max-width: min(420px, 90vw); word-break: break-word;
+            text-align: center;
         `;
         const toastSpan = document.createElement('span');
         toastSpan.textContent = message;
@@ -899,7 +905,7 @@
                 toast.style.opacity = '0';
                 setTimeout(() => toast.remove(), 300);
             }
-        }, 2500);
+        }, duration);
     }
 
     function sanitizeHelpHtml(htmlString, container) {
@@ -997,6 +1003,7 @@
 
         const closeBtn = document.createElement('button');
         closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
+        closeBtn.setAttribute('aria-label', 'Close help');
         closeBtn.style.cssText = `
             position: absolute; top: 10px; right: 12px; border: none; background: none;
             width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
@@ -1709,23 +1716,26 @@
                 wrapper.style.display = 'none';
             }
         };
-        if (document.body) {
+        const _doInit = () => {
+            if (GM_getValue(KEY_CLICK_MODE, null) === null &&
+                !GM_getValue(KEY_ONBOARDING_DONE, false)) {
+                GM_setValue(KEY_CLICK_MODE, 'menu');
+            }
             createSettingsPanel();
             _applyGearVisibility();
             _applyGearCorner(GM_getValue(KEY_GEAR_CORNER, 'tr'));
             _triggerLoadRing();
             if (_isTwitterDomain) _initStarPip();
             if (GM_getValue(KEY_HIST_PINNED, false)) setTimeout(showHistoryPanel, 800);
+        };
+        if (document.body) {
+            _doInit();
         } else {
-            document.addEventListener('DOMContentLoaded', () => {
-                createSettingsPanel();
-                _applyGearVisibility();
-                _applyGearCorner(GM_getValue(KEY_GEAR_CORNER, 'tr'));
-                _triggerLoadRing();
-                if (_isTwitterDomain) _initStarPip();
-                if (GM_getValue(KEY_HIST_PINNED, false)) setTimeout(showHistoryPanel, 800);
-            }, { once: true });
+            document.addEventListener('DOMContentLoaded', _doInit, { once: true });
         }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if (document.getElementById('tm-settings-wrapper')) createSettingsPanel();
+        });
     }
 
     function _initStarPip() {
@@ -1738,6 +1748,10 @@
         pip.textContent = '⭐';
 
         pip.addEventListener('mouseenter', () => {
+            clearTimeout(_starAutoHideTimer);
+            _starAutoHideTimer = setTimeout(() => {
+                if (!_fanOpen) hideStarPip();
+            }, STAR_AUTO_HIDE_SEC * 1000);
             if (!_fanOpen && getGroups().length) openGroupFan();
         });
         pip.addEventListener('click', e => {
@@ -2084,7 +2098,7 @@
                 seen.push(id);
                 GM_setValue(KEY_SEEN_FEATURES, JSON.stringify(seen));
             }
-        } catch(_) {}
+        } catch(e) { console.warn('[TM] markFeatureSeen failed:', e); }
     }
 
     function createSettingsPanel() {
@@ -2883,6 +2897,7 @@
         gearBtn.id = 'tm-settings-gear-btn';
         gearBtn.innerHTML = SVG_GEAR;
         gearBtn.title = '⚙️ Twitter Media Script Settings';
+        gearBtn.setAttribute('aria-label', 'Open settings');
 
         const _seenCount    = GM_getValue(KEY_GEAR_DOT_SEEN, 0);
         const _hasUnseenFeature = _seenCount < NEW_FEATURE_IDS.length
@@ -2899,6 +2914,7 @@
         histBtn.id = 'tm-history-btn';
         histBtn.innerHTML = SVG_HISTORY;
         histBtn.title = '📋 Download History';
+        histBtn.setAttribute('aria-label', 'Open download history');
 
         if (isFeatureNew('history_panel')) {
             const floatBadge = document.createElement('span');
@@ -2979,7 +2995,7 @@
                 try {
                     const saved = JSON.parse(GM_getValue(KEY_SP_GROUP_OPEN, '{}'));
                     if (label in saved) openState = saved[label];
-                } catch (_) {}
+                } catch (e) { console.warn('[TM] makeGroup read openState failed:', e); }
 
                 const g = document.createElement('div');
                 g.className = 'tm-sp-group-header' + (openState ? '' : ' collapsed');
@@ -3016,7 +3032,7 @@
                         const saved = JSON.parse(GM_getValue(KEY_SP_GROUP_OPEN, '{}'));
                         saved[label] = !isCollapsed;
                         GM_setValue(KEY_SP_GROUP_OPEN, JSON.stringify(saved));
-                    } catch (_) {}
+                    } catch (e) { console.warn('[TM] makeGroup write openState failed:', e); }
                     if (_lcRcResizeHandler) requestAnimationFrame(_lcRcResizeHandler);
                 });
 
@@ -3514,6 +3530,17 @@
             }));
 
             const grpMedia = makeGroup('🎞  Media', true);
+
+            const clickModeOpts = [
+                { value: 'menu',    label: 'Menu',    featureId: 'click_mode_menu' },
+                { value: 'classic', label: 'Classic' },
+            ];
+            grpMedia.append(makePickerRow('🖱 Click Mode', clickModeOpts, GM_getValue(KEY_CLICK_MODE, 'classic'), (newMode) => {
+                GM_setValue(KEY_CLICK_MODE, newMode);
+                showToast(newMode === 'menu'
+                    ? '✅ Menu mode: click or hover buttons to open menu.'
+                    : '✅ Classic mode: short-press / long-press / right-click.');
+            }));
 
             const fbOpts = [
                 { value: 'toast',  label: T.status_feedback_toast  || 'Toast' },
@@ -4139,6 +4166,30 @@
             });
             helpRow.style.borderTop = `1px solid ${C.border}`;
             panel.appendChild(helpRow);
+
+            const resetRow = makeRow('🔄 Reset to defaults', '', () => {
+                const confirmed = confirm(
+                    'Reset all settings to defaults?\n\n' +
+                    'This will clear: copy format, feedback style, dock style, trigger distances, ' +
+                    'group panel appearance, and corner position.\n\n' +
+                    'Download history and groups will NOT be affected.'
+                );
+                if (!confirmed) return;
+                const RESET_KEYS = [
+                    KEY_PREFIX_TEXT, KEY_LINK_DOMAIN_CLICK, KEY_CLICK_MODE_CUSTOM,
+                    KEY_DATE_FORMAT, KEY_FEEDBACK_STYLE,
+                    KEY_DOCK_STYLE, KEY_DOCK_HOVER_DELAY,
+                    KEY_DOCK_TRIGGER_L, KEY_DOCK_TRIGGER_R, KEY_DOCK_PERSISTED,
+                    KEY_GEAR_CORNER, KEY_GROUP_ON_DOWNLOAD, KEY_GROUP_PANEL_CFG,
+                    KEY_SP_GROUP_OPEN, KEY_SEEN_FEATURES,
+                ];
+                RESET_KEYS.forEach(k => GM_deleteValue(k));
+                buildContent();
+                showToast('✅ Settings reset to defaults.');
+            });
+            resetRow.style.borderTop = `1px solid ${C.border}`;
+            resetRow.style.opacity = '0.7';
+            panel.appendChild(resetRow);
         }
 
         buildContent();
@@ -4335,7 +4386,7 @@
         } catch (e) { console.error('[TMGroup] assignGroup error:', e); }
     }
 
-    const STAR_AUTO_HIDE_SEC = 5;
+    const STAR_AUTO_HIDE_SEC = 8;
     const STAR_FLOAT_CLS     = ['tm-float-a','tm-float-b','tm-float-c','tm-float-d','tm-float-e'];
     const STAR_GLOW_COLORS   = [
         'rgba(80,200,180,.28)', 'rgba(160,100,240,.28)', 'rgba(240,160,80,.28)',
@@ -4428,9 +4479,10 @@
         const _glowClr  = _cfg.glowColor || 'multi';
         const _glowSz   = Number(_cfg.glowSize  ?? 12);
         const _txtClrMap = { white: 'rgba(255,255,255,.7)', yellow: 'rgba(255,220,60,.85)', blue: 'rgba(29,155,240,.9)', gray: 'rgba(180,180,180,.65)' };
-        const _isSafeColor = v => typeof v === 'string' &&
+        const _isSafeColor = v => typeof v === 'string' && (
             /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3}([0-9a-fA-F]{2})?)?$/.test(v.trim()) ||
-            /^rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(,\s*[\d.]+\s*)?\)$/.test(v.trim());
+            /^rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(,\s*[\d.]+\s*)?\)$/.test(v.trim())
+        );
         const _txtClr   = _cfg.textColor
             ? (_txtClrMap[_cfg.textColor] || (_isSafeColor(_cfg.textColor) ? _cfg.textColor : _txtClrMap.white))
             : _txtClrMap.white;
@@ -5094,7 +5146,20 @@
             if (_oldRecord?.favorited) record.favorited = true;
             records = records.filter(r => r.tweetId !== info.id);
             records.unshift(record);
-            GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
+            const _recordsSnapshot = records;
+            queueMicrotask(() => {
+                GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(_recordsSnapshot));
+            });
+
+            if (_recordsSnapshot.length >= 2000 && !GM_getValue(KEY_HIST_CLEANUP_NOTIFIED, false)) {
+                GM_setValue(KEY_HIST_CLEANUP_NOTIFIED, true);
+                setTimeout(() => showToast(
+                    '📋 You have 2000+ download records. ' +
+                    'Consider exporting a backup (📤 in the history panel) and deleting old entries ' +
+                    'to keep storage healthy and panel loading fast.',
+                    8000
+                ), 500);
+            }
 
             if (GM_getValue(KEY_GROUP_ON_DOWNLOAD, false)) {
                 _pendingGroupRecordId = record.id;
@@ -7018,6 +7083,7 @@
             closeBtn.id = 'tm-thumb-lb-close';
             closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
             closeBtn.title = 'Close';
+            closeBtn.setAttribute('aria-label', 'Close preview');
 
             const nav = document.createElement('div');
             nav.id = 'tm-thumb-lb-nav';
@@ -7894,17 +7960,214 @@
     `;
     document.head.appendChild(_toastStyle);
 
-    function showActionToast(anchorEl, message, type = 'ok') {
-        const rect = anchorEl.getBoundingClientRect();
-        const viewW = window.innerWidth;
-        const cx = Math.max(48, Math.min(rect.left + rect.width / 2, viewW - 48));
-        const toast = document.createElement('span');
-        toast.className = 'tm-action-toast' + (type !== 'ok' ? ` ${type}` : '');
-        toast.textContent = message;
-        toast.style.left = cx + 'px';
-        toast.style.top  = rect.top + 'px';
-        document.body.appendChild(toast);
-        toast.addEventListener('animationend', () => toast.remove(), { once: true });
+    function _showActionMenu(anchorEl, items) {
+        const existing = document.getElementById('tm-action-menu');
+        if (existing) {
+            const prev = existing._anchorEl;
+            existing.remove();
+            if (prev === anchorEl) return () => {};
+        }
+
+        const dark = window.matchMedia('(prefers-color-scheme: dark)').matches
+                  || document.documentElement.style.colorScheme === 'dark'
+                  || document.documentElement.getAttribute('data-color-scheme') === 'dark';
+        const bg     = dark ? '#1e2732' : '#ffffff';
+        const border = dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)';
+        const text   = dark ? 'rgba(255,255,255,0.92)' : '#0f1419';
+        const hover  = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+        const shadow = dark ? '0 4px 20px rgba(0,0,0,0.6)' : '0 4px 20px rgba(0,0,0,0.16)';
+
+        if (!document.getElementById('tm-action-menu-style')) {
+            const s = document.createElement('style');
+            s.id = 'tm-action-menu-style';
+            s.textContent = `
+                #tm-action-menu {
+                    position: fixed; z-index: 9999998;
+                    border-radius: 12px; overflow: hidden;
+                    min-width: 180px;
+                    opacity: 0; transform: translateY(4px) scale(0.97);
+                    transform-origin: bottom center;
+                    transition: opacity 0.14s ease, transform 0.14s ease;
+                    pointer-events: none;
+                }
+                #tm-action-menu.tm-menu-in {
+                    opacity: 1; transform: translateY(0) scale(1);
+                    pointer-events: auto;
+                }
+                .tm-menu-item {
+                    display: flex; align-items: center; gap: 10px;
+                    padding: 10px 15px; cursor: pointer;
+                    font: 13px/1.4 system-ui, -apple-system, sans-serif;
+                    font-weight: 500; user-select: none;
+                    transition: background 0.1s;
+                    white-space: nowrap;
+                }
+                .tm-menu-item:hover { background: var(--tm-menu-hover); }
+                .tm-menu-item.danger { color: #f4212e; }
+                .tm-menu-item-icon { width: 16px; height: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; opacity: 0.85; }
+                .tm-menu-divider { height: 1px; margin: 4px 0; background: var(--tm-menu-border); }
+                
+                #tm-action-menu-bridge {
+                    position: fixed; z-index: 9999997;
+                    background: transparent; pointer-events: auto;
+                }
+            `;
+            document.head.appendChild(s);
+        }
+
+        const menu = document.createElement('div');
+        menu.id = 'tm-action-menu';
+        menu._anchorEl = anchorEl;
+        menu.style.setProperty('--tm-menu-hover', hover);
+        menu.style.setProperty('--tm-menu-border', border);
+        menu.style.background = bg;
+        menu.style.border = `1px solid ${border}`;
+        menu.style.boxShadow = shadow;
+
+        items.forEach((item, idx) => {
+            if (item === 'divider') {
+                const d = document.createElement('div');
+                d.className = 'tm-menu-divider';
+                menu.appendChild(d);
+                return;
+            }
+            const row = document.createElement('div');
+            row.className = 'tm-menu-item' + (item.danger ? ' danger' : '');
+            row.setAttribute('role', 'menuitem');
+            row.style.color = item.danger ? '#f4212e' : text;
+            if (item.icon) {
+                const ic = document.createElement('span');
+                ic.className = 'tm-menu-item-icon';
+                ic.textContent = item.icon;
+                row.appendChild(ic);
+            }
+            const lb = document.createElement('span');
+            lb.textContent = item.label;
+            row.appendChild(lb);
+            row.addEventListener('click', e => {
+                e.stopPropagation(); e.preventDefault();
+                close();
+                item.action();
+            });
+            menu.appendChild(row);
+        });
+
+        const _position = () => {
+            const r = anchorEl.getBoundingClientRect();
+            const mW = menu.offsetWidth || 190;
+            const mH = menu.offsetHeight || items.length * 40 + 16;
+            const GAP = 6;
+            let left = r.left + r.width / 2 - mW / 2;
+            left = Math.max(8, Math.min(left, window.innerWidth - mW - 8));
+            let top = r.top - mH - GAP;
+            if (top < 8) top = r.bottom + GAP;
+            menu.style.left = left + 'px';
+            menu.style.top  = top + 'px';
+
+            const bridge = document.getElementById('tm-action-menu-bridge') || (() => {
+                const b = document.createElement('div');
+                b.id = 'tm-action-menu-bridge';
+                document.body.appendChild(b);
+                return b;
+            })();
+            const bTop  = Math.min(top + mH, r.top);
+            const bBot  = Math.max(top + mH, r.bottom);
+            bridge.style.left   = Math.min(left, r.left) - 4 + 'px';
+            bridge.style.top    = bTop + 'px';
+            bridge.style.width  = Math.max(mW, r.width) + 8 + 'px';
+            bridge.style.height = (bBot - bTop) + 'px';
+        };
+
+        document.body.appendChild(menu);
+        requestAnimationFrame(() => {
+            _position();
+            menu.classList.add('tm-menu-in');
+        });
+
+        const _acMenu = new AbortController();
+
+        const close = () => {
+            menu.classList.remove('tm-menu-in');
+            document.getElementById('tm-action-menu-bridge')?.remove();
+            setTimeout(() => menu.remove(), 150);
+            _acMenu.abort();
+        };
+
+        document.addEventListener('click', e => {
+            if (!menu.contains(e.target) && e.target !== anchorEl) close();
+        }, { capture: true, signal: _acMenu.signal });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') close();
+        }, { signal: _acMenu.signal });
+
+        return close;
+    }
+
+    function _bindMenuHover(anchorEl, getItems) {
+        let _hoverTimer = null;
+        let _closeTimer = null;
+        let _closeFn    = null;
+
+        const _openMenu = () => {
+            clearTimeout(_closeTimer);
+            if (document.getElementById('tm-action-menu')?._anchorEl === anchorEl) return;
+            _closeFn = _showActionMenu(anchorEl, getItems());
+        };
+        const _scheduleClose = () => {
+            _closeTimer = setTimeout(() => {
+                const m = document.getElementById('tm-action-menu');
+                if (m?._anchorEl === anchorEl) _closeFn?.();
+            }, 200);
+        };
+        const _cancelClose = () => clearTimeout(_closeTimer);
+
+        const _ac = new AbortController();
+        const sig = { signal: _ac.signal };
+
+        anchorEl.addEventListener('mouseenter', () => {
+            _hoverTimer = setTimeout(_openMenu, 420);
+        }, sig);
+        anchorEl.addEventListener('mouseleave', () => {
+            clearTimeout(_hoverTimer);
+            _scheduleClose();
+        }, sig);
+
+        document.addEventListener('mouseover', e => {
+            const bridge = document.getElementById('tm-action-menu-bridge');
+            if (!bridge) return;
+            if (bridge.contains(e.target) || e.target === bridge) _cancelClose();
+        }, sig);
+        document.addEventListener('mouseout', e => {
+            const bridge = document.getElementById('tm-action-menu-bridge');
+            if (!bridge) return;
+            if ((bridge.contains(e.target) || e.target === bridge) &&
+                !bridge.contains(e.relatedTarget) && !anchorEl.contains(e.relatedTarget)) {
+                _scheduleClose();
+            }
+        }, sig);
+        document.addEventListener('mouseover', e => {
+            const m = document.getElementById('tm-action-menu');
+            if (m?.contains(e.target)) _cancelClose();
+        }, sig);
+        document.addEventListener('mouseout', e => {
+            const m = document.getElementById('tm-action-menu');
+            if (m?.contains(e.target) &&
+                !m.contains(e.relatedTarget) && !anchorEl.contains(e.relatedTarget)) {
+                _scheduleClose();
+            }
+        }, sig);
+
+        return _ac;
+    }
+
+    function _bindMenuClick(anchorEl, getItems) {
+        const _ac = new AbortController();
+        anchorEl.addEventListener('click', e => {
+            e.preventDefault(); e.stopPropagation();
+            _showActionMenu(anchorEl, getItems());
+        }, { signal: _ac.signal });
+        return _ac;
     }
 
     function createProgressRing() {
@@ -7965,6 +8228,7 @@
         await new Promise((resolve, reject) => {
             GM_xmlhttpRequest({
                 method: "GET", url: url, responseType: "blob",
+                timeout: 15000,
                 onload: function(response) {
                     if (response.status === 200) {
                         const blob = response.response;
@@ -7984,6 +8248,13 @@
                     } else {
                         reject(new Error(`GM fallback HTTP ${response.status}`));
                     }
+                },
+                ontimeout: function() {
+                    console.warn('[MediaDL] GM fallback timed out (15s), falling back to new tab');
+                    const tag = document.createElement('a');
+                    tag.href = url; tag.download = filename; tag.target = '_blank';
+                    document.body.appendChild(tag); tag.click(); document.body.removeChild(tag);
+                    resolve();
                 },
                 onerror: function(err) {
                     console.error('[MediaDL] GM fallback also failed:', err);
@@ -8092,6 +8363,7 @@
 
         const closeBtn = document.createElement('button');
         closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
+        closeBtn.setAttribute('aria-label', 'Close video player');
         closeBtn.style.cssText = `
             position: absolute; top: 20px; right: 25px;
             background: rgba(0,0,0,0.6); color: white; border: none;
@@ -8607,11 +8879,13 @@
         modal.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
 
         let keyHandler = () => {};
+        let _lbDragACRef = null;
 
         function closeLightbox() {
             modal.classList.remove('tm-lb-in');
             setTimeout(() => { modal.remove(); }, 220);
             document.removeEventListener('keydown', keyHandler);
+            if (_lbDragACRef) { _lbDragACRef.abort(); _lbDragACRef = null; }
             _dialogOpenGlobal = false;
         }
 
@@ -8734,6 +9008,7 @@
 
             const closeBtn = document.createElement('button');
             closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
+            closeBtn.setAttribute('aria-label', 'Close lightbox');
             closeBtn.style.cssText = `
                 position: absolute; top: 20px; right: 25px;
                 background: rgba(0,0,0,0.6); color: white; border: none;
@@ -8783,6 +9058,46 @@
 
             keyHandler = e => { if (e.key === 'Escape') closeLightbox(); };
             document.addEventListener('keydown', keyHandler);
+
+            let _lbScale = 1;
+            let _lbDragActive = false, _lbDragStart = null, _lbTranslate = { x: 0, y: 0 };
+            const _lbDragAC = new AbortController();
+            _lbDragACRef = _lbDragAC;
+            const _lbResetTransform = () => {
+                _lbScale = 1; _lbTranslate = { x: 0, y: 0 };
+                img.style.transform = '';
+                img.style.cursor = '';
+                img.style.pointerEvents = 'none';
+            };
+            const _lbApplyTransform = () => {
+                img.style.transform = `scale(${_lbScale}) translate(${_lbTranslate.x / _lbScale}px, ${_lbTranslate.y / _lbScale}px)`;
+                img.style.pointerEvents = _lbScale > 1 ? 'auto' : 'none';
+                img.style.cursor = _lbScale > 1 ? 'grab' : '';
+            };
+            modal.addEventListener('wheel', e => {
+                e.preventDefault();
+                const delta = e.deltaY < 0 ? 1.1 : 0.9;
+                _lbScale = Math.min(8, Math.max(0.2, _lbScale * delta));
+                if (_lbScale <= 1.02) { _lbResetTransform(); return; }
+                _lbApplyTransform();
+            }, { passive: false });
+            img.addEventListener('mousedown', e => {
+                if (_lbScale <= 1) return;
+                e.preventDefault(); e.stopPropagation();
+                _lbDragActive = true; _lbDragStart = { x: e.clientX - _lbTranslate.x, y: e.clientY - _lbTranslate.y };
+                img.style.cursor = 'grabbing';
+            });
+            window.addEventListener('mousemove', e => {
+                if (!_lbDragActive) return;
+                _lbTranslate = { x: e.clientX - _lbDragStart.x, y: e.clientY - _lbDragStart.y };
+                _lbApplyTransform();
+            }, { signal: _lbDragAC.signal });
+            window.addEventListener('mouseup', () => {
+                if (!_lbDragActive) return;
+                _lbDragActive = false;
+                if (_lbScale > 1) img.style.cursor = 'grab';
+            }, { signal: _lbDragAC.signal });
+            img.addEventListener('dblclick', e => { e.stopPropagation(); _lbResetTransform(); });
             const { galleryBtn: gbA, panel: gpA, pill: pillA, updateSelected: updA, toggleGallery: tgA } = _buildGalleryUI(async (item, group) => {
                 await new Promise(r => setTimeout(r, 0));
                 if (item.type === 'video') {
@@ -8898,6 +9213,7 @@
 
         const closeBtn = document.createElement('button');
         closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
+        closeBtn.setAttribute('aria-label', 'Close lightbox');
         closeBtn.style.cssText = `
             position: absolute; top: 20px; right: 25px;
             background: rgba(0,0,0,0.6); color: white; border: none;
@@ -9371,7 +9687,18 @@
             if (ct0) headers['x-csrf-token'] = ct0;
             if (gt)  headers['x-guest-token'] = gt;
 
-            let res = await fetch(url, { headers });
+            const _fetchAC = new AbortController();
+            const _fetchTimeout = setTimeout(() => _fetchAC.abort(), 8000);
+            let res;
+            try {
+                res = await fetch(url, { headers, signal: _fetchAC.signal });
+            } catch (e) {
+                if (e.name === 'AbortError') console.warn('[TMApi] fetchTweetMediaFromAPI timed out (8s)');
+                else console.warn('[TMApi] fetchTweetMediaFromAPI fetch error:', e);
+                return null;
+            } finally {
+                clearTimeout(_fetchTimeout);
+            }
             if (!res.ok) {
                 if (res.status === 401 || res.status === 403) {
                     showToast('⚠️ Twitter API token may be outdated. Video fetch may fail.');
@@ -9557,6 +9884,8 @@
         const btn = document.createElement('button');
         btn.className = BUTTON_CLASS;
         btn.title = T.btn_tooltip;
+        btn.setAttribute('aria-label', T.btn_tooltip || 'Media: copy URL / download');
+        btn.setAttribute('role', 'button');
         btn.style.position = 'relative';
 
         const setMediaIcon = (state, extra, silentText, actionType = 'copy') => {
@@ -9646,195 +9975,308 @@
 
         setMediaIcon('default');
 
-        let timer = null;
-        let longFired = false;
-        let _pressing = false;
-        btn.addEventListener('mousedown', async (e) => {
-            e.preventDefault(); e.stopPropagation();
+        const _clickMode = GM_getValue(KEY_CLICK_MODE, 'classic');
 
-            if (e.button === 0) {
-                longFired = false;
-                _pressing = true;
-                timer = setTimeout(async () => {
-                    longFired = true;
-                    _pressing = false;
-                    timer = null;
-                    const urls = await extractMediaUrls(article);
-                    if (!urls.length) return;
-                    const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
-                    const txt = urls.map(u => `${prefix}(${u})`).join('\n');
-                    GM_setClipboard(txt);
-                    setMediaIcon('ok', T.msg_prefix_copied, 'Prefix Copied', 'prefix');
-                    setTimeout(() => setMediaIcon('default'), 1500);
-                }, 400);
-
-            } else if (e.button === 1) {
-                let videos = [], imgUrls = [];
-
-                let statusId = null;
-                for (const a of article.querySelectorAll('a[href*="/status/"]')) {
-                    const m = a.href.match(/\/status\/(\d+)/);
-                    if (m) { statusId = m[1]; break; }
+        if (_clickMode === 'menu') {
+            const _doDownloadAll = async () => {
+                const urls = await extractMediaUrls(article);
+                if (!urls.length) { setMediaIcon('msg', T.msg_no_media, 'No Media'); setTimeout(() => setMediaIcon('default'), 1500); return; }
+                const info = getTweetInfo(article);
+                setMediaIcon('dl');
+                const ring = createProgressRing();
+                ring.el.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;';
+                btn.appendChild(ring.el);
+                let index = 1, failCount = 0;
+                const total = urls.length;
+                for (const url of urls) {
+                    let ext = '.jpg';
+                    if (url.includes('.mp4')) ext = '.mp4';
+                    else if (url.includes('format=png')) ext = '.png';
+                    else { const parts = url.split('/').pop().split('?')[0].split('.'); if (parts.length > 1) ext = '.' + parts.pop(); }
+                    const safeDisplay = sanitizeForFilename(info.displayName);
+                    const safeScreen  = sanitizeForFilename(info.screenName);
+                    const textPart    = info.text ? `_${info.text}` : '';
+                    const filename    = `[twitter] ${safeDisplay}(@${safeScreen})_${info.date}${textPart}_${info.id}_${index}${ext}`;
+                    const fileOffset  = (index - 1) / total;
+                    const fileShare   = 1 / total;
+                    try {
+                        await forceDownloadBlob(url, filename, (pct) => {
+                            ring.update(pct === null ? null : Math.round((fileOffset + fileShare * pct / 100) * 100));
+                        });
+                    } catch(_) { failCount++; }
+                    await new Promise(r => setTimeout(r, 250));
+                    index++;
                 }
+                ring.remove();
+                const successCount = total - failCount;
+                if (failCount > 0) {
+                    setMediaIcon('warn', `⚠️ ${successCount}/${total}`);
+                    showToast(`⚠️ Downloaded ${successCount} of ${total} files (${failCount} failed).`);
+                } else {
+                    setMediaIcon('ok', T.msg_downloaded, 'Downloaded', 'download');
+                    showToast(`✅ Downloaded ${total} file${total !== 1 ? 's' : ''}.`);
+                    recordHistory(info, urls, btn);
+                    fireMeteor(btn);
+                }
+                setTimeout(() => setMediaIcon('default'), 2000);
+            };
 
-                if (statusId) {
-                    const apiData = await fetchTweetMediaFromAPI(statusId);
-                    if (apiData) {
-                        videos  = apiData.videos  || [];
-                        imgUrls = apiData.images   || [];
+            const _getMediaItems = () => [
+                {
+                    icon: '📋',
+                    label: T.msg_copied ? T.msg_copied.replace(/✅\s*/, '') : 'Copy media URLs',
+                    action: async () => {
+                        const urls = await extractMediaUrls(article);
+                        if (!urls.length) { setMediaIcon('msg', T.msg_no_media, 'No Media'); setTimeout(() => setMediaIcon('default'), 1500); return; }
+                        GM_setClipboard(urls.join('\n'));
+                        setMediaIcon('ok', T.msg_copied, 'Copied', 'copy');
+                        setTimeout(() => setMediaIcon('default'), 1500);
+                    },
+                },
+                { icon: '📥', label: 'Download all', action: _doDownloadAll },
+                'divider',
+                {
+                    icon: '⌨️',
+                    label: T.msg_prefix_copied ? T.msg_prefix_copied.replace(/✅\s*/, '') : 'Copy with prefix',
+                    action: async () => {
+                        const urls = await extractMediaUrls(article);
+                        if (!urls.length) { setMediaIcon('msg', T.msg_no_media, 'No Media'); setTimeout(() => setMediaIcon('default'), 1500); return; }
+                        const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
+                        GM_setClipboard(urls.map(u => `${prefix}(${u})`).join('\n'));
+                        setMediaIcon('ok', T.msg_prefix_copied, 'Prefix Copied', 'prefix');
+                        setTimeout(() => setMediaIcon('default'), 1500);
+                    },
+                },
+                {
+                    icon: '👁',
+                    label: 'Preview',
+                    action: async () => {
+                        let videos = [], imgUrls = [], statusId = null;
+                        for (const a of article.querySelectorAll('a[href*="/status/"]')) {
+                            const m = a.href.match(/\/status\/(\d+)/);
+                            if (m) { statusId = m[1]; break; }
+                        }
+                        if (statusId) {
+                            const apiData = await fetchTweetMediaFromAPI(statusId);
+                            if (apiData) { videos = apiData.videos || []; imgUrls = apiData.images || []; }
+                        }
+                        if (!videos.length && !imgUrls.length) {
+                            videos = await extractVideoUrl(article);
+                            const all = await extractMediaUrls(article);
+                            imgUrls = all.filter(u => !new Set(videos).has(u));
+                        }
+                        if (videos.length && imgUrls.length) showFloatingVideoPlayer(videos, 0, imgUrls);
+                        else if (videos.length) showFloatingVideoPlayer(videos);
+                        else if (imgUrls.length) showImageLightbox(imgUrls);
+                        else { setMediaIcon('msg', T.msg_no_media, 'No Media'); setTimeout(() => setMediaIcon('default'), 1500); }
+                    },
+                },
+            ];
+
+            _bindMenuClick(btn, _getMediaItems);
+            _bindMenuHover(btn, _getMediaItems);
+            btn.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); });
+
+        } else {
+            let timer = null;
+            let longFired = false;
+            let _pressing = false;
+            btn.addEventListener('mousedown', async (e) => {
+                e.preventDefault(); e.stopPropagation();
+
+                if (e.button === 0) {
+                    longFired = false;
+                    _pressing = true;
+                    timer = setTimeout(async () => {
+                        longFired = true;
+                        _pressing = false;
+                        timer = null;
+                        const urls = await extractMediaUrls(article);
+                        if (!urls.length) return;
+                        const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
+                        const txt = urls.map(u => `${prefix}(${u})`).join('\n');
+                        GM_setClipboard(txt);
+                        setMediaIcon('ok', T.msg_prefix_copied, 'Prefix Copied', 'prefix');
+                        setTimeout(() => setMediaIcon('default'), 1500);
+                    }, 400);
+
+                } else if (e.button === 1) {
+                    let videos = [], imgUrls = [];
+
+                    let statusId = null;
+                    for (const a of article.querySelectorAll('a[href*="/status/"]')) {
+                        const m = a.href.match(/\/status\/(\d+)/);
+                        if (m) { statusId = m[1]; break; }
+                    }
+
+                    if (statusId) {
+                        const apiData = await fetchTweetMediaFromAPI(statusId);
+                        if (apiData) {
+                            videos  = apiData.videos  || [];
+                            imgUrls = apiData.images   || [];
+                        }
+                    }
+
+                    if (!videos.length && !imgUrls.length) {
+                        videos  = await extractVideoUrl(article);
+                        const allUrls = await extractMediaUrls(article);
+                        const videoSet = new Set(videos);
+                        imgUrls = allUrls.filter(u => !videoSet.has(u));
+                    }
+
+                    if (videos.length && imgUrls.length) {
+                        showFloatingVideoPlayer(videos, 0, imgUrls);
+                    } else if (videos.length) {
+                        showFloatingVideoPlayer(videos);
+                    } else if (imgUrls.length) {
+                        showImageLightbox(imgUrls);
+                    } else {
+                        setMediaIcon('msg', T.msg_no_media, 'No Media');
+                        setTimeout(() => setMediaIcon('default'), 1500);
                     }
                 }
+            });
 
-                if (!videos.length && !imgUrls.length) {
-                    videos  = await extractVideoUrl(article);
-                    const allUrls = await extractMediaUrls(article);
-                    const videoSet = new Set(videos);
-                    imgUrls = allUrls.filter(u => !videoSet.has(u));
-                }
-
-                if (videos.length && imgUrls.length) {
-                    showFloatingVideoPlayer(videos, 0, imgUrls);
-                } else if (videos.length) {
-                    showFloatingVideoPlayer(videos);
-                } else if (imgUrls.length) {
-                    showImageLightbox(imgUrls);
-                } else {
-                    setMediaIcon('msg', T.msg_no_media, 'No Media');
+            btn.addEventListener('mouseup', async (e) => {
+                if (e.button !== 0) return;
+                if (timer) {
+                    clearTimeout(timer); timer = null;
+                    _pressing = false;
+                    if (longFired) return;
+                    const urls = await extractMediaUrls(article);
+                    if (!urls.length) {
+                        setMediaIcon('msg', T.msg_no_media, 'No Media');
+                        setTimeout(() => setMediaIcon('default'), 1500);
+                        return;
+                    }
+                    GM_setClipboard(urls.join('\n'));
+                    setMediaIcon('ok', T.msg_copied, 'Copied', 'copy');
                     setTimeout(() => setMediaIcon('default'), 1500);
+                    if (isFeatureNew('right_click_tip')) {
+                        markFeatureSeen('right_click_tip');
+                        setTimeout(() => showToast('💡 Tip: Right-click this button to download all media directly.', 5000), 400);
+                    }
                 }
-            }
-        });
+            });
+            btn.addEventListener('mouseleave', () => { if (timer && !_pressing) { clearTimeout(timer); timer = null; } });
+            btn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
 
-        btn.addEventListener('mouseup', async (e) => {
-            if (e.button !== 0) return;
-            if (timer) {
-                clearTimeout(timer); timer = null;
-                _pressing = false;
-                if (longFired) return;
+            btn.addEventListener('contextmenu', async (e) => {
+                e.preventDefault(); e.stopPropagation();
                 const urls = await extractMediaUrls(article);
-                if (!urls.length) {
-                    setMediaIcon('msg', T.msg_no_media, 'No Media');
-                    setTimeout(() => setMediaIcon('default'), 1500);
+
+                if (urls.length === 0) {
+                    const info = getTweetInfo(article);
+                    const rawText = article.querySelector('[data-testid="tweetText"]')?.innerText?.trim() || '';
+                    _dialogOpenGlobal = true;
+                    const confirmed = confirm(
+                        `This post has no media.\n\n` +
+                        `"${rawText.slice(0, 100)}${rawText.length > 100 ? '…' : ''}"\n\n` +
+                        `Save it as a text bookmark for grouping?`
+                    );
+                    _dialogOpenGlobal = false;
+                    if (!confirmed) return;
+                    try {
+                        const _now   = new Date();
+                        const _yy    = _now.getFullYear();
+                        const _mm    = String(_now.getMonth() + 1).padStart(2, '0');
+                        const yyyymm = `${_yy}.${_mm}`;
+                        const record = {
+                            id:           Date.now(),
+                            ts:           Date.now(),
+                            yyyymm,
+                            tweetId:      info.id,
+                            tweetUrl:     `https://x.com/${info.screenName}/status/${info.id}`,
+                            tweetDate:    info.date,
+                            downloadDate: `${_yy}-${_mm}-${String(_now.getDate()).padStart(2,'0')}`,
+                            screenName:   info.screenName,
+                            displayName:  info.displayName,
+                            text:         (rawText || info.text || '').slice(0, 280),
+                            thumbUrls:    [],
+                            mediaUrls:    [],
+                            hasVideo:     false,
+                            count:        0,
+                            textOnly:     true,
+                        };
+                        let records = [];
+                        try { records = JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]')); } catch (_) {}
+                        const _old = records.find(r => r.tweetId === info.id);
+                        if (_old?.favorited) record.favorited = true;
+                        records = records.filter(r => r.tweetId !== info.id);
+                        records.unshift(record);
+                        const _textOnlySnap = records;
+                        queueMicrotask(() => {
+                            GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(_textOnlySnap));
+                        });
+                        _downloadedIds.add(info.id);
+                        setMediaIcon('ok', '📌 Saved', 'Saved');
+                        setTimeout(() => setMediaIcon('default'), 1800);
+                        if (GM_getValue(KEY_GROUP_ON_DOWNLOAD, false)) {
+                            _pendingGroupRecordId = record.id;
+                            setTimeout(() => popStarPip(btn || null), 80);
+                        }
+                    } catch (err) {
+                        console.warn('[MediaDL] textOnly record failed:', err);
+                    }
                     return;
                 }
-                GM_setClipboard(urls.join('\n'));
-                setMediaIcon('ok', T.msg_copied, 'Copied', 'copy');
-                setTimeout(() => setMediaIcon('default'), 1500);
-            }
-        });
-        btn.addEventListener('mouseleave', () => { if (timer && !_pressing) { clearTimeout(timer); timer = null; } });
-        btn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
 
-        btn.addEventListener('contextmenu', async (e) => {
-            e.preventDefault(); e.stopPropagation();
-            const urls = await extractMediaUrls(article);
-
-            if (urls.length === 0) {
                 const info = getTweetInfo(article);
-                const rawText = article.querySelector('[data-testid="tweetText"]')?.innerText?.trim() || '';
-                _dialogOpenGlobal = true;
-                const confirmed = confirm(
-                    `This post has no media.\n\n` +
-                    `"${rawText.slice(0, 100)}${rawText.length > 100 ? '…' : ''}"\n\n` +
-                    `Save it as a text bookmark for grouping?`
-                );
-                _dialogOpenGlobal = false;
-                if (!confirmed) return;
-                try {
-                    const _now   = new Date();
-                    const _yy    = _now.getFullYear();
-                    const _mm    = String(_now.getMonth() + 1).padStart(2, '0');
-                    const yyyymm = `${_yy}.${_mm}`;
-                    const record = {
-                        id:           Date.now(),
-                        ts:           Date.now(),
-                        yyyymm,
-                        tweetId:      info.id,
-                        tweetUrl:     `https://x.com/${info.screenName}/status/${info.id}`,
-                        tweetDate:    info.date,
-                        downloadDate: `${_yy}-${_mm}-${String(_now.getDate()).padStart(2,'0')}`,
-                        screenName:   info.screenName,
-                        displayName:  info.displayName,
-                        text:         (rawText || info.text || '').slice(0, 280),
-                        thumbUrls:    [],
-                        mediaUrls:    [],
-                        hasVideo:     false,
-                        count:        0,
-                        textOnly:     true,
-                    };
-                    let records = [];
-                    try { records = JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]')); } catch (_) {}
-                    const _old = records.find(r => r.tweetId === info.id);
-                    if (_old?.favorited) record.favorited = true;
-                    records = records.filter(r => r.tweetId !== info.id);
-                    records.unshift(record);
-                    GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
-                    _downloadedIds.add(info.id);
-                    setMediaIcon('ok', '📌 Saved', 'Saved');
-                    setTimeout(() => setMediaIcon('default'), 1800);
-                    if (GM_getValue(KEY_GROUP_ON_DOWNLOAD, false)) {
-                        _pendingGroupRecordId = record.id;
-                        setTimeout(() => popStarPip(btn || null), 80);
+                setMediaIcon('dl');
+
+                const ring = createProgressRing();
+                ring.el.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;';
+                btn.appendChild(ring.el);
+
+                let index = 1;
+                let failCount = 0;
+                const total = urls.length;
+
+                for (const url of urls) {
+                    let ext = '.jpg';
+                    if (url.includes('.mp4')) ext = '.mp4';
+                    else if (url.includes('format=png')) ext = '.png';
+                    else {
+                         const parts = url.split('/').pop().split('?')[0].split('.');
+                         if (parts.length > 1) ext = '.' + parts.pop();
                     }
-                } catch (err) {
-                    console.warn('[MediaDL] textOnly record failed:', err);
-                }
-                return;
-            }
 
-            const info = getTweetInfo(article);
-            setMediaIcon('dl');
+                    const textPart = info.text ? `_${info.text}` : "";
+                    const safeDisplay = sanitizeForFilename(info.displayName);
+                    const safeScreen = sanitizeForFilename(info.screenName);
+                    const filename = `[twitter] ${safeDisplay}(@${safeScreen})_${info.date}${textPart}_${info.id}_${index}${ext}`;
 
-            const ring = createProgressRing();
-            ring.el.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;';
-            btn.appendChild(ring.el);
-
-            let index = 1;
-            let failCount = 0;
-            const total = urls.length;
-
-            for (const url of urls) {
-                let ext = '.jpg';
-                if (url.includes('.mp4')) ext = '.mp4';
-                else if (url.includes('format=png')) ext = '.png';
-                else {
-                     const parts = url.split('/').pop().split('?')[0].split('.');
-                     if (parts.length > 1) ext = '.' + parts.pop();
+                    const fileOffset = (index - 1) / total;
+                    const fileShare  = 1 / total;
+                    try {
+                        await forceDownloadBlob(url, filename, (pct) => {
+                            if (pct === null) {
+                                ring.update(null);
+                            } else {
+                                ring.update(Math.round((fileOffset + fileShare * pct / 100) * 100));
+                            }
+                        });
+                    } catch(_) {
+                        failCount++;
+                    }
+                    await new Promise(r => setTimeout(r, 250));
+                    index++;
                 }
 
-                const textPart = info.text ? `_${info.text}` : "";
-                const safeDisplay = sanitizeForFilename(info.displayName);
-                const safeScreen = sanitizeForFilename(info.screenName);
-                const filename = `[twitter] ${safeDisplay}(@${safeScreen})_${info.date}${textPart}_${info.id}_${index}${ext}`;
-
-                const fileOffset = (index - 1) / total;
-                const fileShare  = 1 / total;
-                try {
-                    await forceDownloadBlob(url, filename, (pct) => {
-                        if (pct === null) {
-                            ring.update(null);
-                        } else {
-                            ring.update(Math.round((fileOffset + fileShare * pct / 100) * 100));
-                        }
-                    });
-                } catch(_) {
-                    failCount++;
+                ring.remove();
+                const successCount = total - failCount;
+                if (failCount > 0) {
+                    setMediaIcon('warn', `⚠️ ${successCount}/${total}`);
+                    showToast(`⚠️ Downloaded ${successCount} of ${total} files (${failCount} failed).`);
+                } else {
+                    setMediaIcon('ok', T.msg_downloaded, 'Downloaded', 'download');
+                    showToast(`✅ Downloaded ${total} file${total !== 1 ? 's' : ''}.`);
+                    recordHistory(info, urls, btn);
+                    fireMeteor(btn);
                 }
-                await new Promise(r => setTimeout(r, 250));
-                index++;
-            }
-
-            ring.remove();
-            const successCount = total - failCount;
-            if (failCount > 0) {
-                setMediaIcon('warn', `⚠️ ${successCount}/${total}`);
-            } else {
-                setMediaIcon('ok', T.msg_downloaded, 'Downloaded', 'download');
-                recordHistory(info, urls, btn);
-                fireMeteor(btn);
-            }
-            setTimeout(() => setMediaIcon('default'), 2000);
-        });
+                setTimeout(() => setMediaIcon('default'), 2000);
+            });
+        }
 
         const LINK_BTN_CLASS = 'custom-copy-icon';
         if (!article.querySelector(`.${LINK_BTN_CLASS}`)) {
@@ -9897,50 +10339,85 @@
             };
             setLinkIcon('default');
 
-            icon.addEventListener('mouseenter', () => {
-                const custom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
-                const click = custom ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
-                icon.title = T.link_tooltip + click + T.link_tooltip_long + click;
-            });
-
-            let lTimer = null;
-
-            icon.addEventListener('mousedown', e => {
-                if (e.button !== 0) return;
-                e.preventDefault(); e.stopPropagation();
-                lTimer = setTimeout(() => {
+            if (GM_getValue(KEY_CLICK_MODE, 'classic') === 'menu') {
+                const _getLinkItems = () => {
                     const useCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
                     const targetDomain = useCustom ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
                     const url = extractTweetUrl(article, 'https://' + targetDomain);
-                    if (url) {
-                        const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
-                        GM_setClipboard(`${prefix}(${url})`);
-                        setLinkIcon('ok', T.msg_prefix_copied, 'Prefix Copied', 'prefix');
-                        setTimeout(() => setLinkIcon('default'), 1500);
+                    return [
+                        {
+                            icon: '📋',
+                            label: T.msg_copied ? T.msg_copied.replace(/✅\s*/, '') : 'Copy link',
+                            action: () => {
+                                if (!url) return;
+                                GM_setClipboard(url);
+                                setLinkIcon('ok', T.msg_copied, 'Copied', 'copy');
+                                setTimeout(() => setLinkIcon('default'), 1500);
+                            },
+                        },
+                        {
+                            icon: '⌨️',
+                            label: T.msg_prefix_copied ? T.msg_prefix_copied.replace(/✅\s*/, '') : 'Copy with prefix',
+                            action: () => {
+                                if (!url) return;
+                                const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
+                                GM_setClipboard(`${prefix}(${url})`);
+                                setLinkIcon('ok', T.msg_prefix_copied, 'Prefix Copied', 'prefix');
+                                setTimeout(() => setLinkIcon('default'), 1500);
+                            },
+                        },
+                    ];
+                };
+                _bindMenuClick(icon, _getLinkItems);
+                _bindMenuHover(icon, _getLinkItems);
+                icon.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); });
+            } else {
+                icon.addEventListener('mouseenter', () => {
+                    const custom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
+                    const click = custom ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
+                    icon.title = T.link_tooltip + click + T.link_tooltip_long + click;
+                });
+
+                let lTimer = null;
+
+                icon.addEventListener('mousedown', e => {
+                    if (e.button !== 0) return;
+                    e.preventDefault(); e.stopPropagation();
+                    lTimer = setTimeout(() => {
+                        const useCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
+                        const targetDomain = useCustom ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
+                        const url = extractTweetUrl(article, 'https://' + targetDomain);
+                        if (url) {
+                            const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
+                            GM_setClipboard(`${prefix}(${url})`);
+                            setLinkIcon('ok', T.msg_prefix_copied, 'Prefix Copied', 'prefix');
+                            setTimeout(() => setLinkIcon('default'), 1500);
+                        }
+                        lTimer = null;
+                    }, 500);
+                });
+
+                icon.addEventListener('mouseup', () => {
+                    if(lTimer) {
+                        clearTimeout(lTimer);
+                        lTimer = null;
+
+                        const useCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
+                        const targetDomain = useCustom ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
+                        const url = extractTweetUrl(article, 'https://' + targetDomain);
+
+                        if(url) {
+                            GM_setClipboard(url);
+                            setLinkIcon('ok', T.msg_copied, 'Copied', 'copy');
+                            setTimeout(() => setLinkIcon('default'), 1500);
+                        }
                     }
-                    lTimer = null;
-                }, 500);
-            });
+                });
 
-            icon.addEventListener('mouseup', () => {
-                if(lTimer) {
-                    clearTimeout(lTimer);
-                    lTimer = null;
+                icon.addEventListener('mouseleave', () => { if(lTimer) { clearTimeout(lTimer); lTimer = null; } });
+                icon.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
 
-                    const useCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
-                    const targetDomain = useCustom ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
-                    const url = extractTweetUrl(article, 'https://' + targetDomain);
-
-                    if(url) {
-                        GM_setClipboard(url);
-                        setLinkIcon('ok', T.msg_copied, 'Copied', 'copy');
-                        setTimeout(() => setLinkIcon('default'), 1500);
-                    }
-                }
-            });
-
-            icon.addEventListener('mouseleave', () => { if(lTimer) { clearTimeout(lTimer); lTimer = null; } });
-            icon.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
+            }
 
             actions.appendChild(btn);
             actions.insertBefore(icon, btn);
