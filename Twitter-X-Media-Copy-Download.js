@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.8.0.7
+// @version      2.8.1.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -188,6 +188,11 @@
             status_on:  'On',
             status_off: 'Off',
             toast_feedback_style:   '🔔 Feedback Style → ',
+            menu_preview:           '👁 Preview',
+            menu_click_mode:        '🖱 Click Mode',
+            status_click_menu:      'Menu',
+            status_click_classic:   'Classic',
+            toast_click_mode:       '🖱 Click Mode → ',
         },
         'zh-TW': {
             langName: '繁體中文',
@@ -267,6 +272,11 @@
             status_on:  '開啟',
             status_off: '關閉',
             toast_feedback_style:   '🔔 提示風格 → ',
+            menu_preview:           '👁 預覽',
+            menu_click_mode:        '🖱 點擊模式',
+            status_click_menu:      '選單',
+            status_click_classic:   '經典',
+            toast_click_mode:       '🖱 點擊模式 → ',
         },
         'zh-CN': {
             langName: '简体中文',
@@ -346,6 +356,11 @@
             status_on:  '开启',
             status_off: '关闭',
             toast_feedback_style:   '🔔 提示风格 → ',
+            menu_preview:           '👁 预览',
+            menu_click_mode:        '🖱 点击模式',
+            status_click_menu:      '菜单',
+            status_click_classic:   '经典',
+            toast_click_mode:       '🖱 点击模式 → ',
         },
         'ja': {
             langName: '日本語',
@@ -425,6 +440,11 @@
             status_on:  'オン',
             status_off: 'オフ',
             toast_feedback_style:   '🔔 フィードバックスタイル → ',
+            menu_preview:           '👁 プレビュー',
+            menu_click_mode:        '🖱 クリックモード',
+            status_click_menu:      'メニュー',
+            status_click_classic:   'クラシック',
+            toast_click_mode:       '🖱 クリックモード → ',
         },
         'ko': {
             langName: '한국어',
@@ -504,6 +524,11 @@
             status_on:  '켜짐',
             status_off: '꺼짐',
             toast_feedback_style:   '🔔 피드백 스타일 → ',
+            menu_preview:           '👁 미리보기',
+            menu_click_mode:        '🖱 클릭 모드',
+            status_click_menu:      '메뉴',
+            status_click_classic:   '클래식',
+            toast_click_mode:       '🖱 클릭 모드 → ',
         },
         'es': {
             langName: 'Español',
@@ -583,6 +608,11 @@
             status_on:  'Activado',
             status_off: 'Desactivado',
             toast_feedback_style:   '🔔 Estilo de Aviso → ',
+            menu_preview:           '👁 Vista Previa',
+            menu_click_mode:        '🖱 Modo de Clic',
+            status_click_menu:      'Menú',
+            status_click_classic:   'Clásico',
+            toast_click_mode:       '🖱 Modo de Clic → ',
         },
         'pt-BR': {
             langName: 'Português (BR)',
@@ -662,6 +692,11 @@
             status_on:  'Ativado',
             status_off: 'Desativado',
             toast_feedback_style:   '🔔 Estilo de Aviso → ',
+            menu_preview:           '👁 Pré-visualizar',
+            menu_click_mode:        '🖱 Modo de Clique',
+            status_click_menu:      'Menu',
+            status_click_classic:   'Clássico',
+            toast_click_mode:       '🖱 Modo de Clique → ',
         },
         'fr': {
             langName: 'Français',
@@ -741,6 +776,11 @@
             status_on:  'Activé',
             status_off: 'Désactivé',
             toast_feedback_style:   '🔔 Style de Retour → ',
+            menu_preview:           '👁 Aperçu',
+            menu_click_mode:        '🖱 Mode de Clic',
+            status_click_menu:      'Menu',
+            status_click_classic:   'Classique',
+            toast_click_mode:       '🖱 Mode de Clic → ',
         },
         'ru': {
             langName: 'Русский',
@@ -820,6 +860,11 @@
             status_on:  'Включено',
             status_off: 'Выключено',
             toast_feedback_style:   '🔔 Стиль уведомлений → ',
+            menu_preview:           '👁 Предпросмотр',
+            menu_click_mode:        '🖱 Режим клика',
+            status_click_menu:      'Меню',
+            status_click_classic:   'Классика',
+            toast_click_mode:       '🖱 Режим клика → ',
         }
     };
 
@@ -906,6 +951,56 @@
                 setTimeout(() => toast.remove(), 300);
             }
         }, duration);
+    }
+
+    function _showReloadToast(message) {
+        const existing = document.getElementById('tm-reload-action-toast');
+        if (existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'tm-reload-action-toast';
+        toast.style.cssText = `
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: #1d9bf0; color: white; padding: 10px 16px;
+            border-radius: 16px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            font-family: system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: bold;
+            z-index: 999999; display: flex; align-items: center; gap: 10px;
+            transition: opacity 0.3s ease-in-out; opacity: 0; pointer-events: auto;
+            white-space: normal; max-width: min(480px, 90vw); word-break: break-word;
+        `;
+
+        const span = document.createElement('span');
+        span.textContent = message;
+        span.style.flex = '1';
+
+        const reloadBtn = document.createElement('button');
+        reloadBtn.textContent = 'Reload';
+        reloadBtn.style.cssText = `
+            background: rgba(255,255,255,0.25); border: 1.5px solid rgba(255,255,255,0.7);
+            color: white; font-size: 13px; font-weight: 700; border-radius: 8px;
+            padding: 4px 10px; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+        `;
+        reloadBtn.onmouseenter = () => { reloadBtn.style.background = 'rgba(255,255,255,0.4)'; };
+        reloadBtn.onmouseleave = () => { reloadBtn.style.background = 'rgba(255,255,255,0.25)'; };
+        reloadBtn.onclick = () => location.reload();
+
+        const dismissBtn = document.createElement('button');
+        dismissBtn.textContent = '✕';
+        dismissBtn.setAttribute('aria-label', 'Dismiss');
+        dismissBtn.style.cssText = `
+            background: none; border: none; color: rgba(255,255,255,0.7);
+            font-size: 14px; cursor: pointer; padding: 0 2px; flex-shrink: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+        `;
+        dismissBtn.onclick = () => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        };
+
+        toast.append(span, reloadBtn, dismissBtn);
+        document.body.appendChild(toast);
+        requestAnimationFrame(() => { toast.style.opacity = '1'; });
     }
 
     function sanitizeHelpHtml(htmlString, container) {
@@ -3532,14 +3627,18 @@
             const grpMedia = makeGroup('🎞  Media', true);
 
             const clickModeOpts = [
-                { value: 'menu',    label: 'Menu',    featureId: 'click_mode_menu' },
-                { value: 'classic', label: 'Classic' },
+                { value: 'menu',    label: T.status_click_menu    || 'Menu',    featureId: 'click_mode_menu' },
+                { value: 'classic', label: T.status_click_classic || 'Classic' },
             ];
-            grpMedia.append(makePickerRow('🖱 Click Mode', clickModeOpts, GM_getValue(KEY_CLICK_MODE, 'classic'), (newMode) => {
+            grpMedia.append(makePickerRow(T.menu_click_mode || '🖱 Click Mode', clickModeOpts, GM_getValue(KEY_CLICK_MODE, 'classic'), (newMode) => {
                 GM_setValue(KEY_CLICK_MODE, newMode);
-                showToast(newMode === 'menu'
-                    ? '✅ Menu mode: click or hover buttons to open menu.'
-                    : '✅ Classic mode: short-press / long-press / right-click.');
+                const modeLabel = newMode === 'menu'
+                    ? (T.status_click_menu    || 'Menu')
+                    : (T.status_click_classic || 'Classic');
+                const toastMsg = (T.toast_click_mode || '🖱 Click Mode → ') + modeLabel
+                    + '  —  Reload to apply.';
+                buildContent();
+                _showReloadToast(toastMsg);
             }));
 
             const fbOpts = [
@@ -3550,12 +3649,20 @@
                 { value: 'slide',  label: T.status_feedback_slide  || 'Slide Up',     featureId: 'sp_feedback_slide' },
             ];
             const fbLabel = T.menu_feedback_style ? T.menu_feedback_style.replace(/^🔔\s*/, '') : 'Feedback Style';
-            grpMedia.append(makeFeedbackPickerRow(fbLabel, fbOpts, _fbStyle, (newFb) => {
+            const fbWrap = makeFeedbackPickerRow(fbLabel, fbOpts, _fbStyle, (newFb) => {
                 GM_setValue(KEY_FEEDBACK_STYLE, newFb);
                 const chosen = fbOpts.find(o => o.value === newFb);
                 showToast((T.toast_feedback_style || '🔔 Feedback Style → ') + (chosen ? chosen.label : newFb));
                 buildContent();
-            }, 'sp_feedback_picker'));
+            }, 'sp_feedback_picker');
+
+            const _isMenuMode = GM_getValue(KEY_CLICK_MODE, 'classic') === 'menu';
+            if (_isMenuMode) {
+                fbWrap.style.pointerEvents = 'none';
+                fbWrap.style.opacity = '0.35';
+                fbWrap.title = 'Feedback Style is not used in Menu mode.';
+            }
+            grpMedia.append(fbWrap);
 
             const fmtOpts = [
                 { value: 'asian',   label: (T.status_date_asian   || 'Asian (YYYY.MM.DD)') },
@@ -7960,11 +8067,14 @@
     `;
     document.head.appendChild(_toastStyle);
 
+    let _activeMenuCloseFn = null;
+
     function _showActionMenu(anchorEl, items) {
         const existing = document.getElementById('tm-action-menu');
         if (existing) {
             const prev = existing._anchorEl;
-            existing.remove();
+            _activeMenuCloseFn?.();
+            _activeMenuCloseFn = null;
             if (prev === anchorEl) return () => {};
         }
 
@@ -8091,7 +8201,10 @@
             document.getElementById('tm-action-menu-bridge')?.remove();
             setTimeout(() => menu.remove(), 150);
             _acMenu.abort();
+            if (_activeMenuCloseFn === close) _activeMenuCloseFn = null;
         };
+
+        _activeMenuCloseFn = close;
 
         document.addEventListener('click', e => {
             if (!menu.contains(e.target) && e.target !== anchorEl) close();
@@ -8111,6 +8224,10 @@
 
         const _openMenu = () => {
             clearTimeout(_closeTimer);
+            const existing = document.getElementById('tm-action-menu');
+            if (existing && existing._anchorEl !== anchorEl) {
+                _activeMenuCloseFn?.();
+            }
             if (document.getElementById('tm-action-menu')?._anchorEl === anchorEl) return;
             _closeFn = _showActionMenu(anchorEl, getItems());
         };
@@ -10033,7 +10150,7 @@
                         setTimeout(() => setMediaIcon('default'), 1500);
                     },
                 },
-                { icon: '📥', label: 'Download all', action: _doDownloadAll },
+                { icon: '📥', label: T.msg_downloaded ? T.msg_downloaded.replace(/✅\s*/, '') : 'Download all', action: _doDownloadAll },
                 'divider',
                 {
                     icon: '⌨️',
@@ -10049,7 +10166,7 @@
                 },
                 {
                     icon: '👁',
-                    label: 'Preview',
+                    label: T.menu_preview ? T.menu_preview.replace(/^👁\s*/, '') : 'Preview',
                     action: async () => {
                         let videos = [], imgUrls = [], statusId = null;
                         for (const a of article.querySelectorAll('a[href*="/status/"]')) {
