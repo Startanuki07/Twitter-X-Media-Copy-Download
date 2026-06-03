@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.8.1.0
+// @version      2.8.1.5
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -5520,13 +5520,21 @@
             }
             .tm-hist-date {
                 font-size: 10px; color: ${C.sub}; opacity: 0.6;
-                white-space: nowrap; margin: 1px 0;
-                font-variant-numeric: tabular-nums;
+                white-space: nowrap;
+                font-variant-numeric: tabular-nums; flex-shrink: 0;
+            }
+            .tm-hist-meta {
+                display: flex; align-items: center; gap: 5px;
+                margin: 1px 0; min-width: 0;
+            }
+            .tm-hist-meta-sep {
+                font-size: 10px; color: ${C.sub}; opacity: 0.4;
+                flex-shrink: 0; line-height: 1;
             }
             .tm-hist-url {
                 font-size: 10px; color: #1d9bf0;
                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-                cursor: pointer;
+                cursor: pointer; min-width: 0; flex: 1;
             }
             .tm-hist-url:hover { text-decoration: underline; }
             .tm-hist-actions {
@@ -5649,13 +5657,31 @@
             }
             
             .tm-hist-grid-cell.tm-grid-fav-lock::after {
-                content: '♥';
-                position: absolute; top: 6px; right: 6px;
-                width: 18px; height: 18px; line-height: 18px;
-                background: rgba(0,0,0,0.55); color: rgba(255,255,255,0.5);
-                border-radius: 50%; font-size: 9px; text-align: center;
-                pointer-events: none; z-index: 2;
+                content: '';
+                
             }
+            
+            .tm-grid-fav-btn {
+                position: absolute; top: 4px; left: 4px; z-index: 4;
+                width: 22px; height: 22px; border-radius: 50%;
+                border: none; cursor: pointer;
+                background: rgba(0,0,0,0.45);
+                display: flex; align-items: center; justify-content: center;
+                opacity: 0; pointer-events: none;
+                transition: opacity 0.15s, background 0.15s;
+                color: rgba(255,255,255,0.85);
+            }
+            .tm-grid-fav-btn svg { width: 12px; height: 12px; pointer-events: none; }
+            .tm-hist-grid-cell:hover .tm-grid-fav-btn {
+                opacity: 1; pointer-events: auto;
+            }
+            
+            .tm-grid-fav-btn.tm-fav-active {
+                opacity: 1; pointer-events: auto;
+                background: rgba(224,36,94,0.75); color: #fff;
+            }
+            .tm-grid-fav-btn.tm-fav-active:hover { background: rgba(224,36,94,0.95); }
+            .tm-grid-fav-btn:not(.tm-fav-active):hover { background: rgba(0,0,0,0.65); }
             
             #tm-thumb-lb-backdrop {
                 position: fixed; inset: 0; z-index: 10000010;
@@ -6554,8 +6580,19 @@
 
                 info.appendChild(author);
                 info.appendChild(textEl);
-                if (rec.downloadDate) info.appendChild(dateEl);
-                info.appendChild(urlEl);
+
+                const metaEl = document.createElement('div');
+                metaEl.className = 'tm-hist-meta';
+                if (rec.downloadDate) metaEl.appendChild(dateEl);
+                if (rec.downloadDate && rec.tweetUrl) {
+                    const sep = document.createElement('span');
+                    sep.className = 'tm-hist-meta-sep';
+                    sep.textContent = '·';
+                    metaEl.appendChild(sep);
+                }
+                metaEl.appendChild(urlEl);
+                info.appendChild(metaEl);
+
                 row.appendChild(info);
 
                 const acts = document.createElement('div');
@@ -6849,6 +6886,30 @@
                     }
                 });
                 cell.appendChild(gridGotoBtn);
+
+                const _GFB_HEART_EMPTY = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
+                const _GFB_HEART_FULL  = `<svg viewBox="0 0 16 16" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
+                const gridFavBtn = document.createElement('button');
+                gridFavBtn.className = 'tm-grid-fav-btn' + (rec.favorited ? ' tm-fav-active' : '');
+                gridFavBtn.innerHTML = rec.favorited ? _GFB_HEART_FULL : _GFB_HEART_EMPTY;
+                gridFavBtn.title = rec.favorited ? 'Unfavorite' : 'Favorite';
+                gridFavBtn.setAttribute('aria-label', rec.favorited ? 'Unfavorite' : 'Favorite');
+                gridFavBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    let records = getRecords();
+                    const target = records.find(r => r.id === rec.id);
+                    if (!target) return;
+                    target.favorited = !target.favorited;
+                    GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
+                    const nowFav = target.favorited;
+                    gridFavBtn.innerHTML = nowFav ? _GFB_HEART_FULL : _GFB_HEART_EMPTY;
+                    gridFavBtn.title = nowFav ? 'Unfavorite' : 'Favorite';
+                    gridFavBtn.setAttribute('aria-label', nowFav ? 'Unfavorite' : 'Favorite');
+                    gridFavBtn.classList.toggle('tm-fav-active', nowFav);
+                    cell.classList.toggle('tm-grid-fav-lock', nowFav);
+                    rec.favorited = nowFav;
+                });
+                cell.appendChild(gridFavBtn);
 
                 if (editMode) {
                     if (rec.favorited) {
@@ -8115,6 +8176,7 @@
                 .tm-menu-item:hover { background: var(--tm-menu-hover); }
                 .tm-menu-item.danger { color: #f4212e; }
                 .tm-menu-item-icon { width: 16px; height: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; opacity: 0.85; }
+                .tm-menu-item-icon svg { width: 14px; height: 14px; display: block; overflow: visible; flex-shrink: 0; }
                 .tm-menu-divider { height: 1px; margin: 4px 0; background: var(--tm-menu-border); }
                 
                 #tm-action-menu-bridge {
@@ -8148,7 +8210,11 @@
             if (item.icon) {
                 const ic = document.createElement('span');
                 ic.className = 'tm-menu-item-icon';
-                ic.textContent = item.icon;
+                if (item.icon.trimStart().startsWith('<svg')) {
+                    ic.innerHTML = item.icon;
+                } else {
+                    ic.textContent = item.icon;
+                }
                 row.appendChild(ic);
             }
             const lb = document.createElement('span');
@@ -10138,9 +10204,10 @@
                 setTimeout(() => setMediaIcon('default'), 2000);
             };
 
-            const _getMediaItems = () => [
+            const _getMediaItems = () => {
+                return [
                 {
-                    icon: '📋',
+                    icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="9" height="12" rx="1.5"/><path d="M3 4H2a1 1 0 0 0-1 1v8a1.5 1.5 0 0 0 1.5 1.5H11"/><line x1="7.5" y1="6" x2="11.5" y2="6"/><line x1="7.5" y1="8.5" x2="11.5" y2="8.5"/><line x1="7.5" y1="11" x2="10" y2="11"/></svg>`,
                     label: T.msg_copied ? T.msg_copied.replace(/✅\s*/, '') : 'Copy media URLs',
                     action: async () => {
                         const urls = await extractMediaUrls(article);
@@ -10150,10 +10217,14 @@
                         setTimeout(() => setMediaIcon('default'), 1500);
                     },
                 },
-                { icon: '📥', label: T.msg_downloaded ? T.msg_downloaded.replace(/✅\s*/, '') : 'Download all', action: _doDownloadAll },
+                {
+                    icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M2 12v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1"/></svg>`,
+                    label: T.msg_downloaded ? T.msg_downloaded.replace(/✅\s*/, '') : 'Download all',
+                    action: _doDownloadAll,
+                },
                 'divider',
                 {
-                    icon: '⌨️',
+                    icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="4" width="9" height="9" rx="1.5"/><path d="M5.5 4V2.5A1 1 0 0 1 6.5 1.5h7a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H12"/><line x1="4" y1="8" x2="8" y2="8"/><line x1="4" y1="10.5" x2="7" y2="10.5"/></svg>`,
                     label: T.msg_prefix_copied ? T.msg_prefix_copied.replace(/✅\s*/, '') : 'Copy with prefix',
                     action: async () => {
                         const urls = await extractMediaUrls(article);
@@ -10165,7 +10236,7 @@
                     },
                 },
                 {
-                    icon: '👁',
+                    icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="8" cy="8" rx="6.5" ry="4"/><circle cx="8" cy="8" r="2"/></svg>`,
                     label: T.menu_preview ? T.menu_preview.replace(/^👁\s*/, '') : 'Preview',
                     action: async () => {
                         let videos = [], imgUrls = [], statusId = null;
@@ -10188,7 +10259,8 @@
                         else { setMediaIcon('msg', T.msg_no_media, 'No Media'); setTimeout(() => setMediaIcon('default'), 1500); }
                     },
                 },
-            ];
+                ];
+            };
 
             _bindMenuClick(btn, _getMediaItems);
             _bindMenuHover(btn, _getMediaItems);
@@ -10463,7 +10535,7 @@
                     const url = extractTweetUrl(article, 'https://' + targetDomain);
                     return [
                         {
-                            icon: '📋',
+                            icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5a3.5 3.5 0 0 0 5 0l2-2a3.5 3.5 0 0 0-5-5L7 4"/><path d="M9.5 6.5a3.5 3.5 0 0 0-5 0l-2 2a3.5 3.5 0 0 0 5 5L9 12"/></svg>`,
                             label: T.msg_copied ? T.msg_copied.replace(/✅\s*/, '') : 'Copy link',
                             action: () => {
                                 if (!url) return;
@@ -10473,7 +10545,7 @@
                             },
                         },
                         {
-                            icon: '⌨️',
+                            icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="4" width="9" height="9" rx="1.5"/><path d="M5.5 4V2.5A1 1 0 0 1 6.5 1.5h7a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H12"/><line x1="4" y1="8" x2="8" y2="8"/><line x1="4" y1="10.5" x2="7" y2="10.5"/></svg>`,
                             label: T.msg_prefix_copied ? T.msg_prefix_copied.replace(/✅\s*/, '') : 'Copy with prefix',
                             action: () => {
                                 if (!url) return;
