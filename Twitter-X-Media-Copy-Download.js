@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.8.1.5
+// @version      2.8.1.10
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -5796,10 +5796,10 @@
             }
 
             #tm-hist-panel {
-                transition: left 0.38s cubic-bezier(0.4,0,0.2,1),
-                            right 0.38s cubic-bezier(0.4,0,0.2,1),
+                transition: transform 0.38s cubic-bezier(0.4,0,0.2,1),
                             opacity 0.28s ease,
                             box-shadow 0.28s ease;
+                will-change: transform;
             }
             #tm-hist-panel.tm-docked { opacity: 0.0; pointer-events: none; }
             #tm-hist-panel.tm-docked .tm-dock-trigger { opacity: 1 !important; pointer-events: all; }
@@ -6567,16 +6567,18 @@
 
                 const urlEl = document.createElement('div');
                 urlEl.className = 'tm-hist-url';
-                urlEl.textContent = rec.tweetUrl;
-                urlEl.title = rec.tweetUrl + '\nClick to navigate to tweet';
-                urlEl.addEventListener('click', (e) => {
-                    e.stopPropagation();
+                if (rec.tweetUrl) {
+                    urlEl.textContent = rec.tweetUrl;
+                    urlEl.title = rec.tweetUrl + '\nClick to navigate to tweet';
+                    urlEl.addEventListener('click', (e) => {
+                        e.stopPropagation();
                     try {
                         const path = new URL(rec.tweetUrl).pathname;
                         history.pushState({ tmNav: true }, '', path);
                         window.dispatchEvent(new Event('popstate'));
                     } catch (_) { window.open(rec.tweetUrl, '_blank'); }
                 });
+                }
 
                 info.appendChild(author);
                 info.appendChild(textEl);
@@ -6590,8 +6592,8 @@
                     sep.textContent = '·';
                     metaEl.appendChild(sep);
                 }
-                metaEl.appendChild(urlEl);
-                info.appendChild(metaEl);
+                if (rec.tweetUrl) metaEl.appendChild(urlEl);
+                if (metaEl.hasChildNodes()) info.appendChild(metaEl);
 
                 row.appendChild(info);
 
@@ -7182,21 +7184,41 @@
             if (media) {
                 const imgUrls = media.filter(u => !u.includes('.mp4'));
                 const vidUrls = media.filter(u =>  u.includes('.mp4'));
+
+                const _launchPlayer = async (fallbackVids, fallbackImgs) => {
+                    let freshVids = fallbackVids;
+                    if (rec.tweetId && fallbackVids.length > 0) {
+                        try {
+                            const apiData = await fetchTweetMediaFromAPI(rec.tweetId);
+                            if (apiData && apiData.videos && apiData.videos.length > 0) {
+                                freshVids = apiData.videos;
+                            }
+                        } catch (_) {  }
+                    }
+                    if (fallbackImgs && fallbackImgs.length > 0) {
+                        showImageLightbox(fallbackImgs, freshVids.length > 0 ? freshVids : null, false);
+                        requestAnimationFrame(() => {
+                            const gb = document.getElementById('tm-lb-gallery-btn');
+                            if (gb) gb.style.display = 'none';
+                        });
+                    } else if (freshVids.length > 0) {
+                        showFloatingVideoPlayer(freshVids, 0);
+                        const _vpObs = new MutationObserver(() => {
+                            if (!document.getElementById('tm-floating-video-modal')) {
+                                _dialogOpenGlobal = false;
+                                _vpObs.disconnect();
+                            }
+                        });
+                        _vpObs.observe(document.body, { childList: true });
+                    } else {
+                        _openThumbLightbox(rec.thumbUrls || [], startIdx, originEl);
+                    }
+                };
+
                 if (imgUrls.length > 0) {
-                    showImageLightbox(imgUrls, vidUrls.length > 0 ? vidUrls : null, false);
-                    requestAnimationFrame(() => {
-                        const gb = document.getElementById('tm-lb-gallery-btn');
-                        if (gb) gb.style.display = 'none';
-                    });
+                    _launchPlayer(vidUrls, imgUrls);
                 } else if (vidUrls.length > 0) {
-                    showFloatingVideoPlayer(vidUrls, 0);
-                    const _vpObs = new MutationObserver(() => {
-                        if (!document.getElementById('tm-floating-video-modal')) {
-                            _dialogOpenGlobal = false;
-                            _vpObs.disconnect();
-                        }
-                    });
-                    _vpObs.observe(document.body, { childList: true });
+                    _launchPlayer(vidUrls, null);
                 } else {
                     _openThumbLightbox(rec.thumbUrls || [], startIdx, originEl);
                 }
@@ -7729,9 +7751,21 @@
             GM_setValue(KEY_DOCK_PERSISTED, side);
 
             const PEEK = 6;
-            panel.style.left = side === 'left'
-                ? (-r.width + PEEK) + 'px'
-                : (vpW - PEEK) + 'px';
+            const OFFSET_LEFT  =  15;
+            const OFFSET_RIGHT = -15;
+
+            const peekLeft = side === 'left'
+                ? OFFSET_LEFT
+                : (vpW - r.width + OFFSET_RIGHT);
+            panel.style.left = peekLeft + 'px';
+
+            panel.style.transform = `translateX(${r.left - peekLeft}px)`;
+            panel.offsetWidth;
+
+            const offX = side === 'left'
+                ? -(OFFSET_LEFT  + r.width - PEEK)
+                :  (r.width      - PEEK - OFFSET_RIGHT);
+            panel.style.transform = `translateX(${offX}px)`;
             panel.classList.add('tm-docked');
 
             if (_dockTabElGlobal) _dockTabElGlobal.remove();
@@ -7752,19 +7786,9 @@
 
             if (snap) {
                 const safeTop = Math.max(0, Math.min(snap.top, vpH - snap.height - 10));
-
-                const OFFSET_LEFT = 15;
-                const OFFSET_RIGHT = -15;
-
-                if (_dockSideGlobal === 'left') {
-                    panel.style.left = OFFSET_LEFT + 'px';
-                } else {
-                    panel.style.left = (vpW - snap.width + OFFSET_RIGHT) + 'px';
-                }
                 panel.style.top = safeTop + 'px';
             }
-            panel.classList.remove('tm-docked');
-
+            panel.style.transform = 'translateX(0)';
             panel.classList.remove('tm-docked');
 
             if (_dockTabElGlobal) _dockTabElGlobal.style.pointerEvents = 'none';
@@ -7794,12 +7818,14 @@
             if (_pinned) return;
             _dockPeekedGlobal = false;
 
-            const r   = panel.getBoundingClientRect();
-            const vpW = window.innerWidth;
-            const PEEK = 6;
-            panel.style.left = _dockSideGlobal === 'left'
-                ? (-r.width + PEEK) + 'px'
-                : (vpW - PEEK) + 'px';
+            const PEEK         = 6;
+            const OFFSET_LEFT  =  15;
+            const OFFSET_RIGHT = -15;
+            const pw = panel.offsetWidth;
+            const offX = _dockSideGlobal === 'left'
+                ? -(OFFSET_LEFT  + pw - PEEK)
+                :  (pw           - PEEK - OFFSET_RIGHT);
+            panel.style.transform = `translateX(${offX}px)`;
             panel.classList.add('tm-docked');
 
             if (_dockTabElGlobal) _dockTabElGlobal.style.pointerEvents = '';
@@ -7815,8 +7841,12 @@
             if (snap) {
                 const safeLeft = Math.max(0, Math.min(snap.left, window.innerWidth  - snap.width));
                 const safeTop  = Math.max(0, Math.min(snap.top,  window.innerHeight - 60));
+                panel.style.transition = 'none';
                 panel.style.left = safeLeft + 'px';
                 panel.style.top  = safeTop  + 'px';
+                panel.style.transform = '';
+                panel.offsetWidth;
+                panel.style.transition = '';
             }
             panel.classList.remove('tm-docked');
             _dockSideGlobal     = null;
@@ -7845,8 +7875,12 @@
             panel.classList.remove('tm-docked');
             const pw = panel.offsetWidth  || 390;
             const ph = panel.offsetHeight || 540;
+            panel.style.transition = 'none';
             panel.style.left = Math.round((window.innerWidth  - pw) / 2) + 'px';
             panel.style.top  = Math.round((window.innerHeight - ph) / 4) + 'px';
+            panel.style.transform = '';
+            panel.offsetWidth;
+            panel.style.transition = '';
             render();
             showToast('🔓 Dock reset — panel restored');
         }
@@ -7877,7 +7911,7 @@
             if (_dialogOpenGlobal) return;
             if (_pinned) return;
             clearTimeout(_dockRetractTimerGlobal);
-            _dockRetractTimerGlobal = setTimeout(() => _retract(), 800);
+            _dockRetractTimerGlobal = setTimeout(() => _retract(), 480);
         });
         panel.addEventListener('mouseenter', () => {
             if (!_dockSideGlobal) return;
@@ -7913,7 +7947,7 @@
                 requestAnimationFrame(() => {
                     panel.style.transition = '';
                     panel.style.opacity = '';
-                    _peek();
+                    _peekOut();
                 });
             });
         }
@@ -8179,6 +8213,51 @@
                 .tm-menu-item-icon svg { width: 14px; height: 14px; display: block; overflow: visible; flex-shrink: 0; }
                 .tm-menu-divider { height: 1px; margin: 4px 0; background: var(--tm-menu-border); }
                 
+                @keyframes tm-icon-pop {
+                    0%   { transform: scale(0.7); opacity: 0.5; }
+                    55%  { transform: scale(1.22); }
+                    80%  { transform: scale(0.95); }
+                    100% { transform: scale(1);    opacity: 1;  }
+                }
+                @keyframes tm-check-draw {
+                    0%   { stroke-dashoffset: 28; opacity: 0.55; }
+                    65%  { stroke-dashoffset: 0;  opacity: 1;    }
+                    100% { stroke-dashoffset: 0;  opacity: 1;    }
+                }
+                @keyframes tm-arrow-drop {
+                    0%   { transform: translateY(-5px); opacity: 0;   }
+                    55%  { transform: translateY(2px);  opacity: 1;   }
+                    80%  { transform: translateY(-1px);               }
+                    100% { transform: translateY(0);    opacity: 1;   }
+                }
+                
+                .tm-menu-item--copied .tm-menu-item-icon {
+                    animation: tm-icon-pop 0.38s cubic-bezier(0.34,1.56,0.64,1) both;
+                }
+                .tm-menu-item--copied .tm-menu-item-icon svg path,
+                .tm-menu-item--copied .tm-menu-item-icon svg polyline,
+                .tm-menu-item--copied .tm-menu-item-icon svg line {
+                    stroke-dasharray: 28; stroke-dashoffset: 28;
+                    animation: tm-check-draw 0.42s ease forwards;
+                }
+                
+                .tm-menu-item--downloaded .tm-menu-item-icon {
+                    animation: tm-icon-pop 0.36s cubic-bezier(0.34,1.56,0.64,1) both;
+                }
+                .tm-menu-item--downloaded .tm-menu-item-icon svg path {
+                    animation: tm-arrow-drop 0.34s ease forwards;
+                }
+                
+                .tm-menu-item--prefix { opacity: 0.55; font-size: 12.5px; }
+                .tm-menu-item--prefix:hover { opacity: 0.82; background: var(--tm-menu-hover); }
+                
+                .tm-menu-item--preview {
+                    border-left: 2.5px solid #1d9bf0;
+                    background: rgba(29,155,240,0.08);
+                    padding-left: 12.5px;
+                }
+                .tm-menu-item--preview:hover { background: rgba(29,155,240,0.16); }
+                
                 #tm-action-menu-bridge {
                     position: fixed; z-index: 9999997;
                     background: transparent; pointer-events: auto;
@@ -8204,7 +8283,7 @@
                 return;
             }
             const row = document.createElement('div');
-            row.className = 'tm-menu-item' + (item.danger ? ' danger' : '');
+            row.className = 'tm-menu-item' + (item.danger ? ' danger' : '') + (item.itemClass ? ' ' + item.itemClass : '');
             row.setAttribute('role', 'menuitem');
             row.style.color = item.danger ? '#f4212e' : text;
             if (item.icon) {
@@ -8246,6 +8325,7 @@
                 document.body.appendChild(b);
                 return b;
             })();
+            bridge._anchorEl = anchorEl;
             const bTop  = Math.min(top + mH, r.top);
             const bBot  = Math.max(top + mH, r.bottom);
             bridge.style.left   = Math.min(left, r.left) - 4 + 'px';
@@ -8292,6 +8372,7 @@
             clearTimeout(_closeTimer);
             const existing = document.getElementById('tm-action-menu');
             if (existing && existing._anchorEl !== anchorEl) {
+                existing._anchorEl = null;
                 _activeMenuCloseFn?.();
             }
             if (document.getElementById('tm-action-menu')?._anchorEl === anchorEl) return;
@@ -8318,12 +8399,12 @@
 
         document.addEventListener('mouseover', e => {
             const bridge = document.getElementById('tm-action-menu-bridge');
-            if (!bridge) return;
+            if (!bridge || bridge._anchorEl !== anchorEl) return;
             if (bridge.contains(e.target) || e.target === bridge) _cancelClose();
         }, sig);
         document.addEventListener('mouseout', e => {
             const bridge = document.getElementById('tm-action-menu-bridge');
-            if (!bridge) return;
+            if (!bridge || bridge._anchorEl !== anchorEl) return;
             if ((bridge.contains(e.target) || e.target === bridge) &&
                 !bridge.contains(e.relatedTarget) && !anchorEl.contains(e.relatedTarget)) {
                 _scheduleClose();
@@ -8331,11 +8412,13 @@
         }, sig);
         document.addEventListener('mouseover', e => {
             const m = document.getElementById('tm-action-menu');
-            if (m?.contains(e.target)) _cancelClose();
+            if (m?._anchorEl !== anchorEl) return;
+            if (m.contains(e.target)) _cancelClose();
         }, sig);
         document.addEventListener('mouseout', e => {
             const m = document.getElementById('tm-action-menu');
-            if (m?.contains(e.target) &&
+            if (m?._anchorEl !== anchorEl) return;
+            if (m.contains(e.target) &&
                 !m.contains(e.relatedTarget) && !anchorEl.contains(e.relatedTarget)) {
                 _scheduleClose();
             }
@@ -10207,6 +10290,7 @@
             const _getMediaItems = () => {
                 return [
                 {
+                    itemClass: 'tm-menu-item--copied',
                     icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="9" height="12" rx="1.5"/><path d="M3 4H2a1 1 0 0 0-1 1v8a1.5 1.5 0 0 0 1.5 1.5H11"/><line x1="7.5" y1="6" x2="11.5" y2="6"/><line x1="7.5" y1="8.5" x2="11.5" y2="8.5"/><line x1="7.5" y1="11" x2="10" y2="11"/></svg>`,
                     label: T.msg_copied ? T.msg_copied.replace(/✅\s*/, '') : 'Copy media URLs',
                     action: async () => {
@@ -10218,12 +10302,14 @@
                     },
                 },
                 {
+                    itemClass: 'tm-menu-item--downloaded',
                     icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M2 12v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1"/></svg>`,
                     label: T.msg_downloaded ? T.msg_downloaded.replace(/✅\s*/, '') : 'Download all',
                     action: _doDownloadAll,
                 },
                 'divider',
                 {
+                    itemClass: 'tm-menu-item--prefix',
                     icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="4" width="9" height="9" rx="1.5"/><path d="M5.5 4V2.5A1 1 0 0 1 6.5 1.5h7a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H12"/><line x1="4" y1="8" x2="8" y2="8"/><line x1="4" y1="10.5" x2="7" y2="10.5"/></svg>`,
                     label: T.msg_prefix_copied ? T.msg_prefix_copied.replace(/✅\s*/, '') : 'Copy with prefix',
                     action: async () => {
@@ -10236,6 +10322,7 @@
                     },
                 },
                 {
+                    itemClass: 'tm-menu-item--preview',
                     icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="8" cy="8" rx="6.5" ry="4"/><circle cx="8" cy="8" r="2"/></svg>`,
                     label: T.menu_preview ? T.menu_preview.replace(/^👁\s*/, '') : 'Preview',
                     action: async () => {
@@ -10535,6 +10622,7 @@
                     const url = extractTweetUrl(article, 'https://' + targetDomain);
                     return [
                         {
+                            itemClass: 'tm-menu-item--copied',
                             icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5a3.5 3.5 0 0 0 5 0l2-2a3.5 3.5 0 0 0-5-5L7 4"/><path d="M9.5 6.5a3.5 3.5 0 0 0-5 0l-2 2a3.5 3.5 0 0 0 5 5L9 12"/></svg>`,
                             label: T.msg_copied ? T.msg_copied.replace(/✅\s*/, '') : 'Copy link',
                             action: () => {
@@ -10545,6 +10633,7 @@
                             },
                         },
                         {
+                            itemClass: 'tm-menu-item--prefix',
                             icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="4" width="9" height="9" rx="1.5"/><path d="M5.5 4V2.5A1 1 0 0 1 6.5 1.5h7a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H12"/><line x1="4" y1="8" x2="8" y2="8"/><line x1="4" y1="10.5" x2="7" y2="10.5"/></svg>`,
                             label: T.msg_prefix_copied ? T.msg_prefix_copied.replace(/✅\s*/, '') : 'Copy with prefix',
                             action: () => {
