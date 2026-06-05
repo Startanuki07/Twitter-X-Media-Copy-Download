@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.8.2.0
+// @version      2.8.2.1
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -5502,6 +5502,9 @@
                 position: relative;
                 
                 contain: layout paint;
+                
+                content-visibility: auto;
+                contain-intrinsic-size: auto 66px;
             }
             .tm-hist-row:hover { background: ${C.rowHover}; }
             .tm-hist-row.selected { background: rgba(29,155,240,0.08); }
@@ -5509,6 +5512,9 @@
                 content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
                 background: #1d9bf0; border-radius: 0 2px 2px 0;
             }
+            
+            #tm-hist-body.tm-scrolling .tm-hist-row { transition: none !important; }
+            #tm-hist-body.tm-scrolling .tm-hist-row:hover { background: inherit; }
             .tm-hist-cb { flex-shrink: 0; margin-top: 3px; cursor: pointer; }
             .tm-hist-thumb-wrap {
                 width: 44px; height: 44px; border-radius: 6px;
@@ -5634,6 +5640,9 @@
                 background: ${C.thumbBg};
                 
                 contain: layout paint;
+                
+                content-visibility: auto;
+                contain-intrinsic-size: auto 90px;
             }
             .tm-hist-grid-cell img {
                 width: 100%; height: 100%; object-fit: cover; display: block;
@@ -6343,6 +6352,13 @@
         const body = document.createElement('div');
         body.id = 'tm-hist-body';
         panel.appendChild(body);
+
+        let _histScrollTimer = null;
+        body.addEventListener('scroll', () => {
+            body.classList.add('tm-scrolling');
+            clearTimeout(_histScrollTimer);
+            _histScrollTimer = setTimeout(() => body.classList.remove('tm-scrolling'), 150);
+        }, { passive: true });
 
         const footer = document.createElement('div');
         footer.id = 'tm-hist-footer';
