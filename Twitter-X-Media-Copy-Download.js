@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.8.1.10
+// @version      2.8.2.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -5378,6 +5378,16 @@
                 40%  { transform: rotate(-15deg) scale(0.85); }
                 100% { transform: rotate(45deg)  scale(0.7); opacity: 0.4; }
             }
+            
+            @keyframes tm-pin-alert {
+                0%   { transform: scale(1);    opacity: 0.85; color: #1d9bf0; }
+                18%  { transform: scale(1.35); opacity: 1;    color: #f4212e; background: rgba(244,33,46,.15); }
+                36%  { transform: scale(0.88); opacity: 0.7;  color: #1d9bf0; background: transparent; }
+                54%  { transform: scale(1.22); opacity: 1;    color: #f4212e; background: rgba(244,33,46,.12); }
+                72%  { transform: scale(0.92); opacity: 0.75; color: #1d9bf0; background: transparent; }
+                88%  { transform: scale(1.08); opacity: 0.95; color: #f4212e; background: rgba(244,33,46,.08); }
+                100% { transform: scale(1);    opacity: 0.85; color: #1d9bf0; background: transparent; }
+            }
             #tm-hist-btn-pin {
                 background: transparent; border: none; cursor: pointer;
                 display: inline-flex; align-items: center; justify-content: center;
@@ -5393,6 +5403,9 @@
             }
             #tm-hist-btn-pin.unpinning {
                 animation: tm-pin-off 0.28s ease forwards;
+            }
+            #tm-hist-btn-pin.pin-alert {
+                animation: tm-pin-alert 1.5s ease forwards;
             }
             
             #tm-hist-panel.tm-pinned .tm-dock-trigger {
@@ -5432,6 +5445,8 @@
             #tm-hist-body {
                 flex: 1; overflow-y: auto; overflow-x: hidden;
                 scrollbar-width: thin; scrollbar-color: ${C.scrollbar} transparent;
+                
+                contain: layout style paint;
             }
             .tm-hist-group-header {
                 position: sticky; top: 0; z-index: 2;
@@ -5485,6 +5500,8 @@
                 padding: 8px 12px; border-bottom: 1px solid ${C.border};
                 transition: background 0.08s;
                 position: relative;
+                
+                contain: layout paint;
             }
             .tm-hist-row:hover { background: ${C.rowHover}; }
             .tm-hist-row.selected { background: rgba(29,155,240,0.08); }
@@ -5615,6 +5632,8 @@
                 aspect-ratio: 1; border-radius: 6px; overflow: hidden;
                 position: relative; cursor: pointer;
                 background: ${C.thumbBg};
+                
+                contain: layout paint;
             }
             .tm-hist-grid-cell img {
                 width: 100%; height: 100%; object-fit: cover; display: block;
@@ -5797,10 +5816,12 @@
 
             #tm-hist-panel {
                 transition: transform 0.38s cubic-bezier(0.4,0,0.2,1),
-                            opacity 0.28s ease,
-                            box-shadow 0.28s ease;
-                will-change: transform;
+                            opacity 0.28s ease;
+                
+                contain: layout style;
             }
+            
+            #tm-hist-panel.tm-animating { will-change: transform; }
             #tm-hist-panel.tm-docked { opacity: 0.0; pointer-events: none; }
             #tm-hist-panel.tm-docked .tm-dock-trigger { opacity: 1 !important; pointer-events: all; }
 
@@ -6036,6 +6057,7 @@
 
         const panel = document.createElement('div');
         panel.id = 'tm-hist-panel';
+        panel.setAttribute('data-ss-preserve', '');
         panel.style.cssText = `left:${pos.x}px; top:${pos.y}px; width:${pos.w}px; height:${pos.h}px;`;
 
         if (_dockSideGlobal && !_pinned) {
@@ -6070,15 +6092,13 @@
         const btnExp   = _mkIconBtn(SVG_EXP,   'Export');
         const btnClose = _mkIconBtn(SVG_CLOSE, 'Close');
 
-        const SVG_PIN = `<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="8" cy="4.5" r="2.5"/>
-            <line x1="8" y1="7" x2="8" y2="11.5"/>
-            <path d="M5 11.5 Q8 14.5 11 11.5Z"/>
+        const SVG_PIN = `<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9.5 2.5 L13.5 6.5 L11.5 8.5 L10 7 L7 10 L7.5 11.5 L6 13 L3 10 L4.5 8.5 L6 9 L9 6 L7.5 4.5 Z"/>
+            <line x1="4.5" y1="11.5" x2="2.5" y2="13.5"/>
         </svg>`;
-        const SVG_PIN_FILLED = `<svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="8" cy="4.5" r="2.5"/>
-            <line x1="8" y1="7" x2="8" y2="11.5" stroke-width="1.8"/>
-            <path d="M5 11.5 Q8 14.5 11 11.5Z"/>
+        const SVG_PIN_FILLED = `<svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" stroke="currentColor" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9.5 2.5 L13.5 6.5 L11.5 8.5 L10 7 L7 10 L7.5 11.5 L6 13 L3 10 L4.5 8.5 L6 9 L9 6 L7.5 4.5 Z"/>
+            <line x1="4.5" y1="11.5" x2="2.5" y2="13.5" stroke-width="1.8"/>
         </svg>`;
 
         const btnPin = document.createElement('button');
@@ -6447,6 +6467,8 @@
             let lastGroup = null;
             let _cbShiftDown = false;
 
+            const frag = document.createDocumentFragment();
+
             records.forEach((rec, idx) => {
                 if (rec.yyyymm !== lastGroup) {
                     lastGroup = rec.yyyymm;
@@ -6475,7 +6497,7 @@
                         else collapsedGroups.add(rec.yyyymm);
                         render();
                     });
-                    body.appendChild(gh);
+                    frag.appendChild(gh);
                 }
 
                 if (collapsedGroups.has(rec.yyyymm)) return;
@@ -6514,6 +6536,7 @@
                     img.src = _thumbUrl(rec.thumbUrls[0]);
                     img.loading = 'lazy';
                     img.alt = '';
+                    img.decode().catch(() => {});
                     thumbWrap.appendChild(img);
                     thumbWrap.classList.add('tm-has-thumb');
                     thumbWrap.addEventListener('mouseenter', (e) => _showZoom(rec.thumbUrls[0], e));
@@ -6735,14 +6758,17 @@
                     });
                 }
 
-                body.appendChild(row);
+                frag.appendChild(row);
             });
+            body.appendChild(frag);
         }
 
         function renderThumb(records) {
             if (!records.length) { _renderEmpty(); return; }
             const grid = document.createElement('div');
             grid.id = 'tm-hist-thumb-grid';
+
+            const frag = document.createDocumentFragment();
 
             records.forEach((rec, idx) => {
                 const cell = document.createElement('div');
@@ -6754,6 +6780,7 @@
                     img.src = _thumbUrl(rec.thumbUrls[0]);
                     img.loading = 'lazy';
                     img.alt = '';
+                    img.decode().catch(() => {});
                     cell.appendChild(img);
                 } else if (rec.textOnly) {
                     const tc = document.createElement('div');
@@ -7063,9 +7090,10 @@
                     };
                     document.addEventListener('mousedown', close, true);
                 });
-                grid.appendChild(cell);
+                frag.appendChild(cell);
             });
 
+            grid.appendChild(frag);
             body.appendChild(grid);
         }
 
@@ -7187,6 +7215,18 @@
 
                 const _launchPlayer = async (fallbackVids, fallbackImgs) => {
                     let freshVids = fallbackVids;
+                    if (!_isTwitterDomain) {
+                        if (fallbackImgs && fallbackImgs.length > 0) {
+                            showImageLightbox(fallbackImgs, null, false);
+                            requestAnimationFrame(() => {
+                                const gb = document.getElementById('tm-lb-gallery-btn');
+                                if (gb) gb.style.display = 'none';
+                            });
+                        } else {
+                            _openThumbLightbox(rec.thumbUrls || [], startIdx, originEl);
+                        }
+                        return;
+                    }
                     if (rec.tweetId && fallbackVids.length > 0) {
                         try {
                             const apiData = await fetchTweetMediaFromAPI(rec.tweetId);
@@ -7393,6 +7433,14 @@
             render();
         });
         btnClose.addEventListener('click', () => {
+            if (_pinned) {
+                btnPin.classList.remove('pin-alert');
+                void btnPin.offsetWidth;
+                btnPin.classList.add('pin-alert');
+                btnPin.addEventListener('animationend', () => btnPin.classList.remove('pin-alert'), { once: true });
+                return;
+            }
+
             if (_dockSideGlobal) {
                 _retract();
                 return;
@@ -7762,6 +7810,13 @@
             panel.style.transform = `translateX(${r.left - peekLeft}px)`;
             panel.offsetWidth;
 
+            panel.classList.add('tm-animating');
+            panel.addEventListener('transitionend', function _rm(e) {
+                if (e.propertyName !== 'transform') return;
+                panel.classList.remove('tm-animating');
+                panel.removeEventListener('transitionend', _rm);
+            });
+
             const offX = side === 'left'
                 ? -(OFFSET_LEFT  + r.width - PEEK)
                 :  (r.width      - PEEK - OFFSET_RIGHT);
@@ -7788,6 +7843,14 @@
                 const safeTop = Math.max(0, Math.min(snap.top, vpH - snap.height - 10));
                 panel.style.top = safeTop + 'px';
             }
+
+            panel.classList.add('tm-animating');
+            panel.addEventListener('transitionend', function _rm(e) {
+                if (e.propertyName !== 'transform') return;
+                panel.classList.remove('tm-animating');
+                panel.removeEventListener('transitionend', _rm);
+            });
+
             panel.style.transform = 'translateX(0)';
             panel.classList.remove('tm-docked');
 
@@ -7800,7 +7863,6 @@
                 bridge.style.cssText = 'position:absolute; top:0; bottom:0; width:15px; background:transparent; z-index:-1;';
                 panel.appendChild(bridge);
             }
-
             if (_dockSideGlobal === 'left') {
                 bridge.style.left = '-10px';
                 bridge.style.right = '';
@@ -7825,6 +7887,14 @@
             const offX = _dockSideGlobal === 'left'
                 ? -(OFFSET_LEFT  + pw - PEEK)
                 :  (pw           - PEEK - OFFSET_RIGHT);
+
+            panel.classList.add('tm-animating');
+            panel.addEventListener('transitionend', function _rm(e) {
+                if (e.propertyName !== 'transform') return;
+                panel.classList.remove('tm-animating');
+                panel.removeEventListener('transitionend', _rm);
+            });
+
             panel.style.transform = `translateX(${offX}px)`;
             panel.classList.add('tm-docked');
 
@@ -10091,13 +10161,62 @@
         return null;
     }
 
+    function showActionToast(anchorEl, message, type = 'ok') {
+        if (!message) return;
+        const COLORS = { ok: '#1d9bf0', warn: '#ff8c00', error: '#e0245e' };
+        const bg = COLORS[type] || COLORS.ok;
+
+        anchorEl._actionToast?.remove();
+
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed; z-index: 999999; pointer-events: none;
+            background: ${bg}; color: #fff;
+            padding: 5px 11px; border-radius: 10px;
+            font: 600 12px/1.4 system-ui, -apple-system, sans-serif;
+            white-space: nowrap; max-width: 220px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.28);
+            opacity: 0; transition: opacity 0.18s ease;
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        anchorEl._actionToast = toast;
+
+        requestAnimationFrame(() => {
+            const r  = anchorEl.getBoundingClientRect();
+            const tW = toast.offsetWidth;
+            const tH = toast.offsetHeight;
+            const GAP = 6;
+            const vpW = window.innerWidth;
+
+            let left = r.left + r.width / 2 - tW / 2;
+            left = Math.max(8, Math.min(left, vpW - tW - 8));
+
+            const topAbove = r.top - tH - GAP;
+            const top = topAbove >= 8 ? topAbove : r.bottom + GAP;
+
+            toast.style.left = `${Math.round(left)}px`;
+            toast.style.top  = `${Math.round(top)}px`;
+            toast.style.opacity = '1';
+        });
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => {
+                toast.remove();
+                if (anchorEl._actionToast === toast) anchorEl._actionToast = null;
+            }, 200);
+        }, 1500);
+    }
     function insertCopyButton(article) {
         if (!article.querySelector('time')) {
             article.querySelector(`.${BUTTON_CLASS}`)?.remove();
             article.querySelector('.custom-copy-icon')?.remove();
             return;
         }
-        if (article.querySelector(`.${BUTTON_CLASS}`)) return;
+        if (article.querySelector(`.${BUTTON_CLASS}`)) {
+            return;
+        }
         const actions = Array.from(article.querySelectorAll('[role="group"]')).pop();
         if (!actions) return;
 
@@ -10349,8 +10468,9 @@
                 ];
             };
 
-            _bindMenuClick(btn, _getMediaItems);
-            _bindMenuHover(btn, _getMediaItems);
+            { const _acC = _bindMenuClick(btn, _getMediaItems);
+              const _acH = _bindMenuHover(btn, _getMediaItems);
+              btn._menuAC = { abort() { _acC.abort(); _acH.abort(); } }; }
             btn.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); });
 
         } else {
@@ -10646,8 +10766,9 @@
                         },
                     ];
                 };
-                _bindMenuClick(icon, _getLinkItems);
-                _bindMenuHover(icon, _getLinkItems);
+                { const _acC = _bindMenuClick(icon, _getLinkItems);
+                  const _acH = _bindMenuHover(icon, _getLinkItems);
+                  icon._menuAC = { abort() { _acC.abort(); _acH.abort(); } }; }
                 icon.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); });
             } else {
                 icon.addEventListener('mouseenter', () => {
@@ -10717,6 +10838,12 @@
     function scanAndInsert() {
         document.querySelectorAll('article').forEach(article => {
             if (_processedArticles.has(article) && article.querySelector(`.${BUTTON_CLASS}`)) return;
+
+            const staleBtn  = article.querySelector(`.${BUTTON_CLASS}`);
+            const staleIcon = article.querySelector('.custom-copy-icon');
+            staleBtn?._menuAC?.abort();
+            staleIcon?._menuAC?.abort();
+
             insertCopyButton(article);
             if (article.querySelector(`.${BUTTON_CLASS}`)) _processedArticles.add(article);
         });
