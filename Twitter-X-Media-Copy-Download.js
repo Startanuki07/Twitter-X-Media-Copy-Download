@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.8.2.1
+// @version      2.8.3.3
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -77,6 +77,7 @@
     const KEY_GEAR_CORNER       = 'app_gear_corner';
     const KEY_HIST_CLEANUP_NOTIFIED = 'app_hist_cleanup_notified';
     const KEY_CLICK_MODE        = 'app_click_mode';
+    const KEY_SEARCH_HISTORY    = 'app_search_hist';
 
     const NEW_FEATURE_IDS = [
         'history_panel',
@@ -3656,12 +3657,6 @@
                 buildContent();
             }, 'sp_feedback_picker');
 
-            const _isMenuMode = GM_getValue(KEY_CLICK_MODE, 'classic') === 'menu';
-            if (_isMenuMode) {
-                fbWrap.style.pointerEvents = 'none';
-                fbWrap.style.opacity = '0.35';
-                fbWrap.title = 'Feedback Style is not used in Menu mode.';
-            }
             grpMedia.append(fbWrap);
 
             const fmtOpts = [
@@ -4278,17 +4273,20 @@
                 const confirmed = confirm(
                     'Reset all settings to defaults?\n\n' +
                     'This will clear: copy format, feedback style, dock style, trigger distances, ' +
-                    'group panel appearance, and corner position.\n\n' +
+                    'group panel appearance, corner position, button visibility, and list/thumb view mode.\n\n' +
                     'Download history and groups will NOT be affected.'
                 );
                 if (!confirmed) return;
                 const RESET_KEYS = [
                     KEY_PREFIX_TEXT, KEY_LINK_DOMAIN_CLICK, KEY_CLICK_MODE_CUSTOM,
+                    KEY_CLICK_MODE,
                     KEY_DATE_FORMAT, KEY_FEEDBACK_STYLE,
                     KEY_DOCK_STYLE, KEY_DOCK_HOVER_DELAY,
                     KEY_DOCK_TRIGGER_L, KEY_DOCK_TRIGGER_R, KEY_DOCK_PERSISTED,
-                    KEY_GEAR_CORNER, KEY_GROUP_ON_DOWNLOAD, KEY_GROUP_PANEL_CFG,
+                    KEY_GEAR_CORNER, KEY_GEAR_VISIBLE,
+                    KEY_GROUP_ON_DOWNLOAD, KEY_GROUP_PANEL_CFG,
                     KEY_SP_GROUP_OPEN, KEY_SEEN_FEATURES,
+                    KEY_HISTORY_VIEW_MODE,
                 ];
                 RESET_KEYS.forEach(k => GM_deleteValue(k));
                 buildContent();
@@ -4472,6 +4470,7 @@
             records.forEach(r => { if (r.groupId === groupId) delete r.groupId; });
             GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
         } catch (_) {}
+        GM_deleteValue('app_group_unread_' + groupId);
     }
 
     function assignGroup(recordId, groupId) {
@@ -5300,6 +5299,7 @@
             if (GM_getValue(KEY_HIST_PINNED, false)) return;
 
             if (typeof existing._tmCleanup === 'function') existing._tmCleanup();
+            if (_historyUndoTimer) { clearTimeout(_historyUndoTimer); _historyUndoTimer = null; _historyUndoBuffer = null; }
             existing.remove();
             _cleanZoom();
             return;
@@ -5342,7 +5342,113 @@
         let activeGroupId = null;
         const selectedIds    = new Set();
         const collapsedGroups = new Set();
-        let anchorIdx = -1;
+        let anchorIdx          = -1;
+        let _searchDrop        = null;
+        let _searchDropVisible = false;
+
+        const _SRCH_HIST_MAX = 30;
+        function _loadSearchHist() {
+            try { return JSON.parse(GM_getValue(KEY_SEARCH_HISTORY, '[]')); } catch (_) { return []; }
+        }
+        function _saveSearchHist(h) { GM_setValue(KEY_SEARCH_HISTORY, JSON.stringify(h)); }
+        function _addSearchHist(text) {
+            if (!text || text.length < 2) return;
+            let h = _loadSearchHist().filter(e => e.text.toLowerCase() !== text.toLowerCase());
+            h.unshift({ text, pinned: false, ts: Date.now() });
+            const pinned   = h.filter(e => e.pinned);
+            const unpinned = h.filter(e => !e.pinned).slice(0, _SRCH_HIST_MAX);
+            _saveSearchHist([...pinned, ...unpinned]);
+        }
+        function _getSortedHist() {
+            const h = _loadSearchHist();
+            return [
+                ...h.filter(e => e.pinned).sort((a, b) => a.ts - b.ts),
+                ...h.filter(e => !e.pinned).sort((a, b) => b.ts - a.ts),
+            ];
+        }
+        const _SPIN_HOLLOW = `<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="3"/><line x1="8" y1="8.5" x2="8" y2="13"/><line x1="5.5" y1="13" x2="10.5" y2="13"/></svg>`;
+        const _SPIN_FILL   = `<svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="3"/><line x1="8" y1="8.5" x2="8" y2="13" stroke-width="1.8" fill="none"/><line x1="5.5" y1="13" x2="10.5" y2="13" stroke-width="1.8" fill="none"/></svg>`;
+        function _renderSearchDrop() {
+            if (!_searchDrop) return;
+            const hist = _getSortedHist();
+            _searchDrop.innerHTML = '';
+            if (!hist.length) { _hideSearchDrop(); return; }
+            hist.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'tm-search-hist-item';
+                const pinBtn = document.createElement('button');
+                pinBtn.className = 'tm-search-pin-btn' + (item.pinned ? ' pinned' : '');
+                pinBtn.title = item.pinned ? 'Unpin' : 'Pin to top';
+                pinBtn.innerHTML = item.pinned ? _SPIN_FILL : _SPIN_HOLLOW;
+                pinBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    const h2 = _loadSearchHist();
+                    const entry = h2.find(e2 => e2.text === item.text);
+                    if (entry) {
+                        entry.pinned = !entry.pinned;
+                        if (entry.pinned) entry.ts = Date.now();
+                        _saveSearchHist(h2);
+                    }
+                    _renderSearchDrop();
+                });
+                const textEl = document.createElement('span');
+                textEl.className = 'tm-search-hist-text';
+                textEl.textContent = item.text;
+                const delBtn = document.createElement('button');
+                delBtn.className = 'tm-search-del-btn';
+                delBtn.title = 'Remove';
+                delBtn.textContent = '✕';
+                delBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    const remaining = _loadSearchHist().filter(e2 => e2.text !== item.text);
+                    _saveSearchHist(remaining);
+                    _renderSearchDrop();
+                });
+                row.addEventListener('mousedown', e => {
+                    if (pinBtn.contains(e.target) || delBtn.contains(e.target)) return;
+                    e.preventDefault();
+                    searchInput.value = item.text;
+                    query = item.text; render();
+                    _hideSearchDrop();
+                });
+                row.appendChild(pinBtn); row.appendChild(textEl); row.appendChild(delBtn);
+                _searchDrop.appendChild(row);
+            });
+            const unpinCnt = hist.filter(e => !e.pinned).length;
+            if (unpinCnt > 0) {
+                const footer = document.createElement('div');
+                footer.className = 'tm-search-drop-footer';
+                const clearBtn = document.createElement('button');
+                clearBtn.className = 'tm-search-clear-all';
+                clearBtn.textContent = `Clear history (${unpinCnt})`;
+                clearBtn.addEventListener('mousedown', e => {
+                    e.preventDefault();
+                    _saveSearchHist(_loadSearchHist().filter(e2 => e2.pinned));
+                    _renderSearchDrop();
+                });
+                footer.appendChild(clearBtn);
+                _searchDrop.appendChild(footer);
+            }
+        }
+        function _showSearchDrop() {
+            if (_searchDropVisible || !_getSortedHist().length) return;
+            _searchDropVisible = true;
+            _searchDrop.classList.remove('closing');
+            _searchDrop.style.display = 'block';
+            requestAnimationFrame(() => _searchDrop.style.transform = '');
+            _renderSearchDrop();
+        }
+        function _hideSearchDrop() {
+            if (!_searchDrop || !_searchDropVisible) return;
+            _searchDropVisible = false;
+            _searchDrop.classList.add('closing');
+            const onEnd = () => {
+                if (_searchDropVisible) return;
+                _searchDrop.classList.remove('closing');
+                _searchDrop.style.display = 'none';
+            };
+            _searchDrop.addEventListener('transitionend', onEnd, { once: true });
+        }
 
         let histStyleEl = document.getElementById('tm-hist-style');
         if (!histStyleEl) {
@@ -5434,6 +5540,8 @@
             .tm-hist-icon-btn.active { color: #1d9bf0; }
             .tm-hist-searchbar {
                 padding: 7px 12px; border-bottom: 1px solid ${C.border}; flex-shrink: 0;
+                
+                position: relative; z-index: 3;
             }
             #tm-hist-search {
                 width: 100%; padding: 5px 10px; border-radius: 99px;
@@ -5442,6 +5550,64 @@
                 outline: none; box-sizing: border-box;
             }
             #tm-hist-search::placeholder { color: ${C.sub}; }
+            
+            .tm-search-drop {
+                position: absolute; top: 100%; left: 12px; right: 12px;
+                background: ${C.bg}; border: 1px solid ${C.border};
+                border-top: none; border-radius: 0 0 12px 12px; z-index: 100;
+                max-height: 224px; overflow-y: auto;
+                box-shadow: 0 6px 18px rgba(0,0,0,0.24);
+                scrollbar-width: thin; scrollbar-color: ${C.scrollbar} transparent;
+                
+                transform-origin: top center;
+                transition: opacity 0.18s ease, transform 0.18s ease;
+                opacity: 1; transform: scaleY(1);
+            }
+            
+            .tm-search-drop.closing {
+                opacity: 0; transform: scaleY(0.88);
+                pointer-events: none;
+            }
+            .tm-search-hist-item {
+                display: flex; align-items: center; gap: 6px;
+                padding: 6px 8px; cursor: pointer;
+                font-size: 12px; color: ${C.text};
+                transition: background 0.08s;
+            }
+            .tm-search-hist-item:hover { background: ${C.rowHover}; }
+            
+            .tm-search-pin-btn {
+                flex-shrink: 0; background: none; border: none; cursor: pointer;
+                color: ${C.sub}; padding: 2px 3px; border-radius: 4px;
+                display: flex; align-items: center; justify-content: center;
+                transition: color 0.12s; line-height: 0;
+            }
+            .tm-search-pin-btn:hover { color: ${C.text}; }
+            .tm-search-pin-btn.pinned { color: #1d9bf0; }
+            .tm-search-hist-text {
+                flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+                min-width: 0;
+            }
+            
+            .tm-search-del-btn {
+                flex-shrink: 0; background: none; border: none; cursor: pointer;
+                color: ${C.sub}; padding: 2px 5px; border-radius: 4px;
+                font-size: 10px; line-height: 1;
+                opacity: 0; transition: opacity 0.1s, color 0.1s;
+            }
+            .tm-search-hist-item:hover .tm-search-del-btn { opacity: 1; }
+            .tm-search-del-btn:hover { color: ${C.danger}; }
+            
+            .tm-search-drop-footer {
+                display: flex; justify-content: flex-end;
+                padding: 4px 8px 6px; border-top: 1px solid ${C.border};
+            }
+            .tm-search-clear-all {
+                background: none; border: none; cursor: pointer;
+                font-size: 11px; color: ${C.sub}; padding: 3px 7px;
+                border-radius: 4px; transition: color 0.1s, background 0.08s;
+            }
+            .tm-search-clear-all:hover { color: ${C.danger}; background: ${C.rowHover}; }
             #tm-hist-body {
                 flex: 1; overflow-y: auto; overflow-x: hidden;
                 scrollbar-width: thin; scrollbar-color: ${C.scrollbar} transparent;
@@ -5578,6 +5744,32 @@
             .tm-hist-act-btn.tm-fav-btn:hover { color: #e0245e; }
             .tm-hist-act-btn.tm-fav-btn svg { width: 15px; height: 15px; }
             .tm-hist-act-btn.tm-copy-btn svg { width: 12px; height: 12px; }
+
+            @keyframes tm-fav-shake {
+                0%   { transform: scale(1)    rotate(0deg);   color: #e0245e; }
+                15%  { transform: scale(1.45) rotate(-18deg); color: #ff4477; }
+                35%  { transform: scale(1.3)  rotate( 16deg); color: #e0245e; }
+                55%  { transform: scale(1.4)  rotate(-12deg); color: #ff4477; }
+                75%  { transform: scale(1.25) rotate(  8deg); color: #e0245e; }
+                90%  { transform: scale(1.1)  rotate( -4deg); }
+                100% { transform: scale(1)    rotate(0deg);   color: #e0245e; }
+            }
+            .tm-fav-shake {
+                animation: tm-fav-shake 0.52s cubic-bezier(.36,.07,.19,.97) forwards;
+                pointer-events: none;
+            }
+
+            @keyframes tm-grid-fav-pop-off {
+                0%   { transform: scale(1);    opacity: 1; }
+                18%  { transform: scale(1.55); opacity: 1; }
+                55%  { transform: scale(0.55); opacity: 0.7; }
+                100% { transform: scale(0);    opacity: 0; }
+            }
+            .tm-grid-fav-shake {
+                animation: tm-grid-fav-pop-off 0.38s cubic-bezier(.55,0,.75,.5) forwards !important;
+                opacity: 1 !important;
+                pointer-events: none !important;
+            }
             
             .tm-hist-grid-cell .tm-grid-copy-btn {
                 position: absolute; top: 5px; right: 5px;
@@ -6101,13 +6293,15 @@
         const btnExp   = _mkIconBtn(SVG_EXP,   'Export');
         const btnClose = _mkIconBtn(SVG_CLOSE, 'Close');
 
-        const SVG_PIN = `<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9.5 2.5 L13.5 6.5 L11.5 8.5 L10 7 L7 10 L7.5 11.5 L6 13 L3 10 L4.5 8.5 L6 9 L9 6 L7.5 4.5 Z"/>
-            <line x1="4.5" y1="11.5" x2="2.5" y2="13.5"/>
+        const SVG_PIN = `<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8" cy="5.5" r="3"/>
+            <line x1="8" y1="8.5" x2="8" y2="13"/>
+            <line x1="5.5" y1="13" x2="10.5" y2="13"/>
         </svg>`;
-        const SVG_PIN_FILLED = `<svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" stroke="currentColor" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9.5 2.5 L13.5 6.5 L11.5 8.5 L10 7 L7 10 L7.5 11.5 L6 13 L3 10 L4.5 8.5 L6 9 L9 6 L7.5 4.5 Z"/>
-            <line x1="4.5" y1="11.5" x2="2.5" y2="13.5" stroke-width="1.8"/>
+        const SVG_PIN_FILLED = `<svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8" cy="5.5" r="3"/>
+            <line x1="8" y1="8.5" x2="8" y2="13" stroke-width="1.8" fill="none"/>
+            <line x1="5.5" y1="13" x2="10.5" y2="13" stroke-width="1.8" fill="none"/>
         </svg>`;
 
         const btnPin = document.createElement('button');
@@ -6157,7 +6351,11 @@
         searchInput.id = 'tm-hist-search';
         searchInput.type = 'search';
         searchInput.placeholder = '🔍  Search author / content…';
+        _searchDrop = document.createElement('div');
+        _searchDrop.className = 'tm-search-drop';
+        _searchDrop.style.display = 'none';
         searchBar.appendChild(searchInput);
+        searchBar.appendChild(_searchDrop);
         panel.appendChild(searchBar);
 
         const groupTabBar = document.createElement('div');
@@ -6728,7 +6926,7 @@
                 delBtn.className = 'tm-hist-act-btn danger';
                 delBtn.innerHTML = SVG_DEL;
                 delBtn.title = 'Delete';
-                delBtn.addEventListener('click', (e) => { e.stopPropagation(); _deleteOne(rec.id, idx); });
+                delBtn.addEventListener('click', (e) => { e.stopPropagation(); _deleteOne(rec.id, idx, favBtn); });
 
                 const SVG_DLOAD = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 2v8"/><path d="M5 7l3 3 3-3"/><path d="M2 13h12"/></svg>`;
                 const dlBtn = document.createElement('button');
@@ -7088,7 +7286,7 @@
                     sep.style.cssText = 'height:0.5px;background:rgba(255,255,255,.1);margin:3px 8px';
                     menu.appendChild(sep);
                     menu.appendChild(mkItem(CTX_DEL, 'Delete', () => {
-                        _deleteOne(rec.id, records.indexOf(rec));
+                        _deleteOne(rec.id, records.indexOf(rec), cell);
                     }, true));
 
                     document.body.appendChild(menu);
@@ -7141,11 +7339,27 @@
             render();
         }
 
-        function _deleteOne(id, idx) {
+        function _deleteOne(id, idx, hintEl = null) {
             let records = getRecords();
             const record = records.find(r => r.id === id);
             if (!record) return;
-            if (record.favorited) return;
+            if (record.favorited) {
+                const favBtn = hintEl?.classList?.contains('tm-grid-fav-btn') ? hintEl
+                    : hintEl?.classList?.contains('tm-hist-act-btn') ? hintEl
+                    : hintEl?.querySelector?.('.tm-grid-fav-btn')
+                    ?? null;
+                if (favBtn) {
+                    favBtn.classList.remove('tm-fav-shake', 'tm-grid-fav-shake');
+                    void favBtn.offsetWidth;
+                    const shakeClass = favBtn.classList.contains('tm-grid-fav-btn')
+                        ? 'tm-grid-fav-shake' : 'tm-fav-shake';
+                    favBtn.classList.add(shakeClass);
+                    favBtn.addEventListener('animationend', () => {
+                        favBtn.classList.remove(shakeClass);
+                    }, { once: true });
+                }
+                return;
+            }
             records = records.filter(r => r.id !== id);
             GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
             _downloadedIds.delete(record.tweetId);
@@ -7415,11 +7629,23 @@
         }
 
         function _exportCSV() {
+            const csvCell = v => {
+                const s = String(v == null ? '' : v);
+                return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+            };
             const records = getRecords();
-            const header  = 'tweetId,tweetUrl,date,screenName,displayName\n';
-            const rows    = records.map(r =>
-                [r.tweetId, r.tweetUrl, r.tweetDate, r.screenName, `"${(r.displayName||'').replace(/"/g,'""')}"`].join(',')
-            ).join('\n');
+            const header  = 'tweetId,tweetUrl,date,screenName,displayName,text,mediaUrls,groupId,favorited\n';
+            const rows    = records.map(r => [
+                r.tweetId,
+                r.tweetUrl,
+                r.tweetDate,
+                r.screenName,
+                csvCell(r.displayName),
+                csvCell(r.tweetText),
+                csvCell((r.mediaUrls || []).join(' ')),
+                r.groupId || '',
+                r.favorited ? '1' : '0',
+            ].join(',')).join('\n');
             _download('history.csv', header + rows, 'text/csv');
         }
         function _exportJSON() {
@@ -7626,9 +7852,8 @@
             const closeMenu = (e) => {
                 if (menu.contains(e.target) || e.target === btnExp) return;
                 menu.remove(); _expMenu = null;
-                document.removeEventListener('click', closeMenu, true);
             };
-            setTimeout(() => document.addEventListener('click', closeMenu, true), 80);
+            setTimeout(() => document.addEventListener('click', closeMenu, { capture: true, once: true }), 80);
         }
 
         btnExp.addEventListener('click', (e) => {
@@ -7637,7 +7862,38 @@
         });
         btnExp.title = 'Export / Import';
 
-        searchInput.addEventListener('input', () => { query = searchInput.value.trim(); render(); });
+        searchInput.addEventListener('input', () => {
+            query = searchInput.value.trim();
+            render();
+            if (query) _hideSearchDrop();
+            else        _showSearchDrop();
+        });
+        searchInput.addEventListener('focus', () => {
+            if (!query) _showSearchDrop();
+        });
+        searchInput.addEventListener('blur', () => {
+            setTimeout(() => {
+                const text = searchInput.value.trim();
+                if (text.length >= 2) _addSearchHist(text);
+                _hideSearchDrop();
+            }, 160);
+        });
+        searchInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                const text = searchInput.value.trim();
+                if (text) _addSearchHist(text);
+                _hideSearchDrop();
+            }
+            if (e.key === 'Escape') {
+                searchInput.value = ''; query = ''; render();
+                _hideSearchDrop(); searchInput.blur();
+            }
+        });
+        _searchDrop.addEventListener('mouseleave', e => {
+            const bar = _searchDrop.parentElement;
+            if (bar && bar.contains(e.relatedTarget)) return;
+            _hideSearchDrop();
+        });
 
         panel.addEventListener('tm-hist-refresh', render);
 
