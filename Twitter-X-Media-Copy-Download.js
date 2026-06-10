@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.8.3.3
+// @version      2.9.0.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -49,6 +49,32 @@
         .replace(/"/g,  '&quot;')
         .replace(/'/g,  '&#39;');
 
+    let _syncCh = null;
+    let _startScanInterval = null;
+
+    function _readMonthRecords(ym) {
+        try { return JSON.parse(GM_getValue(KEY_HISTORY_PREFIX + ym.replace('.', '_'), '[]')); }
+        catch (_) { return []; }
+    }
+    function _writeMonthRecords(ym, records) {
+        GM_setValue(KEY_HISTORY_PREFIX + ym.replace('.', '_'), JSON.stringify(records));
+    }
+    function _getHistoryIndex() {
+        try { return JSON.parse(GM_getValue(KEY_HISTORY_INDEX, '[]')); } catch (_) { return []; }
+    }
+    function _updateHistoryIndex(ym) {
+        const idx = _getHistoryIndex();
+        if (!idx.includes(ym)) {
+            idx.unshift(ym); idx.sort().reverse();
+            GM_setValue(KEY_HISTORY_INDEX, JSON.stringify(idx));
+        }
+    }
+    function _loadAllRecords() {
+        return _getHistoryIndex().flatMap(ym => {
+            try { return _readMonthRecords(ym); } catch (_) { return []; }
+        });
+    }
+
     const KEY_PREFIX_TEXT = 'discord_prefix_text';
     const KEY_LANG = 'app_language';
     const KEY_LINK_DOMAIN_CLICK = 'app_link_domain_click';
@@ -78,6 +104,11 @@
     const KEY_HIST_CLEANUP_NOTIFIED = 'app_hist_cleanup_notified';
     const KEY_CLICK_MODE        = 'app_click_mode';
     const KEY_SEARCH_HISTORY    = 'app_search_hist';
+    const KEY_VIDEO_SPEED       = 'app_video_speed';
+    const KEY_CUSTOM_BEARER     = 'app_custom_bearer';
+    const KEY_SCAN_INTERVAL     = 'app_scan_interval';
+    const KEY_HISTORY_PREFIX    = 'app_history_m_';
+    const KEY_HISTORY_INDEX     = 'app_history_index';
 
     const NEW_FEATURE_IDS = [
         'history_panel',
@@ -4269,6 +4300,94 @@
             helpRow.style.borderTop = `1px solid ${C.border}`;
             panel.appendChild(helpRow);
 
+            const grpAdv = makeGroup('⚙ Advanced', false, null);
+
+            const ALL_SETTING_KEYS = [
+                KEY_PREFIX_TEXT, KEY_LANG, KEY_LINK_DOMAIN_CLICK, KEY_CLICK_MODE_CUSTOM,
+                KEY_DATE_FORMAT, KEY_CUSTOM_LANG, KEY_VIDEO_VOLUME, KEY_VIDEO_SPEED,
+                KEY_FEEDBACK_STYLE, KEY_CLICK_MODE, KEY_GEAR_VISIBLE, KEY_GEAR_CORNER,
+                KEY_DOCK_STYLE, KEY_DOCK_HOVER_DELAY, KEY_DOCK_TRIGGER_L, KEY_DOCK_TRIGGER_R,
+                KEY_DOCK_PERSISTED, KEY_GROUP_ON_DOWNLOAD, KEY_CUSTOM_BEARER, KEY_SCAN_INTERVAL,
+            ];
+            function _exportSettings() {
+                const snap = {};
+                ALL_SETTING_KEYS.forEach(k => { const v = GM_getValue(k, null); if (v !== null) snap[k] = v; });
+                const blob = new Blob([JSON.stringify(snap, null, 2)], { type: 'application/json' });
+                const a = Object.assign(document.createElement('a'), {
+                    href: URL.createObjectURL(blob),
+                    download: `tm-settings-${new Date().toISOString().slice(0, 10)}.json`,
+                });
+                a.click(); URL.revokeObjectURL(a.href);
+            }
+            function _importSettings(json) {
+                try {
+                    const data = JSON.parse(json);
+                    const valid = new Set(ALL_SETTING_KEYS);
+                    Object.entries(data).forEach(([k, v]) => { if (valid.has(k)) GM_setValue(k, v); });
+                    showToast('✅ Settings imported. Reload to apply.', 4000);
+                } catch (_) { showToast('❌ Invalid settings file.', 3000); }
+            }
+            const backupRow = makeRow('📤 Backup settings', '', _exportSettings);
+            grpAdv.append(backupRow);
+
+            const importRow = document.createElement('div');
+            importRow.style.cssText = `display:flex;align-items:center;padding:8px 14px;gap:8px;font:13px system-ui;color:${C.text};`;
+            const importLabel = document.createElement('span');
+            importLabel.textContent = '📥 Restore settings';
+            importLabel.style.flex = '1';
+            const importFileInput = document.createElement('input');
+            importFileInput.type = 'file';
+            importFileInput.accept = '.json,application/json';
+            importFileInput.style.display = 'none';
+            importFileInput.addEventListener('change', () => {
+                const file = importFileInput.files?.[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = e2 => _importSettings(e2.target.result);
+                reader.readAsText(file);
+                importFileInput.value = '';
+            });
+            const importBtn = document.createElement('button');
+            importBtn.textContent = 'Choose file…';
+            importBtn.style.cssText = `padding:4px 10px;border-radius:6px;border:1px solid ${C.border};background:${C.inputBg};color:${C.text};cursor:pointer;font:12px system-ui;`;
+            importBtn.onclick = () => importFileInput.click();
+            importRow.append(importLabel, importBtn, importFileInput);
+            grpAdv.append(importRow);
+
+            const bearerRow = document.createElement('div');
+            bearerRow.style.cssText = `padding:8px 14px;font:13px system-ui;color:${C.text};`;
+            const bearerTitleRow = document.createElement('div');
+            bearerTitleRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:5px;';
+            const bearerLabel = document.createElement('span');
+            bearerLabel.textContent = '🔑 Custom Bearer Token';
+            bearerLabel.style.flex = '1';
+            const bearerClearBtn = document.createElement('button');
+            bearerClearBtn.textContent = 'Clear';
+            bearerClearBtn.style.cssText = `padding:3px 9px;border-radius:5px;border:1px solid ${C.border};background:${C.inputBg};color:${C.sub};cursor:pointer;font:11px system-ui;`;
+            bearerTitleRow.append(bearerLabel, bearerClearBtn);
+            const bearerTa = document.createElement('textarea');
+            bearerTa.rows = 2;
+            bearerTa.placeholder = 'AAAAAAAAAAAAA…  (optional fallback for video fetch)';
+            bearerTa.style.cssText = `width:100%;box-sizing:border-box;background:${C.inputBg};color:${C.text};border:1px solid ${C.border};border-radius:6px;padding:5px 8px;font:11px monospace;resize:vertical;`;
+            bearerTa.value = GM_getValue(KEY_CUSTOM_BEARER, '');
+            bearerTa.addEventListener('change', () => GM_setValue(KEY_CUSTOM_BEARER, bearerTa.value.trim()));
+            bearerClearBtn.onclick = () => { GM_deleteValue(KEY_CUSTOM_BEARER); bearerTa.value = ''; showToast('🔑 Custom Bearer Token cleared.'); };
+            const bearerHint = document.createElement('div');
+            bearerHint.textContent = 'Stored locally. Used only for media fetch fallback (401/403).';
+            bearerHint.style.cssText = `font:11px system-ui;color:${C.sub};margin-top:4px;`;
+            bearerRow.append(bearerTitleRow, bearerTa, bearerHint);
+            grpAdv.append(bearerRow);
+
+            grpAdv.append(makeSliderRow(
+                'Scan Interval', parseInt(GM_getValue(KEY_SCAN_INTERVAL, '1500'), 10) || 1500,
+                500, 5000, 100, 'ms', null,
+                (n) => {
+                    GM_setValue(KEY_SCAN_INTERVAL, String(n));
+                    if (_startScanInterval) _startScanInterval();
+                },
+                null
+            ));
+
             const resetRow = makeRow('🔄 Reset to defaults', '', () => {
                 const confirmed = confirm(
                     'Reset all settings to defaults?\n\n' +
@@ -4368,10 +4487,13 @@
     }
 
     const _downloadedIds = (() => {
+        const s = new Set();
         try {
-            const arr = JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]'));
-            return new Set(arr.map(r => r.tweetId));
-        } catch (_) { return new Set(); }
+            _getHistoryIndex().slice(0, 6).forEach(ym => {
+                _readMonthRecords(ym).forEach(r => { if (r.tweetId) s.add(r.tweetId); });
+            });
+        } catch (_) {}
+        return s;
     })();
 
     let _historyUndoBuffer = null;
@@ -5215,6 +5337,28 @@
         requestAnimationFrame(() => overlay.classList.add('tm-show'));
     }
 
+    (function _migrateHistoryIfNeeded() {
+        const legacy = GM_getValue(KEY_HISTORY_RECORDS, null);
+        if (!legacy) return;
+        try {
+            const records = JSON.parse(legacy);
+            if (!records.length) { GM_deleteValue(KEY_HISTORY_RECORDS); return; }
+
+            const byMonth = {};
+            records.forEach(r => {
+                const ym = r.yyyymm ||
+                    (r.ts ? new Date(r.ts).toISOString().slice(0, 7).replace('-', '.') : '9999.99');
+                (byMonth[ym] = byMonth[ym] || []).push(r);
+            });
+
+            const idx = Object.keys(byMonth).sort().reverse();
+            idx.forEach(ym => _writeMonthRecords(ym, byMonth[ym]));
+            GM_setValue(KEY_HISTORY_INDEX, JSON.stringify(idx));
+            GM_deleteValue(KEY_HISTORY_RECORDS);
+            console.log('[TMHist] Migrated', records.length, 'records → monthly storage');
+        } catch (e) { console.error('[TMHist] Migration failed (keeping legacy key):', e); }
+    })();
+
     function recordHistory(info, urls, mediaBtn) {
         try {
             const thumbUrls = urls.filter(u => !u.includes('.mp4'));
@@ -5246,25 +5390,28 @@
                 count:       urls.length,
             };
 
-            let records = [];
-            try { records = JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]')); } catch (_) {}
-            const _oldRecord = records.find(r => r.tweetId === info.id);
+            const ym = record.yyyymm;
+            let monthRecs = _readMonthRecords(ym);
+            const _oldRecord = monthRecs.find(r => r.tweetId === info.id);
             if (_oldRecord?.favorited) record.favorited = true;
-            records = records.filter(r => r.tweetId !== info.id);
-            records.unshift(record);
-            const _recordsSnapshot = records;
-            queueMicrotask(() => {
-                GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(_recordsSnapshot));
-            });
+            monthRecs = monthRecs.filter(r => r.tweetId !== info.id);
+            monthRecs.unshift(record);
+            _updateHistoryIndex(ym);
+            const _monthSnapshot = monthRecs;
+            setTimeout(() => { _writeMonthRecords(ym, _monthSnapshot); }, 0);
 
-            if (_recordsSnapshot.length >= 2000 && !GM_getValue(KEY_HIST_CLEANUP_NOTIFIED, false)) {
-                GM_setValue(KEY_HIST_CLEANUP_NOTIFIED, true);
-                setTimeout(() => showToast(
-                    '📋 You have 2000+ download records. ' +
-                    'Consider exporting a backup (📤 in the history panel) and deleting old entries ' +
-                    'to keep storage healthy and panel loading fast.',
-                    8000
-                ), 500);
+            if (!GM_getValue(KEY_HIST_CLEANUP_NOTIFIED, false)) {
+                const _totalCount = _getHistoryIndex()
+                    .reduce((sum, ym2) => sum + _readMonthRecords(ym2).length, 0);
+                if (_totalCount >= 2000) {
+                    GM_setValue(KEY_HIST_CLEANUP_NOTIFIED, true);
+                    setTimeout(() => showToast(
+                        '📋 You have 2000+ download records. ' +
+                        'Consider exporting a backup (📤 in the history panel) and deleting old entries ' +
+                        'to keep storage healthy and panel loading fast.',
+                        8000
+                    ), 500);
+                }
             }
 
             if (GM_getValue(KEY_GROUP_ON_DOWNLOAD, false)) {
@@ -5273,6 +5420,7 @@
             }
 
             _downloadedIds.add(info.id);
+            _syncCh?.postMessage({ type: 'dl', tweetId: info.id });
 
             document.querySelectorAll(`article a[href*="/status/${info.id}"]`).forEach(a => {
                 const art = a.closest('article');
@@ -5340,6 +5488,8 @@
         let editMode  = false;
         let query     = '';
         let activeGroupId = null;
+        let mediaFilter = 'all';
+        let sortMode = 'newest';
         const selectedIds    = new Set();
         const collapsedGroups = new Set();
         let anchorIdx          = -1;
@@ -5368,52 +5518,74 @@
         }
         const _SPIN_HOLLOW = `<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="3"/><line x1="8" y1="8.5" x2="8" y2="13"/><line x1="5.5" y1="13" x2="10.5" y2="13"/></svg>`;
         const _SPIN_FILL   = `<svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="3"/><line x1="8" y1="8.5" x2="8" y2="13" stroke-width="1.8" fill="none"/><line x1="5.5" y1="13" x2="10.5" y2="13" stroke-width="1.8" fill="none"/></svg>`;
+        function _buildSearchHistRow(item) {
+            const row = document.createElement('div');
+            row.className = 'tm-search-hist-item';
+            row.dataset.histKey = item.text;
+            const pinBtn = document.createElement('button');
+            pinBtn.className = 'tm-search-pin-btn' + (item.pinned ? ' pinned' : '');
+            pinBtn.title = item.pinned ? 'Unpin' : 'Pin to top';
+            pinBtn.innerHTML = item.pinned ? _SPIN_FILL : _SPIN_HOLLOW;
+            pinBtn.addEventListener('click', e => {
+                e.stopPropagation();
+                const h2 = _loadSearchHist();
+                const entry = h2.find(e2 => e2.text === item.text);
+                if (entry) {
+                    entry.pinned = !entry.pinned;
+                    if (entry.pinned) entry.ts = Date.now();
+                    _saveSearchHist(h2);
+                }
+                _renderSearchDrop();
+            });
+            const textEl = document.createElement('span');
+            textEl.className = 'tm-search-hist-text';
+            textEl.textContent = item.text;
+            const delBtn = document.createElement('button');
+            delBtn.className = 'tm-search-del-btn';
+            delBtn.title = 'Remove';
+            delBtn.textContent = '✕';
+            delBtn.addEventListener('click', e => {
+                e.stopPropagation();
+                const remaining = _loadSearchHist().filter(e2 => e2.text !== item.text);
+                _saveSearchHist(remaining);
+                _renderSearchDrop();
+            });
+            row.addEventListener('mousedown', e => {
+                if (pinBtn.contains(e.target) || delBtn.contains(e.target)) return;
+                e.preventDefault();
+                searchInput.value = item.text;
+                query = item.text; render();
+                _hideSearchDrop();
+            });
+            row.appendChild(pinBtn); row.appendChild(textEl); row.appendChild(delBtn);
+            return row;
+        }
         function _renderSearchDrop() {
             if (!_searchDrop) return;
             const hist = _getSortedHist();
-            _searchDrop.innerHTML = '';
             if (!hist.length) { _hideSearchDrop(); return; }
+
+            const existingMap = new Map();
+            _searchDrop.querySelectorAll('.tm-search-hist-item[data-hist-key]')
+                .forEach(el => existingMap.set(el.dataset.histKey, el));
+
+            const fragment = document.createDocumentFragment();
             hist.forEach(item => {
-                const row = document.createElement('div');
-                row.className = 'tm-search-hist-item';
-                const pinBtn = document.createElement('button');
-                pinBtn.className = 'tm-search-pin-btn' + (item.pinned ? ' pinned' : '');
-                pinBtn.title = item.pinned ? 'Unpin' : 'Pin to top';
-                pinBtn.innerHTML = item.pinned ? _SPIN_FILL : _SPIN_HOLLOW;
-                pinBtn.addEventListener('click', e => {
-                    e.stopPropagation();
-                    const h2 = _loadSearchHist();
-                    const entry = h2.find(e2 => e2.text === item.text);
-                    if (entry) {
-                        entry.pinned = !entry.pinned;
-                        if (entry.pinned) entry.ts = Date.now();
-                        _saveSearchHist(h2);
+                let row = existingMap.get(item.text);
+                existingMap.delete(item.text);
+                if (!row) {
+                    row = _buildSearchHistRow(item);
+                } else {
+                    const pinBtn = row.querySelector('.tm-search-pin-btn');
+                    if (pinBtn) {
+                        pinBtn.className = 'tm-search-pin-btn' + (item.pinned ? ' pinned' : '');
+                        pinBtn.title     = item.pinned ? 'Unpin' : 'Pin to top';
+                        pinBtn.innerHTML = item.pinned ? _SPIN_FILL : _SPIN_HOLLOW;
                     }
-                    _renderSearchDrop();
-                });
-                const textEl = document.createElement('span');
-                textEl.className = 'tm-search-hist-text';
-                textEl.textContent = item.text;
-                const delBtn = document.createElement('button');
-                delBtn.className = 'tm-search-del-btn';
-                delBtn.title = 'Remove';
-                delBtn.textContent = '✕';
-                delBtn.addEventListener('click', e => {
-                    e.stopPropagation();
-                    const remaining = _loadSearchHist().filter(e2 => e2.text !== item.text);
-                    _saveSearchHist(remaining);
-                    _renderSearchDrop();
-                });
-                row.addEventListener('mousedown', e => {
-                    if (pinBtn.contains(e.target) || delBtn.contains(e.target)) return;
-                    e.preventDefault();
-                    searchInput.value = item.text;
-                    query = item.text; render();
-                    _hideSearchDrop();
-                });
-                row.appendChild(pinBtn); row.appendChild(textEl); row.appendChild(delBtn);
-                _searchDrop.appendChild(row);
+                }
+                fragment.appendChild(row);
             });
+            existingMap.forEach(el => el.remove());
             const unpinCnt = hist.filter(e => !e.pinned).length;
             if (unpinCnt > 0) {
                 const footer = document.createElement('div');
@@ -5427,8 +5599,9 @@
                     _renderSearchDrop();
                 });
                 footer.appendChild(clearBtn);
-                _searchDrop.appendChild(footer);
+                fragment.appendChild(footer);
             }
+            _searchDrop.appendChild(fragment);
         }
         function _showSearchDrop() {
             if (_searchDropVisible || !_getSortedHist().length) return;
@@ -6339,6 +6512,22 @@
         titlebar.appendChild(titleEl);
         titlebar.appendChild(countBadge);
         titlebar.appendChild(btnPin);
+        const sortSel = document.createElement('select');
+        sortSel.id = 'tm-hist-sort';
+        sortSel.title = 'Sort order';
+        sortSel.style.cssText = `
+            background:${C.inputBg};color:${C.text};border:1px solid ${C.border};
+            border-radius:6px;padding:3px 7px;font:13px system-ui;cursor:pointer;margin-left:4px;
+            max-width:110px;
+        `;
+        [['newest','Newest'],['oldest','Oldest'],['author','Author A–Z'],['count','Most Media']]
+            .forEach(([v, label]) => {
+                const o = document.createElement('option');
+                o.value = v; o.textContent = label; sortSel.appendChild(o);
+            });
+        sortSel.value = sortMode;
+        sortSel.addEventListener('change', () => { sortMode = sortSel.value; render(); });
+        titlebar.appendChild(sortSel);
         titlebar.appendChild(btnViewToggle);
         titlebar.appendChild(btnEdit);
         titlebar.appendChild(btnExp);
@@ -6357,6 +6546,33 @@
         searchBar.appendChild(searchInput);
         searchBar.appendChild(_searchDrop);
         panel.appendChild(searchBar);
+
+        const filterBarEl = document.createElement('div');
+        filterBarEl.id = 'tm-hist-filter-bar';
+        filterBarEl.style.cssText = 'display:flex;gap:6px;padding:4px 12px 6px;flex-shrink:0;';
+        const FILTER_OPTS = [['all','All'],['image','🖼 Image'],['video','🎬 Video']];
+        const _pillEls = {};
+        FILTER_OPTS.forEach(([val, label]) => {
+            const pill = document.createElement('button');
+            pill.textContent = label;
+            pill.style.cssText = `
+                padding:3px 11px;border-radius:9999px;border:none;cursor:pointer;
+                font:600 12px system-ui;transition:background 0.15s,color 0.15s;
+                background:${val === 'all' ? C.badgeNew : 'transparent'};
+                color:${val === 'all' ? '#fff' : C.sub};
+            `;
+            pill.addEventListener('click', () => {
+                mediaFilter = val;
+                FILTER_OPTS.forEach(([v]) => {
+                    _pillEls[v].style.background = v === val ? C.badgeNew : 'transparent';
+                    _pillEls[v].style.color = v === val ? '#fff' : C.sub;
+                });
+                render();
+            });
+            _pillEls[val] = pill;
+            filterBarEl.appendChild(pill);
+        });
+        panel.appendChild(filterBarEl);
 
         const groupTabBar = document.createElement('div');
         groupTabBar.id = 'tm-group-tab-bar';
@@ -6612,8 +6828,7 @@
         document.body.appendChild(panel);
 
         function getRecords() {
-            try { return JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]')); }
-            catch (_) { return []; }
+            return _loadAllRecords();
         }
 
         function getFiltered(records) {
@@ -6633,6 +6848,9 @@
                     r.text?.toLowerCase().includes(q)
                 );
             }
+            if (mediaFilter !== 'all') {
+                result = result.filter(r => mediaFilter === 'video' ? r.hasVideo : !r.hasVideo);
+            }
             return result;
         }
 
@@ -6651,6 +6869,13 @@
 
         function render() {
             const records  = getRecords();
+            const _sorters = {
+                newest: (a, b) => b.ts - a.ts,
+                oldest: (a, b) => a.ts - b.ts,
+                author: (a, b) => (a.screenName || '').localeCompare(b.screenName || ''),
+                count:  (a, b) => (b.count || 0) - (a.count || 0),
+            };
+            records.sort(_sorters[sortMode] || _sorters.newest);
             const filtered = getFiltered(records);
             countBadge.textContent = `${records.length} entries`;
             delSelBtn.textContent = `Delete selected (${selectedIds.size})`;
@@ -9005,6 +9230,8 @@
         function updatePlayer() {
             video.src = videoUrls[currentIndex];
             video.play().catch(() => {});
+            video.playbackRate = parseFloat(_speed) || 1;
+            video.loop = _loop;
             if (total > 1) {
                 counter.textContent = `${currentIndex + 1} / ${total}`;
                 prevBtn.style.opacity      = '1';
@@ -9061,8 +9288,52 @@
             if (!hit) closeModal();
         };
 
+        const SPEEDS = ['1', '1.25', '1.5', '2'];
+        let _speed = GM_getValue(KEY_VIDEO_SPEED, '1');
+        video.playbackRate = parseFloat(_speed) || 1;
+
+        const _TOOL_BTN_CSS = `
+            position:absolute; bottom:20px;
+            background:rgba(0,0,0,0.6); color:rgba(255,255,255,0.9); border:none;
+            padding:4px 11px; border-radius:14px; font:600 13px system-ui;
+            cursor:pointer; z-index:4; transition:background 0.15s;
+        `;
+        const speedBtn = document.createElement('button');
+        speedBtn.style.cssText = _TOOL_BTN_CSS + 'right:25px;';
+        const _applySpeed = () => {
+            speedBtn.textContent = _speed + 'x';
+            video.playbackRate = parseFloat(_speed) || 1;
+            GM_setValue(KEY_VIDEO_SPEED, _speed);
+        };
+        _applySpeed();
+        speedBtn.addEventListener('click', () => {
+            _speed = SPEEDS[(SPEEDS.indexOf(_speed) + 1) % SPEEDS.length];
+            _applySpeed();
+        });
+        speedBtn.onmouseenter = () => speedBtn.style.background = 'rgba(255,255,255,0.2)';
+        speedBtn.onmouseleave = () => speedBtn.style.background = 'rgba(0,0,0,0.6)';
+
+        let _loop = false;
+        const loopBtn = document.createElement('button');
+        loopBtn.style.cssText = _TOOL_BTN_CSS + 'right:82px;';
+        const _applyLoop = () => {
+            loopBtn.textContent = _loop ? '🔁' : '↩';
+            loopBtn.title = _loop ? 'Loop: ON' : 'Loop: OFF';
+            video.loop = _loop;
+        };
+        _applyLoop();
+        loopBtn.addEventListener('click', () => { _loop = !_loop; _applyLoop(); });
+        loopBtn.onmouseenter = () => loopBtn.style.background = 'rgba(255,255,255,0.2)';
+        loopBtn.onmouseleave = () => loopBtn.style.background = 'rgba(0,0,0,0.6)';
+        modal.append(speedBtn, loopBtn);
+
         const keyHandler = (e) => {
             if (e.key === 'Escape') { closeModal(); return; }
+            if (e.key === ' ' || e.key === 'Spacebar') {
+                e.preventDefault();
+                video.paused ? video.play() : video.pause();
+                return;
+            }
             if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
                 currentIndex = currentIndex < total - 1 ? currentIndex + 1 : 0;
                 updatePlayer();
@@ -9488,12 +9759,14 @@
 
         let keyHandler = () => {};
         let _lbDragACRef = null;
+        let _lbBranchBDragAC = null;
 
         function closeLightbox() {
             modal.classList.remove('tm-lb-in');
             setTimeout(() => { modal.remove(); }, 220);
             document.removeEventListener('keydown', keyHandler);
             if (_lbDragACRef) { _lbDragACRef.abort(); _lbDragACRef = null; }
+            if (_lbBranchBDragAC) { _lbBranchBDragAC.abort(); _lbBranchBDragAC = null; }
             _dialogOpenGlobal = false;
         }
 
@@ -9664,7 +9937,12 @@
                 modal.appendChild(viewVidBtn);
             }
 
-            keyHandler = e => { if (e.key === 'Escape') closeLightbox(); };
+            keyHandler = e => {
+                if (e.key === 'Escape') { closeLightbox(); return; }
+                else if (e.key === '+' || e.key === '=') { _lbScale = Math.min(8, _lbScale * 1.15); _lbApplyTransform(); }
+                else if (e.key === '-')                  { _lbScale = Math.max(0.2, _lbScale * 0.87); if (_lbScale <= 1.02) _lbResetTransform(); else _lbApplyTransform(); }
+                else if (e.key === '0')                  { _lbResetTransform(); }
+            };
             document.addEventListener('keydown', keyHandler);
 
             let _lbScale = 1;
@@ -9857,15 +10135,64 @@
             viewVidBtn.onclick = e => { e.stopPropagation(); closeLightbox(); showFloatingVideoPlayer(videoUrls, 0, urls); };
         }
 
+        let _bZoom = 1, _bTx = 0, _bTy = 0, _bDragActive = false, _bDragStart = null;
+        const _bDragAC = new AbortController();
+        _lbBranchBDragAC = _bDragAC;
+
+        const _getZoomImg = () => {
+            const fc = modal.querySelector('.tm-lb-card.tm-lb-focused');
+            return fc ? fc.querySelector('img') : null;
+        };
+        const _bApply = () => {
+            const img = _getZoomImg();
+            if (!img) return;
+            img.style.transform  = `scale(${_bZoom}) translate(${_bTx / _bZoom}px, ${_bTy / _bZoom}px)`;
+            img.style.pointerEvents = _bZoom > 1 ? 'auto' : 'none';
+            img.style.cursor     = _bZoom > 1 ? 'grab' : '';
+        };
+        const _bReset = () => {
+            _bZoom = 1; _bTx = 0; _bTy = 0;
+            const img = _getZoomImg();
+            if (img) { img.style.transform = ''; img.style.cursor = ''; img.style.pointerEvents = 'none'; }
+        };
+        modal.addEventListener('wheel', e => {
+            e.stopPropagation();
+            _bZoom = Math.min(8, Math.max(0.2, _bZoom * (e.deltaY < 0 ? 1.1 : 0.9)));
+            if (_bZoom <= 1.02) { _bReset(); return; }
+            _bApply();
+        }, { passive: false });
+        modal.addEventListener('dblclick', e => {
+            if (!e.target.closest('.tm-lb-card')) return;
+            e.stopPropagation(); _bReset();
+        });
+        modal.addEventListener('mousedown', e => {
+            if (_bZoom <= 1 || !e.target.closest('.tm-lb-card img')) return;
+            e.preventDefault(); e.stopPropagation();
+            _bDragActive = true; _bDragStart = { x: e.clientX - _bTx, y: e.clientY - _bTy };
+            e.target.style.cursor = 'grabbing';
+        });
+        window.addEventListener('mousemove', e => {
+            if (!_bDragActive) return;
+            _bTx = e.clientX - _bDragStart.x; _bTy = e.clientY - _bDragStart.y; _bApply();
+        }, { signal: _bDragAC.signal });
+        window.addEventListener('mouseup', () => {
+            if (!_bDragActive) return;
+            _bDragActive = false;
+            const img = _getZoomImg(); if (img && _bZoom > 1) img.style.cursor = 'grab';
+        }, { signal: _bDragAC.signal });
+
         keyHandler = e => {
             if (e.key === 'Escape') { closeLightbox(); return; }
+            else if (e.key === '+' || e.key === '=') { _bZoom = Math.min(8, _bZoom * 1.15); _bApply(); return; }
+            else if (e.key === '-')                  { _bZoom = Math.max(0.2, _bZoom * 0.87); if (_bZoom <= 1.02) _bReset(); else _bApply(); return; }
+            else if (e.key === '0')                  { _bReset(); return; }
             if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
                 focused = focused < total - 1 ? focused + 1 : 0;
-                scheduleUpdate();
+                _bReset(); scheduleUpdate();
             }
             if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
                 focused = focused > 0 ? focused - 1 : total - 1;
-                scheduleUpdate();
+                _bReset(); scheduleUpdate();
             }
         };
         document.addEventListener('keydown', keyHandler);
@@ -9891,7 +10218,7 @@
             lbPrevBtn.onclick = e => {
                 e.stopPropagation();
                 focused = focused > 0 ? focused - 1 : total - 1;
-                scheduleUpdate();
+                _bReset(); scheduleUpdate();
             };
 
             lbNextBtn.innerHTML = SVG_NEXT;
@@ -9901,7 +10228,7 @@
             lbNextBtn.onclick = e => {
                 e.stopPropagation();
                 focused = focused < total - 1 ? focused + 1 : 0;
-                scheduleUpdate();
+                _bReset(); scheduleUpdate();
             };
         }
 
@@ -10115,8 +10442,11 @@
     const _FALLBACK_BEARER = 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA';
     let _cachedBearerToken = null;
     let _bearerPendingPromise = null;
+    let _cachedGqlId = GM_getValue('app_gql_tweet_id', '2ICDjqPd81tulZcYrtpTuQ');
 
     async function _resolveBearerToken() {
+        const _customToken = GM_getValue(KEY_CUSTOM_BEARER, '').trim();
+        if (_customToken) return _customToken;
         if (_cachedBearerToken) return _cachedBearerToken;
         if (_bearerPendingPromise) return _bearerPendingPromise;
 
@@ -10234,6 +10564,11 @@
                 url.includes('UserTweets')   || url.includes('SearchTimeline') ||
                 url.includes('ListTimeline') || url.includes('TweetResultByRestId')
             );
+            const _gqlIdMatch = url.match(/\/i\/api\/graphql\/([A-Za-z0-9_-]{20,})\/TweetResultByRestId/);
+            if (_gqlIdMatch && _gqlIdMatch[1] !== _cachedGqlId) {
+                _cachedGqlId = _gqlIdMatch[1];
+                GM_setValue('app_gql_tweet_id', _cachedGqlId);
+            }
             const promise = _origFetch.apply(this, args);
             if (!isGraphQL) return promise;
             return promise.then(resp => {
@@ -10289,7 +10624,7 @@
             const variables = {"tweetId":statusId,"with_rux_injections":false,"includePromotedContent":true,"withCommunity":true,"withQuickPromoteEligibilityTweetFields":true,"withBirdwatchNotes":true,"withVoice":true,"withV2Timeline":true};
             const features = {"articles_preview_enabled":true,"c9s_tweet_anatomy_moderator_badge_enabled":true,"freedom_of_speech_not_reach_fetch_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"view_counts_everywhere_api_enabled":true};
 
-            let url = `https://${location.hostname}/i/api/graphql/2ICDjqPd81tulZcYrtpTuQ/TweetResultByRestId?variables=${encodeURIComponent(JSON.stringify(variables))}&features=${encodeURIComponent(JSON.stringify(features))}`;
+            let url = `https://${location.hostname}/i/api/graphql/${_cachedGqlId}/TweetResultByRestId?variables=${encodeURIComponent(JSON.stringify(variables))}&features=${encodeURIComponent(JSON.stringify(features))}`;
 
             let headers = { 'authorization': AUTH_TOKEN, 'x-twitter-active-user': 'yes' };
             if (ct0) headers['x-csrf-token'] = ct0;
@@ -10309,7 +10644,12 @@
             }
             if (!res.ok) {
                 if (res.status === 401 || res.status === 403) {
-                    showToast('⚠️ Twitter API token may be outdated. Video fetch may fail.');
+                    _cachedBearerToken = null;
+                    _bearerPendingPromise = null;
+                    showToast(
+                        '⚠️ API token expired. Set a custom Bearer Token in ⚙️ Settings → Advanced to restore video fetch.',
+                        6000
+                    );
                 }
                 return null;
             }
@@ -11093,6 +11433,8 @@
             actions.appendChild(btn);
             actions.insertBefore(icon, btn);
 
+            article.setAttribute('data-tm-v', '1');
+
             if (_downloadedIds.size > 0) {
                 requestAnimationFrame(() => {
                     const tweetId = _getTweetIdFromArticle(article);
@@ -11103,18 +11445,33 @@
     }
 
     if (_isTwitterDomain) {
+    _syncCh = (typeof BroadcastChannel !== 'undefined')
+        ? new BroadcastChannel('tm-download-sync') : null;
+    if (_syncCh) {
+        _syncCh.addEventListener('message', ({ data }) => {
+            if (data?.type !== 'dl' || !data.tweetId) return;
+            _downloadedIds.add(data.tweetId);
+            document.querySelectorAll(`article a[href*="/status/${data.tweetId}"]`).forEach(a => {
+                const art = a.closest('article');
+                if (art) {
+                    const targetBtn = art.querySelector('.force-media-copy-btn');
+                    if (targetBtn) _applyHistoryBadge(targetBtn);
+                }
+            });
+        });
+    }
     let _tmdDebounceTimer = null;
 
     const _processedArticles = new WeakSet();
 
     function scanAndInsert() {
         document.querySelectorAll('article').forEach(article => {
-            if (_processedArticles.has(article) && article.querySelector(`.${BUTTON_CLASS}`)) return;
+            if (_processedArticles.has(article) && article.dataset.tmV === '1' && article.querySelector(`.${BUTTON_CLASS}`)) return;
 
             const staleBtn  = article.querySelector(`.${BUTTON_CLASS}`);
             const staleIcon = article.querySelector('.custom-copy-icon');
-            staleBtn?._menuAC?.abort();
-            staleIcon?._menuAC?.abort();
+            if (staleBtn?._menuAC)  { staleBtn._menuAC.abort();  staleBtn._menuAC  = null; }
+            if (staleIcon?._menuAC) { staleIcon._menuAC.abort(); staleIcon._menuAC = null; }
 
             insertCopyButton(article);
             if (article.querySelector(`.${BUTTON_CLASS}`)) _processedArticles.add(article);
@@ -11138,7 +11495,15 @@
 
     observer.observe(document.body, { childList: true, subtree: true, attributes: false, characterData: false });
 
-    const _scanIntervalId = setInterval(scanAndInsert, 1500);
+    let _scanIntervalId = null;
+    _startScanInterval = function () {
+        clearInterval(_scanIntervalId);
+        const ms = Math.max(500, Math.min(5000,
+            parseInt(GM_getValue(KEY_SCAN_INTERVAL, '1500'), 10) || 1500
+        ));
+        _scanIntervalId = setInterval(scanAndInsert, ms);
+    };
+    _startScanInterval();
 
     setTimeout(scanAndInsert, 1000);
     }
