@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.0.0
+// @version      2.9.0.6
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -73,6 +73,85 @@
         return _getHistoryIndex().flatMap(ym => {
             try { return _readMonthRecords(ym); } catch (_) { return []; }
         });
+    }
+
+    function _updateRecord(id, mutateFn) {
+        for (const ym of _getHistoryIndex()) {
+            const recs = _readMonthRecords(ym);
+            const i = recs.findIndex(r => r.id === id);
+            if (i === -1) continue;
+            mutateFn(recs[i]);
+            _writeMonthRecords(ym, recs);
+            return recs[i];
+        }
+        return null;
+    }
+
+    function _deleteRecordById(id) {
+        for (const ym of _getHistoryIndex()) {
+            const recs = _readMonthRecords(ym);
+            const i = recs.findIndex(r => r.id === id);
+            if (i === -1) continue;
+            const [record] = recs.splice(i, 1);
+            _writeMonthRecords(ym, recs);
+            return { record };
+        }
+        return null;
+    }
+
+    function _insertRecordUndo(record) {
+        const ym = record.yyyymm ||
+            (record.ts ? new Date(record.ts).toISOString().slice(0, 7).replace('-', '.') : '9999.99');
+        _updateHistoryIndex(ym);
+        const recs = _readMonthRecords(ym);
+        const pos = recs.findIndex(r => r.id < record.id);
+        if (pos === -1) recs.push(record); else recs.splice(pos, 0, record);
+        _writeMonthRecords(ym, recs);
+    }
+
+    function _batchDeleteRecords(idsToDelete) {
+        const deleted = [];
+        for (const ym of _getHistoryIndex()) {
+            const recs = _readMonthRecords(ym);
+            const kept = recs.filter(r => {
+                if (!idsToDelete.has(r.id) || r.favorited) return true;
+                deleted.push(r.tweetId);
+                return false;
+            });
+            if (kept.length !== recs.length) _writeMonthRecords(ym, kept);
+        }
+        return deleted;
+    }
+
+    function _mutateMatchingRecords(predicate, mutateFn) {
+        for (const ym of _getHistoryIndex()) {
+            const recs = _readMonthRecords(ym);
+            let dirty = false;
+            recs.forEach(r => { if (predicate(r)) { mutateFn(r); dirty = true; } });
+            if (dirty) _writeMonthRecords(ym, recs);
+        }
+    }
+
+    function _mergeImportedRecords(importedArr) {
+        const existing = _loadAllRecords();
+        const existMap = new Map(existing.map(r => [r.tweetId, r]));
+        let addCount = 0;
+        importedArr.forEach(r => {
+            if (!r.tweetId) return;
+            if (!existMap.has(r.tweetId)) addCount++;
+            if (!r.yyyymm && r.ts)
+                r.yyyymm = new Date(r.ts).toISOString().slice(0, 7).replace('-', '.');
+            r.yyyymm = r.yyyymm || '9999.99';
+            existMap.set(r.tweetId, r);
+        });
+        const byMonth = {};
+        existMap.forEach(r => { (byMonth[r.yyyymm] = byMonth[r.yyyymm] || []).push(r); });
+        Object.entries(byMonth).forEach(([ym, recs]) => {
+            recs.sort((a, b) => (b.id || 0) - (a.id || 0));
+            _updateHistoryIndex(ym);
+            _writeMonthRecords(ym, recs);
+        });
+        return addCount;
     }
 
     const KEY_PREFIX_TEXT = 'discord_prefix_text';
@@ -4293,13 +4372,6 @@
                 'sp_slider_controls'
             ));
 
-            const helpLabel = T.menu_help ? T.menu_help.replace(/^📖\s*/, '') : 'Help / Manual';
-            const helpRow = makeRow('📖 ' + helpLabel, '', () => {
-                showHelpModal();
-            });
-            helpRow.style.borderTop = `1px solid ${C.border}`;
-            panel.appendChild(helpRow);
-
             const grpAdv = makeGroup('⚙ Advanced', false, null);
 
             const ALL_SETTING_KEYS = [
@@ -4327,11 +4399,23 @@
                     showToast('✅ Settings imported. Reload to apply.', 4000);
                 } catch (_) { showToast('❌ Invalid settings file.', 3000); }
             }
-            const backupRow = makeRow('📤 Backup settings', '', _exportSettings);
+            const _ROW_CSS = `display:flex;align-items:center;padding:8px 14px;gap:8px;font:13px system-ui;color:${C.text};`;
+            const _BTN_CSS = `padding:4px 10px;border-radius:6px;border:1px solid ${C.border};background:${C.inputBg};color:${C.text};cursor:pointer;font:12px system-ui;`;
+
+            const backupRow = document.createElement('div');
+            backupRow.style.cssText = _ROW_CSS;
+            const backupLabel = document.createElement('span');
+            backupLabel.textContent = '📤 Backup settings';
+            backupLabel.style.flex = '1';
+            const backupBtn = document.createElement('button');
+            backupBtn.textContent = 'Export JSON';
+            backupBtn.style.cssText = _BTN_CSS;
+            backupBtn.onclick = _exportSettings;
+            backupRow.append(backupLabel, backupBtn);
             grpAdv.append(backupRow);
 
             const importRow = document.createElement('div');
-            importRow.style.cssText = `display:flex;align-items:center;padding:8px 14px;gap:8px;font:13px system-ui;color:${C.text};`;
+            importRow.style.cssText = _ROW_CSS;
             const importLabel = document.createElement('span');
             importLabel.textContent = '📥 Restore settings';
             importLabel.style.flex = '1';
@@ -4349,44 +4433,10 @@
             });
             const importBtn = document.createElement('button');
             importBtn.textContent = 'Choose file…';
-            importBtn.style.cssText = `padding:4px 10px;border-radius:6px;border:1px solid ${C.border};background:${C.inputBg};color:${C.text};cursor:pointer;font:12px system-ui;`;
+            importBtn.style.cssText = _BTN_CSS;
             importBtn.onclick = () => importFileInput.click();
             importRow.append(importLabel, importBtn, importFileInput);
             grpAdv.append(importRow);
-
-            const bearerRow = document.createElement('div');
-            bearerRow.style.cssText = `padding:8px 14px;font:13px system-ui;color:${C.text};`;
-            const bearerTitleRow = document.createElement('div');
-            bearerTitleRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:5px;';
-            const bearerLabel = document.createElement('span');
-            bearerLabel.textContent = '🔑 Custom Bearer Token';
-            bearerLabel.style.flex = '1';
-            const bearerClearBtn = document.createElement('button');
-            bearerClearBtn.textContent = 'Clear';
-            bearerClearBtn.style.cssText = `padding:3px 9px;border-radius:5px;border:1px solid ${C.border};background:${C.inputBg};color:${C.sub};cursor:pointer;font:11px system-ui;`;
-            bearerTitleRow.append(bearerLabel, bearerClearBtn);
-            const bearerTa = document.createElement('textarea');
-            bearerTa.rows = 2;
-            bearerTa.placeholder = 'AAAAAAAAAAAAA…  (optional fallback for video fetch)';
-            bearerTa.style.cssText = `width:100%;box-sizing:border-box;background:${C.inputBg};color:${C.text};border:1px solid ${C.border};border-radius:6px;padding:5px 8px;font:11px monospace;resize:vertical;`;
-            bearerTa.value = GM_getValue(KEY_CUSTOM_BEARER, '');
-            bearerTa.addEventListener('change', () => GM_setValue(KEY_CUSTOM_BEARER, bearerTa.value.trim()));
-            bearerClearBtn.onclick = () => { GM_deleteValue(KEY_CUSTOM_BEARER); bearerTa.value = ''; showToast('🔑 Custom Bearer Token cleared.'); };
-            const bearerHint = document.createElement('div');
-            bearerHint.textContent = 'Stored locally. Used only for media fetch fallback (401/403).';
-            bearerHint.style.cssText = `font:11px system-ui;color:${C.sub};margin-top:4px;`;
-            bearerRow.append(bearerTitleRow, bearerTa, bearerHint);
-            grpAdv.append(bearerRow);
-
-            grpAdv.append(makeSliderRow(
-                'Scan Interval', parseInt(GM_getValue(KEY_SCAN_INTERVAL, '1500'), 10) || 1500,
-                500, 5000, 100, 'ms', null,
-                (n) => {
-                    GM_setValue(KEY_SCAN_INTERVAL, String(n));
-                    if (_startScanInterval) _startScanInterval();
-                },
-                null
-            ));
 
             const resetRow = makeRow('🔄 Reset to defaults', '', () => {
                 const confirmed = confirm(
@@ -4406,14 +4456,115 @@
                     KEY_GROUP_ON_DOWNLOAD, KEY_GROUP_PANEL_CFG,
                     KEY_SP_GROUP_OPEN, KEY_SEEN_FEATURES,
                     KEY_HISTORY_VIEW_MODE,
+                    KEY_SCAN_INTERVAL,
                 ];
                 RESET_KEYS.forEach(k => GM_deleteValue(k));
                 buildContent();
                 showToast('✅ Settings reset to defaults.');
             });
-            resetRow.style.borderTop = `1px solid ${C.border}`;
             resetRow.style.opacity = '0.7';
-            panel.appendChild(resetRow);
+            grpAdv.append(resetRow);
+
+            const bearerRow = document.createElement('div');
+            bearerRow.style.cssText = `padding:8px 14px;font:13px system-ui;color:${C.text};border-top:1px solid ${C.border};`;
+            const bearerTitleRow = document.createElement('div');
+            bearerTitleRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:5px;';
+            const bearerLabel = document.createElement('span');
+            bearerLabel.textContent = '🔑 Custom Bearer Token';
+            bearerLabel.style.flex = '1';
+            const bearerHelpBtn = document.createElement('button');
+            bearerHelpBtn.title = 'What is this?';
+            bearerHelpBtn.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/>
+                <path d="M6.5 6.4C6.5 5.51 7.17 4.8 8 4.8s1.5.71 1.5 1.6c0 .78-.52 1.24-1.03 1.6C8.2 8.2 8 8.48 8 8.85" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+                <circle cx="8" cy="10.75" r="0.8" fill="currentColor"/>
+            </svg>`;
+            bearerHelpBtn.style.cssText = `flex-shrink:0;background:none;border:none;padding:2px;cursor:pointer;color:${C.sub};display:flex;align-items:center;border-radius:50%;transition:color 0.12s;`;
+            bearerHelpBtn.onmouseenter = () => bearerHelpBtn.style.color = C.text;
+            bearerHelpBtn.onmouseleave = () => bearerHelpBtn.style.color = C.sub;
+            const bearerPopover = document.createElement('div');
+            bearerPopover.style.cssText = `
+                display:none; background:${C.inputBg}; border:1px solid ${C.border};
+                border-radius:8px; padding:8px 10px; margin-top:5px;
+                font:11px system-ui; color:${C.sub}; line-height:1.6;
+            `;
+            bearerPopover.innerHTML =
+                'Only used on Twitter / X for media fetch (401/403 fallback). ' +
+                'Safe to set on any page — the token is never sent cross-domain.<br>' +
+                `<b style="color:${C.text}">Manual:</b> Twitter DevTools → Network → ` +
+                `any <code style="font-family:monospace;color:${C.text}">/i/api/</code> request → ` +
+                `<code style="font-family:monospace;color:${C.text}">Authorization</code> header.`;
+            bearerHelpBtn.addEventListener('click', () => {
+                const open = bearerPopover.style.display !== 'none';
+                bearerPopover.style.display = open ? 'none' : 'block';
+                bearerHelpBtn.style.color = open ? C.sub : '#1d9bf0';
+            });
+            const bearerDetectBtn = document.createElement('button');
+            bearerDetectBtn.textContent = 'Auto-detect';
+            bearerDetectBtn.title = 'Scan Twitter page scripts to extract Bearer Token automatically';
+            bearerDetectBtn.style.cssText = `padding:3px 9px;border-radius:5px;border:1px solid ${C.border};background:${C.inputBg};color:${_isTwitterDomain ? C.text : C.sub};cursor:pointer;font:11px system-ui;margin-right:4px;`;
+            bearerDetectBtn.addEventListener('click', async () => {
+                if (!_isTwitterDomain) {
+                    showToast('⚠️ Open Twitter / X first, then try auto-detect.', 3500);
+                    return;
+                }
+                const _origTxt = bearerDetectBtn.textContent;
+                bearerDetectBtn.textContent = 'Detecting…';
+                bearerDetectBtn.disabled = true;
+                try {
+                    let found = null;
+                    for (const script of document.querySelectorAll('script[src*="main."]')) {
+                        if (!script.src) continue;
+                        const resp = await fetch(script.src);
+                        if (!resp.ok) continue;
+                        const text = await resp.text();
+                        const m = text.match(/Bearer (AAAAAAA[A-Za-z0-9%_-]{20,})/);
+                        if (m) { found = 'Bearer ' + m[1]; break; }
+                    }
+                    if (found) {
+                        bearerTa.value = found;
+                        GM_setValue(KEY_CUSTOM_BEARER, found.trim());
+                        showToast('✅ Bearer Token detected and saved.', 3000);
+                    } else {
+                        showToast('⚠️ Not found in page scripts. Use DevTools method (click ❓).', 4000);
+                    }
+                } catch (err) {
+                    showToast('❌ Detection failed: ' + err.message, 3000);
+                } finally {
+                    bearerDetectBtn.textContent = _origTxt;
+                    bearerDetectBtn.disabled = false;
+                }
+            });
+            const bearerClearBtn = document.createElement('button');
+            bearerClearBtn.textContent = 'Clear';
+            bearerClearBtn.style.cssText = `padding:3px 9px;border-radius:5px;border:1px solid ${C.border};background:${C.inputBg};color:${_isTwitterDomain ? C.text : C.sub};cursor:pointer;font:11px system-ui;`;
+            bearerTitleRow.append(bearerLabel, bearerHelpBtn, bearerDetectBtn, bearerClearBtn);
+            const bearerTa = document.createElement('textarea');
+            bearerTa.rows = 2;
+            bearerTa.placeholder = 'Bearer AAAAAAAAAA…  (optional, for 401/403 fallback on Twitter/X)';
+            bearerTa.style.cssText = `width:100%;box-sizing:border-box;background:${C.inputBg};color:${C.text};border:1px solid ${C.border};border-radius:6px;padding:5px 8px;font:11px monospace;resize:vertical;`;
+            bearerTa.value = GM_getValue(KEY_CUSTOM_BEARER, '');
+            bearerTa.addEventListener('change', () => GM_setValue(KEY_CUSTOM_BEARER, bearerTa.value.trim()));
+            bearerClearBtn.onclick = () => { GM_deleteValue(KEY_CUSTOM_BEARER); bearerTa.value = ''; showToast('🔑 Custom Bearer Token cleared.'); };
+            bearerRow.append(bearerTitleRow, bearerPopover, bearerTa);
+            grpAdv.append(bearerRow);
+
+            grpAdv.append(makeSliderRow(
+                'Scan Interval', parseInt(GM_getValue(KEY_SCAN_INTERVAL, '1500'), 10) || 1500,
+                500, 5000, 100, 'ms', null,
+                (n) => {
+                    GM_setValue(KEY_SCAN_INTERVAL, String(n));
+                    if (_startScanInterval) _startScanInterval();
+                },
+                null
+            ));
+
+            const helpLabel = T.menu_help ? T.menu_help.replace(/^📖\s*/, '') : 'Help / Manual';
+            const helpRow = makeRow('📖 ' + helpLabel, '', () => {
+                showHelpModal();
+            });
+            helpRow.style.borderTop = `1px solid ${C.border}`;
+            panel.appendChild(helpRow);
         }
 
         buildContent();
@@ -4470,8 +4621,7 @@
                 const panel = document.getElementById('tm-hist-panel');
                 if (panel) {
                     panel.dispatchEvent(new CustomEvent('tm-hist-refresh'));
-                    let count = 0;
-                    try { count = JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]')).length; } catch (_) {}
+                    const count = _loadAllRecords().length;
                     showToast(`🔄 History refreshed · ${count} record${count !== 1 ? 's' : ''}`);
                 } else {
                     showHistoryPanel();
@@ -4587,25 +4737,17 @@
     function deleteGroup(groupId) {
         const groups = getGroups().filter(g => g.id !== groupId);
         saveGroups(groups);
-        try {
-            const records = JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]'));
-            records.forEach(r => { if (r.groupId === groupId) delete r.groupId; });
-            GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
-        } catch (_) {}
+        _mutateMatchingRecords(r => r.groupId === groupId, r => { delete r.groupId; });
         GM_deleteValue('app_group_unread_' + groupId);
     }
 
     function assignGroup(recordId, groupId) {
         try {
-            const records = JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]'));
-            const rec = records.find(r => r.id === recordId);
-            if (!rec) return;
-            if (groupId === null) {
-                delete rec.groupId;
-            } else {
-                rec.groupId = groupId;
-            }
-            GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
+            const updated = _updateRecord(recordId, rec => {
+                if (groupId === null) delete rec.groupId;
+                else rec.groupId = groupId;
+            });
+            if (!updated) return;
             if (groupId !== null) {
                 GM_setValue('app_group_unread_' + groupId, true);
             }
@@ -4745,10 +4887,8 @@
     }
 
     function _countGroupRecords(groupId) {
-        try {
-            const records = JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]'));
-            return records.filter(r => r.groupId === groupId).length;
-        } catch (_) { return 0; }
+        try { return _loadAllRecords().filter(r => r.groupId === groupId).length; }
+        catch (_) { return 0; }
     }
 
     let _starEscaping = false;
@@ -5712,12 +5852,12 @@
             .tm-hist-icon-btn svg { width: 14px; height: 14px; pointer-events: none; }
             .tm-hist-icon-btn.active { color: #1d9bf0; }
             .tm-hist-searchbar {
-                padding: 7px 12px; border-bottom: 1px solid ${C.border}; flex-shrink: 0;
                 
+                flex: 1; min-width: 120px;
                 position: relative; z-index: 3;
             }
             #tm-hist-search {
-                width: 100%; padding: 5px 10px; border-radius: 99px;
+                width: 100%; padding: 4px 10px; border-radius: 99px;
                 border: 1px solid ${C.border}; background: ${C.inputBg};
                 color: ${C.text}; font-size: 12px;
                 outline: none; box-sizing: border-box;
@@ -5725,7 +5865,7 @@
             #tm-hist-search::placeholder { color: ${C.sub}; }
             
             .tm-search-drop {
-                position: absolute; top: 100%; left: 12px; right: 12px;
+                position: absolute; top: 100%; left: 0; right: 0;
                 background: ${C.bg}; border: 1px solid ${C.border};
                 border-top: none; border-radius: 0 0 12px 12px; z-index: 100;
                 max-height: 224px; overflow-y: auto;
@@ -6539,25 +6679,28 @@
         const searchInput = document.createElement('input');
         searchInput.id = 'tm-hist-search';
         searchInput.type = 'search';
-        searchInput.placeholder = '🔍  Search author / content…';
+        searchInput.placeholder = '🔍  Search…';
         _searchDrop = document.createElement('div');
         _searchDrop.className = 'tm-search-drop';
         _searchDrop.style.display = 'none';
         searchBar.appendChild(searchInput);
         searchBar.appendChild(_searchDrop);
-        panel.appendChild(searchBar);
 
         const filterBarEl = document.createElement('div');
         filterBarEl.id = 'tm-hist-filter-bar';
-        filterBarEl.style.cssText = 'display:flex;gap:6px;padding:4px 12px 6px;flex-shrink:0;';
+        filterBarEl.style.cssText = `
+            display:flex; align-items:center; gap:6px;
+            padding:5px 8px 5px 12px; flex-shrink:0;
+            border-bottom:1px solid ${C.border};
+        `;
         const FILTER_OPTS = [['all','All'],['image','🖼 Image'],['video','🎬 Video']];
         const _pillEls = {};
         FILTER_OPTS.forEach(([val, label]) => {
             const pill = document.createElement('button');
             pill.textContent = label;
             pill.style.cssText = `
-                padding:3px 11px;border-radius:9999px;border:none;cursor:pointer;
-                font:600 12px system-ui;transition:background 0.15s,color 0.15s;
+                flex-shrink:0; padding:3px 10px; border-radius:9999px; border:none; cursor:pointer;
+                font:600 12px system-ui; transition:background 0.15s,color 0.15s; white-space:nowrap;
                 background:${val === 'all' ? C.badgeNew : 'transparent'};
                 color:${val === 'all' ? '#fff' : C.sub};
             `;
@@ -6572,6 +6715,7 @@
             _pillEls[val] = pill;
             filterBarEl.appendChild(pill);
         });
+        filterBarEl.appendChild(searchBar);
         panel.appendChild(filterBarEl);
 
         const groupTabBar = document.createElement('div');
@@ -7135,12 +7279,9 @@
                 }
                 favBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    let records = getRecords();
-                    const target = records.find(r => r.id === rec.id);
-                    if (!target) return;
-                    target.favorited = !target.favorited;
-                    GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
-                    const nowFav = target.favorited;
+                    const updated = _updateRecord(rec.id, r => { r.favorited = !r.favorited; });
+                    if (!updated) return;
+                    const nowFav = updated.favorited;
                     favBtn.innerHTML = nowFav ? SVG_HEART_FULL : SVG_HEART_EMPTY;
                     favBtn.title = nowFav ? 'Unfavorite' : 'Favorite';
                     favBtn.classList.toggle('tm-fav-active', nowFav);
@@ -7364,12 +7505,9 @@
                 gridFavBtn.setAttribute('aria-label', rec.favorited ? 'Unfavorite' : 'Favorite');
                 gridFavBtn.addEventListener('click', e => {
                     e.stopPropagation();
-                    let records = getRecords();
-                    const target = records.find(r => r.id === rec.id);
-                    if (!target) return;
-                    target.favorited = !target.favorited;
-                    GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
-                    const nowFav = target.favorited;
+                    const updated = _updateRecord(rec.id, r => { r.favorited = !r.favorited; });
+                    if (!updated) return;
+                    const nowFav = updated.favorited;
                     gridFavBtn.innerHTML = nowFav ? _GFB_HEART_FULL : _GFB_HEART_EMPTY;
                     gridFavBtn.title = nowFav ? 'Unfavorite' : 'Favorite';
                     gridFavBtn.setAttribute('aria-label', nowFav ? 'Unfavorite' : 'Favorite');
@@ -7469,12 +7607,9 @@
                     }));
                     const isFav = !!rec.favorited;
                     menu.appendChild(mkItem(isFav ? CTX_FAV_ON : CTX_FAV_OFF, isFav ? 'Unfavorite' : 'Favorite', () => {
-                        let records = getRecords();
-                        const target = records.find(r => r.id === rec.id);
-                        if (!target) return;
-                        target.favorited = !target.favorited;
-                        GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
-                        rec.favorited = target.favorited;
+                        const updated = _updateRecord(rec.id, r => { r.favorited = !r.favorited; });
+                        if (!updated) return;
+                        rec.favorited = updated.favorited;
                         render();
                     }));
                     menu.appendChild(mkItem(CTX_OPEN, 'Open in new tab', () => {
@@ -7585,12 +7720,12 @@
                 }
                 return;
             }
-            records = records.filter(r => r.id !== id);
-            GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
-            _downloadedIds.delete(record.tweetId);
+            const deleted = _deleteRecordById(id);
+            if (!deleted) return;
+            _downloadedIds.delete(deleted.record.tweetId);
 
             if (_historyUndoTimer) clearTimeout(_historyUndoTimer);
-            _historyUndoBuffer = { record, index: idx };
+            _historyUndoBuffer = { record: deleted.record, index: idx };
             render();
 
             const ut = document.createElement('div');
@@ -7610,9 +7745,7 @@
             undoBtn.style.cssText = `background:none;border:none;color:#1d9bf0;cursor:pointer;font-weight:700;font-size:12px;padding:0;`;
             undoBtn.addEventListener('click', () => {
                 if (_historyUndoBuffer) {
-                    let recs = getRecords();
-                    recs.splice(_historyUndoBuffer.index, 0, _historyUndoBuffer.record);
-                    GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(recs));
+                    _insertRecordUndo(_historyUndoBuffer.record);
                     _downloadedIds.add(_historyUndoBuffer.record.tweetId);
                     _historyUndoBuffer = null;
                     ut.remove();
@@ -7947,10 +8080,8 @@
 
         delSelBtn.addEventListener('click', () => {
             if (!selectedIds.size) return;
-            let records = getRecords();
-            records.filter(r => selectedIds.has(r.id) && !r.favorited).forEach(r => _downloadedIds.delete(r.tweetId));
-            records = records.filter(r => !selectedIds.has(r.id) || r.favorited);
-            GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(records));
+            const deletedTweetIds = _batchDeleteRecords(selectedIds);
+            deletedTweetIds.forEach(tid => _downloadedIds.delete(tid));
             selectedIds.clear(); anchorIdx = -1;
             render();
         });
@@ -7977,18 +8108,8 @@
                         const imported = JSON.parse(e.target.result);
                         if (!Array.isArray(imported)) throw new Error('Not an array');
 
-                        const existing  = getRecords();
-                        const existMap  = new Map(existing.map(r => [r.tweetId, r]));
-                        let addCount    = 0;
-                        imported.forEach(r => {
-                            if (r.tweetId) {
-                                if (!existMap.has(r.tweetId)) addCount++;
-                                existMap.set(r.tweetId, r);
-                            }
-                        });
-                        const merged = [...existMap.values()].sort((a, b) => (b.id || 0) - (a.id || 0));
-                        GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(merged));
-                        merged.forEach(r => _downloadedIds.add(r.tweetId));
+                        const addCount = _mergeImportedRecords(imported);
+                        imported.forEach(r => { if (r.tweetId) _downloadedIds.add(r.tweetId); });
                         showToast(`✅ Imported ${addCount} new record(s)`);
                         render();
                     } catch (err) {
@@ -9767,6 +9888,7 @@
             document.removeEventListener('keydown', keyHandler);
             if (_lbDragACRef) { _lbDragACRef.abort(); _lbDragACRef = null; }
             if (_lbBranchBDragAC) { _lbBranchBDragAC.abort(); _lbBranchBDragAC = null; }
+            document.body.style.overflow = '';
             _dialogOpenGlobal = false;
         }
 
@@ -10156,6 +10278,7 @@
             if (img) { img.style.transform = ''; img.style.cursor = ''; img.style.pointerEvents = 'none'; }
         };
         modal.addEventListener('wheel', e => {
+            e.preventDefault();
             e.stopPropagation();
             _bZoom = Math.min(8, Math.max(0.2, _bZoom * (e.deltaY < 0 ? 1.1 : 0.9)));
             if (_bZoom <= 1.02) { _bReset(); return; }
@@ -10315,6 +10438,7 @@
         modal.appendChild(gpB);
         document.body.appendChild(pillB);
         document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
 
         requestAnimationFrame(() => requestAnimationFrame(() => {
             modal.classList.add('tm-lb-in');
@@ -11206,16 +11330,15 @@
                             count:        0,
                             textOnly:     true,
                         };
-                        let records = [];
-                        try { records = JSON.parse(GM_getValue(KEY_HISTORY_RECORDS, '[]')); } catch (_) {}
-                        const _old = records.find(r => r.tweetId === info.id);
-                        if (_old?.favorited) record.favorited = true;
-                        records = records.filter(r => r.tweetId !== info.id);
-                        records.unshift(record);
-                        const _textOnlySnap = records;
-                        queueMicrotask(() => {
-                            GM_setValue(KEY_HISTORY_RECORDS, JSON.stringify(_textOnlySnap));
-                        });
+                        const _tym = record.yyyymm;
+                        let _tRecs = _readMonthRecords(_tym);
+                        const _tOld = _tRecs.find(r => r.tweetId === info.id);
+                        if (_tOld?.favorited) record.favorited = true;
+                        _tRecs = _tRecs.filter(r => r.tweetId !== info.id);
+                        _tRecs.unshift(record);
+                        _updateHistoryIndex(_tym);
+                        const _tSnap = _tRecs;
+                        setTimeout(() => { _writeMonthRecords(_tym, _tSnap); }, 0);
                         _downloadedIds.add(info.id);
                         setMediaIcon('ok', '📌 Saved', 'Saved');
                         setTimeout(() => setMediaIcon('default'), 1800);
