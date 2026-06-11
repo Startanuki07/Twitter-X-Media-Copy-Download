@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.0.6
+// @version      2.9.0.8
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -304,6 +304,53 @@
             status_click_menu:      'Menu',
             status_click_classic:   'Classic',
             toast_click_mode:       '🖱 Click Mode → ',
+            
+            sp_group_advanced:      '⚙ Advanced',
+            sp_backup_settings:     '📤 Backup settings',
+            sp_backup_btn:          'Export JSON',
+            sp_restore_settings:    '📥 Restore settings',
+            sp_restore_btn:         'Choose file…',
+            sp_reset_defaults:      '🔄 Reset to defaults',
+            sp_reset_confirm:       'Reset all settings to defaults?\n\nThis will clear: copy format, feedback style, dock style, trigger distances, group panel appearance, corner position, button visibility, and list/thumb view mode.\n\nDownload history and groups will NOT be affected.',
+            sp_bearer_title:        '🔑 Custom Bearer Token',
+            sp_bearer_detect:       'Auto-detect',
+            sp_bearer_detecting:    'Detecting…',
+            sp_bearer_clear:        'Clear',
+            sp_bearer_placeholder:  'Bearer AAAAAAAAAA…  (optional, for 401/403 fallback on Twitter/X)',
+            sp_bearer_hint:         'Only used on Twitter / X for media fetch (401/403 fallback). Safe to set on any page — the token is never sent cross-domain.',
+            sp_bearer_manual:       'Manual',
+            sp_scan_interval:       'Scan Interval',
+            
+            hist_filter_all:        'All',
+            hist_filter_image:      '🖼 Image',
+            hist_filter_video:      '🎬 Video',
+            hist_sort_newest:       'Newest',
+            hist_sort_oldest:       'Oldest',
+            hist_sort_author:       'Author A–Z',
+            hist_sort_count:        'Most Media',
+            hist_search_ph:         '🔍  Search…',
+            
+            sp_grp_group:           '⭐  Groups',
+            sp_grp_on_dl:           'Group on Download',
+            sp_grp_glow_color:      'Glow Color',
+            sp_grp_glow_multi:      'Multi',
+            sp_grp_glow_size:       'Glow Size',
+            sp_grp_label_color:     'Label Color',
+            sp_grp_manage:          'Manage Groups',
+            sp_grp_corner:          '📌  Corner Position',
+            sp_grp_history:         '🗂  History Panel',
+            sp_grp_dock_style:      'Dock Style',
+            sp_grp_hover_delay:     'Hover Delay',
+            sp_grp_trigger_l:       'Trigger Distance ◀ Left',
+            sp_grp_trigger_r:       'Trigger Distance ▶ Right',
+            sp_dock_notch:          'Notch',
+            sp_dock_ruler:          'Ruler',
+            sp_dock_ghost:          'Ghost',
+            sp_dock_pill:           'Pill',
+            sp_dock_arrow:          'Arrow',
+            sp_dock_dots:           'Dots',
+            sp_grp_modal_title:     'Manage Groups',
+            sp_grp_modal_new:       '＋ New',
         },
         'zh-TW': {
             langName: '繁體中文',
@@ -388,6 +435,50 @@
             status_click_menu:      '選單',
             status_click_classic:   '經典',
             toast_click_mode:       '🖱 點擊模式 → ',
+            sp_group_advanced:      '⚙ 進階設定',
+            sp_backup_settings:     '📤 備份設定',
+            sp_backup_btn:          '匯出 JSON',
+            sp_restore_settings:    '📥 還原設定',
+            sp_restore_btn:         '選擇檔案…',
+            sp_reset_defaults:      '🔄 重設為預設值',
+            sp_reset_confirm:       '確定要將所有設定重設為預設值嗎？\n\n將清除：複製格式、提示風格、停靠樣式、觸發距離、群組面板外觀、按鈕位置與顯示開關、列表/縮圖檢視模式。\n\n下載履歷與群組不受影響。',
+            sp_bearer_title:        '🔑 自訂 Bearer Token',
+            sp_bearer_detect:       '自動偵測',
+            sp_bearer_detecting:    '偵測中…',
+            sp_bearer_clear:        '清除',
+            sp_bearer_placeholder:  'Bearer AAAAAAAAAA…（可選，作為 401/403 備用 token）',
+            sp_bearer_hint:         '僅在 Twitter / X 的媒體擷取時使用（401/403 備用）。可在任何頁面設定，token 不會跨域送出。',
+            sp_bearer_manual:       '手動取得',
+            sp_scan_interval:       '掃描間隔',
+            hist_filter_all:        '全部',
+            hist_filter_image:      '🖼 圖片',
+            hist_filter_video:      '🎬 影片',
+            hist_sort_newest:       '最新',
+            hist_sort_oldest:       '最舊',
+            hist_sort_author:       '作者 A–Z',
+            hist_sort_count:        '媒體最多',
+            hist_search_ph:         '🔍  搜尋…',
+            sp_grp_group:           '⭐  群組',
+            sp_grp_on_dl:           '下載時分組',
+            sp_grp_glow_color:      '光暈顏色',
+            sp_grp_glow_multi:      '多色',
+            sp_grp_glow_size:       '光暈大小',
+            sp_grp_label_color:     '標籤顏色',
+            sp_grp_manage:          '管理群組',
+            sp_grp_corner:          '📌  按鈕位置',
+            sp_grp_history:         '🗂  下載履歷面板',
+            sp_grp_dock_style:      '停靠樣式',
+            sp_grp_hover_delay:     '懸停延遲',
+            sp_grp_trigger_l:       '觸發距離 ◀ 左',
+            sp_grp_trigger_r:       '觸發距離 ▶ 右',
+            sp_dock_notch:          '凹槽',
+            sp_dock_ruler:          '尺形',
+            sp_dock_ghost:          '隱形',
+            sp_dock_pill:           '膠囊',
+            sp_dock_arrow:          '箭頭',
+            sp_dock_dots:           '點點',
+            sp_grp_modal_title:     '管理群組',
+            sp_grp_modal_new:       '＋ 新增',
         },
         'zh-CN': {
             langName: '简体中文',
@@ -472,6 +563,50 @@
             status_click_menu:      '菜单',
             status_click_classic:   '经典',
             toast_click_mode:       '🖱 点击模式 → ',
+            sp_group_advanced:      '⚙ 高级设置',
+            sp_backup_settings:     '📤 备份设置',
+            sp_backup_btn:          '导出 JSON',
+            sp_restore_settings:    '📥 还原设置',
+            sp_restore_btn:         '选择文件…',
+            sp_reset_defaults:      '🔄 重置为默认值',
+            sp_reset_confirm:       '确定要将所有设置重置为默认值吗？\n\n将清除：复制格式、提示风格、停靠样式、触发距离、分组面板外观、按钮位置与显示开关、列表/缩略图视图模式。\n\n下载历史与分组不受影响。',
+            sp_bearer_title:        '🔑 自定义 Bearer Token',
+            sp_bearer_detect:       '自动检测',
+            sp_bearer_detecting:    '检测中…',
+            sp_bearer_clear:        '清除',
+            sp_bearer_placeholder:  'Bearer AAAAAAAAAA…（可选，作为 401/403 备用 token）',
+            sp_bearer_hint:         '仅在 Twitter / X 的媒体获取时使用（401/403 备用）。可在任何页面设置，token 不会跨域发送。',
+            sp_bearer_manual:       '手动获取',
+            sp_scan_interval:       '扫描间隔',
+            hist_filter_all:        '全部',
+            hist_filter_image:      '🖼 图片',
+            hist_filter_video:      '🎬 视频',
+            hist_sort_newest:       '最新',
+            hist_sort_oldest:       '最旧',
+            hist_sort_author:       '作者 A–Z',
+            hist_sort_count:        '媒体最多',
+            hist_search_ph:         '🔍  搜索…',
+            sp_grp_group:           '⭐  分组',
+            sp_grp_on_dl:           '下载时分组',
+            sp_grp_glow_color:      '光晕颜色',
+            sp_grp_glow_multi:      '多色',
+            sp_grp_glow_size:       '光晕大小',
+            sp_grp_label_color:     '标签颜色',
+            sp_grp_manage:          '管理分组',
+            sp_grp_corner:          '📌  按钮位置',
+            sp_grp_history:         '🗂  下载记录面板',
+            sp_grp_dock_style:      '停靠样式',
+            sp_grp_hover_delay:     '悬停延迟',
+            sp_grp_trigger_l:       '触发距离 ◀ 左',
+            sp_grp_trigger_r:       '触发距离 ▶ 右',
+            sp_dock_notch:          '凹槽',
+            sp_dock_ruler:          '标尺',
+            sp_dock_ghost:          '隐形',
+            sp_dock_pill:           '胶囊',
+            sp_dock_arrow:          '箭头',
+            sp_dock_dots:           '点点',
+            sp_grp_modal_title:     '管理分组',
+            sp_grp_modal_new:       '＋ 新建',
         },
         'ja': {
             langName: '日本語',
@@ -556,6 +691,50 @@
             status_click_menu:      'メニュー',
             status_click_classic:   'クラシック',
             toast_click_mode:       '🖱 クリックモード → ',
+            sp_group_advanced:      '⚙ 詳細設定',
+            sp_backup_settings:     '📤 設定バックアップ',
+            sp_backup_btn:          'JSON 書き出し',
+            sp_restore_settings:    '📥 設定の復元',
+            sp_restore_btn:         'ファイルを選択…',
+            sp_reset_defaults:      '🔄 デフォルトに戻す',
+            sp_reset_confirm:       'すべての設定をデフォルトに戻しますか？\n\nリセット対象：コピー形式、通知スタイル、ドックスタイル、トリガー距離、グループパネル外観、ボタン位置・表示、リスト/サムネイルモード。\n\nダウンロード履歴とグループは影響を受けません。',
+            sp_bearer_title:        '🔑 カスタム Bearer Token',
+            sp_bearer_detect:       '自動検出',
+            sp_bearer_detecting:    '検出中…',
+            sp_bearer_clear:        'クリア',
+            sp_bearer_placeholder:  'Bearer AAAAAAAAAA…（任意、401/403 フォールバック用）',
+            sp_bearer_hint:         'Twitter / X のメディア取得（401/403 フォールバック）でのみ使用します。どのページでも設定可能で、token はクロスドメインに送信されません。',
+            sp_bearer_manual:       '手動取得',
+            sp_scan_interval:       'スキャン間隔',
+            hist_filter_all:        'すべて',
+            hist_filter_image:      '🖼 画像',
+            hist_filter_video:      '🎬 動画',
+            hist_sort_newest:       '新しい順',
+            hist_sort_oldest:       '古い順',
+            hist_sort_author:       '著者 A–Z',
+            hist_sort_count:        'メディア数順',
+            hist_search_ph:         '🔍  検索…',
+            sp_grp_group:           '⭐  グループ',
+            sp_grp_on_dl:           'DL時にグループ分け',
+            sp_grp_glow_color:      'グロー色',
+            sp_grp_glow_multi:      'マルチ',
+            sp_grp_glow_size:       'グローサイズ',
+            sp_grp_label_color:     'ラベル色',
+            sp_grp_manage:          'グループ管理',
+            sp_grp_corner:          '📌  ボタン位置',
+            sp_grp_history:         '🗂  履歴パネル',
+            sp_grp_dock_style:      'ドックスタイル',
+            sp_grp_hover_delay:     'ホバー遅延',
+            sp_grp_trigger_l:       'トリガー距離 ◀ 左',
+            sp_grp_trigger_r:       'トリガー距離 ▶ 右',
+            sp_dock_notch:          'ノッチ',
+            sp_dock_ruler:          'ルーラー',
+            sp_dock_ghost:          'ゴースト',
+            sp_dock_pill:           'ピル',
+            sp_dock_arrow:          '矢印',
+            sp_dock_dots:           'ドット',
+            sp_grp_modal_title:     'グループ管理',
+            sp_grp_modal_new:       '＋ 新規',
         },
         'ko': {
             langName: '한국어',
@@ -640,6 +819,50 @@
             status_click_menu:      '메뉴',
             status_click_classic:   '클래식',
             toast_click_mode:       '🖱 클릭 모드 → ',
+            sp_group_advanced:      '⚙ 고급 설정',
+            sp_backup_settings:     '📤 설정 백업',
+            sp_backup_btn:          'JSON 내보내기',
+            sp_restore_settings:    '📥 설정 복원',
+            sp_restore_btn:         '파일 선택…',
+            sp_reset_defaults:      '🔄 기본값으로 재설정',
+            sp_reset_confirm:       '모든 설정을 기본값으로 재설정하시겠습니까?\n\n초기화 항목: 복사 형식, 알림 스타일, 도크 스타일, 트리거 거리, 그룹 패널, 버튼 위치/표시, 목록/썸네일 모드.\n\n다운로드 기록과 그룹은 영향받지 않습니다.',
+            sp_bearer_title:        '🔑 커스텀 Bearer Token',
+            sp_bearer_detect:       '자동 감지',
+            sp_bearer_detecting:    '감지 중…',
+            sp_bearer_clear:        '지우기',
+            sp_bearer_placeholder:  'Bearer AAAAAAAAAA…  (선택사항, 401/403 대체용)',
+            sp_bearer_hint:         'Twitter / X 미디어 불러오기(401/403 대체)에만 사용됩니다. 어느 페이지에서나 설정 가능하며 token은 교차 도메인으로 전송되지 않습니다.',
+            sp_bearer_manual:       '수동 취득',
+            sp_scan_interval:       '스캔 간격',
+            hist_filter_all:        '전체',
+            hist_filter_image:      '🖼 이미지',
+            hist_filter_video:      '🎬 동영상',
+            hist_sort_newest:       '최신순',
+            hist_sort_oldest:       '오래된순',
+            hist_sort_author:       '작성자 A–Z',
+            hist_sort_count:        '미디어 많은순',
+            hist_search_ph:         '🔍  검색…',
+            sp_grp_group:           '⭐  그룹',
+            sp_grp_on_dl:           '다운로드 시 그룹화',
+            sp_grp_glow_color:      '글로우 색상',
+            sp_grp_glow_multi:      '멀티',
+            sp_grp_glow_size:       '글로우 크기',
+            sp_grp_label_color:     '레이블 색상',
+            sp_grp_manage:          '그룹 관리',
+            sp_grp_corner:          '📌  버튼 위치',
+            sp_grp_history:         '🗂  기록 패널',
+            sp_grp_dock_style:      '도크 스타일',
+            sp_grp_hover_delay:     '호버 지연',
+            sp_grp_trigger_l:       '트리거 거리 ◀ 왼쪽',
+            sp_grp_trigger_r:       '트리거 거리 ▶ 오른쪽',
+            sp_dock_notch:          '노치',
+            sp_dock_ruler:          '룰러',
+            sp_dock_ghost:          '고스트',
+            sp_dock_pill:           '필',
+            sp_dock_arrow:          '화살표',
+            sp_dock_dots:           '점',
+            sp_grp_modal_title:     '그룹 관리',
+            sp_grp_modal_new:       '＋ 새로만들기',
         },
         'es': {
             langName: 'Español',
@@ -724,6 +947,50 @@
             status_click_menu:      'Menú',
             status_click_classic:   'Clásico',
             toast_click_mode:       '🖱 Modo de Clic → ',
+            sp_group_advanced:      '⚙ Configuración avanzada',
+            sp_backup_settings:     '📤 Copia de seguridad',
+            sp_backup_btn:          'Exportar JSON',
+            sp_restore_settings:    '📥 Restaurar configuración',
+            sp_restore_btn:         'Elegir archivo…',
+            sp_reset_defaults:      '🔄 Restablecer valores',
+            sp_reset_confirm:       '¿Restablecer toda la configuración?\n\nSe borrará: formato de copia, estilo de notificación, estilo de dock, distancias, apariencia del panel, posición de botones y modo lista/miniaturas.\n\nEl historial y los grupos no se verán afectados.',
+            sp_bearer_title:        '🔑 Bearer Token personalizado',
+            sp_bearer_detect:       'Detección automática',
+            sp_bearer_detecting:    'Detectando…',
+            sp_bearer_clear:        'Limpiar',
+            sp_bearer_placeholder:  'Bearer AAAAAAAAAA…  (opcional, para fallback 401/403 en Twitter/X)',
+            sp_bearer_hint:         'Solo se usa en Twitter / X para obtener medios (fallback 401/403). Puede configurarse en cualquier página — el token no se envía entre dominios.',
+            sp_bearer_manual:       'Manual',
+            sp_scan_interval:       'Intervalo de escaneo',
+            hist_filter_all:        'Todo',
+            hist_filter_image:      '🖼 Imagen',
+            hist_filter_video:      '🎬 Video',
+            hist_sort_newest:       'Más reciente',
+            hist_sort_oldest:       'Más antiguo',
+            hist_sort_author:       'Autor A–Z',
+            hist_sort_count:        'Más medios',
+            hist_search_ph:         '🔍  Buscar…',
+            sp_grp_group:           '⭐  Grupos',
+            sp_grp_on_dl:           'Agrupar al descargar',
+            sp_grp_glow_color:      'Color de brillo',
+            sp_grp_glow_multi:      'Multi',
+            sp_grp_glow_size:       'Tamaño del brillo',
+            sp_grp_label_color:     'Color de etiqueta',
+            sp_grp_manage:          'Gestionar grupos',
+            sp_grp_corner:          '📌  Posición del botón',
+            sp_grp_history:         '🗂  Panel de historial',
+            sp_grp_dock_style:      'Estilo de dock',
+            sp_grp_hover_delay:     'Retraso al pasar',
+            sp_grp_trigger_l:       'Distancia ◀ Izquierda',
+            sp_grp_trigger_r:       'Distancia ▶ Derecha',
+            sp_dock_notch:          'Muesca',
+            sp_dock_ruler:          'Regla',
+            sp_dock_ghost:          'Fantasma',
+            sp_dock_pill:           'Píldora',
+            sp_dock_arrow:          'Flecha',
+            sp_dock_dots:           'Puntos',
+            sp_grp_modal_title:     'Gestionar grupos',
+            sp_grp_modal_new:       '＋ Nuevo',
         },
         'pt-BR': {
             langName: 'Português (BR)',
@@ -808,6 +1075,50 @@
             status_click_menu:      'Menu',
             status_click_classic:   'Clássico',
             toast_click_mode:       '🖱 Modo de Clique → ',
+            sp_group_advanced:      '⚙ Configurações avançadas',
+            sp_backup_settings:     '📤 Backup de configurações',
+            sp_backup_btn:          'Exportar JSON',
+            sp_restore_settings:    '📥 Restaurar configurações',
+            sp_restore_btn:         'Escolher arquivo…',
+            sp_reset_defaults:      '🔄 Restaurar padrões',
+            sp_reset_confirm:       'Restaurar todas as configurações para o padrão?\n\nSerá apagado: formato de cópia, estilo de notificação, estilo de dock, distâncias, aparência do painel, posição dos botões e modo lista/miniaturas.\n\nO histórico de downloads e os grupos não serão afetados.',
+            sp_bearer_title:        '🔑 Bearer Token personalizado',
+            sp_bearer_detect:       'Detecção automática',
+            sp_bearer_detecting:    'Detectando…',
+            sp_bearer_clear:        'Limpar',
+            sp_bearer_placeholder:  'Bearer AAAAAAAAAA…  (opcional, para fallback 401/403 no Twitter/X)',
+            sp_bearer_hint:         'Usado apenas no Twitter / X para buscar mídia (fallback 401/403). Pode ser configurado em qualquer página — o token não é enviado entre domínios.',
+            sp_bearer_manual:       'Manual',
+            sp_scan_interval:       'Intervalo de varredura',
+            hist_filter_all:        'Tudo',
+            hist_filter_image:      '🖼 Imagem',
+            hist_filter_video:      '🎬 Vídeo',
+            hist_sort_newest:       'Mais recente',
+            hist_sort_oldest:       'Mais antigo',
+            hist_sort_author:       'Autor A–Z',
+            hist_sort_count:        'Mais mídia',
+            hist_search_ph:         '🔍  Pesquisar…',
+            sp_grp_group:           '⭐  Grupos',
+            sp_grp_on_dl:           'Agrupar ao baixar',
+            sp_grp_glow_color:      'Cor do brilho',
+            sp_grp_glow_multi:      'Multi',
+            sp_grp_glow_size:       'Tamanho do brilho',
+            sp_grp_label_color:     'Cor do rótulo',
+            sp_grp_manage:          'Gerenciar grupos',
+            sp_grp_corner:          '📌  Posição do botão',
+            sp_grp_history:         '🗂  Painel de histórico',
+            sp_grp_dock_style:      'Estilo do dock',
+            sp_grp_hover_delay:     'Atraso ao passar',
+            sp_grp_trigger_l:       'Distância ◀ Esquerda',
+            sp_grp_trigger_r:       'Distância ▶ Direita',
+            sp_dock_notch:          'Entalhe',
+            sp_dock_ruler:          'Régua',
+            sp_dock_ghost:          'Fantasma',
+            sp_dock_pill:           'Pílula',
+            sp_dock_arrow:          'Seta',
+            sp_dock_dots:           'Pontos',
+            sp_grp_modal_title:     'Gerenciar grupos',
+            sp_grp_modal_new:       '＋ Novo',
         },
         'fr': {
             langName: 'Français',
@@ -892,6 +1203,50 @@
             status_click_menu:      'Menu',
             status_click_classic:   'Classique',
             toast_click_mode:       '🖱 Mode de Clic → ',
+            sp_group_advanced:      '⚙ Paramètres avancés',
+            sp_backup_settings:     '📤 Sauvegarder les paramètres',
+            sp_backup_btn:          'Exporter JSON',
+            sp_restore_settings:    '📥 Restaurer les paramètres',
+            sp_restore_btn:         'Choisir un fichier…',
+            sp_reset_defaults:      '🔄 Réinitialiser les paramètres',
+            sp_reset_confirm:       'Réinitialiser tous les paramètres aux valeurs par défaut ?\n\nCeci effacera : format de copie, style de notification, style de dock, distances, apparence du panneau, position des boutons et mode liste/vignettes.\n\nL\'historique et les groupes ne seront pas affectés.',
+            sp_bearer_title:        '🔑 Bearer Token personnalisé',
+            sp_bearer_detect:       'Détection automatique',
+            sp_bearer_detecting:    'Détection…',
+            sp_bearer_clear:        'Effacer',
+            sp_bearer_placeholder:  'Bearer AAAAAAAAAA…  (optionnel, pour le fallback 401/403 sur Twitter/X)',
+            sp_bearer_hint:         'Utilisé uniquement sur Twitter / X pour récupérer les médias (fallback 401/403). Configurable sur n\'importe quelle page — le token n\'est pas envoyé entre domaines.',
+            sp_bearer_manual:       'Manuel',
+            sp_scan_interval:       'Intervalle de scan',
+            hist_filter_all:        'Tout',
+            hist_filter_image:      '🖼 Image',
+            hist_filter_video:      '🎬 Vidéo',
+            hist_sort_newest:       'Plus récent',
+            hist_sort_oldest:       'Plus ancien',
+            hist_sort_author:       'Auteur A–Z',
+            hist_sort_count:        'Plus de médias',
+            hist_search_ph:         '🔍  Rechercher…',
+            sp_grp_group:           '⭐  Groupes',
+            sp_grp_on_dl:           'Grouper au téléchargement',
+            sp_grp_glow_color:      'Couleur de lueur',
+            sp_grp_glow_multi:      'Multi',
+            sp_grp_glow_size:       'Taille de lueur',
+            sp_grp_label_color:     'Couleur d\'étiquette',
+            sp_grp_manage:          'Gérer les groupes',
+            sp_grp_corner:          '📌  Position du bouton',
+            sp_grp_history:         '🗂  Panneau historique',
+            sp_grp_dock_style:      'Style du dock',
+            sp_grp_hover_delay:     'Délai au survol',
+            sp_grp_trigger_l:       'Distance ◀ Gauche',
+            sp_grp_trigger_r:       'Distance ▶ Droite',
+            sp_dock_notch:          'Encoche',
+            sp_dock_ruler:          'Règle',
+            sp_dock_ghost:          'Fantôme',
+            sp_dock_pill:           'Pilule',
+            sp_dock_arrow:          'Flèche',
+            sp_dock_dots:           'Points',
+            sp_grp_modal_title:     'Gérer les groupes',
+            sp_grp_modal_new:       '＋ Nouveau',
         },
         'ru': {
             langName: 'Русский',
@@ -976,6 +1331,50 @@
             status_click_menu:      'Меню',
             status_click_classic:   'Классика',
             toast_click_mode:       '🖱 Режим клика → ',
+            sp_group_advanced:      '⚙ Дополнительно',
+            sp_backup_settings:     '📤 Резервное копирование',
+            sp_backup_btn:          'Экспорт JSON',
+            sp_restore_settings:    '📥 Восстановить настройки',
+            sp_restore_btn:         'Выбрать файл…',
+            sp_reset_defaults:      '🔄 Сбросить настройки',
+            sp_reset_confirm:       'Сбросить все настройки до значений по умолчанию?\n\nБудет очищено: формат копирования, стиль уведомлений, стиль панели, расстояния активации, внешний вид, положение кнопок и режим список/миниатюры.\n\nИстория загрузок и группы не затронуты.',
+            sp_bearer_title:        '🔑 Пользовательский Bearer Token',
+            sp_bearer_detect:       'Автоопределение',
+            sp_bearer_detecting:    'Определение…',
+            sp_bearer_clear:        'Очистить',
+            sp_bearer_placeholder:  'Bearer AAAAAAAAAA…  (необязательно, для 401/403 на Twitter/X)',
+            sp_bearer_hint:         'Используется только на Twitter / X для загрузки медиа (401/403 fallback). Можно настроить на любой странице — token не передаётся между доменами.',
+            sp_bearer_manual:       'Вручную',
+            sp_scan_interval:       'Интервал сканирования',
+            hist_filter_all:        'Все',
+            hist_filter_image:      '🖼 Изображение',
+            hist_filter_video:      '🎬 Видео',
+            hist_sort_newest:       'Сначала новые',
+            hist_sort_oldest:       'Сначала старые',
+            hist_sort_author:       'Автор А–Я',
+            hist_sort_count:        'Больше медиа',
+            hist_search_ph:         '🔍  Поиск…',
+            sp_grp_group:           '⭐  Группы',
+            sp_grp_on_dl:           'Группировать при загрузке',
+            sp_grp_glow_color:      'Цвет свечения',
+            sp_grp_glow_multi:      'Мульти',
+            sp_grp_glow_size:       'Размер свечения',
+            sp_grp_label_color:     'Цвет подписи',
+            sp_grp_manage:          'Управление группами',
+            sp_grp_corner:          '📌  Позиция кнопки',
+            sp_grp_history:         '🗂  Панель истории',
+            sp_grp_dock_style:      'Стиль панели',
+            sp_grp_hover_delay:     'Задержка наведения',
+            sp_grp_trigger_l:       'Расстояние ◀ Левое',
+            sp_grp_trigger_r:       'Расстояние ▶ Правое',
+            sp_dock_notch:          'Вырез',
+            sp_dock_ruler:          'Линейка',
+            sp_dock_ghost:          'Призрак',
+            sp_dock_pill:           'Капсула',
+            sp_dock_arrow:          'Стрелка',
+            sp_dock_dots:           'Точки',
+            sp_grp_modal_title:     'Управление группами',
+            sp_grp_modal_new:       '＋ Создать',
         }
     };
 
@@ -3787,15 +4186,15 @@
                 showLangPickerModal();
             }));
 
-            const grpGroups = makeGroup('⭐  Groups', true);
+            const grpGroups = makeGroup(T.sp_grp_group || '⭐  Groups', true);
 
             const groupOnDlRow = makeRow(
-                'Group on Download',
+                T.sp_grp_on_dl || 'Group on Download',
                 () => GM_getValue(KEY_GROUP_ON_DOWNLOAD, false) ? (T.status_on || 'On') : (T.status_off || 'Off'),
                 () => {
                     const next = !GM_getValue(KEY_GROUP_ON_DOWNLOAD, false);
                     GM_setValue(KEY_GROUP_ON_DOWNLOAD, next);
-                    showToast('Group on Download → ' + (next ? (T.status_on || 'On') : (T.status_off || 'Off')));
+                    showToast((T.sp_grp_on_dl || 'Group on Download') + ' → ' + (next ? (T.status_on || 'On') : (T.status_off || 'Off')));
                     _syncGroupChildrenDisabled();
                 },
                 'sp_group_on_dl'
@@ -3816,7 +4215,7 @@
                 labelRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:7px';
                 const lbl = document.createElement('span');
                 lbl.style.cssText = 'font-size:12px;color:rgba(255,255,255,.7)';
-                lbl.textContent   = 'Glow Color';
+                lbl.textContent   = T.sp_grp_glow_color || 'Glow Color';
 
                 const multiToggle = document.createElement('button');
                 multiToggle.type = 'button';
@@ -3829,7 +4228,7 @@
                     border:${isMulti ? '1px solid transparent' : '1px solid rgba(255,255,255,.3)'};
                     transition:background .12s,color .12s,border-color .12s;
                 `;
-                multiToggle.textContent = 'Multi';
+                multiToggle.textContent = T.sp_grp_glow_multi || 'Multi';
                 multiToggle.title = 'Use individual color per group';
                 multiToggle.addEventListener('click', () => {
                     const cfg = (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })();
@@ -3839,7 +4238,7 @@
                     multiToggle.style.background    = next === 'multi' ? 'rgba(29,155,240,.7)' : 'transparent';
                     multiToggle.style.color         = next === 'multi' ? '#fff' : 'rgba(255,255,255,.65)';
                     multiToggle.style.borderColor   = next === 'multi' ? 'transparent' : 'rgba(255,255,255,.3)';
-                    showToast('Glow Color → ' + (next === 'multi' ? 'Multi' : next));
+                    showToast((T.sp_grp_glow_color || 'Glow Color') + ' → ' + (next === 'multi' ? (T.sp_grp_glow_multi || 'Multi') : next));
                 });
 
                 labelRow.appendChild(lbl);
@@ -3900,7 +4299,7 @@
             grpGroups.append(glowColorRow);
 
             grpGroups.append(makeSliderRow(
-                'Glow Size', _grpGlowSz, 4, 60, 2, 'px',
+                T.sp_grp_glow_size || 'Glow Size', _grpGlowSz, 4, 60, 2, 'px',
                 null,
                 (n) => {
                     const cfg = (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })();
@@ -3919,7 +4318,7 @@
                 topRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:7px';
                 const lbl = document.createElement('span');
                 lbl.style.cssText = 'font-size:12px;color:rgba(255,255,255,.7)';
-                lbl.textContent   = 'Label Color';
+                lbl.textContent   = T.sp_grp_label_color || 'Label Color';
                 topRow.appendChild(lbl);
 
                 const colorRow = document.createElement('div');
@@ -3977,7 +4376,7 @@
 
             const manageBtn = document.createElement('button');
             manageBtn.type = 'button';
-            manageBtn.textContent = 'Manage Groups';
+            manageBtn.textContent = T.sp_grp_manage || 'Manage Groups';
             manageBtn.style.cssText = `
                 width:100%;padding:8px 0;border-radius:8px;
                 border:1px solid rgba(255,255,255,.15);
@@ -4006,7 +4405,7 @@
             };
             _syncGroupChildrenDisabled();
 
-            const grpCorner = makeGroup('📌  Corner Position', true, null, () => {
+            const grpCorner = makeGroup(T.sp_grp_corner || '📌  Corner Position', true, null, () => {
                 markFeatureSeen('sp_corner_position');
             });
 
@@ -4292,7 +4691,7 @@
             grpCorner.append(cornerRow);
 
             const HIST_TOOLTIP = 'Hidden feature: The history panel has invisible dock triggers on its left & right edges. Click them to auto-hide the panel to the screen edge!';
-            const grpHist = makeGroup('🗂  History Panel', false, HIST_TOOLTIP, showDockSpotlight);
+            const grpHist = makeGroup(T.sp_grp_history || '🗂  History Panel', false, HIST_TOOLTIP, showDockSpotlight);
 
             const _DS = {
                 bg:    'rgba(255,255,255,0.06)',
@@ -4302,34 +4701,22 @@
                 sub:   'rgba(255,255,255,0.25)',
             };
             const dockStyleOpts = [
-                {
-                    value: 'notch', label: 'Notch',
-                    svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="0" width="10" height="52" rx="1" fill="${_DS.bg}"/><rect x="12" y="20" width="4" height="12" rx="2" fill="${_DS.blue}"/></svg>`,
-                },
-                {
-                    value: 'ruler', label: 'Ruler',
-                    svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="0" width="10" height="52" rx="1" fill="${_DS.strip}"/><line x1="9" y1="4"  x2="19" y2="4"  stroke="${_DS.blue}"  stroke-width="1.5"/><line x1="9" y1="10" x2="15" y2="10" stroke="${_DS.blueL}" stroke-width="0.8"/><line x1="9" y1="16" x2="15" y2="16" stroke="${_DS.blueL}" stroke-width="0.8"/><line x1="9" y1="22" x2="19" y2="22" stroke="${_DS.blue}"  stroke-width="1.5"/><line x1="9" y1="28" x2="15" y2="28" stroke="${_DS.blueL}" stroke-width="0.8"/><line x1="9" y1="34" x2="15" y2="34" stroke="${_DS.blueL}" stroke-width="0.8"/><line x1="9" y1="40" x2="19" y2="40" stroke="${_DS.blue}"  stroke-width="1.5"/><line x1="9" y1="46" x2="15" y2="46" stroke="${_DS.blueL}" stroke-width="0.8"/></svg>`,
-                },
-                {
-                    value: 'ghost', label: 'Ghost',
-                    svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="0" width="8" height="52" rx="1" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="1" stroke-dasharray="3 4"/><line x1="10" y1="7"  x2="18" y2="7"  stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><line x1="10" y1="14" x2="18" y2="14" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><line x1="10" y1="21" x2="18" y2="21" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><line x1="10" y1="28" x2="18" y2="28" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><line x1="10" y1="35" x2="18" y2="35" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><line x1="10" y1="42" x2="18" y2="42" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/></svg>`,
-                },
-                {
-                    value: 'pill', label: 'Pill',
-                    svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="11" y="0" width="6" height="52" rx="0" fill="${_DS.bg}"/><rect x="11" y="16" width="6" height="20" rx="3" fill="${_DS.blue}"/></svg>`,
-                },
-                {
-                    value: 'arrow', label: 'Arrow',
-                    svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="0" width="8" height="52" rx="1" fill="${_DS.bg}"/><path d="M12 21 L17 26 L12 31" stroke="${_DS.blue}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-                },
-                {
-                    value: 'dots', label: 'Dots',
-                    svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="0" width="8" height="52" rx="1" fill="${_DS.bg}"/><circle cx="14" cy="19" r="1.8" fill="${_DS.sub}"/><circle cx="14" cy="26" r="1.8" fill="${_DS.blue}"/><circle cx="14" cy="33" r="1.8" fill="${_DS.sub}"/></svg>`,
-                },
+                { value: 'notch', label: T.sp_dock_notch || 'Notch',
+                  svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="0" width="10" height="52" rx="1" fill="${_DS.bg}"/><rect x="12" y="20" width="4" height="12" rx="2" fill="${_DS.blue}"/></svg>` },
+                { value: 'ruler', label: T.sp_dock_ruler || 'Ruler',
+                  svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="0" width="10" height="52" rx="1" fill="${_DS.strip}"/><line x1="9" y1="4"  x2="19" y2="4"  stroke="${_DS.blue}"  stroke-width="1.5"/><line x1="9" y1="10" x2="15" y2="10" stroke="${_DS.blueL}" stroke-width="0.8"/><line x1="9" y1="16" x2="15" y2="16" stroke="${_DS.blueL}" stroke-width="0.8"/><line x1="9" y1="22" x2="19" y2="22" stroke="${_DS.blue}"  stroke-width="1.5"/><line x1="9" y1="28" x2="15" y2="28" stroke="${_DS.blueL}" stroke-width="0.8"/><line x1="9" y1="34" x2="15" y2="34" stroke="${_DS.blueL}" stroke-width="0.8"/><line x1="9" y1="40" x2="19" y2="40" stroke="${_DS.blue}"  stroke-width="1.5"/><line x1="9" y1="46" x2="15" y2="46" stroke="${_DS.blueL}" stroke-width="0.8"/></svg>` },
+                { value: 'ghost', label: T.sp_dock_ghost || 'Ghost',
+                  svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="0" width="8" height="52" rx="1" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="1" stroke-dasharray="3 4"/><line x1="10" y1="7"  x2="18" y2="7"  stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><line x1="10" y1="14" x2="18" y2="14" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><line x1="10" y1="21" x2="18" y2="21" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><line x1="10" y1="28" x2="18" y2="28" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><line x1="10" y1="35" x2="18" y2="35" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><line x1="10" y1="42" x2="18" y2="42" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/></svg>` },
+                { value: 'pill',  label: T.sp_dock_pill  || 'Pill',
+                  svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="11" y="0" width="6" height="52" rx="0" fill="${_DS.bg}"/><rect x="11" y="16" width="6" height="20" rx="3" fill="${_DS.blue}"/></svg>` },
+                { value: 'arrow', label: T.sp_dock_arrow || 'Arrow',
+                  svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="0" width="8" height="52" rx="1" fill="${_DS.bg}"/><path d="M12 21 L17 26 L12 31" stroke="${_DS.blue}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>` },
+                { value: 'dots',  label: T.sp_dock_dots  || 'Dots',
+                  svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="0" width="8" height="52" rx="1" fill="${_DS.bg}"/><circle cx="14" cy="19" r="1.8" fill="${_DS.sub}"/><circle cx="14" cy="26" r="1.8" fill="${_DS.blue}"/><circle cx="14" cy="33" r="1.8" fill="${_DS.sub}"/></svg>` },
             ];
-            grpHist.append(makeDockStylePickerRow('Dock Style', dockStyleOpts, dockStyle, (next) => {
+            grpHist.append(makeDockStylePickerRow(T.sp_grp_dock_style || 'Dock Style', dockStyleOpts, dockStyle, (next) => {
                 GM_setValue(KEY_DOCK_STYLE, next);
-                showToast('🗂 Dock Style → ' + (dockStyleOpts.find(o => o.value === next)?.label ?? next));
+                showToast('🗂 ' + (T.sp_grp_dock_style || 'Dock Style') + ' → ' + (dockStyleOpts.find(o => o.value === next)?.label ?? next));
                 const curTab = document.getElementById('tm-hist-dock-tab');
                 if (curTab) {
                     const sideClass = [...curTab.classList].find(c => c.startsWith('side-')) ?? '';
@@ -4346,14 +4733,14 @@
             }, 'sp_dock_picker'));
 
             grpHist.append(makeSliderRow(
-                'Hover Delay', dockHoverDelay, 100, 3000, 50, 'ms',
+                T.sp_grp_hover_delay || 'Hover Delay', dockHoverDelay, 100, 3000, 50, 'ms',
                 null,
-                (n) => { GM_setValue(KEY_DOCK_HOVER_DELAY, String(n)); showToast('⏱ Hover Delay → ' + n + ' ms'); },
+                (n) => { GM_setValue(KEY_DOCK_HOVER_DELAY, String(n)); showToast('⏱ ' + (T.sp_grp_hover_delay || 'Hover Delay') + ' → ' + n + ' ms'); },
                 'sp_slider_controls'
             ));
 
             grpHist.append(makeSliderRow(
-                'Trigger Distance ◀ Left', dockTriggerL, 20, 120, 5, 'px',
+                T.sp_grp_trigger_l || 'Trigger Distance ◀ Left', dockTriggerL, 20, 120, 5, 'px',
                 (n) => {
                     const hotzone = document.querySelector('#tm-hist-dock-tab.side-left .tm-dock-hotzone');
                     if (hotzone) hotzone.style.width = n + 'px';
@@ -4363,7 +4750,7 @@
             ));
 
             grpHist.append(makeSliderRow(
-                'Trigger Distance ▶ Right', dockTriggerR, 20, 120, 5, 'px',
+                T.sp_grp_trigger_r || 'Trigger Distance ▶ Right', dockTriggerR, 20, 120, 5, 'px',
                 (n) => {
                     const hotzone = document.querySelector('#tm-hist-dock-tab.side-right .tm-dock-hotzone');
                     if (hotzone) hotzone.style.width = n + 'px';
@@ -4372,7 +4759,7 @@
                 'sp_slider_controls'
             ));
 
-            const grpAdv = makeGroup('⚙ Advanced', false, null);
+            const grpAdv = makeGroup(T.sp_group_advanced || '⚙ Advanced', false, null);
 
             const ALL_SETTING_KEYS = [
                 KEY_PREFIX_TEXT, KEY_LANG, KEY_LINK_DOMAIN_CLICK, KEY_CLICK_MODE_CUSTOM,
@@ -4405,10 +4792,10 @@
             const backupRow = document.createElement('div');
             backupRow.style.cssText = _ROW_CSS;
             const backupLabel = document.createElement('span');
-            backupLabel.textContent = '📤 Backup settings';
+            backupLabel.textContent = T.sp_backup_settings || '📤 Backup settings';
             backupLabel.style.flex = '1';
             const backupBtn = document.createElement('button');
-            backupBtn.textContent = 'Export JSON';
+            backupBtn.textContent = T.sp_backup_btn || 'Export JSON';
             backupBtn.style.cssText = _BTN_CSS;
             backupBtn.onclick = _exportSettings;
             backupRow.append(backupLabel, backupBtn);
@@ -4417,7 +4804,7 @@
             const importRow = document.createElement('div');
             importRow.style.cssText = _ROW_CSS;
             const importLabel = document.createElement('span');
-            importLabel.textContent = '📥 Restore settings';
+            importLabel.textContent = T.sp_restore_settings || '📥 Restore settings';
             importLabel.style.flex = '1';
             const importFileInput = document.createElement('input');
             importFileInput.type = 'file';
@@ -4432,14 +4819,14 @@
                 importFileInput.value = '';
             });
             const importBtn = document.createElement('button');
-            importBtn.textContent = 'Choose file…';
+            importBtn.textContent = T.sp_restore_btn || 'Choose file…';
             importBtn.style.cssText = _BTN_CSS;
             importBtn.onclick = () => importFileInput.click();
             importRow.append(importLabel, importBtn, importFileInput);
             grpAdv.append(importRow);
 
-            const resetRow = makeRow('🔄 Reset to defaults', '', () => {
-                const confirmed = confirm(
+            const resetRow = makeRow(T.sp_reset_defaults || '🔄 Reset to defaults', '', () => {
+                const confirmed = confirm(T.sp_reset_confirm ||
                     'Reset all settings to defaults?\n\n' +
                     'This will clear: copy format, feedback style, dock style, trigger distances, ' +
                     'group panel appearance, corner position, button visibility, and list/thumb view mode.\n\n' +
@@ -4470,7 +4857,7 @@
             const bearerTitleRow = document.createElement('div');
             bearerTitleRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:5px;';
             const bearerLabel = document.createElement('span');
-            bearerLabel.textContent = '🔑 Custom Bearer Token';
+            bearerLabel.textContent = T.sp_bearer_title || '🔑 Custom Bearer Token';
             bearerLabel.style.flex = '1';
             const bearerHelpBtn = document.createElement('button');
             bearerHelpBtn.title = 'What is this?';
@@ -4488,10 +4875,11 @@
                 border-radius:8px; padding:8px 10px; margin-top:5px;
                 font:11px system-ui; color:${C.sub}; line-height:1.6;
             `;
+            const _bHint = T.sp_bearer_hint || 'Only used on Twitter / X for media fetch (401/403 fallback). Safe to set on any page — the token is never sent cross-domain.';
+            const _bManual = T.sp_bearer_manual || 'Manual';
             bearerPopover.innerHTML =
-                'Only used on Twitter / X for media fetch (401/403 fallback). ' +
-                'Safe to set on any page — the token is never sent cross-domain.<br>' +
-                `<b style="color:${C.text}">Manual:</b> Twitter DevTools → Network → ` +
+                _escHtml(_bHint) + '<br>' +
+                `<b style="color:${C.text}">${_escHtml(_bManual)}:</b> Twitter DevTools → Network → ` +
                 `any <code style="font-family:monospace;color:${C.text}">/i/api/</code> request → ` +
                 `<code style="font-family:monospace;color:${C.text}">Authorization</code> header.`;
             bearerHelpBtn.addEventListener('click', () => {
@@ -4500,8 +4888,8 @@
                 bearerHelpBtn.style.color = open ? C.sub : '#1d9bf0';
             });
             const bearerDetectBtn = document.createElement('button');
-            bearerDetectBtn.textContent = 'Auto-detect';
-            bearerDetectBtn.title = 'Scan Twitter page scripts to extract Bearer Token automatically';
+            bearerDetectBtn.textContent = T.sp_bearer_detect || 'Auto-detect';
+            bearerDetectBtn.title = T.sp_bearer_detect || 'Auto-detect';
             bearerDetectBtn.style.cssText = `padding:3px 9px;border-radius:5px;border:1px solid ${C.border};background:${C.inputBg};color:${_isTwitterDomain ? C.text : C.sub};cursor:pointer;font:11px system-ui;margin-right:4px;`;
             bearerDetectBtn.addEventListener('click', async () => {
                 if (!_isTwitterDomain) {
@@ -4509,7 +4897,7 @@
                     return;
                 }
                 const _origTxt = bearerDetectBtn.textContent;
-                bearerDetectBtn.textContent = 'Detecting…';
+                bearerDetectBtn.textContent = T.sp_bearer_detecting || 'Detecting…';
                 bearerDetectBtn.disabled = true;
                 try {
                     let found = null;
@@ -4536,12 +4924,12 @@
                 }
             });
             const bearerClearBtn = document.createElement('button');
-            bearerClearBtn.textContent = 'Clear';
+            bearerClearBtn.textContent = T.sp_bearer_clear || 'Clear';
             bearerClearBtn.style.cssText = `padding:3px 9px;border-radius:5px;border:1px solid ${C.border};background:${C.inputBg};color:${_isTwitterDomain ? C.text : C.sub};cursor:pointer;font:11px system-ui;`;
             bearerTitleRow.append(bearerLabel, bearerHelpBtn, bearerDetectBtn, bearerClearBtn);
             const bearerTa = document.createElement('textarea');
             bearerTa.rows = 2;
-            bearerTa.placeholder = 'Bearer AAAAAAAAAA…  (optional, for 401/403 fallback on Twitter/X)';
+            bearerTa.placeholder = T.sp_bearer_placeholder || 'Bearer AAAAAAAAAA…  (optional, for 401/403 fallback on Twitter/X)';
             bearerTa.style.cssText = `width:100%;box-sizing:border-box;background:${C.inputBg};color:${C.text};border:1px solid ${C.border};border-radius:6px;padding:5px 8px;font:11px monospace;resize:vertical;`;
             bearerTa.value = GM_getValue(KEY_CUSTOM_BEARER, '');
             bearerTa.addEventListener('change', () => GM_setValue(KEY_CUSTOM_BEARER, bearerTa.value.trim()));
@@ -4550,7 +4938,7 @@
             grpAdv.append(bearerRow);
 
             grpAdv.append(makeSliderRow(
-                'Scan Interval', parseInt(GM_getValue(KEY_SCAN_INTERVAL, '1500'), 10) || 1500,
+                T.sp_scan_interval || 'Scan Interval', parseInt(GM_getValue(KEY_SCAN_INTERVAL, '1500'), 10) || 1500,
                 500, 5000, 100, 'ms', null,
                 (n) => {
                     GM_setValue(KEY_SCAN_INTERVAL, String(n));
@@ -5206,11 +5594,11 @@
         const title = document.createElement('div');
         title.className   = 'tm-group-modal-title';
         title.style.margin = '0';
-        title.textContent = 'Manage Groups';
+        title.textContent = T.sp_grp_modal_title || 'Manage Groups';
 
         const newBtn = document.createElement('button');
         newBtn.type = 'button';
-        newBtn.textContent = '＋ New';
+        newBtn.textContent = T.sp_grp_modal_new || '＋ New';
         newBtn.style.cssText = `
             padding:5px 10px;border-radius:7px;border:none;
             background:#1d9bf0;color:#fff;
@@ -6660,8 +7048,12 @@
             border-radius:6px;padding:3px 7px;font:13px system-ui;cursor:pointer;margin-left:4px;
             max-width:110px;
         `;
-        [['newest','Newest'],['oldest','Oldest'],['author','Author A–Z'],['count','Most Media']]
-            .forEach(([v, label]) => {
+        [
+            ['newest', T.hist_sort_newest || 'Newest'],
+            ['oldest', T.hist_sort_oldest || 'Oldest'],
+            ['author', T.hist_sort_author || 'Author A–Z'],
+            ['count',  T.hist_sort_count  || 'Most Media'],
+        ].forEach(([v, label]) => {
                 const o = document.createElement('option');
                 o.value = v; o.textContent = label; sortSel.appendChild(o);
             });
@@ -6679,7 +7071,7 @@
         const searchInput = document.createElement('input');
         searchInput.id = 'tm-hist-search';
         searchInput.type = 'search';
-        searchInput.placeholder = '🔍  Search…';
+        searchInput.placeholder = T.hist_search_ph || '🔍  Search…';
         _searchDrop = document.createElement('div');
         _searchDrop.className = 'tm-search-drop';
         _searchDrop.style.display = 'none';
@@ -6693,7 +7085,11 @@
             padding:5px 8px 5px 12px; flex-shrink:0;
             border-bottom:1px solid ${C.border};
         `;
-        const FILTER_OPTS = [['all','All'],['image','🖼 Image'],['video','🎬 Video']];
+        const FILTER_OPTS = [
+            ['all',   T.hist_filter_all   || 'All'],
+            ['image', T.hist_filter_image || '🖼 Image'],
+            ['video', T.hist_filter_video || '🎬 Video'],
+        ];
         const _pillEls = {};
         FILTER_OPTS.forEach(([val, label]) => {
             const pill = document.createElement('button');
