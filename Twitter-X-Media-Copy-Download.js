@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.0.8
+// @version      2.9.0.13
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -324,6 +324,7 @@
             hist_filter_all:        'All',
             hist_filter_image:      '🖼 Image',
             hist_filter_video:      '🎬 Video',
+            hist_filter_text:       '📝 Text',
             hist_sort_newest:       'Newest',
             hist_sort_oldest:       'Oldest',
             hist_sort_author:       'Author A–Z',
@@ -453,6 +454,7 @@
             hist_filter_all:        '全部',
             hist_filter_image:      '🖼 圖片',
             hist_filter_video:      '🎬 影片',
+            hist_filter_text:       '📝 純文字',
             hist_sort_newest:       '最新',
             hist_sort_oldest:       '最舊',
             hist_sort_author:       '作者 A–Z',
@@ -581,6 +583,7 @@
             hist_filter_all:        '全部',
             hist_filter_image:      '🖼 图片',
             hist_filter_video:      '🎬 视频',
+            hist_filter_text:       '📝 纯文字',
             hist_sort_newest:       '最新',
             hist_sort_oldest:       '最旧',
             hist_sort_author:       '作者 A–Z',
@@ -709,6 +712,7 @@
             hist_filter_all:        'すべて',
             hist_filter_image:      '🖼 画像',
             hist_filter_video:      '🎬 動画',
+            hist_filter_text:       '📝 テキスト',
             hist_sort_newest:       '新しい順',
             hist_sort_oldest:       '古い順',
             hist_sort_author:       '著者 A–Z',
@@ -837,6 +841,7 @@
             hist_filter_all:        '전체',
             hist_filter_image:      '🖼 이미지',
             hist_filter_video:      '🎬 동영상',
+            hist_filter_text:       '📝 텍스트',
             hist_sort_newest:       '최신순',
             hist_sort_oldest:       '오래된순',
             hist_sort_author:       '작성자 A–Z',
@@ -965,6 +970,7 @@
             hist_filter_all:        'Todo',
             hist_filter_image:      '🖼 Imagen',
             hist_filter_video:      '🎬 Video',
+            hist_filter_text:       '📝 Texto',
             hist_sort_newest:       'Más reciente',
             hist_sort_oldest:       'Más antiguo',
             hist_sort_author:       'Autor A–Z',
@@ -1093,6 +1099,7 @@
             hist_filter_all:        'Tudo',
             hist_filter_image:      '🖼 Imagem',
             hist_filter_video:      '🎬 Vídeo',
+            hist_filter_text:       '📝 Texto',
             hist_sort_newest:       'Mais recente',
             hist_sort_oldest:       'Mais antigo',
             hist_sort_author:       'Autor A–Z',
@@ -1221,6 +1228,7 @@
             hist_filter_all:        'Tout',
             hist_filter_image:      '🖼 Image',
             hist_filter_video:      '🎬 Vidéo',
+            hist_filter_text:       '📝 Texte',
             hist_sort_newest:       'Plus récent',
             hist_sort_oldest:       'Plus ancien',
             hist_sort_author:       'Auteur A–Z',
@@ -1349,6 +1357,7 @@
             hist_filter_all:        'Все',
             hist_filter_image:      '🖼 Изображение',
             hist_filter_video:      '🎬 Видео',
+            hist_filter_text:       '📝 Текст',
             hist_sort_newest:       'Сначала новые',
             hist_sort_oldest:       'Сначала старые',
             hist_sort_author:       'Автор А–Я',
@@ -3368,7 +3377,7 @@
             .tm-group-modal-box {
                 background: #1a1f2e;
                 border: 0.5px solid rgba(255,255,255,.13);
-                border-radius: 14px; padding: 18px 20px; width: 230px;
+                border-radius: 14px; padding: 20px 22px; width: 310px;
                 max-height: calc(100dvh - 48px);
                 overflow: hidden;
                 display: flex; flex-direction: column;
@@ -5387,44 +5396,63 @@
     }, true);
 
     const _GROUP_SVG_ICONS = [
-        { id:'travel',  label:'Travel',  color:'#4dd0e1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.5-8 13-8 13S4 15.5 4 10a8 8 0 0 1 8-8z"/></svg>' },
-        { id:'art',     label:'Art',     color:'#ce93d8', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 12a4 4 0 0 1 4-4 4 4 0 0 1 4 4"/><circle cx="8.5" cy="9" r=".8" fill="currentColor"/><circle cx="15.5" cy="9" r=".8" fill="currentColor"/></svg>' },
-        { id:'photo',   label:'Photo',   color:'#ffb74d', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="6" width="20" height="15" rx="2"/><circle cx="12" cy="13.5" r="3"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/></svg>' },
-        { id:'music',   label:'Music',   color:'#f48fb1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>' },
-        { id:'food',    label:'Food',    color:'#a5d6a7', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="8"/><line x1="10" y1="2" x2="10" y2="8"/><line x1="14" y1="2" x2="14" y2="8"/></svg>' },
-        { id:'game',    label:'Game',    color:'#80cbc4', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="3"/><path d="M7 11v4M5 13h4"/><circle cx="16.5" cy="12" r=".8" fill="currentColor"/><circle cx="18.5" cy="14" r=".8" fill="currentColor"/></svg>' },
-        { id:'nature',  label:'Nature',  color:'#c5e1a5', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 22V12"/><path d="M5 12c0-4 3-7 7-7s7 3 7 7c0 2.5-1.5 4.5-4 5.5"/><path d="M3 18c0-2.5 2-4 4.5-4C9 14 10 15.5 12 16"/></svg>' },
-        { id:'book',    label:'Book',    color:'#ffcc80', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' },
-        { id:'star',    label:'Fav',     color:'#fff176', svg:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>' },
-        { id:'work',    label:'Work',    color:'#b0bec5', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="12.01"/></svg>' },
-        { id:'sport',   label:'Sport',   color:'#ef9a9a', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93c2.34 2.34 3.07 5.71 2.07 8.71M19.07 4.93c-2.34 2.34-3.07 5.71-2.07 8.71M4.93 19.07c2.34-2.34 5.71-3.07 8.71-2.07M19.07 19.07c-2.34-2.34-5.71-3.07-8.71-2.07"/></svg>' },
-        { id:'video',   label:'Video',   color:'#ff8a65', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="4" width="15" height="16" rx="2"/><path d="M17 8l5-3v14l-5-3V8z"/></svg>' },
-        { id:'pet',     label:'Pet',     color:'#ffab91', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="14" r="6"/><circle cx="7" cy="6" r="2"/><circle cx="17" cy="6" r="2"/><circle cx="4" cy="11" r="1.5"/><circle cx="20" cy="11" r="1.5"/></svg>' },
-        { id:'fashion', label:'Fashion', color:'#f8bbd0', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>' },
-        { id:'finance', label:'Finance', color:'#a5d6a7', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>' },
-        { id:'tech',    label:'Tech',    color:'#90caf9', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>' },
-        { id:'health',  label:'Health',  color:'#ef9a9a', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' },
-        { id:'news',    label:'News',    color:'#b0bec5', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 0-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><line x1="18" y1="2" x2="18" y2="22"/><line x1="8" y1="10" x2="14" y2="10"/><line x1="8" y1="14" x2="14" y2="14"/></svg>' },
-        { id:'flower',  label:'Flower',  color:'#f48fb1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2a3 3 0 0 1 3 3 3 3 0 0 1-3 3 3 3 0 0 1-3-3 3 3 0 0 1 3-3zm0 14a3 3 0 0 1 3 3 3 3 0 0 1-3 3 3 3 0 0 1-3-3 3 3 0 0 1 3-3zm10-7a3 3 0 0 1 0 6 3 3 0 0 1-3-3 3 3 0 0 1 3-3zM2 12a3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3 3 3 0 0 1-3-3zm12.24-5.76a3 3 0 0 1 4.24 0 3 3 0 0 1 0 4.24 3 3 0 0 1-4.24 0 3 3 0 0 1 0-4.24zm-8.48 0a3 3 0 0 1 4.24 0 3 3 0 0 1 0 4.24 3 3 0 0 1-4.24 0 3 3 0 0 1 0-4.24zm0 8.48a3 3 0 0 1 4.24 0 3 3 0 0 1 0 4.24 3 3 0 0 1-4.24 0 3 3 0 0 1 0-4.24zm8.48 0a3 3 0 0 1 4.24 0 3 3 0 0 1 0 4.24 3 3 0 0 1-4.24 0 3 3 0 0 1 0-4.24z"/></svg>' },
-        { id:'fire',    label:'Fire',    color:'#ff7043', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 0-4 4-4 9a4 4 0 0 0 8 0c0-2-1-4-1-4s-1 2-3 2c-1 0-2-1-2-2 0-2 2-5 2-5z"/><path d="M12 22c-3.31 0-6-2.69-6-6 0-2.5 1.5-4.5 1.5-4.5S9 13 12 13s4.5-1.5 4.5-1.5S18 13.5 18 16c0 3.31-2.69 6-6 6z"/></svg>' },
-        { id:'brain',   label:'Brain',   color:'#ce93d8', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3a3 3 0 0 1 6 0"/><path d="M12 3v3"/><path d="M6.6 5A5 5 0 0 0 4 9.5c0 1.8.8 3.4 2 4.5v4a1 1 0 0 0 1 1h2v-3h2v3h2a1 1 0 0 0 1-1v-4a6 6 0 0 0 2-4.5A5 5 0 0 0 17.4 5"/><path d="M9 18h6"/></svg>' },
-        { id:'moon',    label:'Night',   color:'#90caf9', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>' },
-        { id:'plane',   label:'Plane',   color:'#4dd0e1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16l-9-9-9 9"/><path d="M3 8l4.5 4.5L12 8l4.5 4.5L21 8"/><line x1="12" y1="3" x2="12" y2="8"/></svg>' },
-        { id:'run',     label:'Run',     color:'#ffb74d', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="M7 21l2-6 3 3 3-8 3 3"/><path d="M5 12l2-3 4 1 2-4"/></svg>' },
-        { id:'coffee',  label:'Coffee',  color:'#bcaaa4', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>' },
-        { id:'globe',   label:'Globe',   color:'#80deea', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>' },
-        { id:'award',   label:'Award',   color:'#ffd54f', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>' },
-        { id:'magic',   label:'Magic',   color:'#b39ddb', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8L19 13M17.8 6.2L19 5M12.2 6.2L11 5M12.2 11.8L11 13"/><path d="M3 21l9-9"/><circle cx="15" cy="9" r="3"/></svg>' },
-        { id:'clock',   label:'Clock',   color:'#b0bec5', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' },
-        { id:'lock',    label:'Private', color:'#ef9a9a', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' },
-        { id:'chat',    label:'Chat',    color:'#80cbc4', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' },
-        { id:'palette', label:'Palette', color:'#f06292', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2C6.48 2 2 6.48 2 12c0 5.52 4.48 10 10 10 1.1 0 2-.9 2-2v-.5c0-.55-.22-1.05-.59-1.41-.36-.36-.59-.86-.59-1.41 0-1.1.9-2 2-2h2c3.31 0 6-2.69 6-6 0-4.97-4.48-8.58-9-8.59z"/><circle cx="6.5" cy="11.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="9.5" cy="7.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="14.5" cy="7.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="17.5" cy="11.5" r="1.5" fill="currentColor" stroke="none"/></svg>' },
+        { div: '📷  Media & Creation' },
+        { id:'photo',     label:'Photo',     color:'#ffb74d', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="6" width="20" height="15" rx="2"/><circle cx="12" cy="13.5" r="3"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/></svg>' },
+        { id:'video',     label:'Video',     color:'#ff8a65', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="4" width="15" height="16" rx="2"/><path d="M17 8l5-3v14l-5-3V8z"/></svg>' },
+        { id:'music',     label:'Music',     color:'#f48fb1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>' },
+        { id:'art',       label:'Art',       color:'#ce93d8', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 12a4 4 0 0 1 4-4 4 4 0 0 1 4 4"/><circle cx="8.5" cy="9" r=".8" fill="currentColor"/><circle cx="15.5" cy="9" r=".8" fill="currentColor"/></svg>' },
+        { id:'palette',   label:'Palette',   color:'#f06292', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2C6.48 2 2 6.48 2 12c0 5.52 4.48 10 10 10 1.1 0 2-.9 2-2v-.5c0-.55-.22-1.05-.59-1.41-.36-.36-.59-.86-.59-1.41 0-1.1.9-2 2-2h2c3.31 0 6-2.69 6-6 0-4.97-4.48-8.58-9-8.59z"/><circle cx="6.5" cy="11.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="9.5" cy="7.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="14.5" cy="7.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="17.5" cy="11.5" r="1.5" fill="currentColor" stroke="none"/></svg>' },
+        { id:'film',      label:'Film',      color:'#ef9a9a', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="7" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="17" y2="20"/><line x1="2" y1="9" x2="7" y2="9"/><line x1="17" y1="9" x2="22" y2="9"/><line x1="2" y1="15" x2="7" y2="15"/><line x1="17" y1="15" x2="22" y2="15"/></svg>' },
+        { id:'mic',       label:'Mic',       color:'#b39ddb', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M19 10a7 7 0 0 1-14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>' },
+        { id:'headphone', label:'Audio',     color:'#90caf9', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>' },
+        { div: '🎮  Entertainment' },
+        { id:'game',      label:'Game',      color:'#80cbc4', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="3"/><path d="M7 11v4M5 13h4"/><circle cx="16.5" cy="12" r=".8" fill="currentColor"/><circle cx="18.5" cy="14" r=".8" fill="currentColor"/></svg>' },
+        { id:'book',      label:'Book',      color:'#ffcc80', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' },
+        { id:'star',      label:'Fav',       color:'#fff176', svg:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>' },
+        { id:'magic',     label:'Magic',     color:'#b39ddb', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8L19 13M17.8 6.2L19 5M12.2 6.2L11 5M12.2 11.8L11 13"/><path d="M3 21l9-9"/><circle cx="15" cy="9" r="3"/></svg>' },
+        { id:'puzzle',    label:'Puzzle',    color:'#80deea', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M19 10h-1a2 2 0 1 1 0-4h1V4H4v6h1a2 2 0 1 1 0 4H4v6h15v-3a2 2 0 1 1 4 0v-7h-4z"/></svg>' },
+        { id:'coffee',    label:'Coffee',    color:'#bcaaa4', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>' },
+        { id:'moon',      label:'Night',     color:'#90caf9', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>' },
+        { id:'gift',      label:'Gift',      color:'#f48fb1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>' },
+        { div: '🌍  Travel & Lifestyle' },
+        { id:'travel',    label:'Travel',    color:'#4dd0e1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.5-8 13-8 13S4 15.5 4 10a8 8 0 0 1 8-8z"/></svg>' },
+        { id:'plane',     label:'Plane',     color:'#4dd0e1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16l-9-9-9 9"/><path d="M3 8l4.5 4.5L12 8l4.5 4.5L21 8"/><line x1="12" y1="3" x2="12" y2="8"/></svg>' },
+        { id:'globe',     label:'Globe',     color:'#80deea', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>' },
+        { id:'map',       label:'Map',       color:'#a5d6a7', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>' },
+        { id:'food',      label:'Food',      color:'#a5d6a7', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="8"/><line x1="10" y1="2" x2="10" y2="8"/><line x1="14" y1="2" x2="14" y2="8"/></svg>' },
+        { id:'fashion',   label:'Fashion',   color:'#f8bbd0', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>' },
+        { id:'home',      label:'Home',      color:'#ffb74d', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>' },
+        { div: '💪  Sport & Health' },
+        { id:'sport',     label:'Sport',     color:'#ef9a9a', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93c2.34 2.34 3.07 5.71 2.07 8.71M19.07 4.93c-2.34 2.34-3.07 5.71-2.07 8.71M4.93 19.07c2.34-2.34 5.71-3.07 8.71-2.07M19.07 19.07c-2.34-2.34-5.71-3.07-8.71-2.07"/></svg>' },
+        { id:'run',       label:'Run',       color:'#ffb74d', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="M7 21l2-6 3 3 3-8 3 3"/><path d="M5 12l2-3 4 1 2-4"/></svg>' },
+        { id:'gym',       label:'Gym',       color:'#ef9a9a', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="6.5" y1="12" x2="17.5" y2="12"/><rect x="2" y="9" width="4.5" height="6" rx="1.5"/><rect x="17.5" y="9" width="4.5" height="6" rx="1.5"/><line x1="6.5" y1="10.5" x2="6.5" y2="13.5"/><line x1="17.5" y1="10.5" x2="17.5" y2="13.5"/></svg>' },
+        { id:'bike',      label:'Bike',      color:'#a5d6a7', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M8.5 17.5l3-8h5.5"/><path d="M15 9.5l3 8"/><circle cx="15" cy="5.5" r="1.5"/></svg>' },
+        { id:'health',    label:'Health',    color:'#ef9a9a', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' },
+        { id:'pet',       label:'Pet',       color:'#ffab91', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="14" r="6"/><circle cx="7" cy="6" r="2"/><circle cx="17" cy="6" r="2"/><circle cx="4" cy="11" r="1.5"/><circle cx="20" cy="11" r="1.5"/></svg>' },
+        { div: '💼  Work & Knowledge' },
+        { id:'work',      label:'Work',      color:'#b0bec5', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="12.01"/></svg>' },
+        { id:'tech',      label:'Tech',      color:'#90caf9', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>' },
+        { id:'brain',     label:'Brain',     color:'#ce93d8', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3a3 3 0 0 1 6 0"/><path d="M12 3v3"/><path d="M6.6 5A5 5 0 0 0 4 9.5c0 1.8.8 3.4 2 4.5v4a1 1 0 0 0 1 1h2v-3h2v3h2a1 1 0 0 0 1-1v-4a6 6 0 0 0 2-4.5A5 5 0 0 0 17.4 5"/><path d="M9 18h6"/></svg>' },
+        { id:'news',      label:'News',      color:'#b0bec5', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 0-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><line x1="18" y1="2" x2="18" y2="22"/><line x1="8" y1="10" x2="14" y2="10"/><line x1="8" y1="14" x2="14" y2="14"/></svg>' },
+        { id:'finance',   label:'Finance',   color:'#a5d6a7', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>' },
+        { id:'clock',     label:'Clock',     color:'#b0bec5', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' },
+        { id:'chat',      label:'Chat',      color:'#80cbc4', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' },
+        { id:'lock',      label:'Private',   color:'#ef9a9a', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' },
+        { div: '✨  Special' },
+        { id:'nature',    label:'Nature',    color:'#c5e1a5', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 22V12"/><path d="M5 12c0-4 3-7 7-7s7 3 7 7c0 2.5-1.5 4.5-4 5.5"/><path d="M3 18c0-2.5 2-4 4.5-4C9 14 10 15.5 12 16"/></svg>' },
+        { id:'flower',    label:'Flower',    color:'#f48fb1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2a3 3 0 0 1 3 3 3 3 0 0 1-3 3 3 3 0 0 1-3-3 3 3 0 0 1 3-3zm0 14a3 3 0 0 1 3 3 3 3 0 0 1-3 3 3 3 0 0 1-3-3 3 3 0 0 1 3-3zm10-7a3 3 0 0 1 0 6 3 3 0 0 1-3-3 3 3 0 0 1 3-3zM2 12a3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3 3 3 0 0 1-3-3zm12.24-5.76a3 3 0 0 1 4.24 0 3 3 0 0 1 0 4.24 3 3 0 0 1-4.24 0 3 3 0 0 1 0-4.24zm-8.48 0a3 3 0 0 1 4.24 0 3 3 0 0 1 0 4.24 3 3 0 0 1-4.24 0 3 3 0 0 1 0-4.24zm0 8.48a3 3 0 0 1 4.24 0 3 3 0 0 1 0 4.24 3 3 0 0 1-4.24 0 3 3 0 0 1 0-4.24zm8.48 0a3 3 0 0 1 4.24 0 3 3 0 0 1 0 4.24 3 3 0 0 1-4.24 0 3 3 0 0 1 0-4.24z"/></svg>' },
+        { id:'fire',      label:'Fire',      color:'#ff7043', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 0-4 4-4 9a4 4 0 0 0 8 0c0-2-1-4-1-4s-1 2-3 2c-1 0-2-1-2-2 0-2 2-5 2-5z"/><path d="M12 22c-3.31 0-6-2.69-6-6 0-2.5 1.5-4.5 1.5-4.5S9 13 12 13s4.5-1.5 4.5-1.5S18 13.5 18 16c0 3.31-2.69 6-6 6z"/></svg>' },
+        { id:'sun',       label:'Sun',       color:'#ffd54f', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>' },
+        { id:'award',     label:'Award',     color:'#ffd54f', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>' },
+        { id:'bell',      label:'Alert',     color:'#ffcc80', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>' },
+        { id:'diamond',   label:'VIP',       color:'#4dd0e1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9z"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="2" y2="9"/><line x1="12" y1="3" x2="22" y2="9"/><line x1="12" y1="9" x2="12" y2="22"/></svg>' },
     ];
+    const _GROUP_ICON_FLAT = _GROUP_SVG_ICONS.filter(x => !x.div);
 
     function _resolveGroupIcon(iconId) {
-        const ic = _GROUP_SVG_ICONS.find(x => x.id === iconId);
+        const ic = _GROUP_ICON_FLAT.find(x => x.id === iconId);
         if (ic) return { type: 'svg', color: ic.color, svg: ic.svg, label: ic.label };
-        const fb = _GROUP_SVG_ICONS[0];
+        const fb = _GROUP_ICON_FLAT[0];
         return { type: 'svg', color: fb.color, svg: fb.svg, label: fb.label };
     }
 
@@ -5450,30 +5478,45 @@
         input.maxLength   = 24;
 
         const iconLabel = document.createElement('div');
-        iconLabel.style.cssText = 'font-size:10px;color:rgba(255,255,255,.4);margin:10px 0 6px;letter-spacing:.06em;text-transform:uppercase';
+        iconLabel.style.cssText = 'font-size:9px;color:rgba(255,255,255,.35);margin:10px 0 5px;letter-spacing:.07em;text-transform:uppercase';
         iconLabel.textContent = 'Icon';
 
         const iconGrid = document.createElement('div');
-        iconGrid.style.cssText = 'display:grid;grid-template-columns:repeat(5,1fr);gap:5px;max-height:160px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin';
+        iconGrid.style.cssText = 'display:grid;grid-template-columns:repeat(6,1fr);gap:5px;max-height:240px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;padding-right:2px';
 
         _GROUP_SVG_ICONS.forEach(ic => {
+            if (ic.div) {
+                const divEl = document.createElement('div');
+                divEl.style.cssText = `
+                    grid-column:1/-1;font-size:9px;color:rgba(255,255,255,.32);
+                    letter-spacing:.06em;text-transform:uppercase;
+                    padding:7px 0 3px;margin-top:2px;
+                    border-top:1px solid rgba(255,255,255,.08);
+                    pointer-events:none;
+                `;
+                divEl.textContent = ic.div;
+                iconGrid.appendChild(divEl);
+                return;
+            }
             const cell = document.createElement('button');
             cell.type = 'button';
             cell.dataset.iconId = ic.id;
-            const isFirst = ic.id === _selectedIconId;
+            const isSel = ic.id === _selectedIconId;
             cell.style.cssText = `
                 display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-                padding:6px 2px;border-radius:8px;border:1.5px solid ${isFirst ? ic.color : 'transparent'};
-                background:${isFirst ? 'rgba(255,255,255,.07)' : 'transparent'};
+                padding:7px 3px;border-radius:8px;border:1.5px solid ${isSel ? ic.color : 'transparent'};
+                background:${isSel ? 'rgba(255,255,255,.07)' : 'transparent'};
                 cursor:pointer;transition:all .12s;font-family:inherit;
             `;
 
             const iconWrap = document.createElement('div');
-            iconWrap.style.cssText = `width:20px;height:20px;color:${ic.color};flex-shrink:0`;
+            iconWrap.style.cssText = `width:22px;height:22px;color:${ic.color};flex-shrink:0`;
             iconWrap.innerHTML = ic.svg;
+            const svgEl = iconWrap.querySelector('svg');
+            if (svgEl) { svgEl.style.width = '22px'; svgEl.style.height = '22px'; }
 
             const iconLbl = document.createElement('span');
-            iconLbl.style.cssText = 'font-size:8px;color:rgba(255,255,255,.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40px';
+            iconLbl.style.cssText = 'font-size:9px;color:rgba(255,255,255,.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:44px';
             iconLbl.textContent = ic.label;
 
             cell.appendChild(iconWrap);
@@ -5481,10 +5524,10 @@
 
             cell.addEventListener('click', () => {
                 _selectedIconId = ic.id;
-                iconGrid.querySelectorAll('button').forEach(b => {
+                iconGrid.querySelectorAll('button[data-icon-id]').forEach(b => {
                     const bid = b.dataset.iconId;
-                    const bic = _GROUP_SVG_ICONS.find(x => x.id === bid);
-                    b.style.border = `1.5px solid ${bid === ic.id ? bic.color : 'transparent'}`;
+                    const bic = _GROUP_ICON_FLAT.find(x => x.id === bid);
+                    b.style.border = `1.5px solid ${bid === ic.id ? (bic?.color ?? ic.color) : 'transparent'}`;
                     b.style.background = bid === ic.id ? 'rgba(255,255,255,.07)' : 'transparent';
                 });
             });
@@ -5560,7 +5603,7 @@
             return;
         }
 
-        const ic      = (_selectedIconId && _GROUP_SVG_ICONS.find(x => x.id === _selectedIconId)) || _GROUP_SVG_ICONS[0];
+        const ic      = (_selectedIconId && _GROUP_ICON_FLAT.find(x => x.id === _selectedIconId)) || _GROUP_ICON_FLAT[0];
         const glowIdx = getGroups().length % STAR_GLOW_COLORS.length;
         const group   = createGroup(name, ic.id, STAR_GLOW_COLORS[glowIdx]);
         if (_pendingGroupRecordId !== null) {
@@ -5623,12 +5666,12 @@
         function buildIconPicker(g, iconWrap, onPick) {
             const picker = document.createElement('div');
             picker.style.cssText = `
-                display:grid;grid-template-columns:repeat(5,1fr);gap:4px;
+                display:grid;grid-template-columns:repeat(6,1fr);gap:4px;
                 padding:8px;background:rgba(20,25,40,.98);
                 border-radius:8px;border:1px solid rgba(255,255,255,.1);
                 margin-top:4px;
             `;
-            _GROUP_SVG_ICONS.forEach(ic => {
+            _GROUP_ICON_FLAT.forEach(ic => {
                 const cell = document.createElement('button');
                 cell.type = 'button';
                 cell.style.cssText = `
@@ -5638,8 +5681,10 @@
                     cursor:pointer;transition:all .1s;font-family:inherit;
                 `;
                 const svg = document.createElement('div');
-                svg.style.cssText = `width:16px;height:16px;color:${ic.color}`;
+                svg.style.cssText = `width:18px;height:18px;color:${ic.color}`;
                 svg.innerHTML = ic.svg;
+                const svgEl = svg.querySelector('svg');
+                if (svgEl) { svgEl.style.width = '18px'; svgEl.style.height = '18px'; }
                 const lbl = document.createElement('span');
                 lbl.style.cssText = 'font-size:7px;color:rgba(255,255,255,.4);white-space:nowrap;overflow:hidden;max-width:38px;text-overflow:ellipsis';
                 lbl.textContent = ic.label;
@@ -7089,6 +7134,7 @@
             ['all',   T.hist_filter_all   || 'All'],
             ['image', T.hist_filter_image || '🖼 Image'],
             ['video', T.hist_filter_video || '🎬 Video'],
+            ['text',  T.hist_filter_text  || '📝 Text'],
         ];
         const _pillEls = {};
         FILTER_OPTS.forEach(([val, label]) => {
@@ -7389,7 +7435,13 @@
                 );
             }
             if (mediaFilter !== 'all') {
-                result = result.filter(r => mediaFilter === 'video' ? r.hasVideo : !r.hasVideo);
+                if (mediaFilter === 'text') {
+                    result = result.filter(r => r.textOnly === true);
+                } else if (mediaFilter === 'video') {
+                    result = result.filter(r => r.hasVideo && !r.textOnly);
+                } else {
+                    result = result.filter(r => !r.hasVideo && !r.textOnly);
+                }
             }
             return result;
         }
@@ -8650,7 +8702,7 @@
 
         let _dragging = false, _dx = 0, _dy = 0;
         titlebar.addEventListener('mousedown', (e) => {
-            if (e.button !== 0 || e.target.classList.contains('tm-hist-icon-btn')) return;
+            if (e.button !== 0 || e.target.classList.contains('tm-hist-icon-btn') || e.target.tagName === 'SELECT') return;
             _dragging = true;
             _dx = e.clientX - panel.getBoundingClientRect().left;
             _dy = e.clientY - panel.getBoundingClientRect().top;
@@ -10277,6 +10329,7 @@
         let keyHandler = () => {};
         let _lbDragACRef = null;
         let _lbBranchBDragAC = null;
+        let _lbScrollY = 0;
 
         function closeLightbox() {
             modal.classList.remove('tm-lb-in');
@@ -10285,6 +10338,10 @@
             if (_lbDragACRef) { _lbDragACRef.abort(); _lbDragACRef = null; }
             if (_lbBranchBDragAC) { _lbBranchBDragAC.abort(); _lbBranchBDragAC = null; }
             document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                window.scrollTo(0, _lbScrollY);
+            }));
             _dialogOpenGlobal = false;
         }
 
@@ -10834,7 +10891,10 @@
         modal.appendChild(gpB);
         document.body.appendChild(pillB);
         document.body.appendChild(modal);
+        _lbScrollY = window.scrollY;
+        const _lbScrollbarW = window.innerWidth - document.documentElement.clientWidth;
         document.body.style.overflow = 'hidden';
+        if (_lbScrollbarW > 0) document.body.style.paddingRight = _lbScrollbarW + 'px';
 
         requestAnimationFrame(() => requestAnimationFrame(() => {
             modal.classList.add('tm-lb-in');
@@ -11866,6 +11926,57 @@
             };
             setLinkIcon('default');
 
+            const _doSaveLinkTextBookmark = async () => {
+                const rawText = article.querySelector('[data-testid="tweetText"]')?.innerText?.trim() || '';
+                const info = getTweetInfo(article);
+                if (!rawText) {
+                    _dialogOpenGlobal = true;
+                    const ok = confirm(`This post has no text content.\nSave it as an empty text bookmark anyway?`);
+                    _dialogOpenGlobal = false;
+                    if (!ok) return;
+                }
+                try {
+                    const _now   = new Date();
+                    const _yy    = _now.getFullYear();
+                    const _mm    = String(_now.getMonth() + 1).padStart(2, '0');
+                    const yyyymm = `${_yy}.${_mm}`;
+                    const record = {
+                        id:           Date.now(),
+                        ts:           Date.now(),
+                        yyyymm,
+                        tweetId:      info.id,
+                        tweetUrl:     `https://x.com/${info.screenName}/status/${info.id}`,
+                        tweetDate:    info.date,
+                        downloadDate: `${_yy}-${_mm}-${String(_now.getDate()).padStart(2,'0')}`,
+                        screenName:   info.screenName,
+                        displayName:  info.displayName,
+                        text:         (rawText || info.text || '').slice(0, 280),
+                        thumbUrls:    [],
+                        mediaUrls:    [],
+                        hasVideo:     false,
+                        count:        0,
+                        textOnly:     true,
+                    };
+                    const _tym  = record.yyyymm;
+                    let _tRecs  = _readMonthRecords(_tym);
+                    const _tOld = _tRecs.find(r => r.tweetId === info.id);
+                    if (_tOld?.favorited) record.favorited = true;
+                    _tRecs = _tRecs.filter(r => r.tweetId !== info.id);
+                    _tRecs.unshift(record);
+                    _updateHistoryIndex(_tym);
+                    const _tSnap = _tRecs;
+                    setTimeout(() => { _writeMonthRecords(_tym, _tSnap); }, 0);
+                    _downloadedIds.add(info.id);
+                    setLinkIcon('ok', '📌 Saved', 'Saved');
+                    setTimeout(() => setLinkIcon('default'), 1800);
+                    const _existPanel = document.getElementById('tm-hist-panel');
+                    if (_existPanel) _existPanel.dispatchEvent(new CustomEvent('tm-hist-refresh'));
+                } catch (err) {
+                    console.warn('[LinkBtn] textBookmark failed:', err);
+                    setLinkIcon('default');
+                }
+            };
+
             if (GM_getValue(KEY_CLICK_MODE, 'classic') === 'menu') {
                 const _getLinkItems = () => {
                     const useCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
@@ -11900,7 +12011,7 @@
                 { const _acC = _bindMenuClick(icon, _getLinkItems);
                   const _acH = _bindMenuHover(icon, _getLinkItems);
                   icon._menuAC = { abort() { _acC.abort(); _acH.abort(); } }; }
-                icon.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); });
+                icon.addEventListener('contextmenu', async (e) => { e.preventDefault(); e.stopPropagation(); await _doSaveLinkTextBookmark(); });
             } else {
                 icon.addEventListener('mouseenter', () => {
                     const custom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
@@ -11946,6 +12057,7 @@
 
                 icon.addEventListener('mouseleave', () => { if(lTimer) { clearTimeout(lTimer); lTimer = null; } });
                 icon.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
+                icon.addEventListener('contextmenu', async (e) => { e.preventDefault(); e.stopPropagation(); await _doSaveLinkTextBookmark(); });
 
             }
 
