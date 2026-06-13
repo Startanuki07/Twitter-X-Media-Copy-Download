@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.0.13
+// @version      2.9.0.11
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -324,7 +324,6 @@
             hist_filter_all:        'All',
             hist_filter_image:      '🖼 Image',
             hist_filter_video:      '🎬 Video',
-            hist_filter_text:       '📝 Text',
             hist_sort_newest:       'Newest',
             hist_sort_oldest:       'Oldest',
             hist_sort_author:       'Author A–Z',
@@ -454,7 +453,6 @@
             hist_filter_all:        '全部',
             hist_filter_image:      '🖼 圖片',
             hist_filter_video:      '🎬 影片',
-            hist_filter_text:       '📝 純文字',
             hist_sort_newest:       '最新',
             hist_sort_oldest:       '最舊',
             hist_sort_author:       '作者 A–Z',
@@ -583,7 +581,6 @@
             hist_filter_all:        '全部',
             hist_filter_image:      '🖼 图片',
             hist_filter_video:      '🎬 视频',
-            hist_filter_text:       '📝 纯文字',
             hist_sort_newest:       '最新',
             hist_sort_oldest:       '最旧',
             hist_sort_author:       '作者 A–Z',
@@ -712,7 +709,6 @@
             hist_filter_all:        'すべて',
             hist_filter_image:      '🖼 画像',
             hist_filter_video:      '🎬 動画',
-            hist_filter_text:       '📝 テキスト',
             hist_sort_newest:       '新しい順',
             hist_sort_oldest:       '古い順',
             hist_sort_author:       '著者 A–Z',
@@ -841,7 +837,6 @@
             hist_filter_all:        '전체',
             hist_filter_image:      '🖼 이미지',
             hist_filter_video:      '🎬 동영상',
-            hist_filter_text:       '📝 텍스트',
             hist_sort_newest:       '최신순',
             hist_sort_oldest:       '오래된순',
             hist_sort_author:       '작성자 A–Z',
@@ -970,7 +965,6 @@
             hist_filter_all:        'Todo',
             hist_filter_image:      '🖼 Imagen',
             hist_filter_video:      '🎬 Video',
-            hist_filter_text:       '📝 Texto',
             hist_sort_newest:       'Más reciente',
             hist_sort_oldest:       'Más antiguo',
             hist_sort_author:       'Autor A–Z',
@@ -1099,7 +1093,6 @@
             hist_filter_all:        'Tudo',
             hist_filter_image:      '🖼 Imagem',
             hist_filter_video:      '🎬 Vídeo',
-            hist_filter_text:       '📝 Texto',
             hist_sort_newest:       'Mais recente',
             hist_sort_oldest:       'Mais antigo',
             hist_sort_author:       'Autor A–Z',
@@ -1228,7 +1221,6 @@
             hist_filter_all:        'Tout',
             hist_filter_image:      '🖼 Image',
             hist_filter_video:      '🎬 Vidéo',
-            hist_filter_text:       '📝 Texte',
             hist_sort_newest:       'Plus récent',
             hist_sort_oldest:       'Plus ancien',
             hist_sort_author:       'Auteur A–Z',
@@ -1357,7 +1349,6 @@
             hist_filter_all:        'Все',
             hist_filter_image:      '🖼 Изображение',
             hist_filter_video:      '🎬 Видео',
-            hist_filter_text:       '📝 Текст',
             hist_sort_newest:       'Сначала новые',
             hist_sort_oldest:       'Сначала старые',
             hist_sort_author:       'Автор А–Я',
@@ -7134,7 +7125,6 @@
             ['all',   T.hist_filter_all   || 'All'],
             ['image', T.hist_filter_image || '🖼 Image'],
             ['video', T.hist_filter_video || '🎬 Video'],
-            ['text',  T.hist_filter_text  || '📝 Text'],
         ];
         const _pillEls = {};
         FILTER_OPTS.forEach(([val, label]) => {
@@ -7435,13 +7425,7 @@
                 );
             }
             if (mediaFilter !== 'all') {
-                if (mediaFilter === 'text') {
-                    result = result.filter(r => r.textOnly === true);
-                } else if (mediaFilter === 'video') {
-                    result = result.filter(r => r.hasVideo && !r.textOnly);
-                } else {
-                    result = result.filter(r => !r.hasVideo && !r.textOnly);
-                }
+                result = result.filter(r => mediaFilter === 'video' ? r.hasVideo : !r.hasVideo);
             }
             return result;
         }
@@ -10338,7 +10322,6 @@
             if (_lbDragACRef) { _lbDragACRef.abort(); _lbDragACRef = null; }
             if (_lbBranchBDragAC) { _lbBranchBDragAC.abort(); _lbBranchBDragAC = null; }
             document.body.style.overflow = '';
-            document.body.style.paddingRight = '';
             requestAnimationFrame(() => requestAnimationFrame(() => {
                 window.scrollTo(0, _lbScrollY);
             }));
@@ -10892,9 +10875,7 @@
         document.body.appendChild(pillB);
         document.body.appendChild(modal);
         _lbScrollY = window.scrollY;
-        const _lbScrollbarW = window.innerWidth - document.documentElement.clientWidth;
         document.body.style.overflow = 'hidden';
-        if (_lbScrollbarW > 0) document.body.style.paddingRight = _lbScrollbarW + 'px';
 
         requestAnimationFrame(() => requestAnimationFrame(() => {
             modal.classList.add('tm-lb-in');
@@ -11926,57 +11907,6 @@
             };
             setLinkIcon('default');
 
-            const _doSaveLinkTextBookmark = async () => {
-                const rawText = article.querySelector('[data-testid="tweetText"]')?.innerText?.trim() || '';
-                const info = getTweetInfo(article);
-                if (!rawText) {
-                    _dialogOpenGlobal = true;
-                    const ok = confirm(`This post has no text content.\nSave it as an empty text bookmark anyway?`);
-                    _dialogOpenGlobal = false;
-                    if (!ok) return;
-                }
-                try {
-                    const _now   = new Date();
-                    const _yy    = _now.getFullYear();
-                    const _mm    = String(_now.getMonth() + 1).padStart(2, '0');
-                    const yyyymm = `${_yy}.${_mm}`;
-                    const record = {
-                        id:           Date.now(),
-                        ts:           Date.now(),
-                        yyyymm,
-                        tweetId:      info.id,
-                        tweetUrl:     `https://x.com/${info.screenName}/status/${info.id}`,
-                        tweetDate:    info.date,
-                        downloadDate: `${_yy}-${_mm}-${String(_now.getDate()).padStart(2,'0')}`,
-                        screenName:   info.screenName,
-                        displayName:  info.displayName,
-                        text:         (rawText || info.text || '').slice(0, 280),
-                        thumbUrls:    [],
-                        mediaUrls:    [],
-                        hasVideo:     false,
-                        count:        0,
-                        textOnly:     true,
-                    };
-                    const _tym  = record.yyyymm;
-                    let _tRecs  = _readMonthRecords(_tym);
-                    const _tOld = _tRecs.find(r => r.tweetId === info.id);
-                    if (_tOld?.favorited) record.favorited = true;
-                    _tRecs = _tRecs.filter(r => r.tweetId !== info.id);
-                    _tRecs.unshift(record);
-                    _updateHistoryIndex(_tym);
-                    const _tSnap = _tRecs;
-                    setTimeout(() => { _writeMonthRecords(_tym, _tSnap); }, 0);
-                    _downloadedIds.add(info.id);
-                    setLinkIcon('ok', '📌 Saved', 'Saved');
-                    setTimeout(() => setLinkIcon('default'), 1800);
-                    const _existPanel = document.getElementById('tm-hist-panel');
-                    if (_existPanel) _existPanel.dispatchEvent(new CustomEvent('tm-hist-refresh'));
-                } catch (err) {
-                    console.warn('[LinkBtn] textBookmark failed:', err);
-                    setLinkIcon('default');
-                }
-            };
-
             if (GM_getValue(KEY_CLICK_MODE, 'classic') === 'menu') {
                 const _getLinkItems = () => {
                     const useCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
@@ -12011,7 +11941,7 @@
                 { const _acC = _bindMenuClick(icon, _getLinkItems);
                   const _acH = _bindMenuHover(icon, _getLinkItems);
                   icon._menuAC = { abort() { _acC.abort(); _acH.abort(); } }; }
-                icon.addEventListener('contextmenu', async (e) => { e.preventDefault(); e.stopPropagation(); await _doSaveLinkTextBookmark(); });
+                icon.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); });
             } else {
                 icon.addEventListener('mouseenter', () => {
                     const custom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
@@ -12057,7 +11987,6 @@
 
                 icon.addEventListener('mouseleave', () => { if(lTimer) { clearTimeout(lTimer); lTimer = null; } });
                 icon.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
-                icon.addEventListener('contextmenu', async (e) => { e.preventDefault(); e.stopPropagation(); await _doSaveLinkTextBookmark(); });
 
             }
 
