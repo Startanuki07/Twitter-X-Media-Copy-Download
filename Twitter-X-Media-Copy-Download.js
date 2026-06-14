@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.0.11
+// @version      2.9.1.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -48,6 +48,15 @@
         .replace(/>/g,  '&gt;')
         .replace(/"/g,  '&quot;')
         .replace(/'/g,  '&#39;');
+
+    function _buildPrefixedTweetUrl(tweetUrl) {
+        const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
+            ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
+        let tUrl = tweetUrl;
+        try { const o = new URL(tUrl); o.hostname = _dom; tUrl = o.toString(); } catch(_) {}
+        const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
+        return `${prefix}(${tUrl})`;
+    }
 
     let _syncCh = null;
     let _startScanInterval = null;
@@ -177,6 +186,7 @@
     const KEY_DOCK_PERSISTED    = 'app_dock_persisted';
     const KEY_GROUP_ON_DOWNLOAD = 'app_group_on_download';
     const KEY_GROUPS            = 'app_media_groups';
+    const KEY_TEXT_GROUPS       = 'app_text_groups';
     const KEY_GROUP_PANEL_CFG   = 'app_group_panel_cfg';
     const KEY_GEAR_VISIBLE      = 'app_gear_visible';
     const KEY_GEAR_CORNER       = 'app_gear_corner';
@@ -324,6 +334,7 @@
             hist_filter_all:        'All',
             hist_filter_image:      '🖼 Image',
             hist_filter_video:      '🎬 Video',
+            hist_filter_text:       '📝 Text',
             hist_sort_newest:       'Newest',
             hist_sort_oldest:       'Oldest',
             hist_sort_author:       'Author A–Z',
@@ -453,6 +464,7 @@
             hist_filter_all:        '全部',
             hist_filter_image:      '🖼 圖片',
             hist_filter_video:      '🎬 影片',
+            hist_filter_text:       '📝 純文字',
             hist_sort_newest:       '最新',
             hist_sort_oldest:       '最舊',
             hist_sort_author:       '作者 A–Z',
@@ -581,6 +593,7 @@
             hist_filter_all:        '全部',
             hist_filter_image:      '🖼 图片',
             hist_filter_video:      '🎬 视频',
+            hist_filter_text:       '📝 纯文字',
             hist_sort_newest:       '最新',
             hist_sort_oldest:       '最旧',
             hist_sort_author:       '作者 A–Z',
@@ -709,6 +722,7 @@
             hist_filter_all:        'すべて',
             hist_filter_image:      '🖼 画像',
             hist_filter_video:      '🎬 動画',
+            hist_filter_text:       '📝 テキスト',
             hist_sort_newest:       '新しい順',
             hist_sort_oldest:       '古い順',
             hist_sort_author:       '著者 A–Z',
@@ -837,6 +851,7 @@
             hist_filter_all:        '전체',
             hist_filter_image:      '🖼 이미지',
             hist_filter_video:      '🎬 동영상',
+            hist_filter_text:       '📝 텍스트',
             hist_sort_newest:       '최신순',
             hist_sort_oldest:       '오래된순',
             hist_sort_author:       '작성자 A–Z',
@@ -965,6 +980,7 @@
             hist_filter_all:        'Todo',
             hist_filter_image:      '🖼 Imagen',
             hist_filter_video:      '🎬 Video',
+            hist_filter_text:       '📝 Texto',
             hist_sort_newest:       'Más reciente',
             hist_sort_oldest:       'Más antiguo',
             hist_sort_author:       'Autor A–Z',
@@ -1093,6 +1109,7 @@
             hist_filter_all:        'Tudo',
             hist_filter_image:      '🖼 Imagem',
             hist_filter_video:      '🎬 Vídeo',
+            hist_filter_text:       '📝 Texto',
             hist_sort_newest:       'Mais recente',
             hist_sort_oldest:       'Mais antigo',
             hist_sort_author:       'Autor A–Z',
@@ -1221,6 +1238,7 @@
             hist_filter_all:        'Tout',
             hist_filter_image:      '🖼 Image',
             hist_filter_video:      '🎬 Vidéo',
+            hist_filter_text:       '📝 Texte',
             hist_sort_newest:       'Plus récent',
             hist_sort_oldest:       'Plus ancien',
             hist_sort_author:       'Auteur A–Z',
@@ -1349,6 +1367,7 @@
             hist_filter_all:        'Все',
             hist_filter_image:      '🖼 Изображение',
             hist_filter_video:      '🎬 Видео',
+            hist_filter_text:       '📝 Текст',
             hist_sort_newest:       'Сначала новые',
             hist_sort_oldest:       'Сначала старые',
             hist_sort_author:       'Автор А–Я',
@@ -5080,6 +5099,8 @@
 
     let _pendingGroupRecordId = null;
     let _pendingStarPipEl     = null;
+    
+    let _pendingIsText        = false;
 
     window.addEventListener('scroll', () => { if (!_fanOpen) hideStarPip(); }, { passive: true, capture: true });
     document.addEventListener('visibilitychange', () => { if (document.hidden) { if (_fanOpen) closeGroupFan(); hideStarPip(); } });
@@ -5108,6 +5129,14 @@
         GM_setValue(KEY_GROUPS, JSON.stringify(arr));
     }
 
+    function getTextGroups() {
+        try { return JSON.parse(GM_getValue(KEY_TEXT_GROUPS, '[]')); } catch (_) { return []; }
+    }
+
+    function saveTextGroups(arr) {
+        GM_setValue(KEY_TEXT_GROUPS, JSON.stringify(arr));
+    }
+
     function createGroup(name, icon = '📁', glow = 'rgba(80,160,240,.5)') {
         const groups = getGroups();
         const group = {
@@ -5122,9 +5151,30 @@
         return group;
     }
 
+    function createTextGroup(name, icon = '📝', glow = 'rgba(120,200,120,.5)') {
+        const groups = getTextGroups();
+        const group = {
+            id:        'txt_' + Date.now(),
+            name:      name.slice(0, 24),
+            icon,
+            glow,
+            createdAt: Date.now(),
+        };
+        groups.push(group);
+        saveTextGroups(groups);
+        return group;
+    }
+
     function deleteGroup(groupId) {
         const groups = getGroups().filter(g => g.id !== groupId);
         saveGroups(groups);
+        _mutateMatchingRecords(r => r.groupId === groupId, r => { delete r.groupId; });
+        GM_deleteValue('app_group_unread_' + groupId);
+    }
+
+    function deleteTextGroup(groupId) {
+        const groups = getTextGroups().filter(g => g.id !== groupId);
+        saveTextGroups(groups);
         _mutateMatchingRecords(r => r.groupId === groupId, r => { delete r.groupId; });
         GM_deleteValue('app_group_unread_' + groupId);
     }
@@ -5246,7 +5296,7 @@
             : _txtClrMap.white;
         const _glowPx   = Math.max(4, Math.min(60, _glowSz));
 
-        const groups = getGroups();
+        const groups = _pendingIsText ? getTextGroups() : getGroups();
         groups.forEach((g, i) => {
             const _rawGlow = _glowClr === 'multi'
                 ? (g.glow || STAR_GLOW_COLORS[i % STAR_GLOW_COLORS.length])
@@ -5321,7 +5371,8 @@
     }
 
     function openGroupFan() {
-        if (!getGroups().length) {
+        const _activeGroups = _pendingIsText ? getTextGroups() : getGroups();
+        if (!_activeGroups.length) {
             _runStarEscapeAnim(() => showGroupCreateModal());
             return;
         }
@@ -5329,7 +5380,7 @@
         _fanOpen = true;
         _buildFanDom();
         const { cx, cy } = _getStarPipPos();
-        const groups = getGroups();
+        const groups = _activeGroups;
         const positions = _fanPositions(groups.length, cx, cy);
         const pip = document.getElementById('tm-star-pip');
         if (pip) pip.classList.add('tm-lit');
@@ -5373,6 +5424,7 @@
     function _onFanGroupClick(groupId, groupName) {
         assignGroup(_pendingGroupRecordId, groupId);
         _pendingGroupRecordId = null;
+        _pendingIsText        = false;
         showToast(`⭐ → ${groupName}`);
         closeGroupFan();
         _runStarEscapeAnim(() => hideStarPip());
@@ -5595,12 +5647,16 @@
         }
 
         const ic      = (_selectedIconId && _GROUP_ICON_FLAT.find(x => x.id === _selectedIconId)) || _GROUP_ICON_FLAT[0];
-        const glowIdx = getGroups().length % STAR_GLOW_COLORS.length;
-        const group   = createGroup(name, ic.id, STAR_GLOW_COLORS[glowIdx]);
+        const _baseLookup = _pendingIsText ? getTextGroups() : getGroups();
+        const glowIdx = _baseLookup.length % STAR_GLOW_COLORS.length;
+        const group   = _pendingIsText
+            ? createTextGroup(name, ic.id, STAR_GLOW_COLORS[glowIdx])
+            : createGroup(name, ic.id, STAR_GLOW_COLORS[glowIdx]);
         if (_pendingGroupRecordId !== null) {
             assignGroup(_pendingGroupRecordId, group.id);
             _pendingGroupRecordId = null;
         }
+        _pendingIsText = false;
         showToast(`⭐ Created「${ic.label} · ${name}」`);
 
         setTimeout(() => {
@@ -7125,6 +7181,7 @@
             ['all',   T.hist_filter_all   || 'All'],
             ['image', T.hist_filter_image || '🖼 Image'],
             ['video', T.hist_filter_video || '🎬 Video'],
+            ['text',  T.hist_filter_text  || '📝 Text'],
         ];
         const _pillEls = {};
         FILTER_OPTS.forEach(([val, label]) => {
@@ -7138,6 +7195,7 @@
             `;
             pill.addEventListener('click', () => {
                 mediaFilter = val;
+                activeGroupId = null;
                 FILTER_OPTS.forEach(([v]) => {
                     _pillEls[v].style.background = v === val ? C.badgeNew : 'transparent';
                     _pillEls[v].style.color = v === val ? '#fff' : C.sub;
@@ -7155,7 +7213,8 @@
 
         function buildGroupTabs() {
             groupTabBar.innerHTML = '';
-            const groups = getGroups();
+            const isTextTab = mediaFilter === 'text';
+            const groups = isTextTab ? getTextGroups() : getGroups();
             groupTabBar.style.display = 'flex';
 
             const SVG_LEFT  = `<svg viewBox="0 0 10 10" fill="currentColor"><path d="M6.5 2L3.5 5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>`;
@@ -7168,7 +7227,11 @@
             btnAddGroup.innerHTML = '<svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>';
             btnAddGroup.addEventListener('mouseover', () => { btnAddGroup.style.background = 'rgba(29,155,240,.18)'; btnAddGroup.style.color = '#1d9bf0'; });
             btnAddGroup.addEventListener('mouseout',  () => { btnAddGroup.style.background = 'transparent'; btnAddGroup.style.color = 'rgba(255,255,255,.35)'; });
-            btnAddGroup.addEventListener('click', e => { e.stopPropagation(); showGroupCreateModal(); });
+            btnAddGroup.addEventListener('click', e => {
+                e.stopPropagation();
+                _pendingIsText = isTextTab;
+                showGroupCreateModal();
+            });
 
             const btnLeft = document.createElement('button');
             btnLeft.className = 'tm-gtab-scroll-btn left';
@@ -7269,9 +7332,12 @@
                             const newName = prompt('Rename group:', label);
                             _dialogOpenGlobal = false;
                             if (!newName || !newName.trim()) return;
-                            const arr = getGroups();
+                            const arr = isTextTab ? getTextGroups() : getGroups();
                             const idx = arr.findIndex(x => x.id === value);
-                            if (idx > -1) { arr[idx].name = newName.trim(); saveGroups(arr); }
+                            if (idx > -1) {
+                                arr[idx].name = newName.trim();
+                                isTextTab ? saveTextGroups(arr) : saveGroups(arr);
+                            }
                             render();
                         }));
                         const sep = document.createElement('div');
@@ -7282,7 +7348,8 @@
                             const ok = confirm(`Delete group「${label}」? Records will be ungrouped.`);
                             _dialogOpenGlobal = false;
                             if (!ok) return;
-                            deleteGroup(value);
+                            if (isTextTab) deleteTextGroup(value);
+                            else deleteGroup(value);
                             if (activeGroupId === value) activeGroupId = null;
                             render();
                         }));
@@ -7424,8 +7491,14 @@
                     r.text?.toLowerCase().includes(q)
                 );
             }
-            if (mediaFilter !== 'all') {
-                result = result.filter(r => mediaFilter === 'video' ? r.hasVideo : !r.hasVideo);
+            if (mediaFilter === 'all') {
+                result = result.filter(r => !r.textOnly);
+            } else if (mediaFilter === 'text') {
+                result = result.filter(r => r.textOnly === true);
+            } else if (mediaFilter === 'video') {
+                result = result.filter(r => r.hasVideo && !r.textOnly);
+            } else {
+                result = result.filter(r => !r.hasVideo && !r.textOnly);
             }
             return result;
         }
@@ -7563,11 +7636,22 @@
                         _openHistMediaLightbox(rec, 0, thumbWrap.querySelector('img'));
                     });
                 } else if (rec.textOnly) {
-                    const vi = document.createElement('div');
-                    vi.className = 'tm-hist-video-icon';
-                    vi.style.color = 'rgba(29,155,240,.5)';
-                    vi.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg>`;
-                    thumbWrap.appendChild(vi);
+                    if (rec.avatarUrl) {
+                        const avImg = document.createElement('img');
+                        avImg.src = rec.avatarUrl;
+                        avImg.loading = 'lazy';
+                        avImg.alt = '';
+                        avImg.style.cssText = 'width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;';
+                        avImg.decode().catch(() => {});
+                        thumbWrap.style.cssText += ';display:flex;align-items:center;justify-content:center;background:rgba(29,155,240,.06);';
+                        thumbWrap.appendChild(avImg);
+                    } else {
+                        const vi = document.createElement('div');
+                        vi.className = 'tm-hist-video-icon';
+                        vi.style.color = 'rgba(29,155,240,.5)';
+                        vi.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg>`;
+                        thumbWrap.appendChild(vi);
+                    }
                 } else {
                     const vi = document.createElement('div');
                     vi.className = 'tm-hist-video-icon';
@@ -7671,12 +7755,7 @@
                     e.stopPropagation();
                     _cpTimer = setTimeout(() => {
                         _cpTimer = null;
-                        const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
-                            ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
-                        let tUrl = rec.tweetUrl;
-                        try { const o = new URL(tUrl); o.hostname = _dom; tUrl = o.toString(); } catch(_) {}
-                        const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
-                        GM_setClipboard(`${prefix}(${tUrl})`);
+                        GM_setClipboard(_buildPrefixedTweetUrl(rec.tweetUrl));
                         copyBtn.style.color = '#f59e0b';
                         setTimeout(() => { copyBtn.style.color = ''; }, 900);
                     }, 500);
@@ -7797,12 +7876,22 @@
                 } else if (rec.textOnly) {
                     const tc = document.createElement('div');
                     tc.style.cssText = 'width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;padding:10px;box-sizing:border-box;background:rgba(29,155,240,.08)';
-                    const tcIcon = document.createElement('div');
-                    tcIcon.innerHTML = `<svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="rgba(29,155,240,.6)" stroke-width="1.6" stroke-linecap="round"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="9" x2="17" y2="9"/><line x1="3" y1="13" x2="12" y2="13"/></svg>`;
+                    if (rec.avatarUrl) {
+                        const avImg = document.createElement('img');
+                        avImg.src = rec.avatarUrl;
+                        avImg.loading = 'lazy';
+                        avImg.alt = '';
+                        avImg.style.cssText = 'width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;';
+                        avImg.decode().catch(() => {});
+                        tc.appendChild(avImg);
+                    } else {
+                        const tcIcon = document.createElement('div');
+                        tcIcon.innerHTML = `<svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="rgba(29,155,240,.6)" stroke-width="1.6" stroke-linecap="round"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="9" x2="17" y2="9"/><line x1="3" y1="13" x2="12" y2="13"/></svg>`;
+                        tc.appendChild(tcIcon);
+                    }
                     const tcText = document.createElement('div');
-                    tcText.style.cssText = 'font-size:10px;color:rgba(255,255,255,.5);text-align:center;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;word-break:break-all';
+                    tcText.style.cssText = 'font-size:10px;color:rgba(255,255,255,.5);text-align:center;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;word-break:break-all';
                     tcText.textContent = rec.text || '';
-                    tc.appendChild(tcIcon);
                     tc.appendChild(tcText);
                     cell.appendChild(tc);
                 } else {
@@ -7854,12 +7943,7 @@
                     _gcTimer = setTimeout(() => {
                         _gcTimer = null;
                         _gcPressing = false;
-                        const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
-                            ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
-                        let tUrl = rec.tweetUrl;
-                        try { const o = new URL(tUrl); o.hostname = _dom; tUrl = o.toString(); } catch(_) {}
-                        const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
-                        GM_setClipboard(`${prefix}(${tUrl})`);
+                        GM_setClipboard(_buildPrefixedTweetUrl(rec.tweetUrl));
                         gridCopyBtn.style.background = 'rgba(245,158,11,0.9)';
                         setTimeout(() => { gridCopyBtn.style.background = ''; }, 800);
                     }, 500);
@@ -8030,12 +8114,7 @@
                     }));
                     const CTX_PREFIX = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="10" height="8" rx="1.2"/><path d="M11 6h2a2 2 0 0 1 0 4h-2"/></svg>`;
                     menu.appendChild(mkItem(CTX_PREFIX, 'Copy with prefix', () => {
-                        const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
-                            ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
-                        let tUrl = rec.tweetUrl;
-                        try { const o = new URL(tUrl); o.hostname = _dom; tUrl = o.toString(); } catch(_) {}
-                        const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
-                        GM_setClipboard(`${prefix}(${tUrl})`);
+                        GM_setClipboard(_buildPrefixedTweetUrl(rec.tweetUrl));
                     }));
                     const isFav = !!rec.favorited;
                     menu.appendChild(mkItem(isFav ? CTX_FAV_ON : CTX_FAV_OFF, isFav ? 'Unfavorite' : 'Favorite', () => {
@@ -10322,6 +10401,7 @@
             if (_lbDragACRef) { _lbDragACRef.abort(); _lbDragACRef = null; }
             if (_lbBranchBDragAC) { _lbBranchBDragAC.abort(); _lbBranchBDragAC = null; }
             document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
             requestAnimationFrame(() => requestAnimationFrame(() => {
                 window.scrollTo(0, _lbScrollY);
             }));
@@ -10875,7 +10955,9 @@
         document.body.appendChild(pillB);
         document.body.appendChild(modal);
         _lbScrollY = window.scrollY;
+        const _lbScrollbarW = window.innerWidth - document.documentElement.clientWidth;
         document.body.style.overflow = 'hidden';
+        if (_lbScrollbarW > 0) document.body.style.paddingRight = _lbScrollbarW + 'px';
 
         requestAnimationFrame(() => requestAnimationFrame(() => {
             modal.classList.add('tm-lb-in');
@@ -10982,13 +11064,18 @@
             if (thumbImg) videoThumb = thumbImg.src;
         }
 
+        let avatarUrl = '';
+        const _avatarImg = article.querySelector('img[src*="profile_images"]');
+        if (_avatarImg) avatarUrl = _avatarImg.src.replace('_normal.', '_200x200.');
+
         return {
             screenName: screenName,
             displayName: displayName,
             id: id,
             date: date,
             text: sanitizeForFilename(tweetText),
-            videoThumb: videoThumb
+            videoThumb: videoThumb,
+            avatarUrl: avatarUrl,
         };
     }
 
@@ -11211,6 +11298,10 @@
                         '⚠️ API token expired. Set a custom Bearer Token in ⚙️ Settings → Advanced to restore video fetch.',
                         6000
                     );
+                } else if (res.status === 404) {
+                    console.warn('[TMApi] TweetResultByRestId 404, cachedGqlId=', _cachedGqlId, '— 可能已輪替');
+                    GM_deleteValue('app_gql_tweet_id');
+                    _cachedGqlId = '2ICDjqPd81tulZcYrtpTuQ';
                 }
                 return null;
             }
@@ -11766,6 +11857,7 @@
                             hasVideo:     false,
                             count:        0,
                             textOnly:     true,
+                            avatarUrl:    info.avatarUrl || '',
                         };
                         const _tym = record.yyyymm;
                         let _tRecs = _readMonthRecords(_tym);
@@ -11780,6 +11872,7 @@
                         setMediaIcon('ok', '📌 Saved', 'Saved');
                         setTimeout(() => setMediaIcon('default'), 1800);
                         if (GM_getValue(KEY_GROUP_ON_DOWNLOAD, false)) {
+                            _pendingIsText        = true;
                             _pendingGroupRecordId = record.id;
                             setTimeout(() => popStarPip(btn || null), 80);
                         }
@@ -11907,6 +12000,64 @@
             };
             setLinkIcon('default');
 
+            const _doSaveLinkTextBookmark = async () => {
+                const rawText = article.querySelector('[data-testid="tweetText"]')?.innerText?.trim() || '';
+                const info = getTweetInfo(article);
+                if (!rawText) {
+                    _dialogOpenGlobal = true;
+                    const ok = confirm(`This post has no text content.\nSave it as an empty text bookmark anyway?`);
+                    _dialogOpenGlobal = false;
+                    if (!ok) return;
+                }
+                try {
+                    const _now   = new Date();
+                    const _yy    = _now.getFullYear();
+                    const _mm    = String(_now.getMonth() + 1).padStart(2, '0');
+                    const yyyymm = `${_yy}.${_mm}`;
+                    const record = {
+                        id:           Date.now(),
+                        ts:           Date.now(),
+                        yyyymm,
+                        tweetId:      info.id,
+                        tweetUrl:     `https://x.com/${info.screenName}/status/${info.id}`,
+                        tweetDate:    info.date,
+                        downloadDate: `${_yy}-${_mm}-${String(_now.getDate()).padStart(2,'0')}`,
+                        screenName:   info.screenName,
+                        displayName:  info.displayName,
+                        text:         (rawText || info.text || '').slice(0, 280),
+                        thumbUrls:    [],
+                        mediaUrls:    [],
+                        hasVideo:     false,
+                        count:        0,
+                        textOnly:     true,
+                        avatarUrl:    info.avatarUrl || '',
+                    };
+                    const _tym  = record.yyyymm;
+                    let _tRecs  = _readMonthRecords(_tym);
+                    const _tOld = _tRecs.find(r => r.tweetId === info.id);
+                    if (_tOld?.favorited) record.favorited = true;
+                    _tRecs = _tRecs.filter(r => r.tweetId !== info.id);
+                    _tRecs.unshift(record);
+                    _updateHistoryIndex(_tym);
+                    const _tSnap = _tRecs;
+                    setTimeout(() => { _writeMonthRecords(_tym, _tSnap); }, 0);
+                    _downloadedIds.add(info.id);
+                    setLinkIcon('ok', '📌 Saved', 'Saved');
+                    setTimeout(() => setLinkIcon('default'), 1800);
+                    const _existPanel = document.getElementById('tm-hist-panel');
+                    if (_existPanel) _existPanel.dispatchEvent(new CustomEvent('tm-hist-refresh'));
+                    if (GM_getValue(KEY_GROUP_ON_DOWNLOAD, false)) {
+                        _pendingIsText        = true;
+                        _pendingGroupRecordId = record.id;
+                        const _linkAnchor = document.querySelector('#tm-link-btn-' + info.id) || null;
+                        setTimeout(() => popStarPip(_linkAnchor), 80);
+                    }
+                } catch (err) {
+                    console.warn('[LinkBtn] textBookmark failed:', err);
+                    setLinkIcon('default');
+                }
+            };
+
             if (GM_getValue(KEY_CLICK_MODE, 'classic') === 'menu') {
                 const _getLinkItems = () => {
                     const useCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
@@ -11936,12 +12087,18 @@
                                 setTimeout(() => setLinkIcon('default'), 1500);
                             },
                         },
+                        'divider',
+                        {
+                            icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2h10a1 1 0 0 1 1 1v11l-5-3-5 3V3a1 1 0 0 1 1-1z"/></svg>`,
+                            label: 'Save as text bookmark',
+                            action: _doSaveLinkTextBookmark,
+                        },
                     ];
                 };
                 { const _acC = _bindMenuClick(icon, _getLinkItems);
                   const _acH = _bindMenuHover(icon, _getLinkItems);
                   icon._menuAC = { abort() { _acC.abort(); _acH.abort(); } }; }
-                icon.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); });
+                icon.addEventListener('contextmenu', async (e) => { e.preventDefault(); e.stopPropagation(); await _doSaveLinkTextBookmark(); });
             } else {
                 icon.addEventListener('mouseenter', () => {
                     const custom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
@@ -11987,6 +12144,7 @@
 
                 icon.addEventListener('mouseleave', () => { if(lTimer) { clearTimeout(lTimer); lTimer = null; } });
                 icon.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
+                icon.addEventListener('contextmenu', async (e) => { e.preventDefault(); e.stopPropagation(); await _doSaveLinkTextBookmark(); });
 
             }
 
