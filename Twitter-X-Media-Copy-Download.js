@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.1.0
+// @version      2.9.1.2
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -2374,13 +2374,21 @@
         pip.addEventListener('mouseenter', () => {
             clearTimeout(_starAutoHideTimer);
             _starAutoHideTimer = setTimeout(() => {
-                if (!_fanOpen) hideStarPip();
+                if (!_fanOpen && !_textMenuOpen) hideStarPip();
             }, STAR_AUTO_HIDE_SEC * 1000);
+            if (_pendingIsText) {
+                if (!_textMenuOpen) openTextGroupMenu();
+                return;
+            }
             if (!_fanOpen && getGroups().length) openGroupFan();
         });
         pip.addEventListener('click', e => {
             e.preventDefault(); e.stopPropagation();
-            if (_fanOpen) closeGroupFan(); else openGroupFan();
+            if (_pendingIsText) {
+                if (_textMenuOpen) closeTextGroupMenu(); else openTextGroupMenu();
+            } else {
+                if (_fanOpen) closeGroupFan(); else openGroupFan();
+            }
         });
         document.body.appendChild(pip);
     }
@@ -3432,6 +3440,101 @@
                 border: 1px solid rgba(255,255,255,.12);
             }
             .tm-group-modal-btn.tm-skip:hover { background: rgba(255,255,255,.14); }
+
+            #tm-text-group-menu {
+                position: fixed;
+                min-width: 168px;
+                background: #1a1f2e;
+                border: 0.5px solid rgba(255,255,255,.15);
+                border-radius: 10px;
+                box-shadow: 0 8px 28px rgba(0,0,0,.55), 0 2px 8px rgba(0,0,0,.35);
+                z-index: 99997;
+                overflow: hidden;
+                opacity: 0;
+                pointer-events: none;
+                transform: translateX(8px) scale(.96);
+                transform-origin: right center;
+                transition: opacity .18s ease, transform .2s cubic-bezier(.34,1.4,.64,1);
+            }
+            #tm-text-group-menu.tm-tgm-open {
+                opacity: 1;
+                pointer-events: all;
+                transform: translateX(0) scale(1);
+            }
+            .tm-tgm-header {
+                font-size: 9.5px;
+                color: rgba(255,255,255,.38);
+                letter-spacing: .07em;
+                text-transform: uppercase;
+                padding: 9px 13px 6px;
+                border-bottom: 1px solid rgba(255,255,255,.08);
+                user-select: none;
+            }
+            .tm-tgm-list {
+                max-height: 184px;
+                overflow-y: auto;
+                overflow-x: hidden;
+                scrollbar-width: thin;
+                scrollbar-color: rgba(255,255,255,.15) transparent;
+            }
+            .tm-tgm-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 13px;
+                font-size: 12.5px;
+                color: rgba(255,255,255,.82);
+                cursor: pointer;
+                transition: background .1s;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-family: inherit;
+                border: none;
+                background: transparent;
+                width: 100%;
+                text-align: left;
+            }
+            .tm-tgm-item:hover { background: rgba(255,255,255,.07); }
+            .tm-tgm-item.tm-tgm-selected { color: #1d9bf0; }
+            .tm-tgm-item-icon {
+                width: 16px; height: 16px;
+                flex-shrink: 0;
+                display: flex; align-items: center; justify-content: center;
+            }
+            .tm-tgm-item-icon svg { width: 16px; height: 16px; }
+            .tm-tgm-item-dot {
+                width: 7px; height: 7px;
+                border-radius: 50%;
+                border: 1.5px solid rgba(255,255,255,.35);
+                flex-shrink: 0;
+                transition: background .12s, border-color .12s;
+            }
+            .tm-tgm-item.tm-tgm-selected .tm-tgm-item-dot {
+                background: #1d9bf0;
+                border-color: #1d9bf0;
+            }
+            .tm-tgm-divider {
+                height: 1px;
+                background: rgba(255,255,255,.08);
+                margin: 3px 0;
+            }
+            .tm-tgm-new {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 13px 9px;
+                font-size: 12px;
+                color: rgba(255,255,255,.55);
+                cursor: pointer;
+                transition: color .1s, background .1s;
+                font-family: inherit;
+                border: none;
+                background: transparent;
+                width: 100%;
+                text-align: left;
+            }
+            .tm-tgm-new:hover { background: rgba(255,255,255,.06); color: rgba(255,255,255,.8); }
         `;
         document.head.appendChild(panelStyle);
 
@@ -5102,8 +5205,8 @@
     
     let _pendingIsText        = false;
 
-    window.addEventListener('scroll', () => { if (!_fanOpen) hideStarPip(); }, { passive: true, capture: true });
-    document.addEventListener('visibilitychange', () => { if (document.hidden) { if (_fanOpen) closeGroupFan(); hideStarPip(); } });
+    window.addEventListener('scroll', () => { if (!_fanOpen) hideStarPip(); if (_textMenuOpen) closeTextGroupMenu(); }, { passive: true, capture: true });
+    document.addEventListener('visibilitychange', () => { if (document.hidden) { if (_fanOpen) closeGroupFan(); if (_textMenuOpen) closeTextGroupMenu(); hideStarPip(); } });
     (() => {
         const _wrap = fn => function(...args) {
             const r = fn.apply(this, args);
@@ -5211,6 +5314,9 @@
         const pip = document.getElementById('tm-star-pip');
         if (!pip) return;
 
+        pip.textContent = _pendingIsText ? '📁' : '⭐';
+        pip.title       = _pendingIsText ? 'Group this text bookmark' : 'Group this download';
+
         if (mediaBtnEl) {
             _pendingStarPipEl = pip;
             const r = mediaBtnEl.getBoundingClientRect();
@@ -5222,7 +5328,7 @@
 
         clearTimeout(_starAutoHideTimer);
         _starAutoHideTimer = setTimeout(() => {
-            if (!_fanOpen) hideStarPip();
+            if (!_fanOpen && !_textMenuOpen) hideStarPip();
         }, STAR_AUTO_HIDE_SEC * 1000);
     }
 
@@ -5232,6 +5338,8 @@
         pip.classList.remove('tm-popped');
         clearTimeout(_starAutoHideTimer);
         _pendingStarPipEl = null;
+        pip.textContent = '⭐';
+        pip.title       = 'Group this download';
     }
 
     function onStarPipClick() {
@@ -5371,7 +5479,8 @@
     }
 
     function openGroupFan() {
-        const _activeGroups = _pendingIsText ? getTextGroups() : getGroups();
+        if (_pendingIsText) { openTextGroupMenu(); return; }
+        const _activeGroups = getGroups();
         if (!_activeGroups.length) {
             _runStarEscapeAnim(() => showGroupCreateModal());
             return;
@@ -5430,7 +5539,142 @@
         _runStarEscapeAnim(() => hideStarPip());
     }
 
+    let _textMenuOpen     = false;
+    let _textMenuAnchorEl = null;
+
+    function openTextGroupMenu(anchorEl) {
+        let menu = document.getElementById('tm-text-group-menu');
+        if (!menu) {
+            menu = document.createElement('div');
+            menu.id = 'tm-text-group-menu';
+            menu.setAttribute('role', 'menu');
+            document.body.appendChild(menu);
+
+            menu.addEventListener('mouseleave', () => {
+                setTimeout(() => {
+                    const pip = document.getElementById('tm-star-pip');
+                    if (!pip?.matches(':hover') && !_textMenuAnchorEl?.matches(':hover') && !menu.matches(':hover')) {
+                        closeTextGroupMenu();
+                    }
+                }, 160);
+            });
+        }
+
+        _textMenuAnchorEl = anchorEl || document.getElementById('tm-star-pip');
+
+        _renderTextGroupMenu(menu);
+
+        _positionTextGroupMenu(menu);
+
+        _textMenuOpen = true;
+        requestAnimationFrame(() => menu.classList.add('tm-tgm-open'));
+    }
+
+    function closeTextGroupMenu() {
+        const menu = document.getElementById('tm-text-group-menu');
+        if (!menu) return;
+        _textMenuOpen = false;
+        _textMenuAnchorEl = null;
+        menu.classList.remove('tm-tgm-open');
+    }
+
+    function _positionTextGroupMenu(menu) {
+        const anchor = _textMenuAnchorEl || document.getElementById('tm-star-pip');
+        if (!anchor) return;
+        const r   = anchor.getBoundingClientRect();
+        menu.style.top   = '';
+        menu.style.left  = '';
+        menu.style.visibility = 'hidden';
+        menu.style.display    = 'block';
+        const mh = menu.offsetHeight || 200;
+        menu.style.visibility = '';
+        menu.style.display    = '';
+
+        const mw    = Math.max(menu.offsetWidth || 168, 168);
+        const right = r.left - 8;
+        const left  = Math.max(4, right - mw);
+        let top = r.top + r.height / 2 - mh / 2 - 30;
+        top = Math.max(8, Math.min(top, window.innerHeight - mh - 8));
+
+        menu.style.left = left + 'px';
+        menu.style.top  = top  + 'px';
+    }
+
+    function _renderTextGroupMenu(menu) {
+        menu.innerHTML = '';
+
+        const groups = getTextGroups();
+
+        const header = document.createElement('div');
+        header.className = 'tm-tgm-header';
+        header.textContent = 'Select Group';
+        menu.appendChild(header);
+
+        const list = document.createElement('div');
+        list.className = 'tm-tgm-list';
+
+        if (groups.length) {
+            groups.forEach(g => {
+                const btn = document.createElement('button');
+                btn.type      = 'button';
+                btn.className = 'tm-tgm-item';
+                btn.setAttribute('role', 'menuitem');
+
+                const ic     = _resolveGroupIcon(g.icon);
+                const iconEl = document.createElement('span');
+                iconEl.className   = 'tm-tgm-item-icon';
+                iconEl.style.color = ic.color;
+                iconEl.innerHTML   = ic.svg;
+
+                const label = document.createElement('span');
+                label.textContent = g.name;
+                label.style.cssText = 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1';
+
+                btn.appendChild(iconEl);
+                btn.appendChild(label);
+                list.appendChild(btn);
+
+                btn.addEventListener('click', () => {
+                    assignGroup(_pendingGroupRecordId, g.id);
+                    _pendingGroupRecordId = null;
+                    _pendingIsText        = false;
+                    showToast(`📁 → ${g.name}`);
+                    closeTextGroupMenu();
+                    _runStarEscapeAnim(() => hideStarPip());
+                });
+            });
+        } else {
+            const empty = document.createElement('div');
+            empty.style.cssText = 'padding:10px 13px 6px;font-size:11.5px;color:rgba(255,255,255,.32);font-style:italic';
+            empty.textContent = 'No groups yet';
+            list.appendChild(empty);
+        }
+
+        menu.appendChild(list);
+
+        const div = document.createElement('div');
+        div.className = 'tm-tgm-divider';
+        menu.appendChild(div);
+
+        const newBtn = document.createElement('button');
+        newBtn.type      = 'button';
+        newBtn.className = 'tm-tgm-new';
+        newBtn.setAttribute('role', 'menuitem');
+        newBtn.innerHTML = '<span style="font-size:14px;line-height:1;opacity:.7">＋</span><span>New Group</span>';
+        newBtn.addEventListener('click', () => {
+            closeTextGroupMenu();
+            _runStarEscapeAnim(() => showGroupCreateModal());
+        });
+        menu.appendChild(newBtn);
+    }
+
     document.addEventListener('click', e => {
+        if (_textMenuOpen &&
+            !e.target.closest('#tm-text-group-menu') &&
+            !e.target.closest('#tm-star-pip') &&
+            !(_textMenuAnchorEl && _textMenuAnchorEl.contains?.(e.target))) {
+            closeTextGroupMenu();
+        }
         if (!_fanOpen) return;
         if (e.target.closest('.tm-fan-node') ||
             e.target.closest('#tm-star-pip')  ||
@@ -5525,7 +5769,7 @@
         iconLabel.textContent = 'Icon';
 
         const iconGrid = document.createElement('div');
-        iconGrid.style.cssText = 'display:grid;grid-template-columns:repeat(6,1fr);gap:5px;max-height:240px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;padding-right:2px';
+        iconGrid.style.cssText = 'display:grid;grid-template-columns:repeat(6,1fr);gap:5px;max-height:320px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;padding-right:2px';
 
         _GROUP_SVG_ICONS.forEach(ic => {
             if (ic.div) {
@@ -6035,6 +6279,7 @@
             }
 
             if (GM_getValue(KEY_GROUP_ON_DOWNLOAD, false)) {
+                _pendingIsText        = false;
                 _pendingGroupRecordId = record.id;
                 setTimeout(() => popStarPip(mediaBtn || null), 80);
             }
@@ -7837,7 +8082,7 @@
                 acts.appendChild(copyBtn);
                 acts.appendChild(favBtn);
                 acts.appendChild(jmpBtn);
-                acts.appendChild(dlBtn);
+                if (!rec.textOnly) acts.appendChild(dlBtn);
                 acts.appendChild(delBtn);
                 row.appendChild(acts);
 
@@ -7991,7 +8236,7 @@
                         setTimeout(() => forceDownloadBlob(url, fname), i * 600);
                     });
                 });
-                cell.appendChild(gridDlBtn);
+                if (!rec.textOnly) cell.appendChild(gridDlBtn);
 
                 const SVG_GOTO_SM = `<svg viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10 L10 4"/><path d="M6.5 4h3.5v3.5"/></svg>`;
                 const gridGotoBtn = document.createElement('button');
@@ -8028,7 +8273,7 @@
                     gridFavBtn.title = nowFav ? 'Unfavorite' : 'Favorite';
                     gridFavBtn.setAttribute('aria-label', nowFav ? 'Unfavorite' : 'Favorite');
                     gridFavBtn.classList.toggle('tm-fav-active', nowFav);
-                    cell.classList.toggle('tm-grid-fav-lock', nowFav);
+                    if (editMode) cell.classList.toggle('tm-grid-fav-lock', nowFav);
                     rec.favorited = nowFav;
                 });
                 cell.appendChild(gridFavBtn);
@@ -10654,6 +10899,10 @@
             document.body.appendChild(pillA);
 
             document.body.appendChild(modal);
+            _lbScrollY = window.scrollY;
+            const _lbScrollbarW = window.innerWidth - document.documentElement.clientWidth;
+            document.body.style.overflow = 'hidden';
+            if (_lbScrollbarW > 0) document.body.style.paddingRight = _lbScrollbarW + 'px';
 
             requestAnimationFrame(() => requestAnimationFrame(() => {
                 modal.classList.add('tm-lb-in');
@@ -12049,8 +12298,7 @@
                     if (GM_getValue(KEY_GROUP_ON_DOWNLOAD, false)) {
                         _pendingIsText        = true;
                         _pendingGroupRecordId = record.id;
-                        const _linkAnchor = document.querySelector('#tm-link-btn-' + info.id) || null;
-                        setTimeout(() => popStarPip(_linkAnchor), 80);
+                        setTimeout(() => openTextGroupMenu(icon), 80);
                     }
                 } catch (err) {
                     console.warn('[LinkBtn] textBookmark failed:', err);
