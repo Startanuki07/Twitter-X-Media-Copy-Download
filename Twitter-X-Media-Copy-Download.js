@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.1.2
+// @version      2.9.1.3
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -9770,12 +9770,13 @@
                 return b;
             })();
             bridge._anchorEl = anchorEl;
-            const bTop  = Math.min(top + mH, r.top);
-            const bBot  = Math.max(top + mH, r.bottom);
-            bridge.style.left   = Math.min(left, r.left) - 4 + 'px';
+            const menuAbove = top < r.top;
+            const bTop = menuAbove ? (top + mH) : r.bottom;
+            const bBot = menuAbove ? r.top      : top;
+            bridge.style.left   = (r.left - 4) + 'px';
             bridge.style.top    = bTop + 'px';
-            bridge.style.width  = Math.max(mW, r.width) + 8 + 'px';
-            bridge.style.height = (bBot - bTop) + 'px';
+            bridge.style.width  = (r.width + 8) + 'px';
+            bridge.style.height = Math.max(0, bBot - bTop) + 'px';
         };
 
         document.body.appendChild(menu);
