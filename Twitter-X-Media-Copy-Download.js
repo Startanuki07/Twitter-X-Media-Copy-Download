@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.1.3
+// @version      2.9.2.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -192,6 +192,10 @@
     const KEY_GEAR_CORNER       = 'app_gear_corner';
     const KEY_HIST_CLEANUP_NOTIFIED = 'app_hist_cleanup_notified';
     const KEY_CLICK_MODE        = 'app_click_mode';
+    const KEY_CUSTOM_MEDIA_ACTIONS = 'app_custom_media_actions';
+    const DEFAULT_MEDIA_ACTIONS  = { click: 'copy', longpress: 'copy_prefix', mclick: 'preview', rclick: 'download_all' };
+    const KEY_CUSTOM_LINK_ACTIONS = 'app_custom_link_actions';
+    const DEFAULT_LINK_ACTIONS    = { click: 'copy_url', longpress: 'copy_prefix_url', mclick: 'none', rclick: 'save_text_bookmark' };
     const KEY_SEARCH_HISTORY    = 'app_search_hist';
     const KEY_VIDEO_SPEED       = 'app_video_speed';
     const KEY_CUSTOM_BEARER     = 'app_custom_bearer';
@@ -218,6 +222,7 @@
         'sp_feedback_slide',
         'right_click_tip',
         'click_mode_menu',
+        'custom_media_actions',
     ];
 
     const DOMAIN_LIST = [
@@ -314,6 +319,20 @@
             status_click_menu:      'Menu',
             status_click_classic:   'Classic',
             toast_click_mode:       '🖱 Click Mode → ',
+            cma_title:                'Customize button actions',
+            cma_slot_click:           'Single Click',
+            cma_slot_longpress:       'Long Press',
+            cma_slot_mclick:          'Middle Click',
+            cma_slot_rclick:          'Right Click',
+            cma_section_media:        '🎞️ Media Button',
+            cma_section_link:         '🔗 Link Button',
+            cma_action_copy:          'Copy Media URLs',
+            cma_action_copy_prefix:   'Copy with Prefix',
+            cma_action_preview:       'Preview',
+            cma_action_download_all:  'Download All',
+            cma_action_copy_url:      'Copy Tweet URL',
+            cma_action_save_bookmark: 'Save as Text Bookmark',
+            cma_action_none:          'No Action',
             
             sp_group_advanced:      '⚙ Advanced',
             sp_backup_settings:     '📤 Backup settings',
@@ -446,6 +465,20 @@
             status_click_menu:      '選單',
             status_click_classic:   '經典',
             toast_click_mode:       '🖱 點擊模式 → ',
+            cma_title:                '自訂按鈕操作',
+            cma_slot_click:           '左鍵單擊',
+            cma_slot_longpress:       '左鍵長按',
+            cma_slot_mclick:          '中鍵',
+            cma_slot_rclick:          '右鍵',
+            cma_section_media:        '🎞️ 媒體按鈕',
+            cma_section_link:         '🔗 連結按鈕',
+            cma_action_copy:          '複製媒體網址',
+            cma_action_copy_prefix:   '複製含前綴網址',
+            cma_action_preview:       '預覽',
+            cma_action_download_all:  '下載全部媒體',
+            cma_action_copy_url:      '複製推文網址',
+            cma_action_save_bookmark: '另存為文字書籤',
+            cma_action_none:          '無動作',
             sp_group_advanced:      '⚙ 進階設定',
             sp_backup_settings:     '📤 備份設定',
             sp_backup_btn:          '匯出 JSON',
@@ -575,6 +608,20 @@
             status_click_menu:      '菜单',
             status_click_classic:   '经典',
             toast_click_mode:       '🖱 点击模式 → ',
+            cma_title:                '自定义按钮操作',
+            cma_slot_click:           '左键单击',
+            cma_slot_longpress:       '左键长按',
+            cma_slot_mclick:          '中键',
+            cma_slot_rclick:          '右键',
+            cma_section_media:        '🎞️ 媒体按钮',
+            cma_section_link:         '🔗 链接按钮',
+            cma_action_copy:          '复制媒体网址',
+            cma_action_copy_prefix:   '复制含前缀网址',
+            cma_action_preview:       '预览',
+            cma_action_download_all:  '下载全部媒体',
+            cma_action_copy_url:      '复制推文网址',
+            cma_action_save_bookmark: '另存为文字书签',
+            cma_action_none:          '无动作',
             sp_group_advanced:      '⚙ 高级设置',
             sp_backup_settings:     '📤 备份设置',
             sp_backup_btn:          '导出 JSON',
@@ -704,6 +751,20 @@
             status_click_menu:      'メニュー',
             status_click_classic:   'クラシック',
             toast_click_mode:       '🖱 クリックモード → ',
+            cma_title:                'ボタン操作のカスタマイズ',
+            cma_slot_click:           'シングルクリック',
+            cma_slot_longpress:       '長押し',
+            cma_slot_mclick:          '中クリック',
+            cma_slot_rclick:          '右クリック',
+            cma_section_media:        '🎞️ メディアボタン',
+            cma_section_link:         '🔗 リンクボタン',
+            cma_action_copy:          'メディアURLをコピー',
+            cma_action_copy_prefix:   '接頭辞付きでコピー',
+            cma_action_preview:       'プレビュー',
+            cma_action_download_all:  'すべてダウンロード',
+            cma_action_copy_url:      'ツイートURLをコピー',
+            cma_action_save_bookmark: 'テキストブックマークとして保存',
+            cma_action_none:          '操作なし',
             sp_group_advanced:      '⚙ 詳細設定',
             sp_backup_settings:     '📤 設定バックアップ',
             sp_backup_btn:          'JSON 書き出し',
@@ -833,6 +894,20 @@
             status_click_menu:      '메뉴',
             status_click_classic:   '클래식',
             toast_click_mode:       '🖱 클릭 모드 → ',
+            cma_title:                '버튼 동작 사용자 지정',
+            cma_slot_click:           '좌클릭',
+            cma_slot_longpress:       '길게 누르기',
+            cma_slot_mclick:          '휠클릭',
+            cma_slot_rclick:          '우클릭',
+            cma_section_media:        '🎞️ 미디어 버튼',
+            cma_section_link:         '🔗 링크 버튼',
+            cma_action_copy:          '미디어 URL 복사',
+            cma_action_copy_prefix:   '접두사와 함께 복사',
+            cma_action_preview:       '미리보기',
+            cma_action_download_all:  '전체 다운로드',
+            cma_action_copy_url:      '트윗 URL 복사',
+            cma_action_save_bookmark: '텍스트 북마크로 저장',
+            cma_action_none:          '동작 없음',
             sp_group_advanced:      '⚙ 고급 설정',
             sp_backup_settings:     '📤 설정 백업',
             sp_backup_btn:          'JSON 내보내기',
@@ -962,6 +1037,20 @@
             status_click_menu:      'Menú',
             status_click_classic:   'Clásico',
             toast_click_mode:       '🖱 Modo de Clic → ',
+            cma_title:                'Personalizar acciones del botón',
+            cma_slot_click:           'Clic simple',
+            cma_slot_longpress:       'Pulsación larga',
+            cma_slot_mclick:          'Clic central',
+            cma_slot_rclick:          'Clic derecho',
+            cma_section_media:        '🎞️ Botón de medios',
+            cma_section_link:         '🔗 Botón de enlace',
+            cma_action_copy:          'Copiar URLs de medios',
+            cma_action_copy_prefix:   'Copiar con prefijo',
+            cma_action_preview:       'Vista previa',
+            cma_action_download_all:  'Descargar todo',
+            cma_action_copy_url:      'Copiar URL del tuit',
+            cma_action_save_bookmark: 'Guardar como marcador de texto',
+            cma_action_none:          'Sin acción',
             sp_group_advanced:      '⚙ Configuración avanzada',
             sp_backup_settings:     '📤 Copia de seguridad',
             sp_backup_btn:          'Exportar JSON',
@@ -1091,6 +1180,20 @@
             status_click_menu:      'Menu',
             status_click_classic:   'Clássico',
             toast_click_mode:       '🖱 Modo de Clique → ',
+            cma_title:                'Personalizar ações do botão',
+            cma_slot_click:           'Clique simples',
+            cma_slot_longpress:       'Pressão longa',
+            cma_slot_mclick:          'Clique do meio',
+            cma_slot_rclick:          'Clique direito',
+            cma_section_media:        '🎞️ Botão de mídia',
+            cma_section_link:         '🔗 Botão de link',
+            cma_action_copy:          'Copiar URLs de mídia',
+            cma_action_copy_prefix:   'Copiar com prefixo',
+            cma_action_preview:       'Pré-visualizar',
+            cma_action_download_all:  'Baixar tudo',
+            cma_action_copy_url:      'Copiar URL do tweet',
+            cma_action_save_bookmark: 'Salvar como marcador de texto',
+            cma_action_none:          'Sem ação',
             sp_group_advanced:      '⚙ Configurações avançadas',
             sp_backup_settings:     '📤 Backup de configurações',
             sp_backup_btn:          'Exportar JSON',
@@ -1220,6 +1323,20 @@
             status_click_menu:      'Menu',
             status_click_classic:   'Classique',
             toast_click_mode:       '🖱 Mode de Clic → ',
+            cma_title:                'Personnaliser les actions du bouton',
+            cma_slot_click:           'Clic simple',
+            cma_slot_longpress:       'Appui long',
+            cma_slot_mclick:          'Clic central',
+            cma_slot_rclick:          'Clic droit',
+            cma_section_media:        '🎞️ Bouton média',
+            cma_section_link:         '🔗 Bouton lien',
+            cma_action_copy:          'Copier les URL des médias',
+            cma_action_copy_prefix:   'Copier avec préfixe',
+            cma_action_preview:       'Aperçu',
+            cma_action_download_all:  'Tout télécharger',
+            cma_action_copy_url:      "Copier l'URL du tweet",
+            cma_action_save_bookmark: 'Enregistrer comme signet texte',
+            cma_action_none:          'Aucune action',
             sp_group_advanced:      '⚙ Paramètres avancés',
             sp_backup_settings:     '📤 Sauvegarder les paramètres',
             sp_backup_btn:          'Exporter JSON',
@@ -1349,6 +1466,20 @@
             status_click_menu:      'Меню',
             status_click_classic:   'Классика',
             toast_click_mode:       '🖱 Режим клика → ',
+            cma_title:                'Настроить действия кнопки',
+            cma_slot_click:           'Одиночный клик',
+            cma_slot_longpress:       'Долгое нажатие',
+            cma_slot_mclick:          'Средний клик',
+            cma_slot_rclick:          'Правый клик',
+            cma_section_media:        '🎞️ Кнопка медиа',
+            cma_section_link:         '🔗 Кнопка ссылки',
+            cma_action_copy:          'Скопировать URL медиа',
+            cma_action_copy_prefix:   'Скопировать с префиксом',
+            cma_action_preview:       'Предпросмотр',
+            cma_action_download_all:  'Скачать всё',
+            cma_action_copy_url:      'Скопировать URL твита',
+            cma_action_save_bookmark: 'Сохранить как текстовую закладку',
+            cma_action_none:          'Без действия',
             sp_group_advanced:      '⚙ Дополнительно',
             sp_backup_settings:     '📤 Резервное копирование',
             sp_backup_btn:          'Экспорт JSON',
@@ -2947,6 +3078,40 @@
                 font-size: 11px; color: #1d9bf0;
             }
             
+            .tm-sp-cma-gear {
+                margin-left: auto; flex-shrink: 0;
+                width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
+                border-radius: 6px; cursor: pointer; font-size: 13px;
+                background: transparent; border: none; color: ${C.sub};
+                transition: background 0.1s;
+            }
+            .tm-sp-cma-gear:hover { background: ${C.rowHover}; }
+            .tm-sp-cma-accordion {
+                display: grid;
+                grid-template-rows: 0fr;
+                background: ${C.panel};
+                transition: grid-template-rows 0.25s ease;
+            }
+            .tm-sp-cma-accordion.open { grid-template-rows: 1fr; }
+            .tm-sp-cma-accordion-inner {
+                overflow: hidden; min-height: 0;
+                display: flex; flex-direction: column; gap: 8px;
+                padding: 8px 14px 10px;
+                border-top: 1px solid ${C.border};
+            }
+            .tm-sp-cma-section {
+                font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+                color: ${C.sub}; margin-top: 4px; padding-top: 8px; border-top: 1px solid ${C.border};
+            }
+            .tm-sp-cma-section:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+            .tm-sp-cma-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+            .tm-sp-cma-label { font-size: 12px; color: ${C.sub}; white-space: nowrap; }
+            .tm-sp-cma-select {
+                background: ${C.rowHover}; color: ${C.text}; border: 1px solid ${C.border};
+                border-radius: 6px; padding: 3px 7px; font: 12px system-ui; cursor: pointer;
+                max-width: 170px;
+            }
+            
             .tm-sp-group-header {
                 display: flex; align-items: center; gap: 5px;
                 cursor: pointer;
@@ -4228,6 +4393,12 @@
                 document.body.appendChild(overlay);
             };
 
+            const langLabel = T.menu_lang.replace(/^🌐\s*/, '').replace(/\s*\(Change Language\)/i, '').trim();
+            const grpLang = makeGroup('🌐  ' + langLabel, true);
+            grpLang.append(makeRow(langLabel, T.langName, () => {
+                showLangPickerModal();
+            }));
+
             const grpLink = makeGroup('🔗  Link', true);
 
             const clickVal = clickCustom ? clickDomain : 'x.com (default)';
@@ -4262,7 +4433,7 @@
                 { value: 'menu',    label: T.status_click_menu    || 'Menu',    featureId: 'click_mode_menu' },
                 { value: 'classic', label: T.status_click_classic || 'Classic' },
             ];
-            grpMedia.append(makePickerRow(T.menu_click_mode || '🖱 Click Mode', clickModeOpts, GM_getValue(KEY_CLICK_MODE, 'classic'), (newMode) => {
+            const clickModeRow = makePickerRow(T.menu_click_mode || '🖱 Click Mode', clickModeOpts, GM_getValue(KEY_CLICK_MODE, 'classic'), (newMode) => {
                 GM_setValue(KEY_CLICK_MODE, newMode);
                 const modeLabel = newMode === 'menu'
                     ? (T.status_click_menu    || 'Menu')
@@ -4271,7 +4442,154 @@
                     + '  —  Reload to apply.';
                 buildContent();
                 _showReloadToast(toastMsg);
-            }));
+            });
+            grpMedia.append(clickModeRow);
+
+            (() => {
+                const picker = clickModeRow.querySelector('.tm-sp-picker');
+                const classicOpt = picker?.children[1];
+                if (!classicOpt) return;
+
+                const tail = document.createElement('span');
+                tail.style.cssText = 'margin-left:auto; display:flex; align-items:center; gap:4px;';
+
+                if (isFeatureNew('custom_media_actions')) {
+                    const badge = document.createElement('span');
+                    badge.className = 'tm-sp-new-badge';
+                    badge.textContent = 'NEW';
+                    tail.appendChild(badge);
+                }
+
+                const gear = document.createElement('span');
+                gear.className = 'tm-sp-cma-gear';
+                gear.textContent = '⚙️';
+                gear.title = T.cma_title || 'Customize button actions';
+                gear.setAttribute('role', 'button');
+                gear.setAttribute('aria-label', T.cma_title || 'Customize button actions');
+                gear.tabIndex = 0;
+                tail.appendChild(gear);
+                classicOpt.appendChild(tail);
+
+                const accordion = document.createElement('div');
+                accordion.className = 'tm-sp-cma-accordion';
+                const accordionInner = document.createElement('div');
+                accordionInner.className = 'tm-sp-cma-accordion-inner';
+                accordion.appendChild(accordionInner);
+
+                const SLOTS = [
+                    { key: 'click',     label: T.cma_slot_click     || 'Single Click' },
+                    { key: 'longpress', label: T.cma_slot_longpress || 'Long Press' },
+                    { key: 'mclick',    label: T.cma_slot_mclick     || 'Middle Click' },
+                    { key: 'rclick',    label: T.cma_slot_rclick     || 'Right Click' },
+                ];
+
+                const _buildActionSection = (headerLabel, gmKey, defaults, actionLabels) => {
+                    const header = document.createElement('div');
+                    header.className = 'tm-sp-cma-section';
+                    header.textContent = headerLabel;
+                    accordionInner.appendChild(header);
+
+                    let current;
+                    try {
+                        current = { ...defaults, ...JSON.parse(GM_getValue(gmKey, '{}')) };
+                    } catch (_) { current = { ...defaults }; }
+
+                    const selects = {};
+                    SLOTS.forEach(({ key, label }) => {
+                        const row = document.createElement('div');
+                        row.className = 'tm-sp-cma-row';
+
+                        const lbl = document.createElement('span');
+                        lbl.className = 'tm-sp-cma-label';
+                        lbl.textContent = label;
+
+                        const sel = document.createElement('select');
+                        sel.className = 'tm-sp-cma-select';
+                        Object.entries(actionLabels).forEach(([val, txt]) => {
+                            const o = document.createElement('option');
+                            o.value = val; o.textContent = txt;
+                            sel.appendChild(o);
+                        });
+                        sel.value = current[key];
+
+                        selects[key] = sel;
+                        row.appendChild(lbl);
+                        row.appendChild(sel);
+                        accordionInner.appendChild(row);
+                    });
+
+                    Object.entries(selects).forEach(([key, sel]) => {
+                        sel.addEventListener('change', () => {
+                            const newVal = sel.value;
+                            const oldVal = current[key];
+                            if (newVal === oldVal) return;
+                            const otherKey = Object.keys(current).find(k => k !== key && current[k] === newVal);
+                            current[key] = newVal;
+                            if (otherKey) {
+                                current[otherKey] = oldVal;
+                                selects[otherKey].value = oldVal;
+                            }
+                            GM_setValue(gmKey, JSON.stringify(current));
+                        });
+                    });
+                };
+
+                _buildActionSection(
+                    T.cma_section_media || '🎞️ Media Button',
+                    KEY_CUSTOM_MEDIA_ACTIONS,
+                    DEFAULT_MEDIA_ACTIONS,
+                    {
+                        copy:         T.cma_action_copy        || 'Copy Media URLs',
+                        copy_prefix:  T.cma_action_copy_prefix  || 'Copy with Prefix',
+                        preview:      T.cma_action_preview      || 'Preview',
+                        download_all: T.cma_action_download_all || 'Download All',
+                    }
+                );
+
+                _buildActionSection(
+                    T.cma_section_link || '🔗 Link Button',
+                    KEY_CUSTOM_LINK_ACTIONS,
+                    DEFAULT_LINK_ACTIONS,
+                    {
+                        copy_url:           T.cma_action_copy_url     || 'Copy Tweet URL',
+                        copy_prefix_url:    T.cma_action_copy_prefix   || 'Copy with Prefix',
+                        save_text_bookmark: T.cma_action_save_bookmark || 'Save as Text Bookmark',
+                        none:               T.cma_action_none          || 'No Action',
+                    }
+                );
+
+                const _toggleAccordion = (e) => {
+                    e.stopPropagation();
+                    const isOpen = accordion.classList.toggle('open');
+                    if (isOpen) markFeatureSeen('custom_media_actions');
+                    tail.querySelector('.tm-sp-new-badge')?.remove();
+                    if (_cmaCollapseTimer) { clearTimeout(_cmaCollapseTimer); _cmaCollapseTimer = null; }
+                    if (_lcRcResizeHandler) requestAnimationFrame(_lcRcResizeHandler);
+                };
+                gear.addEventListener('click', _toggleAccordion);
+                gear.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); _toggleAccordion(e); }
+                });
+
+                clickModeRow.appendChild(accordion);
+
+                clickModeRow.querySelector('.tm-sp-row')?.addEventListener('click', () => {
+                    if (!picker.classList.contains('open')) accordion.classList.remove('open');
+                });
+
+                let _cmaCollapseTimer = null;
+                clickModeRow.addEventListener('mouseleave', () => {
+                    if (!accordion.classList.contains('open')) return;
+                    _cmaCollapseTimer = setTimeout(() => {
+                        _cmaCollapseTimer = null;
+                        accordion.classList.remove('open');
+                        if (_lcRcResizeHandler) requestAnimationFrame(_lcRcResizeHandler);
+                    }, 600);
+                });
+                clickModeRow.addEventListener('mouseenter', () => {
+                    if (_cmaCollapseTimer) { clearTimeout(_cmaCollapseTimer); _cmaCollapseTimer = null; }
+                });
+            })();
 
             const fbOpts = [
                 { value: 'toast',  label: T.status_feedback_toast  || 'Toast' },
@@ -4302,11 +4620,6 @@
                 showToast(T.toast_date_fmt + (chosen ? chosen.label : newFmt));
                 registerMenus(); buildContent();
             }, 'sp_date_picker'));
-
-            const langLabel = T.menu_lang.replace(/^🌐\s*/, '').replace(/\s*\(Change Language\)/i, '').trim();
-            grpMedia.append(makeRow('🌐 ' + langLabel, T.langName, () => {
-                showLangPickerModal();
-            }));
 
             const grpGroups = makeGroup(T.sp_grp_group || '⭐  Groups', true);
 
@@ -11988,91 +12301,80 @@
             btn.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); });
 
         } else {
-            let timer = null;
-            let longFired = false;
-            let _pressing = false;
-            btn.addEventListener('mousedown', async (e) => {
-                e.preventDefault(); e.stopPropagation();
 
-                if (e.button === 0) {
-                    longFired = false;
-                    _pressing = true;
-                    timer = setTimeout(async () => {
-                        longFired = true;
-                        _pressing = false;
-                        timer = null;
-                        const urls = await extractMediaUrls(article);
-                        if (!urls.length) return;
-                        const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
-                        const txt = urls.map(u => `${prefix}(${u})`).join('\n');
-                        GM_setClipboard(txt);
-                        setMediaIcon('ok', T.msg_prefix_copied, 'Prefix Copied', 'prefix');
-                        setTimeout(() => setMediaIcon('default'), 1500);
-                    }, 400);
+            const _getCustomMediaActions = () => {
+                try {
+                    return { ...DEFAULT_MEDIA_ACTIONS, ...JSON.parse(GM_getValue(KEY_CUSTOM_MEDIA_ACTIONS, '{}')) };
+                } catch (_) { return { ...DEFAULT_MEDIA_ACTIONS }; }
+            };
 
-                } else if (e.button === 1) {
-                    let videos = [], imgUrls = [];
-
-                    let statusId = null;
-                    for (const a of article.querySelectorAll('a[href*="/status/"]')) {
-                        const m = a.href.match(/\/status\/(\d+)/);
-                        if (m) { statusId = m[1]; break; }
-                    }
-
-                    if (statusId) {
-                        const apiData = await fetchTweetMediaFromAPI(statusId);
-                        if (apiData) {
-                            videos  = apiData.videos  || [];
-                            imgUrls = apiData.images   || [];
-                        }
-                    }
-
-                    if (!videos.length && !imgUrls.length) {
-                        videos  = await extractVideoUrl(article);
-                        const allUrls = await extractMediaUrls(article);
-                        const videoSet = new Set(videos);
-                        imgUrls = allUrls.filter(u => !videoSet.has(u));
-                    }
-
-                    if (videos.length && imgUrls.length) {
-                        showFloatingVideoPlayer(videos, 0, imgUrls);
-                    } else if (videos.length) {
-                        showFloatingVideoPlayer(videos);
-                    } else if (imgUrls.length) {
-                        showImageLightbox(imgUrls);
-                    } else {
-                        setMediaIcon('msg', T.msg_no_media, 'No Media');
-                        setTimeout(() => setMediaIcon('default'), 1500);
-                    }
-                }
-            });
-
-            btn.addEventListener('mouseup', async (e) => {
-                if (e.button !== 0) return;
-                if (timer) {
-                    clearTimeout(timer); timer = null;
-                    _pressing = false;
-                    if (longFired) return;
-                    const urls = await extractMediaUrls(article);
-                    if (!urls.length) {
-                        setMediaIcon('msg', T.msg_no_media, 'No Media');
-                        setTimeout(() => setMediaIcon('default'), 1500);
-                        return;
-                    }
-                    GM_setClipboard(urls.join('\n'));
-                    setMediaIcon('ok', T.msg_copied, 'Copied', 'copy');
+            const _mediaActionCopy = async () => {
+                const urls = await extractMediaUrls(article);
+                if (!urls.length) {
+                    setMediaIcon('msg', T.msg_no_media, 'No Media');
                     setTimeout(() => setMediaIcon('default'), 1500);
-                    if (isFeatureNew('right_click_tip')) {
-                        markFeatureSeen('right_click_tip');
-                        setTimeout(() => showToast('💡 Tip: Right-click this button to download all media directly.', 5000), 400);
+                    return;
+                }
+                GM_setClipboard(urls.join('\n'));
+                setMediaIcon('ok', T.msg_copied, 'Copied', 'copy');
+                setTimeout(() => setMediaIcon('default'), 1500);
+                if (isFeatureNew('right_click_tip')) {
+                    markFeatureSeen('right_click_tip');
+                    setTimeout(() => showToast('💡 Tip: Right-click this button to download all media directly.', 5000), 400);
+                }
+            };
+
+            const _mediaActionCopyPrefix = async () => {
+                const urls = await extractMediaUrls(article);
+                if (!urls.length) {
+                    setMediaIcon('msg', T.msg_no_media, 'No Media');
+                    setTimeout(() => setMediaIcon('default'), 1500);
+                    return;
+                }
+                const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
+                const txt = urls.map(u => `${prefix}(${u})`).join('\n');
+                GM_setClipboard(txt);
+                setMediaIcon('ok', T.msg_prefix_copied, 'Prefix Copied', 'prefix');
+                setTimeout(() => setMediaIcon('default'), 1500);
+            };
+
+            const _mediaActionPreview = async () => {
+                let videos = [], imgUrls = [];
+
+                let statusId = null;
+                for (const a of article.querySelectorAll('a[href*="/status/"]')) {
+                    const m = a.href.match(/\/status\/(\d+)/);
+                    if (m) { statusId = m[1]; break; }
+                }
+
+                if (statusId) {
+                    const apiData = await fetchTweetMediaFromAPI(statusId);
+                    if (apiData) {
+                        videos  = apiData.videos  || [];
+                        imgUrls = apiData.images   || [];
                     }
                 }
-            });
-            btn.addEventListener('mouseleave', () => { if (timer && !_pressing) { clearTimeout(timer); timer = null; } });
-            btn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
 
-            btn.addEventListener('contextmenu', async (e) => {
-                e.preventDefault(); e.stopPropagation();
+                if (!videos.length && !imgUrls.length) {
+                    videos  = await extractVideoUrl(article);
+                    const allUrls = await extractMediaUrls(article);
+                    const videoSet = new Set(videos);
+                    imgUrls = allUrls.filter(u => !videoSet.has(u));
+                }
+
+                if (videos.length && imgUrls.length) {
+                    showFloatingVideoPlayer(videos, 0, imgUrls);
+                } else if (videos.length) {
+                    showFloatingVideoPlayer(videos);
+                } else if (imgUrls.length) {
+                    showImageLightbox(imgUrls);
+                } else {
+                    setMediaIcon('msg', T.msg_no_media, 'No Media');
+                    setTimeout(() => setMediaIcon('default'), 1500);
+                }
+            };
+
+            const _mediaActionDownloadAll = async () => {
                 const urls = await extractMediaUrls(article);
 
                 if (urls.length === 0) {
@@ -12186,6 +12488,54 @@
                     fireMeteor(btn);
                 }
                 setTimeout(() => setMediaIcon('default'), 2000);
+            };
+
+            const _MEDIA_ACTION_REGISTRY = {
+                copy:         _mediaActionCopy,
+                copy_prefix:  _mediaActionCopyPrefix,
+                preview:      _mediaActionPreview,
+                download_all: _mediaActionDownloadAll,
+            };
+
+            let timer = null;
+            let longFired = false;
+            let _pressing = false;
+            btn.addEventListener('mousedown', async (e) => {
+                e.preventDefault(); e.stopPropagation();
+                const map = _getCustomMediaActions();
+
+                if (e.button === 0) {
+                    longFired = false;
+                    _pressing = true;
+                    timer = setTimeout(async () => {
+                        longFired = true;
+                        _pressing = false;
+                        timer = null;
+                        await (_MEDIA_ACTION_REGISTRY[map.longpress] || _mediaActionCopyPrefix)();
+                    }, 400);
+
+                } else if (e.button === 1) {
+                    await (_MEDIA_ACTION_REGISTRY[map.mclick] || _mediaActionPreview)();
+                }
+            });
+
+            btn.addEventListener('mouseup', async (e) => {
+                if (e.button !== 0) return;
+                if (timer) {
+                    clearTimeout(timer); timer = null;
+                    _pressing = false;
+                    if (longFired) return;
+                    const map = _getCustomMediaActions();
+                    await (_MEDIA_ACTION_REGISTRY[map.click] || _mediaActionCopy)();
+                }
+            });
+            btn.addEventListener('mouseleave', () => { if (timer && !_pressing) { clearTimeout(timer); timer = null; } });
+            btn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
+
+            btn.addEventListener('contextmenu', async (e) => {
+                e.preventDefault(); e.stopPropagation();
+                const map = _getCustomMediaActions();
+                await (_MEDIA_ACTION_REGISTRY[map.rclick] || _mediaActionDownloadAll)();
             });
         }
 
@@ -12349,51 +12699,111 @@
                   icon._menuAC = { abort() { _acC.abort(); _acH.abort(); } }; }
                 icon.addEventListener('contextmenu', async (e) => { e.preventDefault(); e.stopPropagation(); await _doSaveLinkTextBookmark(); });
             } else {
+
+                const _getCustomLinkActions = () => {
+                    try {
+                        return { ...DEFAULT_LINK_ACTIONS, ...JSON.parse(GM_getValue(KEY_CUSTOM_LINK_ACTIONS, '{}')) };
+                    } catch (_) { return { ...DEFAULT_LINK_ACTIONS }; }
+                };
+
+                const _linkTargetUrl = () => {
+                    const useCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
+                    const targetDomain = useCustom ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
+                    return extractTweetUrl(article, 'https://' + targetDomain);
+                };
+
+                const _linkActionCopyUrl = async () => {
+                    const url = _linkTargetUrl();
+                    if (!url) return;
+                    GM_setClipboard(url);
+                    setLinkIcon('ok', T.msg_copied, 'Copied', 'copy');
+                    setTimeout(() => setLinkIcon('default'), 1500);
+                };
+
+                const _linkActionCopyPrefixUrl = async () => {
+                    const url = _linkTargetUrl();
+                    if (!url) return;
+                    const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
+                    GM_setClipboard(`${prefix}(${url})`);
+                    setLinkIcon('ok', T.msg_prefix_copied, 'Prefix Copied', 'prefix');
+                    setTimeout(() => setLinkIcon('default'), 1500);
+                };
+
+                const _linkActionSaveTextBookmark = _doSaveLinkTextBookmark;
+
+                const _linkActionNone = async () => {};
+
+                const _LINK_ACTION_REGISTRY = {
+                    copy_url:           _linkActionCopyUrl,
+                    copy_prefix_url:    _linkActionCopyPrefixUrl,
+                    save_text_bookmark: _linkActionSaveTextBookmark,
+                    none:               _linkActionNone,
+                };
+
+                const _LINK_ACTION_LABELS = {
+                    copy_url:           T.cma_action_copy_url     || 'Copy Tweet URL',
+                    copy_prefix_url:    T.cma_action_copy_prefix   || 'Copy with Prefix',
+                    save_text_bookmark: T.cma_action_save_bookmark || 'Save as Text Bookmark',
+                    none:               T.cma_action_none          || 'No Action',
+                };
+                const _LINK_SLOT_LABELS = {
+                    click:     T.cma_slot_click     || 'Single Click',
+                    longpress: T.cma_slot_longpress || 'Long Press',
+                    mclick:    T.cma_slot_mclick     || 'Middle Click',
+                    rclick:    T.cma_slot_rclick     || 'Right Click',
+                };
                 icon.addEventListener('mouseenter', () => {
-                    const custom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
-                    const click = custom ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
-                    icon.title = T.link_tooltip + click + T.link_tooltip_long + click;
+                    const map = _getCustomLinkActions();
+                    const useCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
+                    const domain = useCustom ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
+                    const labelFor = (id) => {
+                        const base = _LINK_ACTION_LABELS[id] || id;
+                        return (id === 'copy_url' || id === 'copy_prefix_url') ? `${base} (${domain})` : base;
+                    };
+                    icon.title = [
+                        `${_LINK_SLOT_LABELS.click}: ${labelFor(map.click)}`,
+                        `${_LINK_SLOT_LABELS.longpress}: ${labelFor(map.longpress)}`,
+                        `${_LINK_SLOT_LABELS.mclick}: ${labelFor(map.mclick)}`,
+                        `${_LINK_SLOT_LABELS.rclick}: ${labelFor(map.rclick)}`,
+                    ].join('\n');
                 });
 
                 let lTimer = null;
 
                 icon.addEventListener('mousedown', e => {
-                    if (e.button !== 0) return;
+                    if (e.button !== 0 && e.button !== 1) return;
                     e.preventDefault(); e.stopPropagation();
-                    lTimer = setTimeout(() => {
-                        const useCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
-                        const targetDomain = useCustom ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
-                        const url = extractTweetUrl(article, 'https://' + targetDomain);
-                        if (url) {
-                            const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
-                            GM_setClipboard(`${prefix}(${url})`);
-                            setLinkIcon('ok', T.msg_prefix_copied, 'Prefix Copied', 'prefix');
-                            setTimeout(() => setLinkIcon('default'), 1500);
-                        }
-                        lTimer = null;
-                    }, 500);
+                    const map = _getCustomLinkActions();
+
+                    if (e.button === 0) {
+                        lTimer = setTimeout(async () => {
+                            lTimer = null;
+                            await (_LINK_ACTION_REGISTRY[map.longpress] || _linkActionNone)();
+                        }, 500);
+
+                    } else if (e.button === 1) {
+                        (_LINK_ACTION_REGISTRY[map.mclick] || _linkActionNone)();
+                    }
                 });
 
-                icon.addEventListener('mouseup', () => {
-                    if(lTimer) {
+                icon.addEventListener('mouseup', async (e) => {
+                    if (e.button !== 0) return;
+                    if (lTimer) {
                         clearTimeout(lTimer);
                         lTimer = null;
-
-                        const useCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
-                        const targetDomain = useCustom ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
-                        const url = extractTweetUrl(article, 'https://' + targetDomain);
-
-                        if(url) {
-                            GM_setClipboard(url);
-                            setLinkIcon('ok', T.msg_copied, 'Copied', 'copy');
-                            setTimeout(() => setLinkIcon('default'), 1500);
-                        }
+                        const map = _getCustomLinkActions();
+                        await (_LINK_ACTION_REGISTRY[map.click] || _linkActionNone)();
                     }
                 });
 
                 icon.addEventListener('mouseleave', () => { if(lTimer) { clearTimeout(lTimer); lTimer = null; } });
                 icon.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
-                icon.addEventListener('contextmenu', async (e) => { e.preventDefault(); e.stopPropagation(); await _doSaveLinkTextBookmark(); });
+
+                icon.addEventListener('contextmenu', async (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    const map = _getCustomLinkActions();
+                    await (_LINK_ACTION_REGISTRY[map.rclick] || _linkActionSaveTextBookmark)();
+                });
 
             }
 
