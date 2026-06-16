@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.2.0
+// @version      2.9.2.7
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -113,7 +113,7 @@
             (record.ts ? new Date(record.ts).toISOString().slice(0, 7).replace('-', '.') : '9999.99');
         _updateHistoryIndex(ym);
         const recs = _readMonthRecords(ym);
-        const pos = recs.findIndex(r => r.id < record.id);
+        const pos = recs.findIndex(r => r.id <= record.id);
         if (pos === -1) recs.push(record); else recs.splice(pos, 0, record);
         _writeMonthRecords(ym, recs);
     }
@@ -348,6 +348,8 @@
             sp_bearer_placeholder:  'Bearer AAAAAAAAAA…  (optional, for 401/403 fallback on Twitter/X)',
             sp_bearer_hint:         'Only used on Twitter / X for media fetch (401/403 fallback). Safe to set on any page — the token is never sent cross-domain.',
             sp_bearer_manual:       'Manual',
+            sp_bearer_apply:        'Apply',
+            sp_bearer_edit:         'Edit',
             sp_scan_interval:       'Scan Interval',
             
             hist_filter_all:        'All',
@@ -493,6 +495,8 @@
             sp_bearer_placeholder:  'Bearer AAAAAAAAAA…（可選，作為 401/403 備用 token）',
             sp_bearer_hint:         '僅在 Twitter / X 的媒體擷取時使用（401/403 備用）。可在任何頁面設定，token 不會跨域送出。',
             sp_bearer_manual:       '手動取得',
+            sp_bearer_apply:        '套用',
+            sp_bearer_edit:         '編輯',
             sp_scan_interval:       '掃描間隔',
             hist_filter_all:        '全部',
             hist_filter_image:      '🖼 圖片',
@@ -636,6 +640,8 @@
             sp_bearer_placeholder:  'Bearer AAAAAAAAAA…（可选，作为 401/403 备用 token）',
             sp_bearer_hint:         '仅在 Twitter / X 的媒体获取时使用（401/403 备用）。可在任何页面设置，token 不会跨域发送。',
             sp_bearer_manual:       '手动获取',
+            sp_bearer_apply:        '应用',
+            sp_bearer_edit:         '编辑',
             sp_scan_interval:       '扫描间隔',
             hist_filter_all:        '全部',
             hist_filter_image:      '🖼 图片',
@@ -779,6 +785,8 @@
             sp_bearer_placeholder:  'Bearer AAAAAAAAAA…（任意、401/403 フォールバック用）',
             sp_bearer_hint:         'Twitter / X のメディア取得（401/403 フォールバック）でのみ使用します。どのページでも設定可能で、token はクロスドメインに送信されません。',
             sp_bearer_manual:       '手動取得',
+            sp_bearer_apply:        '適用',
+            sp_bearer_edit:         '編集',
             sp_scan_interval:       'スキャン間隔',
             hist_filter_all:        'すべて',
             hist_filter_image:      '🖼 画像',
@@ -922,6 +930,8 @@
             sp_bearer_placeholder:  'Bearer AAAAAAAAAA…  (선택사항, 401/403 대체용)',
             sp_bearer_hint:         'Twitter / X 미디어 불러오기(401/403 대체)에만 사용됩니다. 어느 페이지에서나 설정 가능하며 token은 교차 도메인으로 전송되지 않습니다.',
             sp_bearer_manual:       '수동 취득',
+            sp_bearer_apply:        '적용',
+            sp_bearer_edit:         '편집',
             sp_scan_interval:       '스캔 간격',
             hist_filter_all:        '전체',
             hist_filter_image:      '🖼 이미지',
@@ -1065,6 +1075,8 @@
             sp_bearer_placeholder:  'Bearer AAAAAAAAAA…  (opcional, para fallback 401/403 en Twitter/X)',
             sp_bearer_hint:         'Solo se usa en Twitter / X para obtener medios (fallback 401/403). Puede configurarse en cualquier página — el token no se envía entre dominios.',
             sp_bearer_manual:       'Manual',
+            sp_bearer_apply:        'Aplicar',
+            sp_bearer_edit:         'Editar',
             sp_scan_interval:       'Intervalo de escaneo',
             hist_filter_all:        'Todo',
             hist_filter_image:      '🖼 Imagen',
@@ -1208,6 +1220,8 @@
             sp_bearer_placeholder:  'Bearer AAAAAAAAAA…  (opcional, para fallback 401/403 no Twitter/X)',
             sp_bearer_hint:         'Usado apenas no Twitter / X para buscar mídia (fallback 401/403). Pode ser configurado em qualquer página — o token não é enviado entre domínios.',
             sp_bearer_manual:       'Manual',
+            sp_bearer_apply:        'Aplicar',
+            sp_bearer_edit:         'Editar',
             sp_scan_interval:       'Intervalo de varredura',
             hist_filter_all:        'Tudo',
             hist_filter_image:      '🖼 Imagem',
@@ -1351,6 +1365,8 @@
             sp_bearer_placeholder:  'Bearer AAAAAAAAAA…  (optionnel, pour le fallback 401/403 sur Twitter/X)',
             sp_bearer_hint:         'Utilisé uniquement sur Twitter / X pour récupérer les médias (fallback 401/403). Configurable sur n\'importe quelle page — le token n\'est pas envoyé entre domaines.',
             sp_bearer_manual:       'Manuel',
+            sp_bearer_apply:        'Appliquer',
+            sp_bearer_edit:         'Modifier',
             sp_scan_interval:       'Intervalle de scan',
             hist_filter_all:        'Tout',
             hist_filter_image:      '🖼 Image',
@@ -1494,6 +1510,8 @@
             sp_bearer_placeholder:  'Bearer AAAAAAAAAA…  (необязательно, для 401/403 на Twitter/X)',
             sp_bearer_hint:         'Используется только на Twitter / X для загрузки медиа (401/403 fallback). Можно настроить на любой странице — token не передаётся между доменами.',
             sp_bearer_manual:       'Вручную',
+            sp_bearer_apply:        'Применить',
+            sp_bearer_edit:         'Изменить',
             sp_scan_interval:       'Интервал сканирования',
             hist_filter_all:        'Все',
             hist_filter_image:      '🖼 Изображение',
@@ -3094,7 +3112,11 @@
             }
             .tm-sp-cma-accordion.open { grid-template-rows: 1fr; }
             .tm-sp-cma-accordion-inner {
+                
                 overflow: hidden; min-height: 0;
+            }
+            .tm-sp-cma-accordion-content {
+                
                 display: flex; flex-direction: column; gap: 8px;
                 padding: 8px 14px 10px;
                 border-top: 1px solid ${C.border};
@@ -4474,6 +4496,9 @@
                 accordion.className = 'tm-sp-cma-accordion';
                 const accordionInner = document.createElement('div');
                 accordionInner.className = 'tm-sp-cma-accordion-inner';
+                const accordionContent = document.createElement('div');
+                accordionContent.className = 'tm-sp-cma-accordion-content';
+                accordionInner.appendChild(accordionContent);
                 accordion.appendChild(accordionInner);
 
                 const SLOTS = [
@@ -4487,7 +4512,7 @@
                     const header = document.createElement('div');
                     header.className = 'tm-sp-cma-section';
                     header.textContent = headerLabel;
-                    accordionInner.appendChild(header);
+                    accordionContent.appendChild(header);
 
                     let current;
                     try {
@@ -4515,7 +4540,7 @@
                         selects[key] = sel;
                         row.appendChild(lbl);
                         row.appendChild(sel);
-                        accordionInner.appendChild(row);
+                        accordionContent.appendChild(row);
                     });
 
                     Object.entries(selects).forEach(([key, sel]) => {
@@ -5304,28 +5329,125 @@
             bearerHelpBtn.style.cssText = `flex-shrink:0;background:none;border:none;padding:2px;cursor:pointer;color:${C.sub};display:flex;align-items:center;border-radius:50%;transition:color 0.12s;`;
             bearerHelpBtn.onmouseenter = () => bearerHelpBtn.style.color = C.text;
             bearerHelpBtn.onmouseleave = () => bearerHelpBtn.style.color = C.sub;
+
             const bearerPopover = document.createElement('div');
             bearerPopover.style.cssText = `
-                display:none; background:${C.inputBg}; border:1px solid ${C.border};
-                border-radius:8px; padding:8px 10px; margin-top:5px;
+                display:grid; grid-template-rows:0fr;
+                transition:grid-template-rows 0.22s ease, opacity 0.18s ease;
+                opacity:0; overflow:hidden; margin-top:0;
+            `;
+            const bearerPopoverInner = document.createElement('div');
+            bearerPopoverInner.style.cssText = `
+                min-height:0; overflow:hidden;
+            `;
+            const bearerPopoverContent = document.createElement('div');
+            bearerPopoverContent.style.cssText = `
+                background:${C.inputBg}; border:1px solid ${C.border};
+                border-radius:8px; padding:8px 10px; margin-top:5px; margin-bottom:2px;
                 font:11px system-ui; color:${C.sub}; line-height:1.6;
             `;
             const _bHint = T.sp_bearer_hint || 'Only used on Twitter / X for media fetch (401/403 fallback). Safe to set on any page — the token is never sent cross-domain.';
             const _bManual = T.sp_bearer_manual || 'Manual';
-            bearerPopover.innerHTML =
+            bearerPopoverContent.innerHTML =
                 _escHtml(_bHint) + '<br>' +
                 `<b style="color:${C.text}">${_escHtml(_bManual)}:</b> Twitter DevTools → Network → ` +
                 `any <code style="font-family:monospace;color:${C.text}">/i/api/</code> request → ` +
                 `<code style="font-family:monospace;color:${C.text}">Authorization</code> header.`;
+            bearerPopoverInner.appendChild(bearerPopoverContent);
+            bearerPopover.appendChild(bearerPopoverInner);
+
+            let _bearerHoverTimer = null;
+            let _bearerPopOpen = false;
+            const _openBearerPop = () => {
+                clearTimeout(_bearerHoverTimer);
+                _bearerPopOpen = true;
+                bearerPopover.style.gridTemplateRows = '1fr';
+                bearerPopover.style.opacity = '1';
+                bearerPopover.style.marginTop = '0';
+                bearerHelpBtn.style.color = '#1d9bf0';
+            };
+            const _closeBearerPop = (immediate = false) => {
+                clearTimeout(_bearerHoverTimer);
+                if (immediate) {
+                    _bearerPopOpen = false;
+                    bearerPopover.style.gridTemplateRows = '0fr';
+                    bearerPopover.style.opacity = '0';
+                    bearerHelpBtn.style.color = C.sub;
+                } else {
+                    _bearerHoverTimer = setTimeout(() => {
+                        _bearerPopOpen = false;
+                        bearerPopover.style.gridTemplateRows = '0fr';
+                        bearerPopover.style.opacity = '0';
+                        bearerHelpBtn.style.color = C.sub;
+                    }, 600);
+                }
+            };
             bearerHelpBtn.addEventListener('click', () => {
-                const open = bearerPopover.style.display !== 'none';
-                bearerPopover.style.display = open ? 'none' : 'block';
-                bearerHelpBtn.style.color = open ? C.sub : '#1d9bf0';
+                _bearerPopOpen ? _closeBearerPop(true) : _openBearerPop();
             });
+            bearerRow.addEventListener('mouseenter', () => clearTimeout(_bearerHoverTimer));
+            bearerRow.addEventListener('mouseleave', () => {
+                if (_bearerPopOpen) _closeBearerPop(false);
+            });
+
             const bearerDetectBtn = document.createElement('button');
             bearerDetectBtn.textContent = T.sp_bearer_detect || 'Auto-detect';
             bearerDetectBtn.title = T.sp_bearer_detect || 'Auto-detect';
             bearerDetectBtn.style.cssText = `padding:3px 9px;border-radius:5px;border:1px solid ${C.border};background:${C.inputBg};color:${_isTwitterDomain ? C.text : C.sub};cursor:pointer;font:11px system-ui;margin-right:4px;`;
+
+            const bearerApplyBtn = document.createElement('button');
+            const bearerEditBtn  = document.createElement('button');
+            const _applyLabel = T.sp_bearer_apply || 'Apply';
+            const _editLabel  = T.sp_bearer_edit  || 'Edit';
+            const _btnBase = `padding:3px 9px;border-radius:5px;border:1px solid ${C.border};background:${C.inputBg};cursor:pointer;font:11px system-ui;`;
+            bearerApplyBtn.textContent = _applyLabel;
+            bearerApplyBtn.style.cssText = _btnBase + `color:${C.text};margin-right:4px;`;
+            bearerEditBtn.textContent  = _editLabel;
+            bearerEditBtn.style.cssText = _btnBase + `color:#1d9bf0;margin-right:4px;display:none;`;
+
+            const bearerClearBtn = document.createElement('button');
+            bearerClearBtn.textContent = T.sp_bearer_clear || 'Clear';
+            bearerClearBtn.style.cssText = `padding:3px 9px;border-radius:5px;border:1px solid ${C.border};background:${C.inputBg};color:${_isTwitterDomain ? C.text : C.sub};cursor:pointer;font:11px system-ui;`;
+            bearerTitleRow.append(bearerLabel, bearerHelpBtn, bearerDetectBtn, bearerApplyBtn, bearerEditBtn, bearerClearBtn);
+
+            const bearerTa = document.createElement('textarea');
+            bearerTa.rows = 3;
+            bearerTa.placeholder = T.sp_bearer_placeholder || 'Bearer AAAAAAAAAA…  (optional, for 401/403 fallback on Twitter/X)';
+            bearerTa.style.cssText = `
+                width:100%; box-sizing:border-box;
+                background:${C.inputBg}; color:${C.text};
+                border:1px solid ${C.border}; border-radius:6px;
+                padding:5px 8px; font:11px monospace;
+                resize:none; height:58px; overflow-y:auto;
+                transition:opacity 0.15s;
+            `;
+            bearerTa.value = GM_getValue(KEY_CUSTOM_BEARER, '');
+            bearerTa.addEventListener('change', () => GM_setValue(KEY_CUSTOM_BEARER, bearerTa.value.trim()));
+
+            let _bearerLocked = bearerTa.value.trim().length > 0;
+            const _syncBearerLock = () => {
+                bearerTa.readOnly = _bearerLocked;
+                bearerTa.style.opacity  = _bearerLocked ? '0.65' : '1';
+                bearerTa.style.cursor   = _bearerLocked ? 'default' : 'text';
+                bearerApplyBtn.style.display = _bearerLocked ? 'none'   : '';
+                bearerEditBtn.style.display  = _bearerLocked ? ''       : 'none';
+            };
+            _syncBearerLock();
+
+            bearerApplyBtn.addEventListener('click', () => {
+                const val = bearerTa.value.trim();
+                GM_setValue(KEY_CUSTOM_BEARER, val);
+                _bearerLocked = true;
+                _syncBearerLock();
+                if (val) showToast('✅ Bearer Token saved.', 2500);
+            });
+            bearerEditBtn.addEventListener('click', () => {
+                _bearerLocked = false;
+                _syncBearerLock();
+                bearerTa.focus();
+                bearerTa.setSelectionRange(bearerTa.value.length, bearerTa.value.length);
+            });
+
             bearerDetectBtn.addEventListener('click', async () => {
                 if (!_isTwitterDomain) {
                     showToast('⚠️ Open Twitter / X first, then try auto-detect.', 3500);
@@ -5347,6 +5469,8 @@
                     if (found) {
                         bearerTa.value = found;
                         GM_setValue(KEY_CUSTOM_BEARER, found.trim());
+                        _bearerLocked = true;
+                        _syncBearerLock();
                         showToast('✅ Bearer Token detected and saved.', 3000);
                     } else {
                         showToast('⚠️ Not found in page scripts. Use DevTools method (click ❓).', 4000);
@@ -5358,17 +5482,13 @@
                     bearerDetectBtn.disabled = false;
                 }
             });
-            const bearerClearBtn = document.createElement('button');
-            bearerClearBtn.textContent = T.sp_bearer_clear || 'Clear';
-            bearerClearBtn.style.cssText = `padding:3px 9px;border-radius:5px;border:1px solid ${C.border};background:${C.inputBg};color:${_isTwitterDomain ? C.text : C.sub};cursor:pointer;font:11px system-ui;`;
-            bearerTitleRow.append(bearerLabel, bearerHelpBtn, bearerDetectBtn, bearerClearBtn);
-            const bearerTa = document.createElement('textarea');
-            bearerTa.rows = 2;
-            bearerTa.placeholder = T.sp_bearer_placeholder || 'Bearer AAAAAAAAAA…  (optional, for 401/403 fallback on Twitter/X)';
-            bearerTa.style.cssText = `width:100%;box-sizing:border-box;background:${C.inputBg};color:${C.text};border:1px solid ${C.border};border-radius:6px;padding:5px 8px;font:11px monospace;resize:vertical;`;
-            bearerTa.value = GM_getValue(KEY_CUSTOM_BEARER, '');
-            bearerTa.addEventListener('change', () => GM_setValue(KEY_CUSTOM_BEARER, bearerTa.value.trim()));
-            bearerClearBtn.onclick = () => { GM_deleteValue(KEY_CUSTOM_BEARER); bearerTa.value = ''; showToast('🔑 Custom Bearer Token cleared.'); };
+            bearerClearBtn.onclick = () => {
+                GM_deleteValue(KEY_CUSTOM_BEARER);
+                bearerTa.value = '';
+                _bearerLocked = false;
+                _syncBearerLock();
+                showToast('🔑 Custom Bearer Token cleared.');
+            };
             bearerRow.append(bearerTitleRow, bearerPopover, bearerTa);
             grpAdv.append(bearerRow);
 
@@ -5511,6 +5631,10 @@
             z-index: 10;
         `;
         btn.appendChild(badge);
+    }
+    function _removeHistoryBadge(btn) {
+        if (!btn) return;
+        btn.querySelector('.tm-hist-badge')?.remove();
     }
 
     let _pendingGroupRecordId = null;
@@ -6574,20 +6698,22 @@
             monthRecs = monthRecs.filter(r => r.tweetId !== info.id);
             monthRecs.unshift(record);
             _updateHistoryIndex(ym);
-            const _monthSnapshot = monthRecs;
-            setTimeout(() => { _writeMonthRecords(ym, _monthSnapshot); }, 0);
+            _writeMonthRecords(ym, monthRecs);
 
             if (!GM_getValue(KEY_HIST_CLEANUP_NOTIFIED, false)) {
-                const _totalCount = _getHistoryIndex()
-                    .reduce((sum, ym2) => sum + _readMonthRecords(ym2).length, 0);
-                if (_totalCount >= 2000) {
-                    GM_setValue(KEY_HIST_CLEANUP_NOTIFIED, true);
-                    setTimeout(() => showToast(
-                        '📋 You have 2000+ download records. ' +
-                        'Consider exporting a backup (📤 in the history panel) and deleting old entries ' +
-                        'to keep storage healthy and panel loading fast.',
-                        8000
-                    ), 500);
+                const _idx = _getHistoryIndex();
+                const _roughCount = _idx.length * 100;
+                if (_roughCount >= 2000) {
+                    const _totalCount = _idx.reduce((sum, ym2) => sum + _readMonthRecords(ym2).length, 0);
+                    if (_totalCount >= 2000) {
+                        GM_setValue(KEY_HIST_CLEANUP_NOTIFIED, true);
+                        setTimeout(() => showToast(
+                            '📋 You have 2000+ download records. ' +
+                            'Consider exporting a backup (📤 in the history panel) and deleting old entries ' +
+                            'to keep storage healthy and panel loading fast.',
+                            8000
+                        ), 500);
+                    }
                 }
             }
 
@@ -9150,7 +9276,14 @@
         delSelBtn.addEventListener('click', () => {
             if (!selectedIds.size) return;
             const deletedTweetIds = _batchDeleteRecords(selectedIds);
+            const deletedSet = new Set(deletedTweetIds);
             deletedTweetIds.forEach(tid => _downloadedIds.delete(tid));
+            document.querySelectorAll('article[role="article"]').forEach(art => {
+                const tid = _getTweetIdFromArticle(art);
+                if (!tid || !deletedSet.has(tid)) return;
+                const btn = art.querySelector('.' + BUTTON_CLASS);
+                if (btn) _removeHistoryBadge(btn);
+            });
             selectedIds.clear(); anchorIdx = -1;
             render();
         });
@@ -10067,7 +10200,9 @@
         const _position = () => {
             const r = anchorEl.getBoundingClientRect();
             const mW = menu.offsetWidth || 190;
-            const mH = menu.offsetHeight || items.length * 40 + 16;
+            const _realItemCount = items.filter(i => i !== 'divider').length;
+            const _dividerCount  = items.length - _realItemCount;
+            const mH = menu.offsetHeight || _realItemCount * 40 + _dividerCount * 9 + 16;
             const GAP = 6;
             let left = r.left + r.width / 2 - mW / 2;
             left = Math.max(8, Math.min(left, window.innerWidth - mW - 8));
@@ -10135,6 +10270,8 @@
             }
             if (document.getElementById('tm-action-menu')?._anchorEl === anchorEl) return;
             _closeFn = _showActionMenu(anchorEl, getItems());
+
+            _attachMenuEvents();
         };
         const _scheduleClose = () => {
             _closeTimer = setTimeout(() => {
@@ -10144,42 +10281,66 @@
         };
         const _cancelClose = () => clearTimeout(_closeTimer);
 
+        let _menuEvtAC = null;
+        const _attachMenuEvents = () => {
+            _menuEvtAC?.abort();
+            _menuEvtAC = new AbortController();
+            const _ms = { signal: _menuEvtAC.signal };
+
+            const _attachBridge = () => {
+                const bridge = document.getElementById('tm-action-menu-bridge');
+                if (!bridge || bridge._anchorEl !== anchorEl) return;
+                bridge.addEventListener('mouseover', () => {
+                    if (document.getElementById('tm-action-menu-bridge')?._anchorEl === anchorEl)
+                        _cancelClose();
+                }, _ms);
+                bridge.addEventListener('mouseout', e => {
+                    const b = document.getElementById('tm-action-menu-bridge');
+                    if (!b || b._anchorEl !== anchorEl) return;
+                    if (!b.contains(e.relatedTarget) && !anchorEl.contains(e.relatedTarget))
+                        _scheduleClose();
+                }, _ms);
+            };
+            _attachBridge();
+            requestAnimationFrame(_attachBridge);
+
+            const _attachMenu = () => {
+                const m = document.getElementById('tm-action-menu');
+                if (!m || m._anchorEl !== anchorEl) return;
+                m.addEventListener('mouseover', () => {
+                    if (document.getElementById('tm-action-menu')?._anchorEl === anchorEl)
+                        _cancelClose();
+                }, _ms);
+                m.addEventListener('mouseout', e => {
+                    const mn = document.getElementById('tm-action-menu');
+                    if (!mn || mn._anchorEl !== anchorEl) return;
+                    if (!mn.contains(e.relatedTarget) && !anchorEl.contains(e.relatedTarget))
+                        _scheduleClose();
+                }, _ms);
+            };
+            _attachMenu();
+            requestAnimationFrame(_attachMenu);
+
+            const _cleanupObs = new MutationObserver(() => {
+                if (!document.getElementById('tm-action-menu')) {
+                    _menuEvtAC?.abort();
+                    _menuEvtAC = null;
+                    _cleanupObs.disconnect();
+                }
+            });
+            _cleanupObs.observe(document.body, { childList: true, subtree: true });
+        };
+
         const _ac = new AbortController();
         const sig = { signal: _ac.signal };
 
         anchorEl.addEventListener('mouseenter', () => {
+            clearTimeout(_hoverTimer);
             _hoverTimer = setTimeout(_openMenu, 420);
         }, sig);
         anchorEl.addEventListener('mouseleave', () => {
             clearTimeout(_hoverTimer);
             _scheduleClose();
-        }, sig);
-
-        document.addEventListener('mouseover', e => {
-            const bridge = document.getElementById('tm-action-menu-bridge');
-            if (!bridge || bridge._anchorEl !== anchorEl) return;
-            if (bridge.contains(e.target) || e.target === bridge) _cancelClose();
-        }, sig);
-        document.addEventListener('mouseout', e => {
-            const bridge = document.getElementById('tm-action-menu-bridge');
-            if (!bridge || bridge._anchorEl !== anchorEl) return;
-            if ((bridge.contains(e.target) || e.target === bridge) &&
-                !bridge.contains(e.relatedTarget) && !anchorEl.contains(e.relatedTarget)) {
-                _scheduleClose();
-            }
-        }, sig);
-        document.addEventListener('mouseover', e => {
-            const m = document.getElementById('tm-action-menu');
-            if (m?._anchorEl !== anchorEl) return;
-            if (m.contains(e.target)) _cancelClose();
-        }, sig);
-        document.addEventListener('mouseout', e => {
-            const m = document.getElementById('tm-action-menu');
-            if (m?._anchorEl !== anchorEl) return;
-            if (m.contains(e.target) &&
-                !m.contains(e.relatedTarget) && !anchorEl.contains(e.relatedTarget)) {
-                _scheduleClose();
-            }
         }, sig);
 
         return _ac;
@@ -11726,8 +11887,9 @@
         try {
             const json = JSON.parse(text);
             const ts = Date.now();
+            let _visitCount = 0;
             const walk = (obj, depth) => {
-                if (!obj || typeof obj !== 'object' || depth > 40) return;
+                if (!obj || typeof obj !== 'object' || depth > 40 || _visitCount++ > 5000) return;
                 if (obj.tweet_results) {
                     const parsed = _parseVideosFromTweetResult(obj.tweet_results);
                     if (parsed) _apiVideoCache.set(parsed.id, { urls: parsed.urls, ts });
@@ -11855,7 +12017,7 @@
             }
             if (!res.ok) {
                 if (res.status === 401 || res.status === 403) {
-                    _cachedBearerToken = null;
+                    _cachedBearerToken   = _FALLBACK_BEARER;
                     _bearerPendingPromise = null;
                     showToast(
                         '⚠️ API token expired. Set a custom Bearer Token in ⚙️ Settings → Advanced to restore video fetch.',
@@ -11981,10 +12143,17 @@
     }
 
     function extractTweetUrl(article, baseUrl) {
-        const timeLink = article.querySelector('a[href*="/status/"] > time')?.parentElement;
-        if (timeLink) return baseUrl + timeLink.getAttribute('href');
-        const link = article.querySelector('a[href*="/status/"]');
-        if(link) return baseUrl + link.getAttribute('href');
+        const candidates = [
+            article.querySelector('a[href*="/status/"] > time')?.parentElement,
+            article.querySelector('a[href*="/status/"]'),
+        ];
+        for (const el of candidates) {
+            if (!el) continue;
+            try {
+                const pathname = new URL(el.href).pathname;
+                return baseUrl + pathname;
+            } catch (_) {}
+        }
         return null;
     }
 
@@ -11993,6 +12162,7 @@
         const COLORS = { ok: '#1d9bf0', warn: '#ff8c00', error: '#e0245e' };
         const bg = COLORS[type] || COLORS.ok;
 
+        clearTimeout(anchorEl._actionToastTimer);
         anchorEl._actionToast?.remove();
 
         const toast = document.createElement('div');
@@ -12027,7 +12197,7 @@
             toast.style.opacity = '1';
         });
 
-        setTimeout(() => {
+        anchorEl._actionToastTimer = setTimeout(() => {
             toast.style.opacity = '0';
             setTimeout(() => {
                 toast.remove();
@@ -12035,14 +12205,34 @@
             }, 200);
         }, 1500);
     }
+    const _LINK_ACTION_LABELS = {
+        copy_url:           T.cma_action_copy_url     || 'Copy Tweet URL',
+        copy_prefix_url:    T.cma_action_copy_prefix   || 'Copy with Prefix',
+        save_text_bookmark: T.cma_action_save_bookmark || 'Save as Text Bookmark',
+        none:               T.cma_action_none          || 'No Action',
+    };
+    const _LINK_SLOT_LABELS = {
+        click:     T.cma_slot_click     || 'Single Click',
+        longpress: T.cma_slot_longpress || 'Long Press',
+        mclick:    T.cma_slot_mclick     || 'Middle Click',
+        rclick:    T.cma_slot_rclick     || 'Right Click',
+    };
     function insertCopyButton(article) {
         if (!article.querySelector('time')) {
             article.querySelector(`.${BUTTON_CLASS}`)?.remove();
             article.querySelector('.custom-copy-icon')?.remove();
             return;
         }
-        if (article.querySelector(`.${BUTTON_CLASS}`)) {
-            return;
+        {
+            const _existingBtn  = article.querySelector(`.${BUTTON_CLASS}`);
+            const _existingIcon = article.querySelector('.custom-copy-icon');
+            if (_existingBtn) {
+                const _needRebind = GM_getValue(KEY_CLICK_MODE, 'classic') === 'menu'
+                                 && !_existingBtn._menuAC;
+                if (!_needRebind) return;
+                _existingBtn.remove();
+                _existingIcon?.remove();
+            }
         }
         const actions = Array.from(article.querySelectorAll('[role="group"]')).pop();
         if (!actions) return;
@@ -12418,9 +12608,10 @@
                         _tRecs = _tRecs.filter(r => r.tweetId !== info.id);
                         _tRecs.unshift(record);
                         _updateHistoryIndex(_tym);
-                        const _tSnap = _tRecs;
-                        setTimeout(() => { _writeMonthRecords(_tym, _tSnap); }, 0);
+                        _writeMonthRecords(_tym, _tRecs);
                         _downloadedIds.add(info.id);
+                        const _etx = document.getElementById('tm-hist-panel');
+                        if (_etx) _etx.dispatchEvent(new CustomEvent('tm-hist-refresh'));
                         setMediaIcon('ok', '📌 Saved', 'Saved');
                         setTimeout(() => setMediaIcon('default'), 1800);
                         if (GM_getValue(KEY_GROUP_ON_DOWNLOAD, false)) {
@@ -12639,8 +12830,7 @@
                     _tRecs = _tRecs.filter(r => r.tweetId !== info.id);
                     _tRecs.unshift(record);
                     _updateHistoryIndex(_tym);
-                    const _tSnap = _tRecs;
-                    setTimeout(() => { _writeMonthRecords(_tym, _tSnap); }, 0);
+                    _writeMonthRecords(_tym, _tRecs);
                     _downloadedIds.add(info.id);
                     setLinkIcon('ok', '📌 Saved', 'Saved');
                     setTimeout(() => setLinkIcon('default'), 1800);
@@ -12740,18 +12930,6 @@
                     none:               _linkActionNone,
                 };
 
-                const _LINK_ACTION_LABELS = {
-                    copy_url:           T.cma_action_copy_url     || 'Copy Tweet URL',
-                    copy_prefix_url:    T.cma_action_copy_prefix   || 'Copy with Prefix',
-                    save_text_bookmark: T.cma_action_save_bookmark || 'Save as Text Bookmark',
-                    none:               T.cma_action_none          || 'No Action',
-                };
-                const _LINK_SLOT_LABELS = {
-                    click:     T.cma_slot_click     || 'Single Click',
-                    longpress: T.cma_slot_longpress || 'Long Press',
-                    mclick:    T.cma_slot_mclick     || 'Middle Click',
-                    rclick:    T.cma_slot_rclick     || 'Right Click',
-                };
                 icon.addEventListener('mouseenter', () => {
                     const map = _getCustomLinkActions();
                     const useCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
@@ -12843,15 +13021,36 @@
 
     function scanAndInsert() {
         document.querySelectorAll('article').forEach(article => {
-            if (_processedArticles.has(article) && article.dataset.tmV === '1' && article.querySelector(`.${BUTTON_CLASS}`)) return;
+            const _fingerprint = _getTweetIdFromArticle(article)
+                || article.querySelector('time')?.getAttribute('datetime')
+                || null;
+            const _sameContent = _fingerprint !== null && article.dataset.tmV === _fingerprint;
 
-            const staleBtn  = article.querySelector(`.${BUTTON_CLASS}`);
-            const staleIcon = article.querySelector('.custom-copy-icon');
-            if (staleBtn?._menuAC)  { staleBtn._menuAC.abort();  staleBtn._menuAC  = null; }
-            if (staleIcon?._menuAC) { staleIcon._menuAC.abort(); staleIcon._menuAC = null; }
+            if (_processedArticles.has(article) && _sameContent && article.querySelector(`.${BUTTON_CLASS}`)) {
+                return;
+            }
+
+            if (_processedArticles.has(article) && !_sameContent) {
+                const _earlyBtn  = article.querySelector(`.${BUTTON_CLASS}`);
+                const _earlyIcon = article.querySelector('.custom-copy-icon');
+                if (_earlyBtn?._menuAC)  { _earlyBtn._menuAC.abort();  _earlyBtn._menuAC  = null; }
+                if (_earlyIcon?._menuAC) { _earlyIcon._menuAC.abort(); _earlyIcon._menuAC = null; }
+                _processedArticles.delete(article);
+                delete article.dataset.tmV;
+            }
+
+            if (!_processedArticles.has(article)) {
+                const staleBtn  = article.querySelector(`.${BUTTON_CLASS}`);
+                const staleIcon = article.querySelector('.custom-copy-icon');
+                if (staleBtn?._menuAC)  { staleBtn._menuAC.abort();  staleBtn._menuAC  = null; }
+                if (staleIcon?._menuAC) { staleIcon._menuAC.abort(); staleIcon._menuAC = null; }
+            }
 
             insertCopyButton(article);
-            if (article.querySelector(`.${BUTTON_CLASS}`)) _processedArticles.add(article);
+            if (article.querySelector(`.${BUTTON_CLASS}`)) {
+                _processedArticles.add(article);
+                if (_fingerprint !== null) article.dataset.tmV = _fingerprint;
+            }
         });
     }
 
