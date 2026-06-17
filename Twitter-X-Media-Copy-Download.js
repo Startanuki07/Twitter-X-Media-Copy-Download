@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.2.7
+// @version      2.9.3.2
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -60,6 +60,7 @@
 
     let _syncCh = null;
     let _startScanInterval = null;
+    let _tfRegistry = null;
 
     function _readMonthRecords(ym) {
         try { return JSON.parse(GM_getValue(KEY_HISTORY_PREFIX + ym.replace('.', '_'), '[]')); }
@@ -200,6 +201,9 @@
     const KEY_VIDEO_SPEED       = 'app_video_speed';
     const KEY_CUSTOM_BEARER     = 'app_custom_bearer';
     const KEY_SCAN_INTERVAL     = 'app_scan_interval';
+
+    const KEY_TF_CSS_SIMPLIFY = 'app_tf_css_simplify';
+    const KEY_TF_FEED_PRUNE   = 'app_tf_feed_prune';
     const KEY_HISTORY_PREFIX    = 'app_history_m_';
     const KEY_HISTORY_INDEX     = 'app_history_index';
 
@@ -223,6 +227,8 @@
         'right_click_tip',
         'click_mode_menu',
         'custom_media_actions',
+        'pt_css_simplify',
+        'pt_feed_prune',
     ];
 
     const DOMAIN_LIST = [
@@ -333,6 +339,11 @@
             cma_action_copy_url:      'Copy Tweet URL',
             cma_action_save_bookmark: 'Save as Text Bookmark',
             cma_action_none:          'No Action',
+            pt_group_title:           '⚡ Performance Tweaks',
+            pt_css_simplify_label:    'CSS Simplify',
+            pt_css_simplify_desc:     'Remove blur/shadow/gradient globally',
+            pt_feed_prune_label:      'Feed Memory Limit',
+            pt_feed_prune_desc:       'Freeze off-screen tweets (>70 nodes)',
             
             sp_group_advanced:      '⚙ Advanced',
             sp_backup_settings:     '📤 Backup settings',
@@ -481,6 +492,11 @@
             cma_action_copy_url:      '複製推文網址',
             cma_action_save_bookmark: '另存為文字書籤',
             cma_action_none:          '無動作',
+            pt_group_title:           '⚡ 效能微調',
+            pt_css_simplify_label:    '簡化樣式',
+            pt_css_simplify_desc:     '全域移除模糊/陰影/漸層效果',
+            pt_feed_prune_label:      '動態消息記憶體限制',
+            pt_feed_prune_desc:       '凍結畫面外推文（超過 70 則）',
             sp_group_advanced:      '⚙ 進階設定',
             sp_backup_settings:     '📤 備份設定',
             sp_backup_btn:          '匯出 JSON',
@@ -626,6 +642,11 @@
             cma_action_copy_url:      '复制推文网址',
             cma_action_save_bookmark: '另存为文字书签',
             cma_action_none:          '无动作',
+            pt_group_title:           '⚡ 性能微调',
+            pt_css_simplify_label:    '简化样式',
+            pt_css_simplify_desc:     '全局移除模糊/阴影/渐变效果',
+            pt_feed_prune_label:      '动态消息内存限制',
+            pt_feed_prune_desc:       '冻结屏幕外推文（超过 70 条）',
             sp_group_advanced:      '⚙ 高级设置',
             sp_backup_settings:     '📤 备份设置',
             sp_backup_btn:          '导出 JSON',
@@ -771,6 +792,11 @@
             cma_action_copy_url:      'ツイートURLをコピー',
             cma_action_save_bookmark: 'テキストブックマークとして保存',
             cma_action_none:          '操作なし',
+            pt_group_title:           '⚡ パフォーマンス調整',
+            pt_css_simplify_label:    'スタイル簡略化',
+            pt_css_simplify_desc:     'ぼかし/影/グラデーションを全体的に削除',
+            pt_feed_prune_label:      'フィードメモリ制限',
+            pt_feed_prune_desc:       '画面外のツイートを凍結（70件超）',
             sp_group_advanced:      '⚙ 詳細設定',
             sp_backup_settings:     '📤 設定バックアップ',
             sp_backup_btn:          'JSON 書き出し',
@@ -916,6 +942,11 @@
             cma_action_copy_url:      '트윗 URL 복사',
             cma_action_save_bookmark: '텍스트 북마크로 저장',
             cma_action_none:          '동작 없음',
+            pt_group_title:           '⚡ 성능 조정',
+            pt_css_simplify_label:    '스타일 단순화',
+            pt_css_simplify_desc:     '블러/그림자/그라데이션 전역 제거',
+            pt_feed_prune_label:      '피드 메모리 제한',
+            pt_feed_prune_desc:       '화면 밖 트윗 동결 (70개 초과 시)',
             sp_group_advanced:      '⚙ 고급 설정',
             sp_backup_settings:     '📤 설정 백업',
             sp_backup_btn:          'JSON 내보내기',
@@ -1061,6 +1092,11 @@
             cma_action_copy_url:      'Copiar URL del tuit',
             cma_action_save_bookmark: 'Guardar como marcador de texto',
             cma_action_none:          'Sin acción',
+            pt_group_title:           '⚡ Ajustes de rendimiento',
+            pt_css_simplify_label:    'Simplificar estilos',
+            pt_css_simplify_desc:     'Eliminar difuminado/sombra/degradado globalmente',
+            pt_feed_prune_label:      'Límite de memoria del feed',
+            pt_feed_prune_desc:       'Congelar tuits fuera de pantalla (>70 nodos)',
             sp_group_advanced:      '⚙ Configuración avanzada',
             sp_backup_settings:     '📤 Copia de seguridad',
             sp_backup_btn:          'Exportar JSON',
@@ -1206,6 +1242,11 @@
             cma_action_copy_url:      'Copiar URL do tweet',
             cma_action_save_bookmark: 'Salvar como marcador de texto',
             cma_action_none:          'Sem ação',
+            pt_group_title:           '⚡ Ajustes de desempenho',
+            pt_css_simplify_label:    'Simplificar estilos',
+            pt_css_simplify_desc:     'Remover desfoque/sombra/gradiente globalmente',
+            pt_feed_prune_label:      'Limite de memória do feed',
+            pt_feed_prune_desc:       'Congelar tweets fora da tela (>70 nós)',
             sp_group_advanced:      '⚙ Configurações avançadas',
             sp_backup_settings:     '📤 Backup de configurações',
             sp_backup_btn:          'Exportar JSON',
@@ -1351,6 +1392,11 @@
             cma_action_copy_url:      "Copier l'URL du tweet",
             cma_action_save_bookmark: 'Enregistrer comme signet texte',
             cma_action_none:          'Aucune action',
+            pt_group_title:           '⚡ Ajustements de performance',
+            pt_css_simplify_label:    'Simplifier les styles',
+            pt_css_simplify_desc:     'Supprimer flou/ombre/dégradé globalement',
+            pt_feed_prune_label:      'Limite mémoire du fil',
+            pt_feed_prune_desc:       'Geler les tweets hors écran (>70 nœuds)',
             sp_group_advanced:      '⚙ Paramètres avancés',
             sp_backup_settings:     '📤 Sauvegarder les paramètres',
             sp_backup_btn:          'Exporter JSON',
@@ -1496,6 +1542,11 @@
             cma_action_copy_url:      'Скопировать URL твита',
             cma_action_save_bookmark: 'Сохранить как текстовую закладку',
             cma_action_none:          'Без действия',
+            pt_group_title:           '⚡ Настройки производительности',
+            pt_css_simplify_label:    'Упростить стили',
+            pt_css_simplify_desc:     'Глобально убрать размытие/тень/градиент',
+            pt_feed_prune_label:      'Лимит памяти ленты',
+            pt_feed_prune_desc:       'Замораживать твиты за экраном (>70 узлов)',
             sp_group_advanced:      '⚙ Дополнительно',
             sp_backup_settings:     '📤 Резервное копирование',
             sp_backup_btn:          'Экспорт JSON',
@@ -2786,6 +2837,103 @@
     }
 
     setTimeout(showOnboardingOverlay, 1200);
+
+    if (_isTwitterDomain) {
+    const _tf = {};
+    _tf.feedPrune = (() => {
+        let enabled = false;
+        let timerId = null;
+        const LIMIT_FEED = 70;
+        let prunedSet = new WeakSet();
+        const pruneTweet = (el) => {
+            if (!el || prunedSet.has(el)) return;
+            prunedSet.add(el);
+            let h = 0;
+            try { h = Math.max(0, Math.floor(el.getBoundingClientRect().height || 0)); } catch (_) {}
+            if (!h) h = 800;
+            try {
+                el.dataset.tfPrevStyle = el.getAttribute('style') || '';
+                el.style.contain = 'layout paint style';
+                el.style.contentVisibility = 'hidden';
+                el.style.containIntrinsicSize = `${h}px`;
+                el.style.height = `${h}px`;
+                el.style.overflow = 'hidden';
+            } catch (_) {}
+            try { el.querySelectorAll('video').forEach(v => { try { v.pause(); } catch (_) {} }); } catch (_) {}
+        };
+        const gcFeed = () => {
+            const nodes = document.querySelectorAll('article[role="article"]');
+            if (nodes.length <= LIMIT_FEED) return;
+            const over = nodes.length - LIMIT_FEED;
+            for (let i = 0; i < over; i++) pruneTweet(nodes[i]);
+        };
+        return {
+            get enabled() { return enabled; },
+            enable() {
+                if (enabled) return;
+                timerId = setInterval(gcFeed, 1500);
+                enabled = true;
+            },
+            disable() {
+                if (!enabled) return;
+                clearInterval(timerId);
+                timerId = null;
+                document.querySelectorAll('[data-tf-prev-style]').forEach(el => {
+                    el.setAttribute('style', el.dataset.tfPrevStyle || '');
+                    delete el.dataset.tfPrevStyle;
+                });
+                prunedSet = new WeakSet();
+                enabled = false;
+            },
+        };
+    })();
+
+    _tf.cssSimplify = (() => {
+        let enabled = false;
+        const STYLE_ID = 'tm-tf-css-simplify';
+        const css = `
+            
+            * { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+            [style*="backdrop-filter"], [style*="filter: blur"], *[style*="blur("] { filter: none !important; }
+            html, body { scroll-behavior: auto !important; }
+            
+            article[role="article"], [data-testid="cellInnerDiv"], [data-testid="sidebarColumn"] {
+                content-visibility: auto !important;
+                contain: layout paint style !important;
+                contain-intrinsic-size: 800px !important;
+            }
+            
+            [class*="shadow"], [style*="box-shadow"] { box-shadow: none !important; }
+            [class*="gradient"], [class*="bg-gradient"], [style*="linear-gradient("] { background-image: none !important; }
+            video { transform: none !important; will-change: auto !important; background-color: black !important; }
+            * { will-change: auto !important; }
+        `;
+        return {
+            get enabled() { return enabled; },
+            enable() {
+                if (enabled) return;
+                if (!document.getElementById(STYLE_ID)) {
+                    const s = document.createElement('style');
+                    s.id = STYLE_ID;
+                    s.textContent = css;
+                    document.head.appendChild(s);
+                }
+                enabled = true;
+            },
+            disable() {
+                if (!enabled) return;
+                document.getElementById(STYLE_ID)?.remove();
+                enabled = false;
+            },
+        };
+    })();
+
+    if (GM_getValue(KEY_TF_FEED_PRUNE, false))   _tf.feedPrune.enable();
+    if (GM_getValue(KEY_TF_CSS_SIMPLIFY, false)) _tf.cssSimplify.enable();
+
+    _tfRegistry = _tf;
+
+    }
     _initSettingsPanel();
 
     function showDomainPickerModal(key, onSuccess) {
@@ -3151,8 +3299,8 @@
             }
             .tm-sp-group-body {
                 overflow: hidden;
-                max-height: 600px;
-                transition: max-height 0.28s cubic-bezier(0.4,0,0.2,1),
+                max-height: 2000px;
+                transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1),
                             opacity 0.2s ease;
                 opacity: 1;
             }
@@ -3161,6 +3309,62 @@
                 opacity: 0;
                 pointer-events: none;
             }
+            
+            .tm-tf-group-header {
+                display: flex; align-items: center; justify-content: space-between;
+                padding: 8px 14px 7px;
+                border-top: 1px solid ${C.border};
+                border-bottom: 1px solid ${C.border};
+                cursor: pointer;
+                font-size: 11px; font-weight: 700; letter-spacing: 0.4px;
+                color: ${C.sub};
+                background: ${C.header};
+                transition: background 0.1s, opacity 0.1s;
+                user-select: none;
+            }
+            .tm-tf-group-header:hover { opacity: 0.85; }
+            .tm-tf-group-header-chevron {
+                margin-left: auto; flex-shrink: 0; opacity: 0.5;
+                transition: transform 0.2s ease;
+                display: inline-flex; align-items: center;
+            }
+            .tm-tf-group-body {
+                overflow: hidden;
+                max-height: 1200px;
+                transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.2s ease;
+                opacity: 1;
+            }
+            .tm-tf-group-body.collapsed {
+                max-height: 0; opacity: 0; pointer-events: none;
+            }
+            
+            .tm-tf-row {
+                display: flex; align-items: center; justify-content: space-between;
+                padding: 8px 14px; gap: 8px;
+                border-bottom: 1px solid ${C.border};
+                cursor: pointer; transition: background 0.1s;
+            }
+            .tm-tf-row:last-child { border-bottom: none; }
+            .tm-tf-row:hover { background: ${C.rowHover}; }
+            .tm-tf-row-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+            .tm-tf-row-name { font-size: 12px; color: ${C.sub}; white-space: nowrap; }
+            .tm-tf-row-desc { font-size: 11px; color: ${C.sub}; opacity: 0.6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .tm-tf-row-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+            
+            .tm-tf-val-on {
+                font-size: 12px; font-weight: 700; letter-spacing: 0.3px;
+                color: #38bdf8;
+                text-shadow: 0 0 6px rgba(56,189,248,0.85), 0 0 14px rgba(56,189,248,0.45);
+                transition: color 0.2s, text-shadow 0.2s;
+            }
+            
+            .tm-tf-val-off {
+                font-size: 12px; font-weight: 700; letter-spacing: 0.3px;
+                color: #f87171;
+                text-shadow: 0 0 6px rgba(248,113,113,0.8), 0 0 14px rgba(248,113,113,0.45);
+                transition: color 0.2s, text-shadow 0.2s;
+            }
+            .tm-tf-arrow { font-size: 11px; color: ${C.sub}; opacity: 0.5; flex-shrink: 0; }
             
             .tm-sp-help-badge {
                 display: inline-flex; align-items: center; justify-content: center;
@@ -5315,7 +5519,9 @@
             const bearerRow = document.createElement('div');
             bearerRow.style.cssText = `padding:8px 14px;font:13px system-ui;color:${C.text};border-top:1px solid ${C.border};`;
             const bearerTitleRow = document.createElement('div');
-            bearerTitleRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:5px;';
+            bearerTitleRow.style.cssText = 'margin-bottom:5px;';
+            const bearerLabelRow = document.createElement('div');
+            bearerLabelRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:4px;';
             const bearerLabel = document.createElement('span');
             bearerLabel.textContent = T.sp_bearer_title || '🔑 Custom Bearer Token';
             bearerLabel.style.flex = '1';
@@ -5327,6 +5533,9 @@
                 <circle cx="8" cy="10.75" r="0.8" fill="currentColor"/>
             </svg>`;
             bearerHelpBtn.style.cssText = `flex-shrink:0;background:none;border:none;padding:2px;cursor:pointer;color:${C.sub};display:flex;align-items:center;border-radius:50%;transition:color 0.12s;`;
+            bearerLabelRow.append(bearerLabel, bearerHelpBtn);
+            const bearerBtnRow = document.createElement('div');
+            bearerBtnRow.style.cssText = 'display:flex;align-items:center;gap:4px;';
             bearerHelpBtn.onmouseenter = () => bearerHelpBtn.style.color = C.text;
             bearerHelpBtn.onmouseleave = () => bearerHelpBtn.style.color = C.sub;
 
@@ -5393,7 +5602,7 @@
             const bearerDetectBtn = document.createElement('button');
             bearerDetectBtn.textContent = T.sp_bearer_detect || 'Auto-detect';
             bearerDetectBtn.title = T.sp_bearer_detect || 'Auto-detect';
-            bearerDetectBtn.style.cssText = `padding:3px 9px;border-radius:5px;border:1px solid ${C.border};background:${C.inputBg};color:${_isTwitterDomain ? C.text : C.sub};cursor:pointer;font:11px system-ui;margin-right:4px;`;
+            bearerDetectBtn.style.cssText = `padding:3px 9px;border-radius:5px;border:1px solid ${C.border};background:${C.inputBg};color:${_isTwitterDomain ? C.text : C.sub};cursor:pointer;font:11px system-ui;`;
 
             const bearerApplyBtn = document.createElement('button');
             const bearerEditBtn  = document.createElement('button');
@@ -5401,14 +5610,15 @@
             const _editLabel  = T.sp_bearer_edit  || 'Edit';
             const _btnBase = `padding:3px 9px;border-radius:5px;border:1px solid ${C.border};background:${C.inputBg};cursor:pointer;font:11px system-ui;`;
             bearerApplyBtn.textContent = _applyLabel;
-            bearerApplyBtn.style.cssText = _btnBase + `color:${C.text};margin-right:4px;`;
+            bearerApplyBtn.style.cssText = _btnBase + `color:${C.text};`;
             bearerEditBtn.textContent  = _editLabel;
-            bearerEditBtn.style.cssText = _btnBase + `color:#1d9bf0;margin-right:4px;display:none;`;
+            bearerEditBtn.style.cssText = _btnBase + `color:#1d9bf0;display:none;`;
 
             const bearerClearBtn = document.createElement('button');
             bearerClearBtn.textContent = T.sp_bearer_clear || 'Clear';
             bearerClearBtn.style.cssText = `padding:3px 9px;border-radius:5px;border:1px solid ${C.border};background:${C.inputBg};color:${_isTwitterDomain ? C.text : C.sub};cursor:pointer;font:11px system-ui;`;
-            bearerTitleRow.append(bearerLabel, bearerHelpBtn, bearerDetectBtn, bearerApplyBtn, bearerEditBtn, bearerClearBtn);
+            bearerBtnRow.append(bearerDetectBtn, bearerApplyBtn, bearerEditBtn, bearerClearBtn);
+            bearerTitleRow.append(bearerLabelRow, bearerBtnRow);
 
             const bearerTa = document.createElement('textarea');
             bearerTa.rows = 3;
@@ -5421,25 +5631,32 @@
                 resize:none; height:58px; overflow-y:auto;
                 transition:opacity 0.15s;
             `;
-            bearerTa.value = GM_getValue(KEY_CUSTOM_BEARER, '');
-            bearerTa.addEventListener('change', () => GM_setValue(KEY_CUSTOM_BEARER, bearerTa.value.trim()));
+            let _bearerRealVal = GM_getValue(KEY_CUSTOM_BEARER, '');
+            bearerTa.value = _bearerRealVal;
+            bearerTa.addEventListener('change', () => {
+                if (!bearerTa.readOnly) _bearerRealVal = bearerTa.value.trim();
+                GM_setValue(KEY_CUSTOM_BEARER, _bearerRealVal);
+            });
 
-            let _bearerLocked = bearerTa.value.trim().length > 0;
+            let _bearerLocked = _bearerRealVal.length > 0;
             const _syncBearerLock = () => {
                 bearerTa.readOnly = _bearerLocked;
-                bearerTa.style.opacity  = _bearerLocked ? '0.65' : '1';
+                bearerTa.style.opacity  = _bearerLocked ? '0.75' : '1';
                 bearerTa.style.cursor   = _bearerLocked ? 'default' : 'text';
-                bearerApplyBtn.style.display = _bearerLocked ? 'none'   : '';
-                bearerEditBtn.style.display  = _bearerLocked ? ''       : 'none';
+                bearerApplyBtn.style.display = _bearerLocked ? 'none' : '';
+                bearerEditBtn.style.display  = _bearerLocked ? ''     : 'none';
+                bearerTa.value = _bearerLocked
+                    ? '*'.repeat(Math.min(_bearerRealVal.length, 48))
+                    : _bearerRealVal;
             };
             _syncBearerLock();
 
             bearerApplyBtn.addEventListener('click', () => {
-                const val = bearerTa.value.trim();
-                GM_setValue(KEY_CUSTOM_BEARER, val);
+                _bearerRealVal = bearerTa.value.trim();
+                GM_setValue(KEY_CUSTOM_BEARER, _bearerRealVal);
                 _bearerLocked = true;
                 _syncBearerLock();
-                if (val) showToast('✅ Bearer Token saved.', 2500);
+                if (_bearerRealVal) showToast('✅ Bearer Token saved.', 2500);
             });
             bearerEditBtn.addEventListener('click', () => {
                 _bearerLocked = false;
@@ -5467,8 +5684,8 @@
                         if (m) { found = 'Bearer ' + m[1]; break; }
                     }
                     if (found) {
-                        bearerTa.value = found;
-                        GM_setValue(KEY_CUSTOM_BEARER, found.trim());
+                        _bearerRealVal = found.trim();
+                        GM_setValue(KEY_CUSTOM_BEARER, _bearerRealVal);
                         _bearerLocked = true;
                         _syncBearerLock();
                         showToast('✅ Bearer Token detected and saved.', 3000);
@@ -5484,6 +5701,7 @@
             });
             bearerClearBtn.onclick = () => {
                 GM_deleteValue(KEY_CUSTOM_BEARER);
+                _bearerRealVal = '';
                 bearerTa.value = '';
                 _bearerLocked = false;
                 _syncBearerLock();
@@ -5501,6 +5719,119 @@
                 },
                 null
             ));
+
+            if (_tfRegistry) {
+                const SVG_CHEVRON_TF = `<svg viewBox="0 0 10 10" width="9" height="9" fill="currentColor"><path d="M1 3l4 4 4-4z"/></svg>`;
+
+                const tfGroupHeader = document.createElement('div');
+                tfGroupHeader.className = 'tm-tf-group-header';
+
+                const tfGroupTitle = T.pt_group_title || '⚡ Performance Tweaks';
+                const tfGroupLabel = document.createElement('span');
+                tfGroupLabel.textContent = tfGroupTitle;
+                tfGroupHeader.appendChild(tfGroupLabel);
+
+                const tfGroupChevron = document.createElement('span');
+                tfGroupChevron.className = 'tm-tf-group-header-chevron';
+                tfGroupChevron.innerHTML = SVG_CHEVRON_TF;
+                tfGroupHeader.appendChild(tfGroupChevron);
+
+                const tfGroupBody = document.createElement('div');
+                tfGroupBody.className = 'tm-tf-group-body';
+
+                const _TF_GROUP_KEY = tfGroupTitle;
+                let tfGroupOpen = true;
+                try {
+                    const saved = JSON.parse(GM_getValue(KEY_SP_GROUP_OPEN, '{}'));
+                    if (_TF_GROUP_KEY in saved) tfGroupOpen = saved[_TF_GROUP_KEY];
+                } catch (_) {}
+                if (!tfGroupOpen) {
+                    tfGroupBody.classList.add('collapsed');
+                    tfGroupChevron.style.transform = 'rotate(-90deg)';
+                } else {
+                    tfGroupChevron.style.transform = 'rotate(0deg)';
+                }
+
+                tfGroupHeader.addEventListener('click', () => {
+                    const isCollapsed = tfGroupBody.classList.toggle('collapsed');
+                    tfGroupChevron.style.transform = isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
+                    try {
+                        const saved = JSON.parse(GM_getValue(KEY_SP_GROUP_OPEN, '{}'));
+                        saved[_TF_GROUP_KEY] = !isCollapsed;
+                        GM_setValue(KEY_SP_GROUP_OPEN, JSON.stringify(saved));
+                    } catch (_) {}
+                    if (_lcRcResizeHandler) requestAnimationFrame(_lcRcResizeHandler);
+                });
+
+                grpAdv.append(tfGroupHeader);
+                grpAdv.append(tfGroupBody);
+
+                const _tfItems = [
+                    [T.pt_css_simplify_label || 'CSS Simplify',      T.pt_css_simplify_desc || 'Remove blur/shadow/gradient globally', KEY_TF_CSS_SIMPLIFY, 'cssSimplify', 'pt_css_simplify'],
+                    [T.pt_feed_prune_label   || 'Feed Memory Limit', T.pt_feed_prune_desc   || 'Freeze off-screen tweets (>70 nodes)', KEY_TF_FEED_PRUNE,   'feedPrune',   'pt_feed_prune'],
+                ];
+
+                const _makeTfToggleRow = (label, desc, key, tfKey, featureId) => {
+                    const row = document.createElement('div');
+                    row.className = 'tm-tf-row';
+
+                    const left = document.createElement('div');
+                    left.className = 'tm-tf-row-left';
+
+                    const nameEl = document.createElement('span');
+                    nameEl.className = 'tm-tf-row-name';
+                    nameEl.textContent = label;
+
+                    const descEl = document.createElement('span');
+                    descEl.className = 'tm-tf-row-desc';
+                    descEl.textContent = desc;
+
+                    left.appendChild(nameEl);
+                    left.appendChild(descEl);
+                    row.appendChild(left);
+
+                    if (featureId && isFeatureNew(featureId)) {
+                        const badge = document.createElement('span');
+                        badge.className = 'tm-sp-new-badge';
+                        badge.textContent = 'NEW';
+                        row.appendChild(badge);
+                    }
+
+                    const right = document.createElement('div');
+                    right.className = 'tm-tf-row-right';
+
+                    const valEl = document.createElement('span');
+                    const updateVal = () => {
+                        const on = GM_getValue(key, false);
+                        valEl.className = on ? 'tm-tf-val-on' : 'tm-tf-val-off';
+                        valEl.textContent = on ? (T.status_on || 'On') : (T.status_off || 'Off');
+                    };
+                    updateVal();
+
+                    const arrow = document.createElement('span');
+                    arrow.className = 'tm-tf-arrow';
+                    arrow.textContent = '›';
+
+                    right.appendChild(valEl);
+                    right.appendChild(arrow);
+                    row.appendChild(right);
+
+                    row.addEventListener('click', () => {
+                        if (featureId) markFeatureSeen(featureId);
+                        const next = !GM_getValue(key, false);
+                        GM_setValue(key, next);
+                        if (next) _tfRegistry[tfKey].enable();
+                        else      _tfRegistry[tfKey].disable();
+                        updateVal();
+                        showToast(label + ' → ' + (next ? (T.status_on || 'On') : (T.status_off || 'Off')));
+                    });
+                    return row;
+                };
+
+                _tfItems.forEach(([label, desc, key, tfKey, featureId]) => {
+                    tfGroupBody.appendChild(_makeTfToggleRow(label, desc, key, tfKey, featureId));
+                });
+            }
 
             const helpLabel = T.menu_help ? T.menu_help.replace(/^📖\s*/, '') : 'Help / Manual';
             const helpRow = makeRow('📖 ' + helpLabel, '', () => {
@@ -12428,7 +12759,7 @@
                 {
                     itemClass: 'tm-menu-item--copied',
                     icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="9" height="12" rx="1.5"/><path d="M3 4H2a1 1 0 0 0-1 1v8a1.5 1.5 0 0 0 1.5 1.5H11"/><line x1="7.5" y1="6" x2="11.5" y2="6"/><line x1="7.5" y1="8.5" x2="11.5" y2="8.5"/><line x1="7.5" y1="11" x2="10" y2="11"/></svg>`,
-                    label: T.msg_copied ? T.msg_copied.replace(/✅\s*/, '') : 'Copy media URLs',
+                    label: T.cma_action_copy || 'Copy Media URLs',
                     action: async () => {
                         const urls = await extractMediaUrls(article);
                         if (!urls.length) { setMediaIcon('msg', T.msg_no_media, 'No Media'); setTimeout(() => setMediaIcon('default'), 1500); return; }
@@ -12440,14 +12771,14 @@
                 {
                     itemClass: 'tm-menu-item--downloaded',
                     icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M2 12v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1"/></svg>`,
-                    label: T.msg_downloaded ? T.msg_downloaded.replace(/✅\s*/, '') : 'Download all',
+                    label: T.cma_action_download_all || 'Download All',
                     action: _doDownloadAll,
                 },
                 'divider',
                 {
                     itemClass: 'tm-menu-item--prefix',
                     icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="4" width="9" height="9" rx="1.5"/><path d="M5.5 4V2.5A1 1 0 0 1 6.5 1.5h7a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H12"/><line x1="4" y1="8" x2="8" y2="8"/><line x1="4" y1="10.5" x2="7" y2="10.5"/></svg>`,
-                    label: T.msg_prefix_copied ? T.msg_prefix_copied.replace(/✅\s*/, '') : 'Copy with prefix',
+                    label: T.cma_action_copy_prefix || 'Copy with Prefix',
                     action: async () => {
                         const urls = await extractMediaUrls(article);
                         if (!urls.length) { setMediaIcon('msg', T.msg_no_media, 'No Media'); setTimeout(() => setMediaIcon('default'), 1500); return; }
@@ -12856,7 +13187,7 @@
                         {
                             itemClass: 'tm-menu-item--copied',
                             icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5a3.5 3.5 0 0 0 5 0l2-2a3.5 3.5 0 0 0-5-5L7 4"/><path d="M9.5 6.5a3.5 3.5 0 0 0-5 0l-2 2a3.5 3.5 0 0 0 5 5L9 12"/></svg>`,
-                            label: T.msg_copied ? T.msg_copied.replace(/✅\s*/, '') : 'Copy link',
+                            label: T.cma_action_copy_url || 'Copy Tweet URL',
                             action: () => {
                                 if (!url) return;
                                 GM_setClipboard(url);
@@ -12867,7 +13198,7 @@
                         {
                             itemClass: 'tm-menu-item--prefix',
                             icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="4" width="9" height="9" rx="1.5"/><path d="M5.5 4V2.5A1 1 0 0 1 6.5 1.5h7a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H12"/><line x1="4" y1="8" x2="8" y2="8"/><line x1="4" y1="10.5" x2="7" y2="10.5"/></svg>`,
-                            label: T.msg_prefix_copied ? T.msg_prefix_copied.replace(/✅\s*/, '') : 'Copy with prefix',
+                            label: T.cma_action_copy_prefix || 'Copy with Prefix',
                             action: () => {
                                 if (!url) return;
                                 const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
@@ -12879,7 +13210,7 @@
                         'divider',
                         {
                             icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2h10a1 1 0 0 1 1 1v11l-5-3-5 3V3a1 1 0 0 1 1-1z"/></svg>`,
-                            label: 'Save as text bookmark',
+                            label: T.cma_action_save_bookmark || 'Save as Text Bookmark',
                             action: _doSaveLinkTextBookmark,
                         },
                     ];
@@ -13000,6 +13331,7 @@
     }
 
     if (_isTwitterDomain) {
+
     _syncCh = (typeof BroadcastChannel !== 'undefined')
         ? new BroadcastChannel('tm-download-sync') : null;
     if (_syncCh) {
