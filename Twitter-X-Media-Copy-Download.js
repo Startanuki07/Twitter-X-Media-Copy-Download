@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.3.2
+// @version      2.9.3.5
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -161,6 +161,21 @@
             _updateHistoryIndex(ym);
             _writeMonthRecords(ym, recs);
         });
+        return addCount;
+    }
+
+    function _mergeImportedGroups(importedGroups, getFn, saveFn) {
+        if (!Array.isArray(importedGroups) || importedGroups.length === 0) return 0;
+        const existing = getFn();
+        const existIds = new Set(existing.map(g => g.id));
+        let addCount = 0;
+        importedGroups.forEach(g => {
+            if (!g || !g.id || existIds.has(g.id)) return;
+            existing.push(g);
+            existIds.add(g.id);
+            addCount++;
+        });
+        if (addCount > 0) saveFn(existing);
         return addCount;
     }
 
@@ -5430,7 +5445,9 @@
                 KEY_DATE_FORMAT, KEY_CUSTOM_LANG, KEY_VIDEO_VOLUME, KEY_VIDEO_SPEED,
                 KEY_FEEDBACK_STYLE, KEY_CLICK_MODE, KEY_GEAR_VISIBLE, KEY_GEAR_CORNER,
                 KEY_DOCK_STYLE, KEY_DOCK_HOVER_DELAY, KEY_DOCK_TRIGGER_L, KEY_DOCK_TRIGGER_R,
-                KEY_DOCK_PERSISTED, KEY_GROUP_ON_DOWNLOAD, KEY_CUSTOM_BEARER, KEY_SCAN_INTERVAL,
+                KEY_DOCK_PERSISTED, KEY_GROUP_ON_DOWNLOAD, KEY_SCAN_INTERVAL,
+                KEY_CUSTOM_MEDIA_ACTIONS, KEY_CUSTOM_LINK_ACTIONS, KEY_GROUP_PANEL_CFG,
+                KEY_TF_CSS_SIMPLIFY, KEY_TF_FEED_PRUNE,
             ];
             function _exportSettings() {
                 const snap = {};
@@ -5711,7 +5728,7 @@
             grpAdv.append(bearerRow);
 
             grpAdv.append(makeSliderRow(
-                T.sp_scan_interval || 'Scan Interval', parseInt(GM_getValue(KEY_SCAN_INTERVAL, '1500'), 10) || 1500,
+                `🔗🎞️ ${T.sp_scan_interval || 'Scan Interval'}`, parseInt(GM_getValue(KEY_SCAN_INTERVAL, '1500'), 10) || 1500,
                 500, 5000, 100, 'ms', null,
                 (n) => {
                     GM_setValue(KEY_SCAN_INTERVAL, String(n));
@@ -9518,7 +9535,10 @@
                 return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
             };
             const records = getRecords();
-            const header  = 'tweetId,tweetUrl,date,screenName,displayName,text,mediaUrls,groupId,favorited\n';
+            const groupNameMap = new Map(
+                [...getGroups(), ...getTextGroups()].map(g => [g.id, g.name])
+            );
+            const header  = 'tweetId,tweetUrl,date,screenName,displayName,text,mediaUrls,groupId,groupName,favorited\n';
             const rows    = records.map(r => [
                 r.tweetId,
                 r.tweetUrl,
@@ -9528,13 +9548,19 @@
                 csvCell(r.tweetText),
                 csvCell((r.mediaUrls || []).join(' ')),
                 r.groupId || '',
+                csvCell(r.groupId ? (groupNameMap.get(r.groupId) || '') : ''),
                 r.favorited ? '1' : '0',
             ].join(',')).join('\n');
             _download('history.csv', header + rows, 'text/csv');
         }
         function _exportJSON() {
-            const records = getRecords();
-            _download('history.json', JSON.stringify(records, null, 2), 'application/json');
+            const payload = {
+                __tm_export_version: 1,
+                records: getRecords(),
+                groups: getGroups(),
+                textGroups: getTextGroups(),
+            };
+            _download('history.json', JSON.stringify(payload, null, 2), 'application/json');
         }
         function _download(filename, content, type) {
             const blob = new Blob([content], { type });
@@ -9638,12 +9664,28 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     try {
-                        const imported = JSON.parse(e.target.result);
-                        if (!Array.isArray(imported)) throw new Error('Not an array');
+                        const parsed = JSON.parse(e.target.result);
+
+                        let imported, importedGroups, importedTextGroups;
+                        if (Array.isArray(parsed)) {
+                            imported = parsed;
+                            importedGroups = importedTextGroups = [];
+                        } else if (parsed && Array.isArray(parsed.records)) {
+                            imported           = parsed.records;
+                            importedGroups     = Array.isArray(parsed.groups) ? parsed.groups : [];
+                            importedTextGroups = Array.isArray(parsed.textGroups) ? parsed.textGroups : [];
+                        } else {
+                            throw new Error('Not a valid history export');
+                        }
+
+                        const groupAddCount = _mergeImportedGroups(importedGroups, getGroups, saveGroups)
+                            + _mergeImportedGroups(importedTextGroups, getTextGroups, saveTextGroups);
 
                         const addCount = _mergeImportedRecords(imported);
                         imported.forEach(r => { if (r.tweetId) _downloadedIds.add(r.tweetId); });
-                        showToast(`✅ Imported ${addCount} new record(s)`);
+                        showToast(groupAddCount > 0
+                            ? `✅ Imported ${addCount} record(s), ${groupAddCount} group(s)`
+                            : `✅ Imported ${addCount} new record(s)`);
                         render();
                     } catch (err) {
                         showToast(`❌ Import failed: ${err.message}`);
@@ -12272,6 +12314,8 @@
             if (_gqlIdMatch && _gqlIdMatch[1] !== _cachedGqlId) {
                 _cachedGqlId = _gqlIdMatch[1];
                 GM_setValue('app_gql_tweet_id', _cachedGqlId);
+            } else if (!_gqlIdMatch && url.includes('TweetResultByRestId')) {
+                console.warn('[TMApi] TweetResultByRestId URL 結構不符預期 regex，自動更新失效，仍使用舊 ID:', _cachedGqlId, url);
             }
             const promise = _origFetch.apply(this, args);
             if (!isGraphQL) return promise;
