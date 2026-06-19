@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.3.5
+// @version      2.9.4.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -200,6 +200,7 @@
     const KEY_DOCK_TRIGGER_L    = 'app_dock_trigger_l';
     const KEY_DOCK_TRIGGER_R    = 'app_dock_trigger_r';
     const KEY_DOCK_PERSISTED    = 'app_dock_persisted';
+    const KEY_DOCK_REMEMBER_POS = 'app_dock_remember_pos';
     const KEY_GROUP_ON_DOWNLOAD = 'app_group_on_download';
     const KEY_GROUPS            = 'app_media_groups';
     const KEY_TEXT_GROUPS       = 'app_text_groups';
@@ -397,6 +398,7 @@
             sp_grp_manage:          'Manage Groups',
             sp_grp_corner:          '📌  Corner Position',
             sp_grp_history:         '🗂  History Panel',
+            hist_panel_tooltip:     'Hidden feature: the History Panel has an invisible edge handle on its left & right sides (its look depends on your Dock Style setting below). Hover or click it to auto-hide the panel to the screen edge!',
             sp_grp_dock_style:      'Dock Style',
             sp_grp_hover_delay:     'Hover Delay',
             sp_grp_trigger_l:       'Trigger Distance ◀ Left',
@@ -547,6 +549,7 @@
             sp_grp_manage:          '管理群組',
             sp_grp_corner:          '📌  按鈕位置',
             sp_grp_history:         '🗂  下載履歷面板',
+            hist_panel_tooltip:     '隱藏功能：下載履歷面板的左右兩側邊緣有一個不可見的把手（外觀依下方「停靠樣式」設定而異）。滑鼠懸停或點擊它即可將面板自動隱藏到螢幕邊緣！',
             sp_grp_dock_style:      '停靠樣式',
             sp_grp_hover_delay:     '懸停延遲',
             sp_grp_trigger_l:       '觸發距離 ◀ 左',
@@ -697,6 +700,7 @@
             sp_grp_manage:          '管理分组',
             sp_grp_corner:          '📌  按钮位置',
             sp_grp_history:         '🗂  下载记录面板',
+            hist_panel_tooltip:     '隐藏功能：下载记录面板的左右两侧边缘有一个不可见的把手（外观取决于下方的"停靠样式"设置）。鼠标悬停或点击它即可将面板自动隐藏到屏幕边缘！',
             sp_grp_dock_style:      '停靠样式',
             sp_grp_hover_delay:     '悬停延迟',
             sp_grp_trigger_l:       '触发距离 ◀ 左',
@@ -847,6 +851,7 @@
             sp_grp_manage:          'グループ管理',
             sp_grp_corner:          '📌  ボタン位置',
             sp_grp_history:         '🗂  履歴パネル',
+            hist_panel_tooltip:     '隠し機能：履歴パネルの左右の端に見えないハンドルがあります（見た目は下の「ドックスタイル」設定によって変わります）。ホバーまたはクリックすると、パネルが画面端に自動的に隠れます！',
             sp_grp_dock_style:      'ドックスタイル',
             sp_grp_hover_delay:     'ホバー遅延',
             sp_grp_trigger_l:       'トリガー距離 ◀ 左',
@@ -997,6 +1002,7 @@
             sp_grp_manage:          '그룹 관리',
             sp_grp_corner:          '📌  버튼 위치',
             sp_grp_history:         '🗂  기록 패널',
+            hist_panel_tooltip:     '숨겨진 기능: 기록 패널의 좌우 양쪽 가장자리에 보이지 않는 핸들이 있습니다 (모양은 아래 "도크 스타일" 설정에 따라 다릅니다). 마우스를 올리거나 클릭하면 패널이 화면 가장자리로 자동으로 숨겨집니다!',
             sp_grp_dock_style:      '도크 스타일',
             sp_grp_hover_delay:     '호버 지연',
             sp_grp_trigger_l:       '트리거 거리 ◀ 왼쪽',
@@ -1147,6 +1153,7 @@
             sp_grp_manage:          'Gestionar grupos',
             sp_grp_corner:          '📌  Posición del botón',
             sp_grp_history:         '🗂  Panel de historial',
+            hist_panel_tooltip:     'Función oculta: el Panel de historial tiene un asa invisible en sus bordes izquierdo y derecho (su aspecto depende de tu configuración de "Estilo de dock" abajo). Pasa el cursor o haz clic para ocultar automáticamente el panel en el borde de la pantalla.',
             sp_grp_dock_style:      'Estilo de dock',
             sp_grp_hover_delay:     'Retraso al pasar',
             sp_grp_trigger_l:       'Distancia ◀ Izquierda',
@@ -1297,6 +1304,7 @@
             sp_grp_manage:          'Gerenciar grupos',
             sp_grp_corner:          '📌  Posição do botão',
             sp_grp_history:         '🗂  Painel de histórico',
+            hist_panel_tooltip:     'Recurso oculto: o Painel de histórico tem uma alça invisível nas bordas esquerda e direita (a aparência depende da sua configuração de "Estilo de dock" abaixo). Passe o mouse ou clique para ocultar automaticamente o painel na borda da tela.',
             sp_grp_dock_style:      'Estilo do dock',
             sp_grp_hover_delay:     'Atraso ao passar',
             sp_grp_trigger_l:       'Distância ◀ Esquerda',
@@ -1447,6 +1455,7 @@
             sp_grp_manage:          'Gérer les groupes',
             sp_grp_corner:          '📌  Position du bouton',
             sp_grp_history:         '🗂  Panneau historique',
+            hist_panel_tooltip:     "Fonction cachée : le panneau historique possède une poignée invisible sur ses bords gauche et droit (son apparence dépend du réglage « Style du dock » ci-dessous). Survolez ou cliquez pour masquer automatiquement le panneau sur le bord de l'écran !",
             sp_grp_dock_style:      'Style du dock',
             sp_grp_hover_delay:     'Délai au survol',
             sp_grp_trigger_l:       'Distance ◀ Gauche',
@@ -1597,6 +1606,7 @@
             sp_grp_manage:          'Управление группами',
             sp_grp_corner:          '📌  Позиция кнопки',
             sp_grp_history:         '🗂  Панель истории',
+            hist_panel_tooltip:     'Скрытая функция: у Панели истории есть невидимая ручка по левому и правому краям (её вид зависит от настройки "Стиль панели" ниже). Наведите курсор или нажмите, чтобы автоматически скрыть панель у края экрана!',
             sp_grp_dock_style:      'Стиль панели',
             sp_grp_hover_delay:     'Задержка наведения',
             sp_grp_trigger_l:       'Расстояние ◀ Левое',
@@ -2827,7 +2837,6 @@
                 GM_setValue(KEY_ONBOARDING_DONE, true);
                 _fadeOut([_overlay, _ring, _card], () => {
                     _cleanup();
-                    setTimeout(showHistoryPanel, 150);
                 });
             });
 
@@ -2843,7 +2852,6 @@
                 GM_setValue(KEY_ONBOARDING_DONE, true);
                 _fadeOut([_overlay, _ring, _card], () => {
                     _cleanup();
-                    setTimeout(showHistoryPanel, 150);
                 });
             });
         }
@@ -3230,7 +3238,16 @@
             .tm-sp-row:hover { background: ${C.rowHover}; }
             .tm-sp-row-left { display:flex; flex-direction:column; gap:1px; min-width:0; }
             .tm-sp-row-label { font-size: 12px; color: ${C.sub}; white-space: nowrap; }
-            .tm-sp-row-value { font-size: 13px; color: ${C.text}; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .tm-sp-row-value { font-size: 13px; color: ${C.text}; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: color 0.2s, text-shadow 0.2s; }
+            
+            .tm-sp-val-on  { color: #38bdf8 !important; font-weight: 700; letter-spacing: 0.3px;
+                             text-shadow: 0 0 6px rgba(56,189,248,0.85), 0 0 14px rgba(56,189,248,0.45); }
+            .tm-sp-val-off { color: #f87171 !important; font-weight: 700; letter-spacing: 0.3px;
+                             text-shadow: 0 0 6px rgba(248,113,113,0.8), 0 0 14px rgba(248,113,113,0.45); }
+            .tm-sp-val-option { color: #a78bfa !important; font-weight: 600; letter-spacing: 0.2px;
+                                text-shadow: 0 0 6px rgba(167,139,250,0.75), 0 0 12px rgba(167,139,250,0.35); }
+            
+            .tm-sp-row-desc { font-size: 11px; color: ${C.sub}; opacity: 0.6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
             .tm-sp-arrow { font-size: 11px; color: ${C.sub}; flex-shrink: 0; margin-left: 4px; opacity: 0.5; }
             
             .tm-sp-picker {
@@ -4098,7 +4115,15 @@
                 const val = document.createElement('span');
                 val.className = 'tm-sp-row-value';
                 const getVal = typeof value === 'function' ? value : () => value;
+                const _colorOnOff = (strVal) => {
+                    const on  = T.status_on  || 'On';
+                    const off = T.status_off || 'Off';
+                    val.classList.remove('tm-sp-val-on', 'tm-sp-val-off');
+                    if      (strVal === on)  val.classList.add('tm-sp-val-on');
+                    else if (strVal === off) val.classList.add('tm-sp-val-off');
+                };
                 val.textContent = getVal();
+                _colorOnOff(val.textContent);
                 left.appendChild(lbl);
                 left.appendChild(val);
                 row.appendChild(left);
@@ -4116,6 +4141,7 @@
                     if (featureId) markFeatureSeen(featureId);
                     onClick();
                     val.textContent = getVal();
+                    _colorOnOff(val.textContent);
                 });
                 return row;
             };
@@ -4177,7 +4203,7 @@
                 };
             };
 
-            const makePickerRow = (label, options, currentVal, onSelect, featureId = null) => {
+            const makePickerRow = (label, options, currentVal, onSelect, featureId = null, defaultVal = undefined) => {
                 const wrap = document.createElement('div');
                 wrap.style.cssText = `border-bottom: 1px solid ${C.border};`;
 
@@ -4192,6 +4218,7 @@
                 lbl.textContent = label;
                 const val = document.createElement('span');
                 val.className = 'tm-sp-row-value';
+                val.classList.toggle('tm-sp-val-option', defaultVal !== undefined && currentVal !== defaultVal);
                 val.textContent = (options.find(o => o.value === currentVal) || options[0]).label;
                 left.appendChild(lbl);
                 left.appendChild(val);
@@ -4228,6 +4255,7 @@
                         if (featureId) markFeatureSeen(featureId);
                         onSelect(opt.value);
                         val.textContent = opt.label;
+                        val.classList.toggle('tm-sp-val-option', defaultVal !== undefined && opt.value !== defaultVal);
                         picker.querySelectorAll('.tm-sp-picker-opt').forEach(b => {
                             b.classList.remove('active');
                             b.querySelector('.tm-sp-opt-check').textContent = '';
@@ -4255,7 +4283,7 @@
                 return wrap;
             };
 
-            const makeDockStylePickerRow = (label, options, currentVal, onSelect, featureId = null) => {
+            const makeDockStylePickerRow = (label, options, currentVal, onSelect, featureId = null, defaultVal = undefined) => {
                 const wrap = document.createElement('div');
                 wrap.className = 'tm-sp-picker-wrap';
 
@@ -4269,6 +4297,7 @@
 
                 const val = document.createElement('span');
                 val.className = 'tm-sp-val';
+                val.classList.toggle('tm-sp-val-option', defaultVal !== undefined && currentVal !== defaultVal);
                 val.textContent = options.find(o => o.value === currentVal)?.label ?? currentVal;
                 row.appendChild(val);
 
@@ -4319,6 +4348,7 @@
                         if (featureId) markFeatureSeen(featureId);
                         onSelect(opt.value);
                         val.textContent = opt.label;
+                        val.classList.toggle('tm-sp-val-option', defaultVal !== undefined && opt.value !== defaultVal);
                         picker.querySelectorAll('button').forEach(b => {
                             b.style.background = 'rgba(255,255,255,0.04)';
                             b.style.outline = '1px solid rgba(255,255,255,0.08)';
@@ -4352,7 +4382,7 @@
                 return wrap;
             };
 
-            const makeFeedbackPickerRow = (label, options, currentVal, onSelect, featureId = null) => {
+            const makeFeedbackPickerRow = (label, options, currentVal, onSelect, featureId = null, defaultVal = undefined) => {
                 const wrap = document.createElement('div');
                 wrap.style.cssText = `border-bottom: 1px solid ${C.border};`;
 
@@ -4367,6 +4397,7 @@
                 lbl.textContent = label;
                 const val = document.createElement('span');
                 val.className = 'tm-sp-row-value';
+                val.classList.toggle('tm-sp-val-option', defaultVal !== undefined && currentVal !== defaultVal);
                 val.textContent = (options.find(o => o.value === currentVal) || options[0]).label;
                 left.appendChild(lbl);
                 left.appendChild(val);
@@ -4461,6 +4492,7 @@
                         if (opt.featureId) markFeatureSeen(opt.featureId);
                         onSelect(opt.value);
                         val.textContent = opt.label;
+                        val.classList.toggle('tm-sp-val-option', defaultVal !== undefined && opt.value !== defaultVal);
                         picker.querySelectorAll('.tm-sp-picker-opt').forEach(b => {
                             b.classList.remove('active');
                             b.querySelector('.tm-sp-opt-check').textContent = '';
@@ -4683,7 +4715,7 @@
                     + '  —  Reload to apply.';
                 buildContent();
                 _showReloadToast(toastMsg);
-            });
+            }, null, 'classic');
             grpMedia.append(clickModeRow);
 
             (() => {
@@ -4848,7 +4880,7 @@
                 const chosen = fbOpts.find(o => o.value === newFb);
                 showToast((T.toast_feedback_style || '🔔 Feedback Style → ') + (chosen ? chosen.label : newFb));
                 buildContent();
-            }, 'sp_feedback_picker');
+            }, 'sp_feedback_picker', 'toast');
 
             grpMedia.append(fbWrap);
 
@@ -4863,7 +4895,7 @@
                 const chosen = fmtOpts.find(o => o.value === newFmt);
                 showToast(T.toast_date_fmt + (chosen ? chosen.label : newFmt));
                 registerMenus(); buildContent();
-            }, 'sp_date_picker'));
+            }, 'sp_date_picker', 'asian'));
 
             const grpGroups = makeGroup(T.sp_grp_group || '⭐  Groups', true);
 
@@ -5369,7 +5401,8 @@
             cornerRow.appendChild(cornerGrid);
             grpCorner.append(cornerRow);
 
-            const HIST_TOOLTIP = 'Hidden feature: The history panel has invisible dock triggers on its left & right edges. Click them to auto-hide the panel to the screen edge!';
+            const HIST_TOOLTIP = T.hist_panel_tooltip ||
+                'Hidden feature: The history panel has invisible dock triggers (⋮) on its left & right edges. Hover or click the ⋮ button to auto-hide the panel to the screen edge!';
             const grpHist = makeGroup(T.sp_grp_history || '🗂  History Panel', false, HIST_TOOLTIP, showDockSpotlight);
 
             const _DS = {
@@ -5409,7 +5442,7 @@
                         }
                     }
                 }
-            }, 'sp_dock_picker'));
+            }, 'sp_dock_picker', 'ruler'));
 
             grpHist.append(makeSliderRow(
                 T.sp_grp_hover_delay || 'Hover Delay', dockHoverDelay, 100, 3000, 50, 'ms',
@@ -5438,6 +5471,43 @@
                 'sp_slider_controls'
             ));
 
+            {
+                const _remRow = makeRow(
+                    T.sp_dock_remember_pos || 'Remember Edge Position',
+                    () => GM_getValue(KEY_DOCK_REMEMBER_POS, false) ? (T.status_on || 'On') : (T.status_off || 'Off'),
+                    () => {
+                        const next = !GM_getValue(KEY_DOCK_REMEMBER_POS, false);
+                        GM_setValue(KEY_DOCK_REMEMBER_POS, next);
+                        showToast('📌 ' + (T.sp_dock_remember_pos || 'Remember Edge Position') + ' → ' + (next ? (T.status_on || 'On') : (T.status_off || 'Off')));
+                    },
+                    'sp_dock_remember_pos'
+                );
+                const _remDesc = document.createElement('span');
+                _remDesc.className = 'tm-sp-row-desc';
+                _remDesc.textContent = T.sp_dock_remember_pos_desc || 'Remembers panel Y position after dragging while peeked';
+                _remRow.querySelector('.tm-sp-row-left').appendChild(_remDesc);
+                grpHist.append(_remRow);
+            }
+
+            {
+                const _rstRow = makeRow(
+                    T.sp_dock_reset_pos || 'Reset Panel Position',
+                    () => T.sp_dock_reset_btn || 'Reset',
+                    () => {
+                        GM_deleteValue(KEY_HISTORY_PANEL_POS);
+                        const existPanel = document.getElementById('tm-hist-panel');
+                        if (existPanel) existPanel.dispatchEvent(new CustomEvent('tm-hist-reset-pos'));
+                        showToast('↺ ' + (T.sp_dock_reset_pos || 'Reset Panel Position'));
+                    },
+                    'sp_dock_reset_pos'
+                );
+                const _rstDesc = document.createElement('span');
+                _rstDesc.className = 'tm-sp-row-desc';
+                _rstDesc.textContent = T.sp_dock_reset_pos_desc || 'Restore panel to default coordinates (dock side kept)';
+                _rstRow.querySelector('.tm-sp-row-left').appendChild(_rstDesc);
+                grpHist.append(_rstRow);
+            }
+
             const grpAdv = makeGroup(T.sp_group_advanced || '⚙ Advanced', false, null);
 
             const ALL_SETTING_KEYS = [
@@ -5445,7 +5515,7 @@
                 KEY_DATE_FORMAT, KEY_CUSTOM_LANG, KEY_VIDEO_VOLUME, KEY_VIDEO_SPEED,
                 KEY_FEEDBACK_STYLE, KEY_CLICK_MODE, KEY_GEAR_VISIBLE, KEY_GEAR_CORNER,
                 KEY_DOCK_STYLE, KEY_DOCK_HOVER_DELAY, KEY_DOCK_TRIGGER_L, KEY_DOCK_TRIGGER_R,
-                KEY_DOCK_PERSISTED, KEY_GROUP_ON_DOWNLOAD, KEY_SCAN_INTERVAL,
+                KEY_DOCK_PERSISTED, KEY_DOCK_REMEMBER_POS, KEY_GROUP_ON_DOWNLOAD, KEY_SCAN_INTERVAL,
                 KEY_CUSTOM_MEDIA_ACTIONS, KEY_CUSTOM_LINK_ACTIONS, KEY_GROUP_PANEL_CFG,
                 KEY_TF_CSS_SIMPLIFY, KEY_TF_FEED_PRUNE,
             ];
@@ -7168,8 +7238,8 @@
                 ...h.filter(e => !e.pinned).sort((a, b) => b.ts - a.ts),
             ];
         }
-        const _SPIN_HOLLOW = `<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="3"/><line x1="8" y1="8.5" x2="8" y2="13"/><line x1="5.5" y1="13" x2="10.5" y2="13"/></svg>`;
-        const _SPIN_FILL   = `<svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="3"/><line x1="8" y1="8.5" x2="8" y2="13" stroke-width="1.8" fill="none"/><line x1="5.5" y1="13" x2="10.5" y2="13" stroke-width="1.8" fill="none"/></svg>`;
+        const _SPIN_HOLLOW = `<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="1.8" width="6" height="5.6" rx="1"/><line x1="8" y1="7.4" x2="8" y2="10.8"/><path d="M5.7 10.8h4.6l-2.3 3.4z"/></svg>`;
+        const _SPIN_FILL   = `<svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="1.8" width="6" height="5.6" rx="1"/><path d="M8 7.4v3.4" stroke-width="1.8" fill="none"/><path d="M5.7 10.8h4.6l-2.3 3.4z"/></svg>`;
         function _buildSearchHistRow(item) {
             const row = document.createElement('div');
             row.className = 'tm-search-hist-item';
@@ -7986,11 +8056,13 @@
             #tm-hist-dock-tab.style-dots:hover .tm-dock-dot:nth-child(2) {
                 transform: scale(1.4);
             }
+            
+            .tm-hist-empty {
                 display: flex; flex-direction: column; align-items: center;
-                justify-content: center; padding: 40px 20px;
-                color: ${C.sub}; font-size: 13px; gap: 10px; text-align: center;
+                justify-content: center; padding: 48px 24px;
+                color: ${C.sub}; font-size: 13px; line-height: 1.6; gap: 12px; text-align: center;
             }
-            .tm-hist-empty svg { width: 36px; height: 36px; opacity: 0.4; }
+            .tm-hist-empty svg { width: 34px; height: 34px; opacity: 0.35; }
             
             #tm-hist-zoom {
                 position: fixed; z-index: 999999;
@@ -8052,12 +8124,13 @@
                 z-index: 2;
             }
             .tm-gtab-scroll-btn:hover { background: ${C.rowHover}; color: ${C.text}; }
+            
             @keyframes tm-gtab-btn-flash {
-                0%   { color: ${C.text};   background: ${C.accent}33; }
-                50%  { color: #1d9bf0;     background: #1d9bf022; }
-                100% { color: ${C.sub};    background: transparent; }
+                0%   { color: #fff;        background: ${C.badgeNew}55; transform: scale(1.18); }
+                40%  { color: ${C.badgeNew}; background: ${C.badgeNew}33; transform: scale(1.1); }
+                100% { color: ${C.sub};    background: transparent;     transform: scale(1); }
             }
-            .tm-gtab-scroll-btn.tm-end-flash { animation: tm-gtab-btn-flash 0.45s ease forwards; }
+            .tm-gtab-scroll-btn.tm-end-flash { animation: tm-gtab-btn-flash 0.65s cubic-bezier(.34,1.56,.64,1) forwards; }
             .tm-gtab-scroll-btn.visible { display: flex; }
             .tm-gtab-scroll-btn svg { width: 10px; height: 10px; pointer-events: none; }
             .tm-gtab-scroll-btn.left {
@@ -8119,14 +8192,14 @@
         const btnClose = _mkIconBtn(SVG_CLOSE, 'Close');
 
         const SVG_PIN = `<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="8" cy="5.5" r="3"/>
-            <line x1="8" y1="8.5" x2="8" y2="13"/>
-            <line x1="5.5" y1="13" x2="10.5" y2="13"/>
+            <rect x="5" y="1.8" width="6" height="5.6" rx="1"/>
+            <line x1="8" y1="7.4" x2="8" y2="10.8"/>
+            <path d="M5.7 10.8h4.6l-2.3 3.4z"/>
         </svg>`;
         const SVG_PIN_FILLED = `<svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="8" cy="5.5" r="3"/>
-            <line x1="8" y1="8.5" x2="8" y2="13" stroke-width="1.8" fill="none"/>
-            <line x1="5.5" y1="13" x2="10.5" y2="13" stroke-width="1.8" fill="none"/>
+            <rect x="5" y="1.8" width="6" height="5.6" rx="1"/>
+            <path d="M8 7.4v3.4" stroke-width="1.8" fill="none"/>
+            <path d="M5.7 10.8h4.6l-2.3 3.4z"/>
         </svg>`;
 
         const btnPin = document.createElement('button');
@@ -9823,6 +9896,28 @@
             else _peekOut();
         });
 
+        panel.addEventListener('tm-hist-reset-pos', () => {
+            const defX = Math.max(8, Math.min(Math.round(window.innerWidth * 0.55 - 195), window.innerWidth - 398));
+            const defY = 60, defW = 390, defH = 540;
+            panel.style.transition = 'none';
+            panel.style.width  = defW + 'px';
+            panel.style.height = defH + 'px';
+            if (_dockSideGlobal) {
+                _dockSnapshotGlobal = { left: defX, top: defY, width: defW, height: defH };
+                if (_dockPeekedGlobal) panel.style.top = defY + 'px';
+                if (_dockTabElGlobal) {
+                    const { h, top } = _dockTabGeometry();
+                    _dockTabElGlobal.style.height = h   + 'px';
+                    _dockTabElGlobal.style.top    = top + 'px';
+                }
+            } else {
+                panel.style.left = defX + 'px';
+                panel.style.top  = defY + 'px';
+            }
+            panel.offsetWidth;
+            panel.style.transition = '';
+        });
+
         const _panelAC = new AbortController();
         const _acSignal = { signal: _panelAC.signal };
         panel._tmCleanup = () => { _panelAC.abort(); };
@@ -9872,7 +9967,24 @@
 
         function _savePos() {
             const r = panel.getBoundingClientRect();
-            GM_setValue(KEY_HISTORY_PANEL_POS, JSON.stringify({ x: r.left, y: r.top, w: r.width, h: r.height }));
+            const inDockedPeek = _dockSideGlobal && _dockPeekedGlobal;
+            const remember = GM_getValue(KEY_DOCK_REMEMBER_POS, false);
+            let pos = { x: r.left, y: r.top, w: r.width, h: r.height };
+            if (inDockedPeek && !remember) {
+                try {
+                    const old = JSON.parse(GM_getValue(KEY_HISTORY_PANEL_POS, 'null'));
+                    if (old) { pos.x = old.x; pos.y = old.y; }
+                } catch (_) {}
+            }
+            GM_setValue(KEY_HISTORY_PANEL_POS, JSON.stringify(pos));
+            if (inDockedPeek) {
+                if (remember) {
+                    _dockSnapshotGlobal = { left: r.left, top: r.top, width: r.width, height: r.height };
+                } else if (_dockSnapshotGlobal) {
+                    _dockSnapshotGlobal.width  = r.width;
+                    _dockSnapshotGlobal.height = r.height;
+                }
+            }
         }
 
         panel.addEventListener('click', e => e.stopPropagation());
