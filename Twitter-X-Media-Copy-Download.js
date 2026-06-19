@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.4.4
+// @version      2.9.5.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -412,6 +412,15 @@
             sp_dock_dots:           'Dots',
             sp_grp_modal_title:     'Manage Groups',
             sp_grp_modal_new:       '＋ New',
+            sp_grp_fan_mask:           'Fan Backdrop',
+            sp_grp_fan_mask_color:     'Backdrop Color',
+            sp_grp_fan_mask_alpha:     'Backdrop Opacity',
+            sp_grp_fan_mask_span:      'Backdrop Spread',
+            sp_grp_fan_mask_radius:    'Backdrop Size',
+            sp_dock_remember_pos:      'Remember Edge Position',
+            sp_dock_remember_pos_desc: 'Remembers panel Y position after dragging while peeked',
+            sp_dock_reset_pos:         'Reset Panel Position',
+            sp_dock_reset_pos_desc:    'Restore panel to default coordinates (dock side kept)',
         },
         'zh-TW': {
             langName: '繁體中文',
@@ -563,6 +572,15 @@
             sp_dock_dots:           '點點',
             sp_grp_modal_title:     '管理群組',
             sp_grp_modal_new:       '＋ 新增',
+            sp_grp_fan_mask:           '扇形背景遮罩',
+            sp_grp_fan_mask_color:     '遮罩顏色',
+            sp_grp_fan_mask_alpha:     '遮罩透明度',
+            sp_grp_fan_mask_span:      '遮罩張角',
+            sp_grp_fan_mask_radius:    '遮罩半徑',
+            sp_dock_remember_pos:      '記住邊緣位置',
+            sp_dock_remember_pos_desc: '拖曳彈出面板後記住其 Y 軸位置',
+            sp_dock_reset_pos:         '重置面板位置',
+            sp_dock_reset_pos_desc:    '還原面板至預設座標（停靠側不變）',
         },
         'zh-CN': {
             langName: '简体中文',
@@ -714,6 +732,15 @@
             sp_dock_dots:           '点点',
             sp_grp_modal_title:     '管理分组',
             sp_grp_modal_new:       '＋ 新建',
+            sp_grp_fan_mask:           '扇形背景遮罩',
+            sp_grp_fan_mask_color:     '遮罩颜色',
+            sp_grp_fan_mask_alpha:     '遮罩透明度',
+            sp_grp_fan_mask_span:      '遮罩张角',
+            sp_grp_fan_mask_radius:    '遮罩半径',
+            sp_dock_remember_pos:      '记住边缘位置',
+            sp_dock_remember_pos_desc: '拖动弹出面板后记住其 Y 轴位置',
+            sp_dock_reset_pos:         '重置面板位置',
+            sp_dock_reset_pos_desc:    '还原面板至默认坐标（停靠侧不变）',
         },
         'ja': {
             langName: '日本語',
@@ -865,6 +892,15 @@
             sp_dock_dots:           'ドット',
             sp_grp_modal_title:     'グループ管理',
             sp_grp_modal_new:       '＋ 新規',
+            sp_grp_fan_mask:           '扇形背景マスク',
+            sp_grp_fan_mask_color:     'マスクの色',
+            sp_grp_fan_mask_alpha:     'マスクの不透明度',
+            sp_grp_fan_mask_span:      'マスクの広がり角度',
+            sp_grp_fan_mask_radius:    'マスクのサイズ',
+            sp_dock_remember_pos:      '端の位置を記憶',
+            sp_dock_remember_pos_desc: 'ドラッグ後のパネルのY座標を記憶します',
+            sp_dock_reset_pos:         'パネル位置をリセット',
+            sp_dock_reset_pos_desc:    'パネルを初期座標に戻します（ドック側は維持）',
         },
         'ko': {
             langName: '한국어',
@@ -1016,6 +1052,15 @@
             sp_dock_dots:           '점',
             sp_grp_modal_title:     '그룹 관리',
             sp_grp_modal_new:       '＋ 새로만들기',
+            sp_grp_fan_mask:           '부채꼴 배경 마스크',
+            sp_grp_fan_mask_color:     '마스크 색상',
+            sp_grp_fan_mask_alpha:     '마스크 불투명도',
+            sp_grp_fan_mask_span:      '마스크 확산 각도',
+            sp_grp_fan_mask_radius:    '마스크 크기',
+            sp_dock_remember_pos:      '가장자리 위치 기억',
+            sp_dock_remember_pos_desc: '끌어서 이동한 패널의 Y 위치를 기억합니다',
+            sp_dock_reset_pos:         '패널 위치 재설정',
+            sp_dock_reset_pos_desc:    '패널을 기본 좌표로 복원합니다 (도크 방향은 유지)',
         },
         'es': {
             langName: 'Español',
@@ -1167,6 +1212,15 @@
             sp_dock_dots:           'Puntos',
             sp_grp_modal_title:     'Gestionar grupos',
             sp_grp_modal_new:       '＋ Nuevo',
+            sp_grp_fan_mask:           'Fondo en abanico',
+            sp_grp_fan_mask_color:     'Color de fondo',
+            sp_grp_fan_mask_alpha:     'Opacidad de fondo',
+            sp_grp_fan_mask_span:      'Amplitud de fondo',
+            sp_grp_fan_mask_radius:    'Tamaño de fondo',
+            sp_dock_remember_pos:      'Recordar posición en el borde',
+            sp_dock_remember_pos_desc: 'Recuerda la posición Y del panel tras arrastrarlo',
+            sp_dock_reset_pos:         'Restablecer posición del panel',
+            sp_dock_reset_pos_desc:    'Restaura el panel a las coordenadas predeterminadas (mantiene el lado de anclaje)',
         },
         'pt-BR': {
             langName: 'Português (BR)',
@@ -1318,6 +1372,15 @@
             sp_dock_dots:           'Pontos',
             sp_grp_modal_title:     'Gerenciar grupos',
             sp_grp_modal_new:       '＋ Novo',
+            sp_grp_fan_mask:           'Fundo em leque',
+            sp_grp_fan_mask_color:     'Cor do fundo',
+            sp_grp_fan_mask_alpha:     'Opacidade do fundo',
+            sp_grp_fan_mask_span:      'Amplitude do fundo',
+            sp_grp_fan_mask_radius:    'Tamanho do fundo',
+            sp_dock_remember_pos:      'Lembrar posição na borda',
+            sp_dock_remember_pos_desc: 'Lembra a posição Y do painel após arrastá-lo',
+            sp_dock_reset_pos:         'Redefinir posição do painel',
+            sp_dock_reset_pos_desc:    'Restaura o painel para as coordenadas padrão (lado de ancoragem mantido)',
         },
         'fr': {
             langName: 'Français',
@@ -1469,6 +1532,15 @@
             sp_dock_dots:           'Points',
             sp_grp_modal_title:     'Gérer les groupes',
             sp_grp_modal_new:       '＋ Nouveau',
+            sp_grp_fan_mask:           'Fond en éventail',
+            sp_grp_fan_mask_color:     'Couleur du fond',
+            sp_grp_fan_mask_alpha:     'Opacité du fond',
+            sp_grp_fan_mask_span:      'Étendue du fond',
+            sp_grp_fan_mask_radius:    'Taille du fond',
+            sp_dock_remember_pos:      'Mémoriser la position au bord',
+            sp_dock_remember_pos_desc: 'Mémorise la position Y du panneau après un glisser-déposer',
+            sp_dock_reset_pos:         'Réinitialiser la position du panneau',
+            sp_dock_reset_pos_desc:    "Restaure le panneau aux coordonnées par défaut (côté d'ancrage conservé)",
         },
         'ru': {
             langName: 'Русский',
@@ -1620,6 +1692,15 @@
             sp_dock_dots:           'Точки',
             sp_grp_modal_title:     'Управление группами',
             sp_grp_modal_new:       '＋ Создать',
+            sp_grp_fan_mask:           'Веерный фон',
+            sp_grp_fan_mask_color:     'Цвет фона',
+            sp_grp_fan_mask_alpha:     'Непрозрачность фона',
+            sp_grp_fan_mask_span:      'Раствор фона',
+            sp_grp_fan_mask_radius:    'Размер фона',
+            sp_dock_remember_pos:      'Запоминать позицию у края',
+            sp_dock_remember_pos_desc: 'Запоминает Y-позицию панели после перетаскивания',
+            sp_dock_reset_pos:         'Сбросить позицию панели',
+            sp_dock_reset_pos_desc:    'Восстанавливает панель в исходные координаты (сторона стыковки сохраняется)',
         }
     };
 
@@ -2921,11 +3002,14 @@
             * { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
             [style*="backdrop-filter"], [style*="filter: blur"], *[style*="blur("] { filter: none !important; }
             html, body { scroll-behavior: auto !important; }
-            
-            article[role="article"], [data-testid="cellInnerDiv"], [data-testid="sidebarColumn"] {
+
+            [data-testid="cellInnerDiv"], [data-testid="sidebarColumn"] {
                 content-visibility: auto !important;
                 contain: layout paint style !important;
                 contain-intrinsic-size: 800px !important;
+            }
+            article[role="article"] {
+                contain: layout paint !important;
             }
             
             [class*="shadow"], [style*="box-shadow"] { box-shadow: none !important; }
