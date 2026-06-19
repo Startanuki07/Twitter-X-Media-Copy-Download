@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.4.0
+// @version      2.9.4.4
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -61,6 +61,7 @@
     let _syncCh = null;
     let _startScanInterval = null;
     let _tfRegistry = null;
+    let _pendingIsText = false;
 
     function _readMonthRecords(ym) {
         try { return JSON.parse(GM_getValue(KEY_HISTORY_PREFIX + ym.replace('.', '_'), '[]')); }
@@ -2593,8 +2594,8 @@
         const pip = document.createElement('button');
         pip.id        = 'tm-star-pip';
         pip.className = 'tm-star-pip';
-        pip.title     = 'Group this download';
-        pip.textContent = '⭐';
+        pip.title     = 'Click: New Group · Hover: pick group';
+        _renderStarPipIcon(pip);
 
         pip.addEventListener('mouseenter', () => {
             clearTimeout(_starAutoHideTimer);
@@ -2612,7 +2613,8 @@
             if (_pendingIsText) {
                 if (_textMenuOpen) closeTextGroupMenu(); else openTextGroupMenu();
             } else {
-                if (_fanOpen) closeGroupFan(); else openGroupFan();
+                if (_fanOpen) closeGroupFan();
+                _runStarEscapeAnim(() => showGroupCreateModal());
             }
         });
         document.body.appendChild(pip);
@@ -3749,6 +3751,22 @@
             .tm-star-pip.tm-escaping,
             .tm-star-pip.tm-escaping:hover { transform: scale(0.7) translate(-6px, 2px) !important; pointer-events: none !important; }
             
+            .tm-star-pip-badge {
+                position: absolute; top: -4px; right: -4px;
+                width: 9px; height: 9px; border-radius: 50%;
+                background: #ffd400; color: #1a1a1a;
+                font-size: 8px; line-height: 9px; font-weight: 700;
+                text-align: center;
+                box-shadow: 0 0 0 1.5px rgba(0,0,0,.55);
+                pointer-events: none;
+                transform-origin: center center;
+                animation: tm-star-badge-retract .4s ease-in 1s forwards;
+            }
+            @keyframes tm-star-badge-retract {
+                0%   { opacity: 1; transform: scale(1)    translate(0, 0); }
+                100% { opacity: 0; transform: scale(0.15) translate(-9px, 9px); }
+            }
+            
             .tm-fan-node {
                 position: fixed;
                 width: 36px; height: 36px;
@@ -3781,6 +3799,14 @@
                 text-shadow: 0 1px 4px rgba(0,0,0,.9);
             }
             .tm-fan-node.tm-spawned .tm-fan-label { opacity: 1; }  
+            
+            #tm-fan-mask {
+                position: fixed; pointer-events: none;
+                z-index: 99992;
+                transition: opacity .22s ease;
+                transform-origin: center center;
+            }
+            #tm-fan-mask.tm-fan-mask-hidden { opacity: 0 !important; }
             
             .tm-ripple-ring {
                 position: fixed; border-radius: 50%; pointer-events: none;
@@ -5081,6 +5107,109 @@
             })();
             grpGroups.append(labelColorRow);
 
+            const _maskCfg        = _grpCfgRaw;
+            const _maskEnabled    = _maskCfg.fanMaskEnabled !== false;
+            const _maskColorHex   = _maskCfg.fanMaskColor   || '#000000';
+            const _maskAlpha      = Number(_maskCfg.fanMaskAlpha   ?? 0.45);
+            const _maskSpanDeg    = Number(_maskCfg.fanMaskSpanDeg ?? 160);
+            const _maskRadius     = Number(_maskCfg.fanMaskRadius  ?? 180);
+
+            const _saveMaskCfg = (patch) => {
+                const cfg = (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })();
+                Object.assign(cfg, patch);
+                GM_setValue(KEY_GROUP_PANEL_CFG, JSON.stringify(cfg));
+            };
+
+            const fanMaskRow = makeRow(
+                T.sp_grp_fan_mask || 'Fan Backdrop',
+                () => GM_getValue(KEY_GROUP_PANEL_CFG, '{}').includes('"fanMaskEnabled":false')
+                    ? (T.status_off || 'Off') : (T.status_on || 'On'),
+                () => {
+                    const cfg = (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })();
+                    const next = cfg.fanMaskEnabled === false ? true : false;
+                    _saveMaskCfg({ fanMaskEnabled: next });
+                    showToast((T.sp_grp_fan_mask || 'Fan Backdrop') + ' → ' + (next ? (T.status_on || 'On') : (T.status_off || 'Off')));
+                }
+            );
+            grpGroups.append(fanMaskRow);
+
+            const fanMaskColorRow = (() => {
+                const wrap = document.createElement('div');
+                wrap.style.cssText = 'padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.06)';
+                wrap.addEventListener('click', e => e.stopPropagation());
+
+                const topRow = document.createElement('div');
+                topRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:7px';
+                const lbl = document.createElement('span');
+                lbl.style.cssText = 'font-size:12px;color:rgba(255,255,255,.7)';
+                lbl.textContent = T.sp_grp_fan_mask_color || 'Backdrop Color';
+                topRow.appendChild(lbl);
+
+                const colorRow = document.createElement('div');
+                colorRow.style.cssText = 'display:flex;align-items:center;gap:5px;flex-wrap:wrap';
+
+                const maskPresets = ['#000000','#0f172a','#1e2732','#1d9bf0','#7c3aed','#dc2626','#ffffff'];
+                const curMaskHex = _maskColorHex;
+
+                const maskColorInput = document.createElement('input');
+                maskColorInput.type  = 'color';
+                maskColorInput.value = curMaskHex;
+                maskColorInput.style.cssText = 'width:24px;height:24px;border:none;border-radius:50%;padding:0;cursor:pointer;background:transparent;flex-shrink:0;outline:none';
+                maskColorInput.title = 'Custom backdrop color';
+
+                const saveMaskColor = (hex) => _saveMaskCfg({ fanMaskColor: hex });
+                maskColorInput.addEventListener('input',  () => saveMaskColor(maskColorInput.value));
+                maskColorInput.addEventListener('change', () => saveMaskColor(maskColorInput.value));
+
+                maskPresets.forEach(hex => {
+                    const sw = document.createElement('button');
+                    sw.type  = 'button';
+                    sw.style.cssText = `
+                        width:18px;height:18px;border-radius:50%;
+                        border:2px solid ${hex === curMaskHex ? 'rgba(255,255,255,.8)' : 'transparent'};
+                        background:${hex};cursor:pointer;flex-shrink:0;padding:0;
+                        transition:border-color .1s,transform .1s;
+                        box-shadow: inset 0 0 0 1px rgba(255,255,255,.15);
+                    `;
+                    sw.addEventListener('mouseover', () => sw.style.transform = 'scale(1.2)');
+                    sw.addEventListener('mouseout',  () => sw.style.transform = '');
+                    sw.addEventListener('click', () => {
+                        maskColorInput.value = hex;
+                        saveMaskColor(hex);
+                        colorRow.querySelectorAll('button[data-swatch]').forEach(s => s.style.borderColor = 'transparent');
+                        sw.style.borderColor = 'rgba(255,255,255,.8)';
+                    });
+                    sw.dataset.swatch = hex;
+                    colorRow.appendChild(sw);
+                });
+                colorRow.appendChild(maskColorInput);
+                wrap.appendChild(topRow);
+                wrap.appendChild(colorRow);
+                return wrap;
+            })();
+            grpGroups.append(fanMaskColorRow);
+
+            grpGroups.append(makeSliderRow(
+                T.sp_grp_fan_mask_alpha || 'Backdrop Opacity', Math.round(_maskAlpha * 100), 5, 100, 5, '%',
+                null,
+                (n) => { _saveMaskCfg({ fanMaskAlpha: n / 100 }); },
+                null
+            ));
+
+            grpGroups.append(makeSliderRow(
+                T.sp_grp_fan_mask_span || 'Backdrop Spread', _maskSpanDeg, 20, 340, 10, '°',
+                null,
+                (n) => { _saveMaskCfg({ fanMaskSpanDeg: n }); },
+                null
+            ));
+
+            grpGroups.append(makeSliderRow(
+                T.sp_grp_fan_mask_radius || 'Backdrop Size', _maskRadius, 60, 360, 10, 'px',
+                null,
+                (n) => { _saveMaskCfg({ fanMaskRadius: n }); },
+                null
+            ));
+
             const grpBtnRow = document.createElement('div');
             grpBtnRow.style.cssText = 'padding:6px 12px 10px';
             grpBtnRow.addEventListener('click', e => e.stopPropagation());
@@ -5106,7 +5235,7 @@
             grpBtnRow.appendChild(manageBtn);
             grpGroups.append(grpBtnRow);
 
-            const _groupChildren = [glowColorRow, labelColorRow, grpBtnRow];
+            const _groupChildren = [glowColorRow, labelColorRow, fanMaskRow, fanMaskColorRow, grpBtnRow];
             const _getGroupSliders = () => Array.from(grpGroups.body.querySelectorAll('.tm-sp-slider-row'));
             const _syncGroupChildrenDisabled = () => {
                 const isOn = GM_getValue(KEY_GROUP_ON_DOWNLOAD, false);
@@ -6057,8 +6186,6 @@
 
     let _pendingGroupRecordId = null;
     let _pendingStarPipEl     = null;
-    
-    let _pendingIsText        = false;
 
     window.addEventListener('scroll', () => { if (!_fanOpen) hideStarPip(); if (_textMenuOpen) closeTextGroupMenu(); }, { passive: true, capture: true });
     document.addEventListener('visibilitychange', () => { if (document.hidden) { if (_fanOpen) closeGroupFan(); if (_textMenuOpen) closeTextGroupMenu(); hideStarPip(); } });
@@ -6165,12 +6292,18 @@
     let _fanOpen           = false;
     let _selectedIconId    = null;
 
+    function _renderStarPipIcon(pip) {
+        pip.innerHTML = _pendingIsText
+            ? '<span class="tm-star-pip-glyph">📁</span>'
+            : '<span class="tm-star-pip-glyph">⭐</span><span class="tm-star-pip-badge">+</span>';
+    }
+
     function popStarPip(mediaBtnEl) {
         const pip = document.getElementById('tm-star-pip');
         if (!pip) return;
 
-        pip.textContent = _pendingIsText ? '📁' : '⭐';
-        pip.title       = _pendingIsText ? 'Group this text bookmark' : 'Group this download';
+        _renderStarPipIcon(pip);
+        pip.title = _pendingIsText ? 'Group this text bookmark' : 'Click: New Group · Hover: pick group';
 
         if (mediaBtnEl) {
             _pendingStarPipEl = pip;
@@ -6193,8 +6326,8 @@
         pip.classList.remove('tm-popped');
         clearTimeout(_starAutoHideTimer);
         _pendingStarPipEl = null;
-        pip.textContent = '⭐';
-        pip.title       = 'Group this download';
+        pip.innerHTML = '<span class="tm-star-pip-glyph">⭐</span><span class="tm-star-pip-badge">+</span>';
+        pip.title = 'Click: New Group · Hover: pick group';
     }
 
     function onStarPipClick() {
@@ -6284,7 +6417,6 @@
             document.body.appendChild(el);
             _fanNodes.push(el);
         });
-
     }
 
     function _countGroupRecords(groupId) {
@@ -6333,6 +6465,56 @@
         }, 600);
     }
 
+    function _showFanMask(cx, cy) {
+        document.getElementById('tm-fan-mask')?.remove();
+
+        const _cfg = (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })();
+        const _maskEnabled  = _cfg.fanMaskEnabled !== false;
+        if (!_maskEnabled) return;
+
+        const _maskColor    = _cfg.fanMaskColor   || '#000000';
+        const _maskAlpha    = Number(_cfg.fanMaskAlpha   ?? 0.45);
+        const _spanDeg      = Number(_cfg.fanMaskSpanDeg ?? 160);
+        const _radius       = Number(_cfg.fanMaskRadius  ?? 180);
+
+        const _isSafeColor = v => typeof v === 'string' && /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(v.trim());
+        const safeColor  = _isSafeColor(_maskColor) ? _maskColor : '#000000';
+        const safeAlpha  = Math.max(0, Math.min(1, _maskAlpha));
+        const safeSpan   = Math.max(10, Math.min(360, _spanDeg));
+        const safeRadius = Math.max(40, Math.min(400, _radius));
+
+        const halfSpan = safeSpan / 2;
+        const startRad = (-halfSpan) * Math.PI / 180;
+        const endRad   =   halfSpan  * Math.PI / 180;
+        const x1 = cx + safeRadius * Math.cos(startRad);
+        const y1 = cy + safeRadius * Math.sin(startRad);
+        const x2 = cx + safeRadius * Math.cos(endRad);
+        const y2 = cy + safeRadius * Math.sin(endRad);
+        const largeArc = safeSpan >= 180 ? 1 : 0;
+
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(svgNS, 'svg');
+        svg.id = 'tm-fan-mask';
+        svg.setAttribute('width',  String(window.innerWidth));
+        svg.setAttribute('height', String(window.innerHeight));
+        svg.style.cssText = `position:fixed;top:0;left:0;pointer-events:none;z-index:99992;opacity:0;transition:opacity .22s ease;`;
+
+        const path = document.createElementNS(svgNS, 'path');
+        path.setAttribute('d', `M ${cx} ${cy} L ${x1} ${y1} A ${safeRadius} ${safeRadius} 0 ${largeArc} 1 ${x2} ${y2} Z`);
+        path.setAttribute('fill', safeColor);
+        path.setAttribute('opacity', String(safeAlpha));
+
+        svg.appendChild(path);
+        document.body.appendChild(svg);
+
+        requestAnimationFrame(() => { svg.style.opacity = '1'; });
+    }
+
+    function _hideFanMask() {
+        const mask = document.getElementById('tm-fan-mask');
+        if (mask) mask.classList.add('tm-fan-mask-hidden');
+    }
+
     function openGroupFan() {
         if (_pendingIsText) { openTextGroupMenu(); return; }
         const _activeGroups = getGroups();
@@ -6345,9 +6527,12 @@
         _buildFanDom();
         const { cx, cy } = _getStarPipPos();
         const groups = _activeGroups;
-        const positions = _fanPositions(groups.length, cx, cy);
+        const groupNodeCount = _fanNodes.length;
+        const positions = _fanPositions(groupNodeCount, cx, cy);
         const pip = document.getElementById('tm-star-pip');
         if (pip) pip.classList.add('tm-lit');
+
+        _showFanMask(cx, cy);
 
         _spawnRipple(cx, cy);
         setTimeout(() => _spawnRipple(cx, cy), 110);
@@ -6372,6 +6557,7 @@
         const { cx, cy } = _getStarPipPos();
         const pip = document.getElementById('tm-star-pip');
         if (pip) pip.classList.remove('tm-lit');
+        _hideFanMask();
         _fanNodes.forEach(node => {
             node.classList.remove('tm-spawned');
             node.style.transition = 'opacity .15s ease, left .22s cubic-bezier(.6,0,.2,1), top .22s cubic-bezier(.6,0,.2,1)';
@@ -6382,6 +6568,7 @@
         setTimeout(() => {
             _fanNodes.forEach(n => n.remove());
             _fanNodes = [];
+            document.getElementById('tm-fan-mask')?.remove();
         }, 300);
     }
 
