@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.5.0
+// @version      2.9.5.1
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -11868,7 +11868,7 @@
         let keyHandler = () => {};
         let _lbDragACRef = null;
         let _lbBranchBDragAC = null;
-        let _lbScrollY = 0;
+        const _LB_SCROLL_KEYS = new Set([' ', 'PageUp', 'PageDown', 'Home', 'End', 'ArrowUp', 'ArrowDown']);
 
         function closeLightbox() {
             modal.classList.remove('tm-lb-in');
@@ -11876,11 +11876,6 @@
             document.removeEventListener('keydown', keyHandler);
             if (_lbDragACRef) { _lbDragACRef.abort(); _lbDragACRef = null; }
             if (_lbBranchBDragAC) { _lbBranchBDragAC.abort(); _lbBranchBDragAC = null; }
-            document.body.style.overflow = '';
-            document.body.style.paddingRight = '';
-            requestAnimationFrame(() => requestAnimationFrame(() => {
-                window.scrollTo(0, _lbScrollY);
-            }));
             _dialogOpenGlobal = false;
         }
 
@@ -12052,6 +12047,7 @@
             }
 
             keyHandler = e => {
+                if (_LB_SCROLL_KEYS.has(e.key)) e.preventDefault();
                 if (e.key === 'Escape') { closeLightbox(); return; }
                 else if (e.key === '+' || e.key === '=') { _lbScale = Math.min(8, _lbScale * 1.15); _lbApplyTransform(); }
                 else if (e.key === '-')                  { _lbScale = Math.max(0.2, _lbScale * 0.87); if (_lbScale <= 1.02) _lbResetTransform(); else _lbApplyTransform(); }
@@ -12130,10 +12126,6 @@
             document.body.appendChild(pillA);
 
             document.body.appendChild(modal);
-            _lbScrollY = window.scrollY;
-            const _lbScrollbarW = window.innerWidth - document.documentElement.clientWidth;
-            document.body.style.overflow = 'hidden';
-            if (_lbScrollbarW > 0) document.body.style.paddingRight = _lbScrollbarW + 'px';
 
             requestAnimationFrame(() => requestAnimationFrame(() => {
                 modal.classList.add('tm-lb-in');
@@ -12301,6 +12293,7 @@
         }, { signal: _bDragAC.signal });
 
         keyHandler = e => {
+            if (_LB_SCROLL_KEYS.has(e.key)) e.preventDefault();
             if (e.key === 'Escape') { closeLightbox(); return; }
             else if (e.key === '+' || e.key === '=') { _bZoom = Math.min(8, _bZoom * 1.15); _bApply(); return; }
             else if (e.key === '-')                  { _bZoom = Math.max(0.2, _bZoom * 0.87); if (_bZoom <= 1.02) _bReset(); else _bApply(); return; }
@@ -12434,10 +12427,6 @@
         modal.appendChild(gpB);
         document.body.appendChild(pillB);
         document.body.appendChild(modal);
-        _lbScrollY = window.scrollY;
-        const _lbScrollbarW = window.innerWidth - document.documentElement.clientWidth;
-        document.body.style.overflow = 'hidden';
-        if (_lbScrollbarW > 0) document.body.style.paddingRight = _lbScrollbarW + 'px';
 
         requestAnimationFrame(() => requestAnimationFrame(() => {
             modal.classList.add('tm-lb-in');
