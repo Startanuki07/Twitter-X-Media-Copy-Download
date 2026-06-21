@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.5.1
+// @version      2.9.5.2
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -314,7 +314,6 @@
                 • Hover the top-right corner → 📋 history / ⚙️ gear button appears.<br>
                 • Configure: click domain, long-press domain, Discord prefix, date format, language, feedback style.</p>
                 <hr>
-                <hr>
                 <p><b>⭐ Groups &amp; ⊞ Gallery:</b><br>
                 • <b>Groups:</b> In ⚙️ Settings → <b>⭐ Groups</b>, enable <b>Group on Download</b>. After each right-click download, a ⭐ button briefly appears at the screen edge — hover or click to assign the media to a group via a fan-style picker.<br>
                 • <b>Gallery:</b> Inside the floating video player or image lightbox, click the <b>⊞ grid button</b> to open a side panel and browse all media found on the current page.</p>
@@ -476,7 +475,6 @@
                 <p><b>⚙️ 設定面板：</b><br>
                 • 將滑鼠移至右上角，顯示齒輪 ⚙️ 與履歷 🕐 按鈕。<br>
                 • 點擊 ⚙️ 可設定：單擊域名、長按域名、Discord 前綴、提示風格、日期格式、語言。</p>
-                <hr>
                 <hr>
                 <p><b>⭐ 媒體分組 &amp; ⊞ 頁面相簿：</b><br>
                 • <b>分組：</b>在 ⚙️ 設定 → <b>⭐ Groups</b> 中開啟 <b>Group on Download</b>。右鍵下載後，畫面邊角短暫出現 ⭐ 按鈕，hover 或點擊可用扇形選單將媒體歸入群組。<br>
@@ -12701,35 +12699,6 @@
 
     const _fiberVideoCache = new WeakMap();
     const _FIBER_CACHE_TTL = 60_000;
-
-    function _collectCandidateIds(article) {
-        const ids = new Set();
-
-        article.querySelectorAll('a[href*="/status/"]').forEach(a => {
-            const m = a.getAttribute('href')?.match(/\/status\/(\d+)/);
-            if (m) ids.add(m[1]);
-        });
-
-        article.querySelectorAll('video[poster]').forEach(v => {
-            const m = v.getAttribute('poster')?.match(/(?:amplify_video_thumb|ext_tw_video_thumb|tweet_video_thumb)\/(\d+)/);
-            if (m) ids.add(m[1]);
-        });
-
-        article.querySelectorAll('img[src*="video_thumb"]').forEach(img => {
-            const m = img.getAttribute('src')?.match(/(?:amplify_video_thumb|ext_tw_video_thumb|tweet_video_thumb)\/(\d+)/);
-            if (m) ids.add(m[1]);
-        });
-
-        return ids;
-    }
-
-    function _lookupApiCache(ids) {
-        for (const id of ids) {
-            const entry = _apiVideoCache.get(id);
-            if (entry && (Date.now() - entry.ts < _API_CACHE_TTL)) return entry.urls;
-        }
-        return null;
-    }
 
     async function fetchTweetMediaFromAPI(statusId) {
         const _cacheHit = _apiVideoCache.get(statusId);
