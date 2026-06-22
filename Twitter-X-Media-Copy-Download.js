@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.5.2
+// @version      2.9.5.3
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -3537,6 +3537,28 @@
                 accent-color: rgba(255,255,255,.2);
             }
             
+            .tm-sp-reset-btn {
+                display: inline-flex; align-items: center; justify-content: center;
+                width: 18px; height: 18px; border-radius: 50%;
+                border: none; background: transparent;
+                cursor: pointer; padding: 0; flex-shrink: 0;
+                color: ${C.sub};
+                opacity: 0; pointer-events: none;
+                transition: opacity 0.15s, color 0.15s, background 0.15s, transform 0.22s;
+            }
+            .tm-sp-reset-btn.is-modified {
+                opacity: 0.55; pointer-events: auto;
+            }
+            .tm-sp-reset-btn:hover {
+                opacity: 1 !important; color: #1d9bf0;
+                background: rgba(29,155,240,0.12);
+                transform: rotate(-40deg);
+            }
+            .tm-sp-reset-btn:active { transform: rotate(-160deg); }
+            .tm-sp-disabled-child .tm-sp-reset-btn {
+                pointer-events: none;
+            }
+            
             #tm-dock-spotlight {
                 position: fixed; inset: 0; z-index: 9999990;
                 pointer-events: all;
@@ -4254,6 +4276,18 @@
                 return row;
             };
 
+            const SVG_RESET = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`;
+
+            const _makeResetBtn = (onReset) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'tm-sp-reset-btn';
+                btn.title = 'Reset to default';
+                btn.innerHTML = SVG_RESET;
+                btn.addEventListener('click', (e) => { e.stopPropagation(); onReset(); });
+                return btn;
+            };
+
             const makeGroup = (label, defaultOpen = true, tooltip = null, onOpen = null) => {
                 const SVG_CHEVRON = `<svg viewBox="0 0 10 10" width="9" height="9" fill="currentColor"><path d="M1 3l4 4 4-4z"/></svg>`;
                 const SVG_HELP    = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"/><path d="M6 6.2C6 5.1 6.9 4.2 8 4.2s2 .9 2 2c0 1-1 1.5-2 2v.6"/><circle cx="8" cy="11.2" r=".6" fill="currentColor" stroke="none"/></svg>`;
@@ -4643,7 +4677,7 @@
                 return wrap;
             };
 
-            const makeSliderRow = (label, value, min, max, step, unit, onChange, onCommit, featureId = null) => {
+            const makeSliderRow = (label, value, min, max, step, unit, onChange, onCommit, featureId = null, defaultVal = undefined) => {
                 const wrap = document.createElement('div');
                 wrap.className = 'tm-sp-slider-row';
 
@@ -4667,7 +4701,25 @@
                 } else {
                     hdr.appendChild(lbl);
                 }
-                hdr.appendChild(valDisplay);
+
+                const rightGrp = document.createElement('div');
+                rightGrp.style.cssText = 'display:flex;align-items:center;gap:3px;flex-shrink:0;';
+                rightGrp.appendChild(valDisplay);
+
+                let _resetBtn = null;
+                if (defaultVal !== undefined) {
+                    _resetBtn = _makeResetBtn(() => {
+                        slider.value = String(defaultVal);
+                        valDisplay.textContent = defaultVal + ' ' + unit;
+                        if (onChange) onChange(defaultVal);
+                        if (onCommit) onCommit(defaultVal);
+                        if (featureId) markFeatureSeen(featureId);
+                        _resetBtn.classList.toggle('is-modified', false);
+                    });
+                    _resetBtn.classList.toggle('is-modified', value !== defaultVal);
+                    rightGrp.appendChild(_resetBtn);
+                }
+                hdr.appendChild(rightGrp);
 
                 const slider = document.createElement('input');
                 slider.type  = 'range';
@@ -4681,6 +4733,7 @@
                     const n = parseInt(slider.value, 10);
                     valDisplay.textContent = n + ' ' + unit;
                     if (onChange) onChange(n);
+                    if (_resetBtn) _resetBtn.classList.toggle('is-modified', n !== defaultVal);
                 });
                 slider.addEventListener('change', () => {
                     const n = parseInt(slider.value, 10);
@@ -5125,7 +5178,7 @@
                     cfg.glowSize = n;
                     GM_setValue(KEY_GROUP_PANEL_CFG, JSON.stringify(cfg));
                 },
-                'sp_group_glow_size'
+                'sp_group_glow_size', 12
             ));
 
             const labelColorRow = (() => {
@@ -5275,21 +5328,21 @@
                 T.sp_grp_fan_mask_alpha || 'Backdrop Opacity', Math.round(_maskAlpha * 100), 5, 100, 5, '%',
                 null,
                 (n) => { _saveMaskCfg({ fanMaskAlpha: n / 100 }); },
-                null
+                null, 45
             ));
 
             grpGroups.append(makeSliderRow(
                 T.sp_grp_fan_mask_span || 'Backdrop Spread', _maskSpanDeg, 20, 340, 10, '°',
                 null,
                 (n) => { _saveMaskCfg({ fanMaskSpanDeg: n }); },
-                null
+                null, 160
             ));
 
             grpGroups.append(makeSliderRow(
                 T.sp_grp_fan_mask_radius || 'Backdrop Size', _maskRadius, 60, 360, 10, 'px',
                 null,
                 (n) => { _saveMaskCfg({ fanMaskRadius: n }); },
-                null
+                null, 180
             ));
 
             const grpBtnRow = document.createElement('div');
@@ -5659,7 +5712,7 @@
                 T.sp_grp_hover_delay || 'Hover Delay', dockHoverDelay, 100, 3000, 50, 'ms',
                 null,
                 (n) => { GM_setValue(KEY_DOCK_HOVER_DELAY, String(n)); showToast('⏱ ' + (T.sp_grp_hover_delay || 'Hover Delay') + ' → ' + n + ' ms'); },
-                'sp_slider_controls'
+                'sp_slider_controls', 500
             ));
 
             grpHist.append(makeSliderRow(
@@ -5669,7 +5722,7 @@
                     if (hotzone) hotzone.style.width = n + 'px';
                 },
                 (n) => { GM_setValue(KEY_DOCK_TRIGGER_L, String(n)); },
-                'sp_slider_controls'
+                'sp_slider_controls', 80
             ));
 
             grpHist.append(makeSliderRow(
@@ -5679,7 +5732,7 @@
                     if (hotzone) hotzone.style.width = n + 'px';
                 },
                 (n) => { GM_setValue(KEY_DOCK_TRIGGER_R, String(n)); },
-                'sp_slider_controls'
+                'sp_slider_controls', 80
             ));
 
             {
@@ -6015,7 +6068,7 @@
                     GM_setValue(KEY_SCAN_INTERVAL, String(n));
                     if (_startScanInterval) _startScanInterval();
                 },
-                null
+                null, 1500
             ));
 
             if (_tfRegistry) {
