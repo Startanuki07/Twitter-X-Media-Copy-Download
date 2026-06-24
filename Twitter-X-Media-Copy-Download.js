@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.5.3
+// @version      2.9.6.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -294,12 +294,17 @@
             status_date_western: 'Western (DD.MM.YYYY)',
             help_title: 'Twitter Media Copy Button - Manual',
             help_content: `
-                <p><b>🖱️ Media Button (🎞️):</b><br>
+                <p><b>🖱️ Media Button (🎞️) — Classic Mode (default):</b><br>
                 • <b>Left Click:</b> Copy media links (images / video URLs).<br>
                 • <b>Long Press (0.5s):</b> Copy links with custom prefix (Markdown format, for Discord).<br>
                 • <b>Middle Click:</b> Preview — floating video player or image lightbox.<br>
                 • <b>Right Click:</b> Force download all media with structured filenames.<br>
-                  (Format: <code>[twitter] Name(@ID)_Date_Text_ID.ext</code>)</p>
+                  (Format: <code>[twitter] Name(@ID)_Date_Text_ID.ext</code>)<br>
+                • <i>Customize per-slot actions in ⚙️ Settings → 🖱 Click Mode → Customize.</i></p>
+                <hr>
+                <p><b>🖱️ Media Button (🎞️) — Menu Mode:</b><br>
+                • <b>Any Click:</b> Opens a popup action menu — Copy / Copy with Prefix / Preview / Download All.<br>
+                • Switch via ⚙️ Settings → <b>🖱 Click Mode</b>.</p>
                 <hr>
                 <p><b>🔗 Link Button (🔗):</b><br>
                 • <b>Click:</b> Copy tweet link (default: x.com, or custom click domain).<br>
@@ -312,7 +317,7 @@
                 <hr>
                 <p><b>⚙️ Settings Panel:</b><br>
                 • Hover the top-right corner → 📋 history / ⚙️ gear button appears.<br>
-                • Configure: click domain, long-press domain, Discord prefix, date format, language, feedback style.</p>
+                • Configure: click mode, click domain, long-press domain, Discord prefix, date format, language, feedback style.</p>
                 <hr>
                 <p><b>⭐ Groups &amp; ⊞ Gallery:</b><br>
                 • <b>Groups:</b> In ⚙️ Settings → <b>⭐ Groups</b>, enable <b>Group on Download</b>. After each right-click download, a ⭐ button briefly appears at the screen edge — hover or click to assign the media to a group via a fan-style picker.<br>
@@ -456,12 +461,17 @@
             status_date_western: '歐美慣用 (DD.MM.YYYY)',
             help_title: '推特媒體腳本 — 說明書',
             help_content: `
-                <p><b>🖱️ 媒體按鈕 (🎞️)：</b><br>
+                <p><b>🖱️ 媒體按鈕 (🎞️) — 經典模式（預設）：</b><br>
                 • <b>左鍵單擊：</b> 複製推文中所有圖片/影片連結。<br>
                 • <b>長按 (0.5秒)：</b> 複製含自定義前綴的連結，例如 <code>[text](url)</code>（方便 Discord 嵌入）。<br>
                 • <b>中鍵點擊：</b> 開啟浮動影片播放器或圖片燈箱。<br>
                 • <b>右鍵點擊：</b> 下載全部媒體，自動生成結構化檔名。<br>
-                  (格式：<code>[twitter] 暱稱(@ID)_日期_內文_ID.副檔名</code>)</p>
+                  (格式：<code>[twitter] 暱稱(@ID)_日期_內文_ID.副檔名</code>)<br>
+                • <i>可在 ⚙️ 設定 → 🖱 點擊模式 → 自訂，重新安排各按鍵功能。</i></p>
+                <hr>
+                <p><b>🖱️ 媒體按鈕 (🎞️) — 選單模式：</b><br>
+                • <b>任意點擊：</b> 彈出操作選單（複製 / 含前綴複製 / 預覽 / 下載全部）。<br>
+                • 在 ⚙️ 設定 → <b>🖱 點擊模式</b> 切換。</p>
                 <hr>
                 <p><b>🔗 連結按鈕 (🔗)：</b><br>
                 • <b>單擊：</b> 複製推文網址（x.com 或自定義單擊域名）。<br>
@@ -474,7 +484,7 @@
                 <hr>
                 <p><b>⚙️ 設定面板：</b><br>
                 • 將滑鼠移至右上角，顯示齒輪 ⚙️ 與履歷 🕐 按鈕。<br>
-                • 點擊 ⚙️ 可設定：單擊域名、長按域名、Discord 前綴、提示風格、日期格式、語言。</p>
+                • 點擊 ⚙️ 可設定：點擊模式、單擊域名、長按域名、Discord 前綴、提示風格、日期格式、語言。</p>
                 <hr>
                 <p><b>⭐ 媒體分組 &amp; ⊞ 頁面相簿：</b><br>
                 • <b>分組：</b>在 ⚙️ 設定 → <b>⭐ Groups</b> 中開啟 <b>Group on Download</b>。右鍵下載後，畫面邊角短暫出現 ⭐ 按鈕，hover 或點擊可用扇形選單將媒體歸入群組。<br>
@@ -615,12 +625,17 @@
             status_date_western: '欧美惯用 (DD.MM.YYYY)',
             help_title: '推特媒体脚本 — 说明书',
             help_content: `
-                <p><b>🖱️ 媒体按钮 (🎞️)：</b><br>
+                <p><b>🖱️ 媒体按钮 (🎞️) — 经典模式（默认）：</b><br>
                 • <b>左键单击：</b> 复制推文中所有图片/视频链接。<br>
                 • <b>长按 (0.5秒)：</b> 复制含自定义前缀的链接，例如 <code>[text](url)</code>（方便 Discord 嵌入）。<br>
                 • <b>中键单击：</b> 打开浮动视频播放器或图片灯箱。<br>
                 • <b>右键单击：</b> 下载全部媒体，自动生成结构化文件名。<br>
-                  (格式：<code>[twitter] 昵称(@ID)_日期_内文_ID.扩展名</code>)</p>
+                  (格式：<code>[twitter] 昵称(@ID)_日期_内文_ID.扩展名</code>)<br>
+                • <i>可在 ⚙️ 设置 → 🖱 点击模式 → 自定义，重新排列各按键功能。</i></p>
+                <hr>
+                <p><b>🖱️ 媒体按钮 (🎞️) — 菜单模式：</b><br>
+                • <b>任意点击：</b> 弹出操作菜单（复制 / 含前缀复制 / 预览 / 下载全部）。<br>
+                • 在 ⚙️ 设置 → <b>🖱 点击模式</b> 切换。</p>
                 <hr>
                 <p><b>🔗 链接按钮 (🔗)：</b><br>
                 • <b>单击：</b> 复制推文链接（x.com 或自定义单击域名）。<br>
@@ -633,8 +648,7 @@
                 <hr>
                 <p><b>⚙️ 设置面板：</b><br>
                 • 将鼠标移至右上角，显示齿轮 ⚙️ 与历史 🕐 按钮。<br>
-                • 点击 ⚙️ 可设置：单击域名、长按域名、Discord 前缀、提示风格、日期格式、语言。</p>
-                <hr>
+                • 点击 ⚙️ 可设置：点击模式、单击域名、长按域名、Discord 前缀、提示风格、日期格式、语言。</p>
                 <hr>
                 <p><b>⭐ 媒体分组 &amp; ⊞ 页面相册：</b><br>
                 • <b>分组：</b>在 ⚙️ 设置 → <b>⭐ Groups</b> 中开启 <b>Group on Download</b>。右键下载后，屏幕边角短暂出现 ⭐ 按钮，悬停或点击可通过扇形选单将媒体归入分组。<br>
@@ -775,12 +789,17 @@
             status_date_western: '欧米式 (DD.MM.YYYY)',
             help_title: 'Twitter メディアスクリプト — マニュアル',
             help_content: `
-                <p><b>🖱️ メディアボタン (🎞️)：</b><br>
+                <p><b>🖱️ メディアボタン (🎞️) — クラシックモード（デフォルト）：</b><br>
                 • <b>左クリック：</b> ツイート内の画像/動画URLをすべてコピー。<br>
                 • <b>長押し (0.5秒)：</b> カスタムプレフィックス付きでコピー（例：<code>[text](url)</code>、Discord向け）。<br>
                 • <b>中クリック：</b> フローティング動画プレーヤーまたは画像ライトボックスを開く。<br>
                 • <b>右クリック：</b> 全メディアをダウンロード（構造化ファイル名）。<br>
-                  (形式：<code>[twitter] 名前(@ID)_日付_本文_ID.拡張子</code>)</p>
+                  (形式：<code>[twitter] 名前(@ID)_日付_本文_ID.拡張子</code>)<br>
+                • <i>⚙️ 設定 → 🖱 クリックモード → カスタマイズ で各スロットの動作を変更できます。</i></p>
+                <hr>
+                <p><b>🖱️ メディアボタン (🎞️) — メニューモード：</b><br>
+                • <b>どのクリックでも：</b> アクションメニューを表示（コピー / プレフィックス付きコピー / プレビュー / 全ダウンロード）。<br>
+                • ⚙️ 設定 → <b>🖱 クリックモード</b> で切り替え。</p>
                 <hr>
                 <p><b>🔗 リンクボタン (🔗)：</b><br>
                 • <b>クリック：</b> ツイートURLをコピー（x.com またはカスタムドメイン）。<br>
@@ -793,8 +812,7 @@
                 <hr>
                 <p><b>⚙️ 設定パネル：</b><br>
                 • 右上隅にカーソルを合わせると ⚙️ と 🕐 ボタンが表示される。<br>
-                • ⚙️ をクリックして設定：クリックドメイン、長押しドメイン、プレフィックス、通知スタイル、日付形式、言語。</p>
-                <hr>
+                • ⚙️ をクリックして設定：クリックモード、クリックドメイン、長押しドメイン、プレフィックス、通知スタイル、日付形式、言語。</p>
                 <hr>
                 <p><b>⭐ グループ &amp; ⊞ ギャラリー：</b><br>
                 • <b>グループ：</b>⚙️ 設定 → <b>⭐ Groups</b> で <b>Group on Download</b> を有効にすると、右クリックダウンロード後に画面端へ ⭐ が短時間表示されます。ホバーまたはクリックするとファン型の選択メニューが開き、グループに分類できます。<br>
@@ -935,12 +953,17 @@
             status_date_western: '서양식 (DD.MM.YYYY)',
             help_title: '트위터 미디어 스크립트 — 설명서',
             help_content: `
-                <p><b>🖱️ 미디어 버튼 (🎞️)：</b><br>
+                <p><b>🖱️ 미디어 버튼 (🎞️) — 클래식 모드（기본값）：</b><br>
                 • <b>좌클릭：</b> 트윗 내 모든 이미지/동영상 URL 복사。<br>
                 • <b>길게 누르기 (0.5초)：</b> 커스텀 접두사 포함 복사（예：<code>[text](url)</code>, Discord용）。<br>
                 • <b>중간 클릭：</b> 동영상 플레이어 또는 이미지 라이트박스 열기。<br>
                 • <b>우클릭：</b> 모든 미디어 다운로드（구조화된 파일명 자동 생성）。<br>
-                  (형식：<code>[twitter] 이름(@ID)_날짜_본문_ID.확장자</code>)</p>
+                  (형식：<code>[twitter] 이름(@ID)_날짜_본문_ID.확장자</code>)<br>
+                • <i>⚙️ 설정 → 🖱 클릭 모드 → 사용자 지정 에서 슬롯별 동작을 변경할 수 있습니다。</i></p>
+                <hr>
+                <p><b>🖱️ 미디어 버튼 (🎞️) — 메뉴 모드：</b><br>
+                • <b>모든 클릭：</b> 액션 메뉴 표시（복사 / 접두사 포함 복사 / 미리보기 / 전체 다운로드）。<br>
+                • ⚙️ 설정 → <b>🖱 클릭 모드</b> 에서 전환。</p>
                 <hr>
                 <p><b>🔗 링크 버튼 (🔗)：</b><br>
                 • <b>클릭：</b> 트윗 URL 복사（x.com 또는 커스텀 도메인）。<br>
@@ -953,8 +976,7 @@
                 <hr>
                 <p><b>⚙️ 설정 패널：</b><br>
                 • 오른쪽 상단에 마우스를 올리면 ⚙️ 와 🕐 버튼이 나타납니다。<br>
-                • ⚙️ 클릭으로 설정：클릭 도메인, 길게 누르기 도메인, 접두사, 알림 스타일, 날짜 형식, 언어。</p>
-                <hr>
+                • ⚙️ 클릭으로 설정：클릭 모드, 클릭 도메인, 길게 누르기 도메인, 접두사, 알림 스타일, 날짜 형식, 언어。</p>
                 <hr>
                 <p><b>⭐ 그룹 &amp; ⊞ 갤러리：</b><br>
                 • <b>그룹：</b>⚙️ 설정 → <b>⭐ Groups</b>에서 <b>Group on Download</b>를 활성화하세요. 우클릭 다운로드 후 화면 가장자리에 ⭐ 버튼이 잠깐 표시됩니다. 호버하거나 클릭하면 부채꼴 선택 메뉴가 열려 미디어를 그룹에 분류할 수 있습니다.<br>
@@ -1095,12 +1117,17 @@
             status_date_western: 'Occidental (DD.MM.YYYY)',
             help_title: 'Botón de copia de medios de Twitter - Manual',
             help_content: `
-                <p><b>🖱️ Botón de medios (🎞️):</b><br>
+                <p><b>🖱️ Botón de medios (🎞️) — Modo Clásico (predeterminado):</b><br>
                 • <b>Clic izquierdo:</b> Copiar enlaces de imágenes/videos.<br>
                 • <b>Pulsación larga (0.5s):</b> Copiar con prefijo personalizado (formato Markdown, para Discord).<br>
                 • <b>Clic central:</b> Vista previa——reproductor de video flotante o galería de imágenes.<br>
                 • <b>Clic derecho:</b> Descargar todos los medios con nombres de archivo estructurados.<br>
-                  (Formato: <code>[twitter] Nombre(@ID)_Fecha_Texto_ID.ext</code>)</p>
+                  (Formato: <code>[twitter] Nombre(@ID)_Fecha_Texto_ID.ext</code>)<br>
+                • <i>Personaliza las acciones de cada clic en ⚙️ Ajustes → 🖱 Modo de Clic → Personalizar.</i></p>
+                <hr>
+                <p><b>🖱️ Botón de medios (🎞️) — Modo Menú:</b><br>
+                • <b>Cualquier clic:</b> Abre un menú de acciones (Copiar / Copiar con prefijo / Vista previa / Descargar todo).<br>
+                • Cambia en ⚙️ Ajustes → <b>🖱 Modo de Clic</b>.</p>
                 <hr>
                 <p><b>🔗 Botón de enlace (🔗):</b><br>
                 • <b>Clic:</b> Copiar enlace del tweet (predeterminado x.com, o dominio personalizado de clic).<br>
@@ -1113,8 +1140,7 @@
                 <hr>
                 <p><b>⚙️ Panel de configuración:</b><br>
                 • Pasa el ratón por la esquina superior derecha → aparecen 📋 y ⚙️.<br>
-                • Configura: dominio de clic, dominio de pulsación larga, prefijo Discord, formato de fecha, idioma, estilo de notificación.</p>
-                <hr>
+                • Configura: modo de clic, dominio de clic, dominio de pulsación larga, prefijo Discord, formato de fecha, idioma, estilo de notificación.</p>
                 <hr>
                 <p><b>⭐ Grupos &amp; ⊞ Galería:</b><br>
                 • <b>Grupos:</b> En ⚙️ Ajustes → <b>⭐ Groups</b>, activa <b>Group on Download</b>. Tras descargar con clic derecho, aparece ⭐ brevemente en el borde de la pantalla — pasa el cursor o haz clic para abrir el selector en abanico y asignar a un grupo.<br>
@@ -1255,12 +1281,17 @@
             status_date_western: 'Ocidental (DD.MM.YYYY)',
             help_title: 'Botão de cópia de mídia do Twitter - Manual',
             help_content: `
-                <p><b>🖱️ Botão de mídia (🎞️):</b><br>
+                <p><b>🖱️ Botão de mídia (🎞️) — Modo Clássico (padrão):</b><br>
                 • <b>Clique esquerdo:</b> Copiar links de imagens/vídeos.<br>
                 • <b>Pressão longa (0.5s):</b> Copiar com prefixo personalizado (formato Markdown, para Discord).<br>
                 • <b>Clique do meio:</b> Visualizar——player de vídeo flutuante ou galeria de imagens.<br>
                 • <b>Clique direito:</b> Baixar todas as mídias com nomes de arquivo estruturados.<br>
-                  (Formato: <code>[twitter] Nome(@ID)_Data_Texto_ID.ext</code>)</p>
+                  (Formato: <code>[twitter] Nome(@ID)_Data_Texto_ID.ext</code>)<br>
+                • <i>Personalize as ações de cada clique em ⚙️ Configurações → 🖱 Modo de Clique → Personalizar.</i></p>
+                <hr>
+                <p><b>🖱️ Botão de mídia (🎞️) — Modo Menu:</b><br>
+                • <b>Qualquer clique:</b> Abre um menu de ações (Copiar / Copiar com prefixo / Visualizar / Baixar tudo).<br>
+                • Altere em ⚙️ Configurações → <b>🖱 Modo de Clique</b>.</p>
                 <hr>
                 <p><b>🔗 Botão de link (🔗):</b><br>
                 • <b>Clique:</b> Copiar link do tweet (padrão x.com, ou domínio de clique personalizado).<br>
@@ -1273,8 +1304,7 @@
                 <hr>
                 <p><b>⚙️ Painel de configurações:</b><br>
                 • Passe o mouse pelo canto superior direito → 📋 e ⚙️ aparecem.<br>
-                • Configure: domínio de clique, domínio de pressão longa, prefixo Discord, formato de data, idioma, estilo de aviso.</p>
-                <hr>
+                • Configure: modo de clique, domínio de clique, domínio de pressão longa, prefixo Discord, formato de data, idioma, estilo de aviso.</p>
                 <hr>
                 <p><b>⭐ Grupos &amp; ⊞ Galeria:</b><br>
                 • <b>Grupos:</b> Em ⚙️ Configurações → <b>⭐ Groups</b>, ative <b>Group on Download</b>. Após baixar com clique direito, ⭐ aparece brevemente na borda da tela — passe o mouse ou clique para abrir o seletor em leque e atribuir a um grupo.<br>
@@ -1415,12 +1445,17 @@
             status_date_western: 'Occidental (DD.MM.YYYY)',
             help_title: 'Bouton de copie de médias Twitter - Manuel',
             help_content: `
-                <p><b>🖱️ Bouton média (🎞️) :</b><br>
+                <p><b>🖱️ Bouton média (🎞️) — Mode Classique (par défaut) :</b><br>
                 • <b>Clic gauche :</b> Copier les liens des images/vidéos.<br>
                 • <b>Appui long (0.5s) :</b> Copier avec préfixe personnalisé (format Markdown, pour Discord).<br>
                 • <b>Clic central :</b> Aperçu——lecteur vidéo flottant ou galerie d'images.<br>
                 • <b>Clic droit :</b> Télécharger tous les médias avec noms de fichiers structurés.<br>
-                  (Format : <code>[twitter] Nom(@ID)_Date_Texte_ID.ext</code>)</p>
+                  (Format : <code>[twitter] Nom(@ID)_Date_Texte_ID.ext</code>)<br>
+                • <i>Personnalisez les actions par clic dans ⚙️ Paramètres → 🖱 Mode de Clic → Personnaliser.</i></p>
+                <hr>
+                <p><b>🖱️ Bouton média (🎞️) — Mode Menu :</b><br>
+                • <b>N'importe quel clic :</b> Ouvre un menu d'actions (Copier / Copier avec préfixe / Aperçu / Tout télécharger).<br>
+                • Changez dans ⚙️ Paramètres → <b>🖱 Mode de Clic</b>.</p>
                 <hr>
                 <p><b>🔗 Bouton lien (🔗) :</b><br>
                 • <b>Clic :</b> Copier le lien du tweet (x.com par défaut, ou domaine de clic personnalisé).<br>
@@ -1433,8 +1468,7 @@
                 <hr>
                 <p><b>⚙️ Panneau de paramètres :</b><br>
                 • Survolez le coin supérieur droit → 📋 et ⚙️ apparaissent.<br>
-                • Configurez : domaine de clic, domaine d'appui long, préfixe Discord, format de date, langue, style de retour.</p>
-                <hr>
+                • Configurez : mode de clic, domaine de clic, domaine d'appui long, préfixe Discord, format de date, langue, style de retour.</p>
                 <hr>
                 <p><b>⭐ Groupes &amp; ⊞ Galerie :</b><br>
                 • <b>Groupes :</b> Dans ⚙️ Paramètres → <b>⭐ Groups</b>, activez <b>Group on Download</b>. Après chaque téléchargement par clic droit, ⭐ apparaît brièvement en bordure d'écran — survolez ou cliquez pour ouvrir le sélecteur en éventail et classer le média dans un groupe.<br>
@@ -1575,12 +1609,17 @@
             status_date_western: 'Западный (DD.MM.YYYY)',
             help_title: 'Кнопка копирования медиа Twitter - Руководство',
             help_content: `
-                <p><b>🖱️ Кнопка медиа (🎞️):</b><br>
+                <p><b>🖱️ Кнопка медиа (🎞️) — Классический режим (по умолчанию):</b><br>
                 • <b>Левый клик:</b> Копировать ссылки на изображения/видео.<br>
                 • <b>Долгое нажатие (0.5с):</b> Копировать с префиксом (формат Markdown, для Discord).<br>
                 • <b>Средний клик:</b> Предпросмотр——всплывающий видеоплеер или галерея изображений.<br>
                 • <b>Правый клик:</b> Принудительно скачать все медиафайлы со структурированными именами.<br>
-                  (Формат: <code>[twitter] Имя(@ID)_Дата_Текст_ID.ext</code>)</p>
+                  (Формат: <code>[twitter] Имя(@ID)_Дата_Текст_ID.ext</code>)<br>
+                • <i>Настройте действия каждого слота в ⚙️ Настройки → 🖱 Режим клика → Настроить.</i></p>
+                <hr>
+                <p><b>🖱️ Кнопка медиа (🎞️) — Режим меню:</b><br>
+                • <b>Любой клик:</b> Открывает меню действий (Копировать / Копировать с префиксом / Предпросмотр / Скачать всё).<br>
+                • Переключение: ⚙️ Настройки → <b>🖱 Режим клика</b>.</p>
                 <hr>
                 <p><b>🔗 Кнопка ссылки (🔗):</b><br>
                 • <b>Клик:</b> Копировать ссылку на твит (по умолчанию x.com, или пользовательский домен).<br>
@@ -1593,8 +1632,7 @@
                 <hr>
                 <p><b>⚙️ Панель настроек:</b><br>
                 • Наведите курсор в правый верхний угол → появятся 📋 и ⚙️.<br>
-                • Настройте: домен клика, домен долгого нажатия, префикс Discord, формат даты, язык, стиль уведомлений.</p>
-                <hr>
+                • Настройте: режим клика, домен клика, домен долгого нажатия, префикс Discord, формат даты, язык, стиль уведомлений.</p>
                 <hr>
                 <p><b>⭐ Группы &amp; ⊞ Галерея:</b><br>
                 • <b>Группы:</b> В ⚙️ Настройках → <b>⭐ Groups</b> включите <b>Group on Download</b>. После каждой загрузки правой кнопкой мыши у края экрана кратко появляется ⭐ — наведите курсор или нажмите, чтобы открыть веерный выбор и отнести медиа к группе.<br>
@@ -1740,6 +1778,9 @@
     function _refreshDateFormatCache() {
         _cachedDateFormat = GM_getValue(KEY_DATE_FORMAT, 'asian');
     }
+
+    let _cachedClickMode     = GM_getValue(KEY_CLICK_MODE, 'classic');
+    let _cachedFeedbackStyle = GM_getValue(KEY_FEEDBACK_STYLE, 'toast');
 
     function _readSettings() {
         return {
@@ -7537,8 +7578,17 @@
         const selectedIds    = new Set();
         const collapsedGroups = new Set();
         let anchorIdx          = -1;
+        let _renderLimit   = 80;
+        let _lastFilterKey = '';
+        let _groupTabsDirty  = true;
+        let _lastTabFilter   = null;
+        let _lastTabActiveId = null;
+        let _loadSentinelObserver = null;
         let _searchDrop        = null;
         let _searchDropVisible = false;
+
+        let _recordsCache = null;
+        function _invalidateRecordsCache() { _recordsCache = null; }
 
         const _SRCH_HIST_MAX = 30;
         function _loadSearchHist() {
@@ -8898,7 +8948,7 @@
         document.body.appendChild(panel);
 
         function getRecords() {
-            return _loadAllRecords();
+            return _recordsCache ?? (_recordsCache = _loadAllRecords());
         }
 
         function getFiltered(records) {
@@ -8962,11 +9012,53 @@
             const allSelected = visibleIds.length > 0 && visibleIds.every(id => selectedIds.has(id));
             selAllBtn.textContent = allSelected ? 'Deselect All' : 'Select All';
 
-            body.innerHTML = '';
-            buildGroupTabs();
+            const _curFilterKey = `${mediaFilter}|${activeGroupId}|${sortMode}|${query}|${viewMode}`;
+            const _filterChanged = _curFilterKey !== _lastFilterKey;
+            if (_filterChanged) { _renderLimit = 80; _lastFilterKey = _curFilterKey; }
 
-            if (viewMode === 'list') renderList(filtered);
-            else renderThumb(filtered);
+            const _savedScrollTop = _filterChanged ? 0 : body.scrollTop;
+
+            if (_loadSentinelObserver) { _loadSentinelObserver.disconnect(); _loadSentinelObserver = null; }
+
+            body.innerHTML = '';
+
+            if (_groupTabsDirty || _lastTabFilter !== mediaFilter || _lastTabActiveId !== activeGroupId) {
+                buildGroupTabs();
+                _groupTabsDirty  = false;
+                _lastTabFilter   = mediaFilter;
+                _lastTabActiveId = activeGroupId;
+            }
+
+            const page = filtered.slice(0, _renderLimit);
+            if (viewMode === 'list') renderList(page);
+            else renderThumb(page);
+
+            if (filtered.length > _renderLimit) {
+                if (!document.getElementById('tm-sentinel-css')) {
+                    const _ss = document.createElement('style');
+                    _ss.id  = 'tm-sentinel-css';
+                    _ss.textContent = '@keyframes tm-sentinel-pulse{0%,100%{opacity:.2;transform:scale(.65)}50%{opacity:.6;transform:scale(1)}}';
+                    document.head.appendChild(_ss);
+                }
+                const sentinel = document.createElement('div');
+                sentinel.style.cssText = 'height:44px;display:flex;align-items:center;justify-content:center;gap:7px;';
+                for (let _di = 0; _di < 3; _di++) {
+                    const _dot = document.createElement('span');
+                    _dot.style.cssText = `display:block;width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.28);animation:tm-sentinel-pulse 1.1s ease-in-out ${_di * 0.17}s infinite;`;
+                    sentinel.appendChild(_dot);
+                }
+                _loadSentinelObserver = new IntersectionObserver(entries => {
+                    if (!entries[0].isIntersecting) return;
+                    _loadSentinelObserver.disconnect();
+                    _loadSentinelObserver = null;
+                    _renderLimit += 80;
+                    render();
+                }, { root: body, threshold: 0.1 });
+                _loadSentinelObserver.observe(sentinel);
+                body.appendChild(sentinel);
+            }
+
+            if (_savedScrollTop > 0) body.scrollTop = _savedScrollTop;
 
             btnViewToggle.innerHTML = viewMode === 'list' ? SVG_GRID : SVG_LIST;
             btnViewToggle.title     = viewMode === 'list' ? 'Switch to Thumbnail' : 'Switch to List';
@@ -9664,6 +9756,7 @@
 
             if (_historyUndoTimer) clearTimeout(_historyUndoTimer);
             _historyUndoBuffer = { record: deleted.record, index: idx };
+            _invalidateRecordsCache();
             render();
 
             const ut = document.createElement('div');
@@ -9688,6 +9781,7 @@
                     _historyUndoBuffer = null;
                     ut.remove();
                     clearTimeout(_historyUndoTimer);
+                    _invalidateRecordsCache();
                     render();
                 }
             });
@@ -9719,18 +9813,27 @@
             z.appendChild(img);
             _moveZoom(e);
         }
+        let _zoomRafId = null;
         function _moveZoom(e) {
-            const z = document.getElementById('tm-hist-zoom');
-            if (!z) return;
-            const w = 200, h = 200, margin = 14;
-            let left = e.clientX - w - margin;
-            let top  = e.clientY - h / 2;
-            if (left < 4) left = e.clientX + margin;
-            if (top < 4)  top  = 4;
-            if (top + h > window.innerHeight - 4) top = window.innerHeight - h - 4;
-            z.style.cssText = `position:fixed;z-index:9999999;width:${w}px;height:${h}px;left:${left}px;top:${top}px;border-radius:8px;overflow:hidden;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.2);`;
+            if (_zoomRafId) return;
+            const cx = e.clientX, cy = e.clientY;
+            _zoomRafId = requestAnimationFrame(() => {
+                _zoomRafId = null;
+                const z = document.getElementById('tm-hist-zoom');
+                if (!z) return;
+                const w = 200, h = 200, margin = 14;
+                let left = cx - w - margin;
+                let top  = cy - h / 2;
+                if (left < 4) left = cx + margin;
+                if (top < 4)  top  = 4;
+                if (top + h > window.innerHeight - 4) top = window.innerHeight - h - 4;
+                z.style.cssText = `position:fixed;z-index:9999999;width:${w}px;height:${h}px;left:${left}px;top:${top}px;border-radius:8px;overflow:hidden;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.2);`;
+            });
         }
-        function _hideZoom() { document.getElementById('tm-hist-zoom')?.remove(); }
+        function _hideZoom() {
+            if (_zoomRafId) { cancelAnimationFrame(_zoomRafId); _zoomRafId = null; }
+            document.getElementById('tm-hist-zoom')?.remove();
+        }
 
         function _openHistMediaLightbox(rec, startIdx, originEl) {
             const media = rec.mediaUrls && rec.mediaUrls.length > 0 ? rec.mediaUrls : null;
@@ -10037,6 +10140,7 @@
                 if (btn) _removeHistoryBadge(btn);
             });
             selectedIds.clear(); anchorIdx = -1;
+            _invalidateRecordsCache();
             render();
         });
 
@@ -10211,7 +10315,11 @@
             _hideSearchDrop();
         });
 
-        panel.addEventListener('tm-hist-refresh', render);
+        panel.addEventListener('tm-hist-refresh', () => {
+            _invalidateRecordsCache();
+            _groupTabsDirty = true;
+            render();
+        });
 
         panel.addEventListener('tm-hist-toggle-peek', () => {
             if (_dockPeekedGlobal) _retract();
@@ -12996,7 +13104,7 @@
             const _existingBtn  = article.querySelector(`.${BUTTON_CLASS}`);
             const _existingIcon = article.querySelector('.custom-copy-icon');
             if (_existingBtn) {
-                const _needRebind = GM_getValue(KEY_CLICK_MODE, 'classic') === 'menu'
+                const _needRebind = _cachedClickMode === 'menu'
                                  && !_existingBtn._menuAC;
                 if (!_needRebind) return;
                 _existingBtn.remove();
@@ -13060,7 +13168,7 @@
         btn.style.position = 'relative';
 
         const setMediaIcon = (state, extra, silentText, actionType = 'copy') => {
-            const fbStyle = GM_getValue(KEY_FEEDBACK_STYLE, 'toast');
+            const fbStyle = _cachedFeedbackStyle;
             btn.classList.remove('tm-anim-pop');
             btn.classList.remove('tm-anim-pulse');
             btn.classList.remove('tm-anim-flash');
@@ -13146,7 +13254,7 @@
 
         setMediaIcon('default');
 
-        const _clickMode = GM_getValue(KEY_CLICK_MODE, 'classic');
+        const _clickMode = _cachedClickMode;
 
         if (_clickMode === 'menu') {
             const _doDownloadAll = async () => {
@@ -13790,6 +13898,8 @@
     const _processedArticles = new WeakSet();
 
     function scanAndInsert() {
+        _cachedClickMode     = GM_getValue(KEY_CLICK_MODE, 'classic');
+        _cachedFeedbackStyle = GM_getValue(KEY_FEEDBACK_STYLE, 'toast');
         document.querySelectorAll('article').forEach(article => {
             const _fingerprint = _getTweetIdFromArticle(article)
                 || article.querySelector('time')?.getAttribute('datetime')
@@ -13824,6 +13934,14 @@
         });
     }
 
+    let _isScrollingPage = false;
+    let _scrollEndTimer  = null;
+    window.addEventListener('scroll', () => {
+        _isScrollingPage = true;
+        clearTimeout(_scrollEndTimer);
+        _scrollEndTimer = setTimeout(() => { _isScrollingPage = false; }, 300);
+    }, { passive: true, capture: true });
+
     const observer = new MutationObserver(mutations => {
         let shouldCheck = false;
         for (let m of mutations) {
@@ -13835,7 +13953,7 @@
 
         if (shouldCheck) {
             clearTimeout(_tmdDebounceTimer);
-            _tmdDebounceTimer = setTimeout(scanAndInsert, 250);
+            _tmdDebounceTimer = setTimeout(scanAndInsert, _isScrollingPage ? 600 : 250);
         }
     });
 
@@ -13847,7 +13965,13 @@
         const ms = Math.max(500, Math.min(5000,
             parseInt(GM_getValue(KEY_SCAN_INTERVAL, '1500'), 10) || 1500
         ));
-        _scanIntervalId = setInterval(scanAndInsert, ms);
+        _scanIntervalId = setInterval(() => {
+            if (typeof requestIdleCallback !== 'undefined') {
+                requestIdleCallback(scanAndInsert, { timeout: ms * 2 });
+            } else {
+                scanAndInsert();
+            }
+        }, ms);
     };
     _startScanInterval();
 
