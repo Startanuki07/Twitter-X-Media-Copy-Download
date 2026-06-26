@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.6.0
+// @version      2.9.6.2
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -294,7 +294,7 @@
             status_date_western: 'Western (DD.MM.YYYY)',
             help_title: 'Twitter Media Copy Button - Manual',
             help_content: `
-                <p><b>🖱️ Media Button (🎞️) — Classic Mode (default):</b><br>
+                <p><b>🖱️ Media Button (🎞️) — Classic Mode:</b><br>
                 • <b>Left Click:</b> Copy media links (images / video URLs).<br>
                 • <b>Long Press (0.5s):</b> Copy links with custom prefix (Markdown format, for Discord).<br>
                 • <b>Middle Click:</b> Preview — floating video player or image lightbox.<br>
@@ -302,7 +302,7 @@
                   (Format: <code>[twitter] Name(@ID)_Date_Text_ID.ext</code>)<br>
                 • <i>Customize per-slot actions in ⚙️ Settings → 🖱 Click Mode → Customize.</i></p>
                 <hr>
-                <p><b>🖱️ Media Button (🎞️) — Menu Mode:</b><br>
+                <p><b>🖱️ Media Button (🎞️) — Menu Mode (default):</b><br>
                 • <b>Any Click:</b> Opens a popup action menu — Copy / Copy with Prefix / Preview / Download All.<br>
                 • Switch via ⚙️ Settings → <b>🖱 Click Mode</b>.</p>
                 <hr>
@@ -461,7 +461,7 @@
             status_date_western: '歐美慣用 (DD.MM.YYYY)',
             help_title: '推特媒體腳本 — 說明書',
             help_content: `
-                <p><b>🖱️ 媒體按鈕 (🎞️) — 經典模式（預設）：</b><br>
+                <p><b>🖱️ 媒體按鈕 (🎞️) — 經典模式：</b><br>
                 • <b>左鍵單擊：</b> 複製推文中所有圖片/影片連結。<br>
                 • <b>長按 (0.5秒)：</b> 複製含自定義前綴的連結，例如 <code>[text](url)</code>（方便 Discord 嵌入）。<br>
                 • <b>中鍵點擊：</b> 開啟浮動影片播放器或圖片燈箱。<br>
@@ -469,7 +469,7 @@
                   (格式：<code>[twitter] 暱稱(@ID)_日期_內文_ID.副檔名</code>)<br>
                 • <i>可在 ⚙️ 設定 → 🖱 點擊模式 → 自訂，重新安排各按鍵功能。</i></p>
                 <hr>
-                <p><b>🖱️ 媒體按鈕 (🎞️) — 選單模式：</b><br>
+                <p><b>🖱️ 媒體按鈕 (🎞️) — 選單模式（預設）：</b><br>
                 • <b>任意點擊：</b> 彈出操作選單（複製 / 含前綴複製 / 預覽 / 下載全部）。<br>
                 • 在 ⚙️ 設定 → <b>🖱 點擊模式</b> 切換。</p>
                 <hr>
@@ -625,7 +625,7 @@
             status_date_western: '欧美惯用 (DD.MM.YYYY)',
             help_title: '推特媒体脚本 — 说明书',
             help_content: `
-                <p><b>🖱️ 媒体按钮 (🎞️) — 经典模式（默认）：</b><br>
+                <p><b>🖱️ 媒体按钮 (🎞️) — 经典模式：</b><br>
                 • <b>左键单击：</b> 复制推文中所有图片/视频链接。<br>
                 • <b>长按 (0.5秒)：</b> 复制含自定义前缀的链接，例如 <code>[text](url)</code>（方便 Discord 嵌入）。<br>
                 • <b>中键单击：</b> 打开浮动视频播放器或图片灯箱。<br>
@@ -633,7 +633,7 @@
                   (格式：<code>[twitter] 昵称(@ID)_日期_内文_ID.扩展名</code>)<br>
                 • <i>可在 ⚙️ 设置 → 🖱 点击模式 → 自定义，重新排列各按键功能。</i></p>
                 <hr>
-                <p><b>🖱️ 媒体按钮 (🎞️) — 菜单模式：</b><br>
+                <p><b>🖱️ 媒体按钮 (🎞️) — 菜单模式（默认）：</b><br>
                 • <b>任意点击：</b> 弹出操作菜单（复制 / 含前缀复制 / 预览 / 下载全部）。<br>
                 • 在 ⚙️ 设置 → <b>🖱 点击模式</b> 切换。</p>
                 <hr>
@@ -789,7 +789,7 @@
             status_date_western: '欧米式 (DD.MM.YYYY)',
             help_title: 'Twitter メディアスクリプト — マニュアル',
             help_content: `
-                <p><b>🖱️ メディアボタン (🎞️) — クラシックモード（デフォルト）：</b><br>
+                <p><b>🖱️ メディアボタン (🎞️) — クラシックモード：</b><br>
                 • <b>左クリック：</b> ツイート内の画像/動画URLをすべてコピー。<br>
                 • <b>長押し (0.5秒)：</b> カスタムプレフィックス付きでコピー（例：<code>[text](url)</code>、Discord向け）。<br>
                 • <b>中クリック：</b> フローティング動画プレーヤーまたは画像ライトボックスを開く。<br>
@@ -797,7 +797,7 @@
                   (形式：<code>[twitter] 名前(@ID)_日付_本文_ID.拡張子</code>)<br>
                 • <i>⚙️ 設定 → 🖱 クリックモード → カスタマイズ で各スロットの動作を変更できます。</i></p>
                 <hr>
-                <p><b>🖱️ メディアボタン (🎞️) — メニューモード：</b><br>
+                <p><b>🖱️ メディアボタン (🎞️) — メニューモード（デフォルト）：</b><br>
                 • <b>どのクリックでも：</b> アクションメニューを表示（コピー / プレフィックス付きコピー / プレビュー / 全ダウンロード）。<br>
                 • ⚙️ 設定 → <b>🖱 クリックモード</b> で切り替え。</p>
                 <hr>
@@ -953,7 +953,7 @@
             status_date_western: '서양식 (DD.MM.YYYY)',
             help_title: '트위터 미디어 스크립트 — 설명서',
             help_content: `
-                <p><b>🖱️ 미디어 버튼 (🎞️) — 클래식 모드（기본값）：</b><br>
+                <p><b>🖱️ 미디어 버튼 (🎞️) — 클래식 모드：</b><br>
                 • <b>좌클릭：</b> 트윗 내 모든 이미지/동영상 URL 복사。<br>
                 • <b>길게 누르기 (0.5초)：</b> 커스텀 접두사 포함 복사（예：<code>[text](url)</code>, Discord용）。<br>
                 • <b>중간 클릭：</b> 동영상 플레이어 또는 이미지 라이트박스 열기。<br>
@@ -961,7 +961,7 @@
                   (형식：<code>[twitter] 이름(@ID)_날짜_본문_ID.확장자</code>)<br>
                 • <i>⚙️ 설정 → 🖱 클릭 모드 → 사용자 지정 에서 슬롯별 동작을 변경할 수 있습니다。</i></p>
                 <hr>
-                <p><b>🖱️ 미디어 버튼 (🎞️) — 메뉴 모드：</b><br>
+                <p><b>🖱️ 미디어 버튼 (🎞️) — 메뉴 모드（기본값）：</b><br>
                 • <b>모든 클릭：</b> 액션 메뉴 표시（복사 / 접두사 포함 복사 / 미리보기 / 전체 다운로드）。<br>
                 • ⚙️ 설정 → <b>🖱 클릭 모드</b> 에서 전환。</p>
                 <hr>
@@ -1117,7 +1117,7 @@
             status_date_western: 'Occidental (DD.MM.YYYY)',
             help_title: 'Botón de copia de medios de Twitter - Manual',
             help_content: `
-                <p><b>🖱️ Botón de medios (🎞️) — Modo Clásico (predeterminado):</b><br>
+                <p><b>🖱️ Botón de medios (🎞️) — Modo Clásico:</b><br>
                 • <b>Clic izquierdo:</b> Copiar enlaces de imágenes/videos.<br>
                 • <b>Pulsación larga (0.5s):</b> Copiar con prefijo personalizado (formato Markdown, para Discord).<br>
                 • <b>Clic central:</b> Vista previa——reproductor de video flotante o galería de imágenes.<br>
@@ -1125,7 +1125,7 @@
                   (Formato: <code>[twitter] Nombre(@ID)_Fecha_Texto_ID.ext</code>)<br>
                 • <i>Personaliza las acciones de cada clic en ⚙️ Ajustes → 🖱 Modo de Clic → Personalizar.</i></p>
                 <hr>
-                <p><b>🖱️ Botón de medios (🎞️) — Modo Menú:</b><br>
+                <p><b>🖱️ Botón de medios (🎞️) — Modo Menú (predeterminado):</b><br>
                 • <b>Cualquier clic:</b> Abre un menú de acciones (Copiar / Copiar con prefijo / Vista previa / Descargar todo).<br>
                 • Cambia en ⚙️ Ajustes → <b>🖱 Modo de Clic</b>.</p>
                 <hr>
@@ -1281,7 +1281,7 @@
             status_date_western: 'Ocidental (DD.MM.YYYY)',
             help_title: 'Botão de cópia de mídia do Twitter - Manual',
             help_content: `
-                <p><b>🖱️ Botão de mídia (🎞️) — Modo Clássico (padrão):</b><br>
+                <p><b>🖱️ Botão de mídia (🎞️) — Modo Clássico:</b><br>
                 • <b>Clique esquerdo:</b> Copiar links de imagens/vídeos.<br>
                 • <b>Pressão longa (0.5s):</b> Copiar com prefixo personalizado (formato Markdown, para Discord).<br>
                 • <b>Clique do meio:</b> Visualizar——player de vídeo flutuante ou galeria de imagens.<br>
@@ -1289,7 +1289,7 @@
                   (Formato: <code>[twitter] Nome(@ID)_Data_Texto_ID.ext</code>)<br>
                 • <i>Personalize as ações de cada clique em ⚙️ Configurações → 🖱 Modo de Clique → Personalizar.</i></p>
                 <hr>
-                <p><b>🖱️ Botão de mídia (🎞️) — Modo Menu:</b><br>
+                <p><b>🖱️ Botão de mídia (🎞️) — Modo Menu (padrão):</b><br>
                 • <b>Qualquer clique:</b> Abre um menu de ações (Copiar / Copiar com prefixo / Visualizar / Baixar tudo).<br>
                 • Altere em ⚙️ Configurações → <b>🖱 Modo de Clique</b>.</p>
                 <hr>
@@ -1445,7 +1445,7 @@
             status_date_western: 'Occidental (DD.MM.YYYY)',
             help_title: 'Bouton de copie de médias Twitter - Manuel',
             help_content: `
-                <p><b>🖱️ Bouton média (🎞️) — Mode Classique (par défaut) :</b><br>
+                <p><b>🖱️ Bouton média (🎞️) — Mode Classique :</b><br>
                 • <b>Clic gauche :</b> Copier les liens des images/vidéos.<br>
                 • <b>Appui long (0.5s) :</b> Copier avec préfixe personnalisé (format Markdown, pour Discord).<br>
                 • <b>Clic central :</b> Aperçu——lecteur vidéo flottant ou galerie d'images.<br>
@@ -1453,7 +1453,7 @@
                   (Format : <code>[twitter] Nom(@ID)_Date_Texte_ID.ext</code>)<br>
                 • <i>Personnalisez les actions par clic dans ⚙️ Paramètres → 🖱 Mode de Clic → Personnaliser.</i></p>
                 <hr>
-                <p><b>🖱️ Bouton média (🎞️) — Mode Menu :</b><br>
+                <p><b>🖱️ Bouton média (🎞️) — Mode Menu (par défaut) :</b><br>
                 • <b>N'importe quel clic :</b> Ouvre un menu d'actions (Copier / Copier avec préfixe / Aperçu / Tout télécharger).<br>
                 • Changez dans ⚙️ Paramètres → <b>🖱 Mode de Clic</b>.</p>
                 <hr>
@@ -1609,7 +1609,7 @@
             status_date_western: 'Западный (DD.MM.YYYY)',
             help_title: 'Кнопка копирования медиа Twitter - Руководство',
             help_content: `
-                <p><b>🖱️ Кнопка медиа (🎞️) — Классический режим (по умолчанию):</b><br>
+                <p><b>🖱️ Кнопка медиа (🎞️) — Классический режим:</b><br>
                 • <b>Левый клик:</b> Копировать ссылки на изображения/видео.<br>
                 • <b>Долгое нажатие (0.5с):</b> Копировать с префиксом (формат Markdown, для Discord).<br>
                 • <b>Средний клик:</b> Предпросмотр——всплывающий видеоплеер или галерея изображений.<br>
@@ -1617,7 +1617,7 @@
                   (Формат: <code>[twitter] Имя(@ID)_Дата_Текст_ID.ext</code>)<br>
                 • <i>Настройте действия каждого слота в ⚙️ Настройки → 🖱 Режим клика → Настроить.</i></p>
                 <hr>
-                <p><b>🖱️ Кнопка медиа (🎞️) — Режим меню:</b><br>
+                <p><b>🖱️ Кнопка медиа (🎞️) — Режим меню (по умолчанию):</b><br>
                 • <b>Любой клик:</b> Открывает меню действий (Копировать / Копировать с префиксом / Предпросмотр / Скачать всё).<br>
                 • Переключение: ⚙️ Настройки → <b>🖱 Режим клика</b>.</p>
                 <hr>
@@ -1779,8 +1779,9 @@
         _cachedDateFormat = GM_getValue(KEY_DATE_FORMAT, 'asian');
     }
 
-    let _cachedClickMode     = GM_getValue(KEY_CLICK_MODE, 'classic');
-    let _cachedFeedbackStyle = GM_getValue(KEY_FEEDBACK_STYLE, 'toast');
+    let _cachedClickMode       = GM_getValue(KEY_CLICK_MODE, 'classic');
+    let _cachedFeedbackStyle   = GM_getValue(KEY_FEEDBACK_STYLE, 'toast');
+    let _cachedClickModeCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
 
     function _readSettings() {
         return {
@@ -2556,6 +2557,7 @@
     const _isTwitterDomain = ['twitter.com', 'x.com'].includes(location.hostname);
 
     let _lcRcResizeHandler = null;
+    let _spClickAC = null;
     function _applyGearCorner(corner) {
         const wrapper = document.getElementById('tm-settings-wrapper');
         if (!wrapper) return;
@@ -2645,8 +2647,6 @@
             setTimeout(() => ring.remove(), 2000);
         }, 600);
     }
-
-    let _cornerAnimEndHandler = null;
 
     function _animateWrapperToCorner(corner) {
         const wrapper = document.getElementById('tm-settings-wrapper');
@@ -3183,6 +3183,8 @@
         if (existingWrapper) existingWrapper.remove();
         const existingStyle = document.getElementById('tm-settings-panel-style');
         if (existingStyle) existingStyle.remove();
+        if (_spClickAC) _spClickAC.abort();
+        _spClickAC = new AbortController();
 
         const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         const C = dark ? {
@@ -4913,10 +4915,9 @@
                 const modeLabel = newMode === 'menu'
                     ? (T.status_click_menu    || 'Menu')
                     : (T.status_click_classic || 'Classic');
-                const toastMsg = (T.toast_click_mode || '🖱 Click Mode → ') + modeLabel
-                    + '  —  Reload to apply.';
+                const toastMsg = (T.toast_click_mode || '🖱 Click Mode → ') + modeLabel;
                 buildContent();
-                _showReloadToast(toastMsg);
+                showToast(toastMsg);
             }, null, 'classic');
             grpMedia.append(clickModeRow);
 
@@ -6251,7 +6252,7 @@
             if (e.target.closest('#tm-group-mgr-overlay'))    return;
             if (e.target.closest('.tm-sp-picker'))            return;
             wrapper.setAttribute('data-open', 'false');
-        });
+        }, { signal: _spClickAC.signal });
 
         wrapper.appendChild(dismissBtn);
         wrapper.appendChild(histBtn);
@@ -7584,6 +7585,7 @@
         let _lastTabFilter   = null;
         let _lastTabActiveId = null;
         let _loadSentinelObserver = null;
+        let _searchRenderTimer    = null;
         let _searchDrop        = null;
         let _searchDropVisible = false;
 
@@ -10284,7 +10286,8 @@
 
         searchInput.addEventListener('input', () => {
             query = searchInput.value.trim();
-            render();
+            clearTimeout(_searchRenderTimer);
+            _searchRenderTimer = setTimeout(render, 150);
             if (query) _hideSearchDrop();
             else        _showSearchDrop();
         });
@@ -10350,7 +10353,10 @@
 
         const _panelAC = new AbortController();
         const _acSignal = { signal: _panelAC.signal };
-        panel._tmCleanup = () => { _panelAC.abort(); };
+        panel._tmCleanup = () => {
+            _panelAC.abort();
+            if (_loadSentinelObserver) { _loadSentinelObserver.disconnect(); _loadSentinelObserver = null; }
+        };
 
         let _dragging = false, _dx = 0, _dy = 0;
         titlebar.addEventListener('mousedown', (e) => {
@@ -13104,8 +13110,9 @@
             const _existingBtn  = article.querySelector(`.${BUTTON_CLASS}`);
             const _existingIcon = article.querySelector('.custom-copy-icon');
             if (_existingBtn) {
-                const _needRebind = _cachedClickMode === 'menu'
-                                 && !_existingBtn._menuAC;
+                const _needRebind =
+                    (_cachedClickMode === 'menu'    && !_existingBtn._menuAC)  ||
+                    (_cachedClickMode === 'classic' && !!_existingBtn._menuAC);
                 if (!_needRebind) return;
                 _existingBtn.remove();
                 _existingIcon?.remove();
@@ -13724,9 +13731,9 @@
                 }
             };
 
-            if (GM_getValue(KEY_CLICK_MODE, 'classic') === 'menu') {
+            if (_cachedClickMode === 'menu') {
                 const _getLinkItems = () => {
-                    const useCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
+                    const useCustom = _cachedClickModeCustom;
                     const targetDomain = useCustom ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
                     const url = extractTweetUrl(article, 'https://' + targetDomain);
                     return [
@@ -13774,7 +13781,7 @@
                 };
 
                 const _linkTargetUrl = () => {
-                    const useCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
+                    const useCustom = _cachedClickModeCustom;
                     const targetDomain = useCustom ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
                     return extractTweetUrl(article, 'https://' + targetDomain);
                 };
@@ -13809,7 +13816,7 @@
 
                 icon.addEventListener('mouseenter', () => {
                     const map = _getCustomLinkActions();
-                    const useCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
+                    const useCustom = _cachedClickModeCustom;
                     const domain = useCustom ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
                     const labelFor = (id) => {
                         const base = _LINK_ACTION_LABELS[id] || id;
@@ -13898,8 +13905,9 @@
     const _processedArticles = new WeakSet();
 
     function scanAndInsert() {
-        _cachedClickMode     = GM_getValue(KEY_CLICK_MODE, 'classic');
-        _cachedFeedbackStyle = GM_getValue(KEY_FEEDBACK_STYLE, 'toast');
+        _cachedClickMode       = GM_getValue(KEY_CLICK_MODE, 'classic');
+        _cachedFeedbackStyle   = GM_getValue(KEY_FEEDBACK_STYLE, 'toast');
+        _cachedClickModeCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
         document.querySelectorAll('article').forEach(article => {
             const _fingerprint = _getTweetIdFromArticle(article)
                 || article.querySelector('time')?.getAttribute('datetime')
