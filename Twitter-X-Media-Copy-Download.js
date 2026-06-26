@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.6.2
+// @version      2.9.7.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -206,6 +206,7 @@
     const KEY_GROUPS            = 'app_media_groups';
     const KEY_TEXT_GROUPS       = 'app_text_groups';
     const KEY_GROUP_PANEL_CFG   = 'app_group_panel_cfg';
+    const KEY_TEXT_BM_CFG       = 'app_text_bm_cfg';
     const KEY_GEAR_VISIBLE      = 'app_gear_visible';
     const KEY_GEAR_CORNER       = 'app_gear_corner';
     const KEY_HIST_CLEANUP_NOTIFIED = 'app_hist_cleanup_notified';
@@ -5412,6 +5413,68 @@
             grpBtnRow.appendChild(manageBtn);
             grpGroups.append(grpBtnRow);
 
+            const textBmColorRow = (() => {
+                const wrap = document.createElement('div');
+                wrap.style.cssText = 'padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.06)';
+                wrap.addEventListener('click', e => e.stopPropagation());
+
+                const topRow = document.createElement('div');
+                topRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:7px';
+                const lbl = document.createElement('span');
+                lbl.style.cssText = 'font-size:12px;color:rgba(255,255,255,.7)';
+                lbl.textContent = '📝 Text Bookmark — Content Color';
+                topRow.appendChild(lbl);
+
+                const colorRow = document.createElement('div');
+                colorRow.style.cssText = 'display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:2px';
+
+                const _tbmCfgRaw = (() => { try { return JSON.parse(GM_getValue(KEY_TEXT_BM_CFG, '{}')); } catch(_) { return {}; } })();
+                const curTbmColor = _tbmCfgRaw.textContentColor || '#ffd700';
+
+                const tbmPresets = ['#ffd700','#ffffff','#1d9bf0','#ff9f43','#7bed9f','#a29bfe','#ff6b6b'];
+                const tbmInput = document.createElement('input');
+                tbmInput.type  = 'color';
+                tbmInput.value = curTbmColor;
+                tbmInput.style.cssText = 'width:24px;height:24px;border:none;border-radius:50%;padding:0;cursor:pointer;background:transparent;flex-shrink:0;outline:none';
+                tbmInput.title = 'Custom text color';
+
+                const saveTbmColor = (hex) => {
+                    const cfg = (() => { try { return JSON.parse(GM_getValue(KEY_TEXT_BM_CFG, '{}')); } catch(_) { return {}; } })();
+                    cfg.textContentColor = hex;
+                    GM_setValue(KEY_TEXT_BM_CFG, JSON.stringify(cfg));
+                };
+                tbmInput.addEventListener('input',  () => saveTbmColor(tbmInput.value));
+                tbmInput.addEventListener('change', () => saveTbmColor(tbmInput.value));
+
+                tbmPresets.forEach(hex => {
+                    const sw = document.createElement('button');
+                    sw.type = 'button';
+                    sw.style.cssText = `
+                        width:18px;height:18px;border-radius:50%;
+                        border:2px solid ${hex === curTbmColor ? 'rgba(255,255,255,.8)' : 'transparent'};
+                        background:${hex};cursor:pointer;flex-shrink:0;padding:0;
+                        transition:border-color .1s,transform .1s;
+                        box-shadow:inset 0 0 0 1px rgba(0,0,0,.2);
+                    `;
+                    sw.addEventListener('mouseover', () => sw.style.transform = 'scale(1.2)');
+                    sw.addEventListener('mouseout',  () => sw.style.transform = '');
+                    sw.addEventListener('click', () => {
+                        tbmInput.value = hex;
+                        saveTbmColor(hex);
+                        colorRow.querySelectorAll('button[data-tbm-swatch]').forEach(s => s.style.borderColor = 'transparent');
+                        sw.style.borderColor = 'rgba(255,255,255,.8)';
+                        showToast('Text Bookmark Content Color → ' + hex);
+                    });
+                    sw.dataset.tbmSwatch = hex;
+                    colorRow.appendChild(sw);
+                });
+                colorRow.appendChild(tbmInput);
+                wrap.appendChild(topRow);
+                wrap.appendChild(colorRow);
+                return wrap;
+            })();
+            grpGroups.append(textBmColorRow);
+
             const _groupChildren = [glowColorRow, labelColorRow, fanMaskRow, fanMaskColorRow, grpBtnRow];
             const _getGroupSliders = () => Array.from(grpGroups.body.querySelectorAll('.tm-sp-slider-row'));
             const _syncGroupChildrenDisabled = () => {
@@ -7579,6 +7642,15 @@
         const selectedIds    = new Set();
         const collapsedGroups = new Set();
         let anchorIdx          = -1;
+        const _textAuthorCollapsed = new Set();
+        let _textAuthorScrollTarget = null;
+        const _loadTbmCfg = () => { try { return JSON.parse(GM_getValue(KEY_TEXT_BM_CFG, '{}')); } catch(_) { return {}; } };
+        const _textPinnedAuthors = new Set((_loadTbmCfg().pinnedAuthors) || []);
+        const _savePinnedAuthors = () => {
+            const cfg = _loadTbmCfg();
+            cfg.pinnedAuthors = Array.from(_textPinnedAuthors);
+            GM_setValue(KEY_TEXT_BM_CFG, JSON.stringify(cfg));
+        };
         let _renderLimit   = 80;
         let _lastFilterKey = '';
         let _groupTabsDirty  = true;
@@ -8526,6 +8598,35 @@
                 from { transform: scale(0); opacity: 0; }
                 to   { transform: scale(1); opacity: 1; }
             }
+
+            .tm-hist-grid-cell.tm-text-author-cell {
+                aspect-ratio: unset !important;
+                min-height: 130px;
+                height: 130px;
+                cursor: pointer;
+            }
+
+            .tm-text-pin-btn {
+                position: absolute;
+                top: 5px; right: 5px;
+                width: 22px; height: 22px;
+                border-radius: 50%;
+                background: rgba(0,0,0,.5);
+                border: none; cursor: pointer;
+                display: flex; align-items: center; justify-content: center;
+                z-index: 5;
+                font-size: 13px; line-height: 1;
+                transition: opacity .15s, background .12s;
+                pointer-events: auto;
+            }
+
+            @keyframes tm-text-row-in {
+                from { opacity: 0; transform: translateY(-5px); }
+                to   { opacity: 1; transform: translateY(0); }
+            }
+            .tm-text-author-item {
+                animation: tm-text-row-in 0.16s ease-out both;
+            }
         `;
 
         const panel = document.createElement('div');
@@ -9032,10 +9133,15 @@
             }
 
             const page = filtered.slice(0, _renderLimit);
-            if (viewMode === 'list') renderList(page);
-            else renderThumb(page);
+            if (mediaFilter === 'text') {
+                if (viewMode === 'list') renderTextAuthorList(filtered);
+                else renderTextAuthorThumb(filtered);
+            } else {
+                if (viewMode === 'list') renderList(page);
+                else renderThumb(page);
+            }
 
-            if (filtered.length > _renderLimit) {
+            if (mediaFilter !== 'text' && filtered.length > _renderLimit) {
                 if (!document.getElementById('tm-sentinel-css')) {
                     const _ss = document.createElement('style');
                     _ss.id  = 'tm-sentinel-css';
@@ -9065,6 +9171,451 @@
             btnViewToggle.innerHTML = viewMode === 'list' ? SVG_GRID : SVG_LIST;
             btnViewToggle.title     = viewMode === 'list' ? 'Switch to Thumbnail' : 'Switch to List';
             btnViewToggle.classList.toggle('active', true);
+        }
+
+        function _getTextBmContentColor() {
+            try {
+                const cfg = JSON.parse(GM_getValue(KEY_TEXT_BM_CFG, '{}'));
+                return cfg.textContentColor || '#ffd700';
+            } catch(_) { return '#ffd700'; }
+        }
+
+        function _showTextPreview(rec) {
+            const existing = document.getElementById('tm-text-preview-overlay');
+            if (existing) existing.remove();
+
+            _dialogOpenGlobal = true;
+
+            const _closePreview = () => {
+                overlay.remove();
+                _dialogOpenGlobal = false;
+            };
+
+            const overlay = document.createElement('div');
+            overlay.id = 'tm-text-preview-overlay';
+            overlay.style.cssText = `
+                position:fixed;inset:0;z-index:99999999;
+                background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;
+                backdrop-filter:blur(4px);cursor:pointer;
+            `;
+
+            const card = document.createElement('div');
+            card.style.cssText = `
+                background:#192734;border-radius:14px;padding:24px 28px;
+                max-width:520px;width:calc(100vw - 48px);max-height:80vh;
+                overflow-y:auto;cursor:default;
+                border:1px solid rgba(255,255,255,.12);
+                box-shadow:0 24px 64px rgba(0,0,0,.7);
+            `;
+            card.addEventListener('click', e => e.stopPropagation());
+
+            const authorRow = document.createElement('div');
+            authorRow.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:14px';
+            if (rec.avatarUrl) {
+                const av = document.createElement('img');
+                av.src = rec.avatarUrl; av.alt = ''; av.loading = 'lazy';
+                av.style.cssText = 'width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0';
+                authorRow.appendChild(av);
+            }
+            const authorMeta = document.createElement('div');
+            authorMeta.style.cssText = 'display:flex;flex-direction:column;gap:2px;min-width:0';
+            const dname = document.createElement('div');
+            dname.textContent = rec.displayName || rec.screenName;
+            dname.style.cssText = 'font-size:14px;font-weight:700;color:#e7e9ea;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+            const sname = document.createElement('div');
+            sname.textContent = '@' + (rec.screenName || '');
+            sname.style.cssText = 'font-size:12px;color:rgba(255,255,255,.45)';
+            authorMeta.appendChild(dname); authorMeta.appendChild(sname);
+            authorRow.appendChild(authorMeta);
+            card.appendChild(authorRow);
+
+            const hr = document.createElement('div');
+            hr.style.cssText = 'border-top:1px solid rgba(255,255,255,.1);margin-bottom:16px';
+            card.appendChild(hr);
+
+            const textEl = document.createElement('div');
+            textEl.textContent = rec.text || '(no text)';
+            textEl.style.cssText = `
+                font-size:18px;line-height:1.7;color:${_getTextBmContentColor()};
+                white-space:pre-wrap;word-break:break-word;margin-bottom:16px;
+            `;
+            card.appendChild(textEl);
+
+            const meta = document.createElement('div');
+            meta.style.cssText = 'display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:4px';
+            if (rec.downloadDate) {
+                const d = document.createElement('span');
+                d.textContent = rec.downloadDate;
+                d.style.cssText = 'font-size:12px;color:rgba(255,255,255,.35)';
+                meta.appendChild(d);
+            }
+            if (rec.tweetUrl) {
+                const link = document.createElement('a');
+                link.href = rec.tweetUrl; link.target = '_blank'; link.rel = 'noopener noreferrer';
+                link.textContent = 'Open tweet ↗';
+                link.style.cssText = 'font-size:12px;color:#1d9bf0;text-decoration:none';
+                link.addEventListener('click', e => e.stopPropagation());
+                meta.appendChild(link);
+            }
+            card.appendChild(meta);
+
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = '✕';
+            closeBtn.style.cssText = `
+                position:absolute;top:14px;right:14px;
+                background:rgba(255,255,255,.12);border:none;color:rgba(255,255,255,.7);
+                width:28px;height:28px;border-radius:50%;cursor:pointer;
+                font-size:13px;display:flex;align-items:center;justify-content:center;
+                transition:background .12s;
+            `;
+            closeBtn.addEventListener('mouseover', () => closeBtn.style.background = 'rgba(255,255,255,.22)');
+            closeBtn.addEventListener('mouseout',  () => closeBtn.style.background = 'rgba(255,255,255,.12)');
+            closeBtn.addEventListener('click', () => _closePreview());
+            card.style.position = 'relative';
+            card.appendChild(closeBtn);
+
+            overlay.appendChild(card);
+            overlay.addEventListener('click', () => _closePreview());
+            const _onEsc = (e) => { if (e.key === 'Escape') { _closePreview(); document.removeEventListener('keydown', _onEsc); } };
+            document.addEventListener('keydown', _onEsc);
+            document.body.appendChild(overlay);
+        }
+
+        function renderTextAuthorList(records) {
+            if (!records.length) { _renderEmpty(); return; }
+            const frag = document.createDocumentFragment();
+
+            const authorMap = new Map();
+            records.forEach(r => {
+                const key = r.screenName || '';
+                if (!authorMap.has(key)) {
+                    authorMap.set(key, {
+                        recs: [], maxTs: 0,
+                        displayName: r.displayName || key,
+                        avatarUrl: r.avatarUrl || '',
+                        screenName: key,
+                    });
+                }
+                const entry = authorMap.get(key);
+                entry.recs.push(r);
+                if ((r.ts || 0) > entry.maxTs) entry.maxTs = r.ts || 0;
+            });
+
+            const authors = Array.from(authorMap.values())
+                .sort((a, b) => b.maxTs - a.maxTs);
+
+            const SVG_HOME = `<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7L8 2l6 5"/><path d="M4 7v6h3v-3h2v3h3V7"/></svg>`;
+            const SVG_JUMP = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 2h4v4"/><path d="M7 9L14 2"/><path d="M12 10v4H2V4h4"/></svg>`;
+            const SVG_DEL  = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><polyline points="2,4 4,4 14,4"/><path d="M13 4l-.9 9H3.9L3 4"/><path d="M6.5 7v4M9.5 7v4"/><path d="M5.5 4V2.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5V4"/></svg>`;
+            const SVG_HEART_EMPTY = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
+            const SVG_HEART_FULL  = `<svg viewBox="0 0 16 16" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
+            const SVG_CHEV_DOWN   = `<svg viewBox="0 0 10 10" width="10" height="10" fill="currentColor"><path d="M1 3l4 4 4-4z"/></svg>`;
+            const SVG_CHEV_RIGHT  = `<svg viewBox="0 0 10 10" width="10" height="10" fill="currentColor"><path d="M3 1l4 4-4 4z"/></svg>`;
+
+            const textColor = _getTextBmContentColor();
+            let globalItemIdx = 0;
+
+            authors.forEach(({ screenName, displayName, avatarUrl, recs }) => {
+                const isCollapsed = _textAuthorCollapsed.has(screenName);
+
+                const header = document.createElement('div');
+                header.className = 'tm-hist-group-header';
+                header.dataset.authorHandle = screenName;
+                header.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 10px 8px 8px;cursor:pointer;border-radius:8px;margin:2px 0;background:rgba(255,255,255,.04);transition:background .12s';
+                header.addEventListener('mouseover', () => header.style.background = 'rgba(29,155,240,.1)');
+                header.addEventListener('mouseout',  () => header.style.background = 'rgba(255,255,255,.04)');
+
+                if (avatarUrl) {
+                    const av = document.createElement('img');
+                    av.src = avatarUrl; av.alt = ''; av.loading = 'lazy';
+                    av.style.cssText = 'width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(255,255,255,.12)';
+                    av.decode && av.decode().catch(() => {});
+                    header.appendChild(av);
+                } else {
+                    const avFb = document.createElement('div');
+                    avFb.style.cssText = 'width:40px;height:40px;border-radius:50%;background:rgba(29,155,240,.25);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;color:rgba(255,255,255,.5)';
+                    avFb.textContent = (displayName || screenName).charAt(0).toUpperCase();
+                    header.appendChild(avFb);
+                }
+
+                const authorInfo = document.createElement('div');
+                authorInfo.style.cssText = 'flex:1;min-width:0';
+                const dname = document.createElement('div');
+                dname.textContent = displayName;
+                dname.style.cssText = 'font-size:13px;font-weight:700;color:#e7e9ea;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+                const sname = document.createElement('div');
+                sname.style.cssText = 'display:flex;align-items:center;gap:5px;margin-top:1px';
+                const snameText = document.createElement('span');
+                snameText.textContent = '@' + screenName;
+                snameText.style.cssText = 'font-size:11px;color:rgba(255,255,255,.4)';
+                sname.appendChild(snameText);
+                const homeLink = document.createElement('a');
+                homeLink.href = `https://x.com/${screenName}`;
+                homeLink.target = '_blank'; homeLink.rel = 'noopener noreferrer';
+                homeLink.innerHTML = SVG_HOME;
+                homeLink.style.cssText = 'display:inline-flex;align-items:center;color:rgba(255,255,255,.3);transition:color .12s;flex-shrink:0';
+                homeLink.title = `@${screenName} profile`;
+                homeLink.addEventListener('click', e => e.stopPropagation());
+                homeLink.addEventListener('mouseover', () => homeLink.style.color = '#1d9bf0');
+                homeLink.addEventListener('mouseout',  () => homeLink.style.color = 'rgba(255,255,255,.3)');
+                sname.appendChild(homeLink);
+                authorInfo.appendChild(dname); authorInfo.appendChild(sname);
+                header.appendChild(authorInfo);
+
+                const countBdg = document.createElement('span');
+                countBdg.textContent = `${recs.length}`;
+                countBdg.style.cssText = 'font-size:10px;color:rgba(255,255,255,.4);background:rgba(255,255,255,.09);border-radius:99px;padding:1px 7px;flex-shrink:0';
+                header.appendChild(countBdg);
+
+                const chev = document.createElement('span');
+                chev.style.cssText = 'color:rgba(255,255,255,.3);flex-shrink:0;line-height:0';
+                chev.innerHTML = isCollapsed ? SVG_CHEV_RIGHT : SVG_CHEV_DOWN;
+                header.appendChild(chev);
+
+                header.addEventListener('click', () => {
+                    if (_textAuthorCollapsed.has(screenName)) _textAuthorCollapsed.delete(screenName);
+                    else _textAuthorCollapsed.add(screenName);
+                    render();
+                });
+
+                frag.appendChild(header);
+
+                if (isCollapsed) return;
+
+                const sortedRecs = recs.slice().sort((a, b) => (b.ts || 0) - (a.ts || 0));
+                let _cbShiftDown = false;
+                sortedRecs.forEach(rec => {
+                    const row = document.createElement('div');
+                    row.className = 'tm-hist-row tm-text-author-item' + (selectedIds.has(rec.id) ? ' selected' : '');
+                    row.dataset.id = rec.id;
+                    if (globalItemIdx < 8) row.style.animationDelay = `${globalItemIdx * 30}ms`;
+                    globalItemIdx++;
+                    row.style.paddingLeft = '56px';
+                    row.title = editMode ? '' : 'Click to preview full text';
+
+                    if (editMode) {
+                        if (!rec.favorited) {
+                            const cb = document.createElement('input');
+                            cb.type = 'checkbox';
+                            cb.className = 'tm-hist-cb';
+                            cb.checked = selectedIds.has(rec.id);
+                            cb.addEventListener('mousedown', e => { _cbShiftDown = e.shiftKey; });
+                            cb.addEventListener('change', e => {
+                                e.stopPropagation();
+                                _toggleTextRowSel(rec.id, row, cb);
+                                _cbShiftDown = false;
+                            });
+                            row.appendChild(cb);
+                        } else {
+                            const lock = document.createElement('span');
+                            lock.className = 'tm-hist-cb';
+                            lock.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;opacity:0.35;font-size:10px;';
+                            lock.textContent = '♥';
+                            row.appendChild(lock);
+                        }
+                        row.style.cursor = rec.favorited ? 'default' : 'pointer';
+                    }
+
+                    const textEl = document.createElement('div');
+                    textEl.className = 'tm-hist-text';
+                    textEl.textContent = rec.text || '(no caption)';
+                    textEl.style.cssText = `
+                        color:${textColor};font-size:13px;line-height:1.55;
+                        display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+                        overflow:hidden;word-break:break-word;flex:1;min-width:0;
+                    `;
+
+                    const dateEl = document.createElement('span');
+                    dateEl.className = 'tm-hist-date';
+                    if (rec.downloadDate) {
+                        const [dy, dm, dd] = rec.downloadDate.split('-');
+                        if (_cachedDateFormat === 'western') {
+                            const MON = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                            dateEl.textContent = `${parseInt(dd, 10)} ${MON[parseInt(dm, 10)] || dm} ${dy}`;
+                        } else {
+                            dateEl.textContent = `${dy}.${dm}.${dd}`;
+                        }
+                    }
+
+                    const infoLine = document.createElement('div');
+                    infoLine.style.cssText = 'display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0';
+                    if (rec.downloadDate) {
+                        const dateSep = document.createElement('span');
+                        dateSep.style.cssText = 'font-size:11px;color:rgba(255,255,255,.28);white-space:nowrap;padding-top:1px;flex-shrink:0';
+                        dateSep.textContent = dateEl.textContent;
+                        infoLine.appendChild(dateSep);
+                    }
+                    infoLine.appendChild(textEl);
+                    row.appendChild(infoLine);
+
+                    const acts = document.createElement('div');
+                    acts.className = 'tm-hist-actions';
+
+                    const jmpBtn = document.createElement('button');
+                    jmpBtn.className = 'tm-hist-act-btn'; jmpBtn.innerHTML = SVG_JUMP;
+                    jmpBtn.title = 'Open tweet';
+                    jmpBtn.addEventListener('click', e => { e.stopPropagation(); window.open(rec.tweetUrl, '_blank'); });
+
+                    const favBtn = document.createElement('button');
+                    const isFav = !!rec.favorited;
+                    favBtn.className = 'tm-hist-act-btn tm-fav-btn' + (isFav ? ' tm-fav-active' : '');
+                    favBtn.innerHTML = isFav ? SVG_HEART_FULL : SVG_HEART_EMPTY;
+                    favBtn.title = isFav ? 'Unfavorite' : 'Favorite';
+                    favBtn.addEventListener('click', e => {
+                        e.stopPropagation();
+                        const updated = _updateRecord(rec.id, r => { r.favorited = !r.favorited; });
+                        if (!updated) return;
+                        const nowFav = updated.favorited;
+                        favBtn.innerHTML = nowFav ? SVG_HEART_FULL : SVG_HEART_EMPTY;
+                        favBtn.title = nowFav ? 'Unfavorite' : 'Favorite';
+                        favBtn.classList.toggle('tm-fav-active', nowFav);
+                        rec.favorited = nowFav;
+                    });
+
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'tm-hist-act-btn danger'; delBtn.innerHTML = SVG_DEL;
+                    delBtn.title = 'Delete';
+                    delBtn.addEventListener('click', e => { e.stopPropagation(); _deleteOne(rec.id, 0, favBtn); });
+
+                    acts.appendChild(favBtn); acts.appendChild(jmpBtn); acts.appendChild(delBtn);
+                    row.appendChild(acts);
+
+                    row.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('tm-hist-act-btn') ||
+                            e.target.closest('.tm-hist-actions')) return;
+                        if (editMode) {
+                            if (e.target.classList.contains('tm-hist-cb')) return;
+                            if (!rec.favorited) {
+                                const cb = row.querySelector('input[type="checkbox"].tm-hist-cb');
+                                _toggleTextRowSel(rec.id, row, cb);
+                            }
+                            return;
+                        }
+                        _showTextPreview(rec);
+                    });
+
+                    frag.appendChild(row);
+                });
+            });
+
+            body.appendChild(frag);
+
+            if (_textAuthorScrollTarget) {
+                const target = _textAuthorScrollTarget;
+                _textAuthorScrollTarget = null;
+                requestAnimationFrame(() => {
+                    const el = body.querySelector(`[data-author-handle="${CSS.escape(target)}"]`);
+                    if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+                });
+            }
+        }
+
+        function renderTextAuthorThumb(records) {
+            if (!records.length) { _renderEmpty(); return; }
+
+            const authorMap = new Map();
+            records.forEach(r => {
+                const key = r.screenName || '';
+                if (!authorMap.has(key) || (r.ts || 0) > authorMap.get(key).maxTs) {
+                    authorMap.set(key, {
+                        screenName: key,
+                        displayName: r.displayName || key,
+                        avatarUrl:   r.avatarUrl   || '',
+                        maxTs: r.ts || 0,
+                        recCount: 0,
+                    });
+                }
+                authorMap.get(key).recCount++;
+            });
+
+            const authors = Array.from(authorMap.values()).sort((a, b) => {
+                const ap = _textPinnedAuthors.has(a.screenName) ? 0 : 1;
+                const bp = _textPinnedAuthors.has(b.screenName) ? 0 : 1;
+                if (ap !== bp) return ap - bp;
+                return b.maxTs - a.maxTs;
+            });
+
+            const grid = document.createElement('div');
+            grid.id = 'tm-hist-thumb-grid';
+            const frag = document.createDocumentFragment();
+
+            authors.forEach(({ screenName, displayName, avatarUrl, recCount }) => {
+                const isPinned = _textPinnedAuthors.has(screenName);
+
+                const cell = document.createElement('div');
+                cell.className = 'tm-hist-grid-cell tm-text-author-cell';
+                cell.title = `${displayName} @${screenName} — ${recCount} bookmark${recCount > 1 ? 's' : ''}`;
+
+                const inner = document.createElement('div');
+                inner.style.cssText = 'width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;padding:14px 6px 10px;box-sizing:border-box;background:rgba(29,155,240,.08)';
+
+                if (avatarUrl) {
+                    const av = document.createElement('img');
+                    av.src = avatarUrl; av.alt = ''; av.loading = 'lazy';
+                    av.style.cssText = 'width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.18);flex-shrink:0';
+                    av.decode && av.decode().catch(() => {});
+                    inner.appendChild(av);
+                } else {
+                    const avFb = document.createElement('div');
+                    avFb.style.cssText = 'width:40px;height:40px;border-radius:50%;background:rgba(29,155,240,.3);display:flex;align-items:center;justify-content:center;font-size:18px;color:rgba(255,255,255,.6);flex-shrink:0';
+                    avFb.textContent = (displayName || screenName).charAt(0).toUpperCase();
+                    inner.appendChild(avFb);
+                }
+
+                const nameEl = document.createElement('div');
+                nameEl.style.cssText = 'font-size:11px;font-weight:700;color:#e7e9ea;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;width:100%;padding:0 6px;box-sizing:border-box;line-height:1.3';
+                nameEl.textContent = displayName;
+
+                const handleEl = document.createElement('div');
+                handleEl.style.cssText = 'font-size:10px;color:rgba(255,255,255,.4);text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;width:100%;padding:0 6px;box-sizing:border-box;margin-top:-2px';
+                handleEl.textContent = '@' + screenName;
+
+                const cntEl = document.createElement('div');
+                cntEl.style.cssText = 'font-size:9px;color:rgba(255,255,255,.28);background:rgba(255,255,255,.07);border-radius:99px;padding:1px 6px;margin-top:1px;flex-shrink:0';
+                cntEl.textContent = `${recCount} post${recCount > 1 ? 's' : ''}`;
+
+                inner.appendChild(nameEl); inner.appendChild(handleEl); inner.appendChild(cntEl);
+                cell.appendChild(inner);
+
+                const pinBtn = document.createElement('button');
+                pinBtn.className = 'tm-text-pin-btn';
+                pinBtn.textContent = '📌';
+                pinBtn.title = isPinned ? 'Unpin (remove from top)' : 'Pin to top';
+                pinBtn.style.opacity = isPinned ? '1' : '0.3';
+                pinBtn.addEventListener('mouseover', () => {
+                    pinBtn.style.opacity = '1';
+                    pinBtn.style.background = 'rgba(0,0,0,.7)';
+                });
+                pinBtn.addEventListener('mouseout', () => {
+                    const stillPinned = _textPinnedAuthors.has(screenName);
+                    pinBtn.style.opacity = stillPinned ? '1' : '0.3';
+                    pinBtn.style.background = 'rgba(0,0,0,.5)';
+                });
+                pinBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    const nowPinned = !_textPinnedAuthors.has(screenName);
+                    if (nowPinned) _textPinnedAuthors.add(screenName);
+                    else           _textPinnedAuthors.delete(screenName);
+                    _savePinnedAuthors();
+                    pinBtn.title   = nowPinned ? 'Unpin (remove from top)' : 'Pin to top';
+                    pinBtn.style.opacity = nowPinned ? '1' : '0.3';
+                    render();
+                });
+                cell.appendChild(pinBtn);
+
+                cell.addEventListener('click', (e) => {
+                    if (e.target.closest('button')) return;
+                    _textAuthorScrollTarget = screenName;
+                    viewMode = 'list';
+                    GM_setValue(KEY_HISTORY_VIEW_MODE, 'list');
+                    render();
+                });
+
+                frag.appendChild(cell);
+            });
+
+            grid.appendChild(frag);
+            body.appendChild(grid);
         }
 
         function renderList(records) {
@@ -9712,6 +10263,22 @@
             msg.style.whiteSpace = 'pre-line';
             em.appendChild(msg);
             body.appendChild(em);
+        }
+
+        function _toggleTextRowSel(id, row, cb) {
+            const allRecs = getFiltered(getRecords());
+            const target = allRecs.find(r => r.id === id);
+            if (target && target.favorited) return;
+            if (selectedIds.has(id)) {
+                selectedIds.delete(id);
+                row.classList.remove('selected');
+                if (cb) cb.checked = false;
+            } else {
+                selectedIds.add(id);
+                row.classList.add('selected');
+                if (cb) cb.checked = true;
+            }
+            delSelBtn.textContent = `Delete selected (${selectedIds.size})`;
         }
 
         function _handleCheckbox(id, idx, shiftKey) {
