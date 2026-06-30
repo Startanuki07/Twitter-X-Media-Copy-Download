@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.7.0
+// @version      2.9.7.5
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -273,6 +273,7 @@
             status_default: 'Default (x.com)',
             status_custom: 'Custom',
             btn_tooltip: 'Left Click: Copy Media Links\nMiddle Click: Preview Video / Image Lightbox\nRight Click: Download Files',
+            btn_tooltip_menu: 'Click: Open Action Menu\n(Copy / Copy with Prefix / Preview / Download All)',
             link_tooltip: 'Click: Copy ',
             link_tooltip_long: '\nLong Press: Copy prefix + ',
             msg_prefix_copied: 'Prefix Copied',
@@ -440,6 +441,7 @@
             status_default: '預設 (x.com)',
             status_custom: '自定義',
             btn_tooltip: '左鍵：複製媒體連結\n中鍵：預覽影片 / 圖片燈箱\n右鍵：強制下載檔案',
+            btn_tooltip_menu: '點擊：開啟操作選單\n（複製 / 帶前綴複製 / 預覽 / 全部下載）',
             link_tooltip: '點擊：複製 ',
             link_tooltip_long: '\n長按：複製前綴 + ',
             msg_prefix_copied: '前綴已複製',
@@ -604,6 +606,7 @@
             status_default: '默认 (x.com)',
             status_custom: '自定义',
             btn_tooltip: '左键：复制媒体链接\n中键：预览视频 / 图片灯箱\n右键：强制下载文件',
+            btn_tooltip_menu: '点击：打开操作菜单\n（复制 / 带前缀复制 / 预览 / 全部下载）',
             link_tooltip: '点击：复制 ',
             link_tooltip_long: '\n长按：复制前缀 + ',
             msg_prefix_copied: '前缀已复制',
@@ -768,6 +771,7 @@
             status_default: 'デフォルト (x.com)',
             status_custom: 'カスタム',
             btn_tooltip: '左：メディアリンクをコピー\n中：動画プレビュー / 画像ライトボックス\n右：ファイルをダウンロード',
+            btn_tooltip_menu: 'クリック：アクションメニューを開く\n（コピー / プレフィックス付きコピー / プレビュー / 一括ダウンロード）',
             link_tooltip: 'クリック：コピー ',
             link_tooltip_long: '\n長押し：プレフィックス付きコピー ',
             msg_prefix_copied: 'プレフィックス付',
@@ -932,6 +936,7 @@
             status_default: '기본 (x.com)',
             status_custom: '사용자 지정',
             btn_tooltip: '왼쪽: 미디어 링크 복사\n가운데: 동영상 미리보기 / 이미지 라이트박스\n오른쪽: 파일 다운로드',
+            btn_tooltip_menu: '클릭: 작업 메뉴 열기\n(복사 / 접두사 포함 복사 / 미리보기 / 전체 다운로드)',
             link_tooltip: '클릭: 복사 ',
             link_tooltip_long: '\n길게 누르기: 접두사 포함 복사 ',
             msg_prefix_copied: '접두사 복사됨',
@@ -1096,6 +1101,7 @@
             status_default: 'Predeterminado (x.com)',
             status_custom: 'Personalizado',
             btn_tooltip: 'Clic izq: Copiar enlaces de medios\nClic central: Ver video / Galería de imágenes\nClic der: Descargar archivos',
+            btn_tooltip_menu: 'Clic: Abrir menú de acciones\n(Copiar / Copiar con prefijo / Vista previa / Descargar todo)',
             link_tooltip: 'Clic: Copiar ',
             link_tooltip_long: '\nPulsación larga: Copiar prefijo + ',
             msg_prefix_copied: 'Prefijo copiado',
@@ -1260,6 +1266,7 @@
             status_default: 'Padrão (x.com)',
             status_custom: 'Personalizado',
             btn_tooltip: 'Clique esq: Copiar links de mídia\nClique do meio: Visualizar vídeo / Galeria de imagens\nClique dir: Baixar arquivos',
+            btn_tooltip_menu: 'Clique: Abrir menu de ações\n(Copiar / Copiar com prefixo / Visualizar / Baixar tudo)',
             link_tooltip: 'Clique: Copiar ',
             link_tooltip_long: '\nPressão longa: Copiar prefixo + ',
             msg_prefix_copied: 'Prefixo copiado',
@@ -1424,6 +1431,7 @@
             status_default: 'Par défaut (x.com)',
             status_custom: 'Personnalisé',
             btn_tooltip: 'Clic gauche : Copier les liens médias\nClic milieu : Aperçu vidéo / Galerie images\nClic droit : Télécharger les fichiers',
+            btn_tooltip_menu: 'Clic : Ouvrir le menu d\u2019actions\n(Copier / Copier avec préfixe / Aperçu / Tout télécharger)',
             link_tooltip: 'Clic : Copier ',
             link_tooltip_long: '\nAppui long : Copier préfixe + ',
             msg_prefix_copied: 'Préfixe copié',
@@ -1588,6 +1596,7 @@
             status_default: 'По умолчанию (x.com)',
             status_custom: 'Пользовательский',
             btn_tooltip: 'Левый клик: Копировать медиа-ссылки\nСредний клик: Просмотр видео / Галерея изображений\nПравый клик: Скачать файлы',
+            btn_tooltip_menu: 'Клик: Открыть меню действий\n(Копировать / Копировать с префиксом / Просмотр / Скачать всё)',
             link_tooltip: 'Клик: Копировать ',
             link_tooltip_long: '\nДолгое нажатие: Копировать с префиксом ',
             msg_prefix_copied: 'Префикс скопирован',
@@ -2184,55 +2193,12 @@
         const template = {
             _note: "Translate the VALUES only. Do NOT change the KEYS. Keep {placeholders} like {lang} untouched. Preserve HTML tags and emoji as-is. Set \"langName\" to your language's native name.",
             langName: "My Custom Language",
-            menu_domain_click: base.menu_domain_click,
-            menu_domain_long: base.menu_domain_long,
-            menu_prefix: base.menu_prefix,
-            menu_lang: base.menu_lang,
-            menu_help: base.menu_help,
-            prompt_prefix: base.prompt_prefix,
-            prompt_lang: base.prompt_lang,
-            prompt_domain: base.prompt_domain,
-            status_default: base.status_default,
-            status_custom: base.status_custom,
-            btn_tooltip: base.btn_tooltip,
-            link_tooltip: base.link_tooltip,
-            link_tooltip_long: base.link_tooltip_long,
-            msg_prefix_copied: base.msg_prefix_copied,
-            msg_copied: base.msg_copied,
-            msg_downloaded: base.msg_downloaded,
-            msg_no_media: base.msg_no_media,
-            play_btn_tooltip: base.play_btn_tooltip,
-            btn_switch_to_video: base.btn_switch_to_video,
-            btn_switch_to_image: base.btn_switch_to_image,
-            msg_no_video: base.msg_no_video,
-            reload_msg: base.reload_msg,
-            toast_domain_click: base.toast_domain_click,
-            toast_domain_long: base.toast_domain_long,
-            toast_prefix: base.toast_prefix,
-            toast_date_fmt: base.toast_date_fmt,
-            toast_lang_pending: base.toast_lang_pending,
-            confirm_lang_reload: base.confirm_lang_reload,
-            menu_date_format: base.menu_date_format,
-            status_date_asian: base.status_date_asian,
-            status_date_western: base.status_date_western,
-            menu_feedback_style: base.menu_feedback_style,
-            status_feedback_toast: base.status_feedback_toast,
-            status_feedback_icon: base.status_feedback_icon,
-            status_feedback_pulse: base.status_feedback_pulse,
-            status_feedback_flash: base.status_feedback_flash,
-            status_feedback_slide: base.status_feedback_slide,
-            status_on:  base.status_on,
-            status_off: base.status_off,
-            toast_feedback_style: base.toast_feedback_style,
-            help_title: base.help_title,
-            help_content: base.help_content.trim(),
-            onboard_title: base.onboard_title,
-            onboard_body:  base.onboard_body,
-            onboard_got_it: base.onboard_got_it,
-            onboard_step1_title: base.onboard_step1_title,
-            onboard_step1_body:  base.onboard_step1_body,
-            onboard_next: base.onboard_next,
         };
+        Object.keys(base).forEach(key => {
+            if (key === 'langName') return;
+            const val = base[key];
+            template[key] = (typeof val === 'string') ? val.trim() : val;
+        });
         return template;
     }
 
@@ -7501,7 +7467,6 @@
             idx.forEach(ym => _writeMonthRecords(ym, byMonth[ym]));
             GM_setValue(KEY_HISTORY_INDEX, JSON.stringify(idx));
             GM_deleteValue(KEY_HISTORY_RECORDS);
-            console.log('[TMHist] Migrated', records.length, 'records → monthly storage');
         } catch (e) { console.error('[TMHist] Migration failed (keeping legacy key):', e); }
     })();
 
@@ -11486,7 +11451,7 @@
             opacity: 0.75;
             cursor: pointer;
             margin-left: 4px;
-            transition: opacity 0.2s, filter 0.2s;
+            transition: opacity 0.2s, filter 0.2s, color 0.15s;
             color: #536471;
             flex-shrink: 0;
         }
@@ -11500,10 +11465,11 @@
             overflow: visible;
             flex-shrink: 0;
         }
-        .${BUTTON_CLASS}:hover { opacity: 1.0; }
+        .${BUTTON_CLASS}:hover { opacity: 1.0; color: #1d9bf0; }
         .custom-copy-icon:hover {
             opacity: 1.0;
-            filter: drop-shadow(0 0 4px currentColor);
+            color: #1d9bf0;
+            filter: drop-shadow(0 0 4px rgba(29,155,240,0.4));
         }
     `;
     document.head.appendChild(style);
@@ -11985,9 +11951,8 @@
             display: flex; align-items: center; justify-content: center;
             overscroll-behavior: contain;
         `;
-        modal.addEventListener('wheel', e => e.preventDefault(), { passive: false });
+        modal.addEventListener('wheel', e => { e.preventDefault(); e.stopPropagation(); }, { passive: false });
         modal.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
-
         const video = document.createElement('video');
         video.controls = true;
         video.autoplay = true;
@@ -12594,7 +12559,7 @@
             display: flex; align-items: center; justify-content: center;
             overflow: hidden; overscroll-behavior: contain;
         `;
-        modal.addEventListener('wheel',     e => e.preventDefault(), { passive: false });
+        modal.addEventListener('wheel',     e => { e.preventDefault(); e.stopPropagation(); }, { passive: false });
         modal.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
 
         let keyHandler = () => {};
@@ -12804,6 +12769,7 @@
             };
             modal.addEventListener('wheel', e => {
                 e.preventDefault();
+                e.stopPropagation();
                 const delta = e.deltaY < 0 ? 1.1 : 0.9;
                 _lbScale = Math.min(8, Math.max(0.2, _lbScale * delta));
                 if (_lbScale <= 1.02) { _lbResetTransform(); return; }
@@ -13736,8 +13702,9 @@
 
         const btn = document.createElement('button');
         btn.className = BUTTON_CLASS;
-        btn.title = T.btn_tooltip;
-        btn.setAttribute('aria-label', T.btn_tooltip || 'Media: copy URL / download');
+        const _btnTooltipText = _cachedClickMode === 'menu' ? T.btn_tooltip_menu : T.btn_tooltip;
+        btn.title = _btnTooltipText;
+        btn.setAttribute('aria-label', _btnTooltipText || 'Media: copy URL / download');
         btn.setAttribute('role', 'button');
         btn.style.position = 'relative';
 
@@ -14244,6 +14211,9 @@
 
             const _doSaveLinkTextBookmark = async () => {
                 const rawText = article.querySelector('[data-testid="tweetText"]')?.innerText?.trim() || '';
+                const _allTweetTexts = article.querySelectorAll('[data-testid="tweetText"]');
+                const _quotedText = _allTweetTexts.length > 1 ? (_allTweetTexts[1].innerText?.trim() || '') : '';
+                const _fullSaveText = _quotedText ? `${rawText}\n\n[Quoted] ${_quotedText}` : rawText;
                 const info = getTweetInfo(article);
                 if (!rawText) {
                     _dialogOpenGlobal = true;
@@ -14266,7 +14236,7 @@
                         downloadDate: `${_yy}-${_mm}-${String(_now.getDate()).padStart(2,'0')}`,
                         screenName:   info.screenName,
                         displayName:  info.displayName,
-                        text:         (rawText || info.text || '').slice(0, 280),
+                        text:         _fullSaveText || '',
                         thumbUrls:    [],
                         mediaUrls:    [],
                         hasVideo:     false,
