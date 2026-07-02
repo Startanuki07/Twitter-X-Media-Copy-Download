@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.7.5
+// @version      2.9.7.8
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -49,11 +49,14 @@
         .replace(/"/g,  '&quot;')
         .replace(/'/g,  '&#39;');
 
-    function _buildPrefixedTweetUrl(tweetUrl) {
+    function _convertTweetUrlDomain(tweetUrl) {
         const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
             ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
-        let tUrl = tweetUrl;
-        try { const o = new URL(tUrl); o.hostname = _dom; tUrl = o.toString(); } catch(_) {}
+        try { const o = new URL(tweetUrl); o.hostname = _dom; return o.toString(); } catch(_) { return tweetUrl; }
+    }
+
+    function _buildPrefixedTweetUrl(tweetUrl) {
+        const tUrl = _convertTweetUrlDomain(tweetUrl);
         const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
         return `${prefix}(${tUrl})`;
     }
@@ -219,6 +222,7 @@
     const KEY_VIDEO_SPEED       = 'app_video_speed';
     const KEY_CUSTOM_BEARER     = 'app_custom_bearer';
     const KEY_SCAN_INTERVAL     = 'app_scan_interval';
+    const KEY_GRID_MEDIA_BTN    = 'app_grid_media_btn';
 
     const KEY_TF_CSS_SIMPLIFY = 'app_tf_css_simplify';
     const KEY_TF_FEED_PRUNE   = 'app_tf_feed_prune';
@@ -247,6 +251,7 @@
         'custom_media_actions',
         'pt_css_simplify',
         'pt_feed_prune',
+        'grid_media_btn',
     ];
 
     const DOMAIN_LIST = [
@@ -274,6 +279,13 @@
             status_custom: 'Custom',
             btn_tooltip: 'Left Click: Copy Media Links\nMiddle Click: Preview Video / Image Lightbox\nRight Click: Download Files',
             btn_tooltip_menu: 'Click: Open Action Menu\n(Copy / Copy with Prefix / Preview / Download All)',
+            sp_grid_media_btn_label: 'Media Grid Buttons',
+            sp_grid_media_btn_desc: 'Show copy/preview/download buttons on /media page thumbnails',
+            grid_btn_copy_tip: 'Copy tweet link',
+            grid_btn_preview_tip: 'Preview in lightbox',
+            grid_btn_download_tip: 'Download media',
+            toast_grid_media_copied: 'Link copied!',
+            toast_grid_media_saved: 'Media saved!',
             link_tooltip: 'Click: Copy ',
             link_tooltip_long: '\nLong Press: Copy prefix + ',
             msg_prefix_copied: 'Prefix Copied',
@@ -442,6 +454,13 @@
             status_custom: '自定義',
             btn_tooltip: '左鍵：複製媒體連結\n中鍵：預覽影片 / 圖片燈箱\n右鍵：強制下載檔案',
             btn_tooltip_menu: '點擊：開啟操作選單\n（複製 / 帶前綴複製 / 預覽 / 全部下載）',
+            sp_grid_media_btn_label: '媒體 Grid 按鈕',
+            sp_grid_media_btn_desc: '在 /media 頁面縮圖顯示複製/預覽/下載按鈕',
+            grid_btn_copy_tip: '複製推文連結',
+            grid_btn_preview_tip: '燈箱預覽',
+            grid_btn_download_tip: '下載媒體',
+            toast_grid_media_copied: '連結已複製！',
+            toast_grid_media_saved: '媒體已儲存！',
             link_tooltip: '點擊：複製 ',
             link_tooltip_long: '\n長按：複製前綴 + ',
             msg_prefix_copied: '前綴已複製',
@@ -607,6 +626,13 @@
             status_custom: '自定义',
             btn_tooltip: '左键：复制媒体链接\n中键：预览视频 / 图片灯箱\n右键：强制下载文件',
             btn_tooltip_menu: '点击：打开操作菜单\n（复制 / 带前缀复制 / 预览 / 全部下载）',
+            sp_grid_media_btn_label: '媒体 Grid 按钮',
+            sp_grid_media_btn_desc: '在 /media 页面缩图显示复制/预览/下载按钮',
+            grid_btn_copy_tip: '复制推文链接',
+            grid_btn_preview_tip: '灯箱预览',
+            grid_btn_download_tip: '下载媒体',
+            toast_grid_media_copied: '链接已复制！',
+            toast_grid_media_saved: '媒体已保存！',
             link_tooltip: '点击：复制 ',
             link_tooltip_long: '\n长按：复制前缀 + ',
             msg_prefix_copied: '前缀已复制',
@@ -772,6 +798,13 @@
             status_custom: 'カスタム',
             btn_tooltip: '左：メディアリンクをコピー\n中：動画プレビュー / 画像ライトボックス\n右：ファイルをダウンロード',
             btn_tooltip_menu: 'クリック：アクションメニューを開く\n（コピー / プレフィックス付きコピー / プレビュー / 一括ダウンロード）',
+            sp_grid_media_btn_label: 'メディア Grid ボタン',
+            sp_grid_media_btn_desc: '/media ページのサムネイルにコピー/プレビュー/ダウンロードボタンを表示',
+            grid_btn_copy_tip: 'ツイートリンクをコピー',
+            grid_btn_preview_tip: 'ライトボックスでプレビュー',
+            grid_btn_download_tip: 'メディアをダウンロード',
+            toast_grid_media_copied: 'リンクをコピーしました！',
+            toast_grid_media_saved: 'メディアを保存しました！',
             link_tooltip: 'クリック：コピー ',
             link_tooltip_long: '\n長押し：プレフィックス付きコピー ',
             msg_prefix_copied: 'プレフィックス付',
@@ -937,6 +970,13 @@
             status_custom: '사용자 지정',
             btn_tooltip: '왼쪽: 미디어 링크 복사\n가운데: 동영상 미리보기 / 이미지 라이트박스\n오른쪽: 파일 다운로드',
             btn_tooltip_menu: '클릭: 작업 메뉴 열기\n(복사 / 접두사 포함 복사 / 미리보기 / 전체 다운로드)',
+            sp_grid_media_btn_label: '미디어 Grid 버튼',
+            sp_grid_media_btn_desc: '/media 페이지 썸네일에 복사/미리보기/다운로드 버튼 표시',
+            grid_btn_copy_tip: '트윗 링크 복사',
+            grid_btn_preview_tip: '라이트박스로 미리보기',
+            grid_btn_download_tip: '미디어 다운로드',
+            toast_grid_media_copied: '링크가 복사되었습니다!',
+            toast_grid_media_saved: '미디어가 저장되었습니다!',
             link_tooltip: '클릭: 복사 ',
             link_tooltip_long: '\n길게 누르기: 접두사 포함 복사 ',
             msg_prefix_copied: '접두사 복사됨',
@@ -1102,6 +1142,13 @@
             status_custom: 'Personalizado',
             btn_tooltip: 'Clic izq: Copiar enlaces de medios\nClic central: Ver video / Galería de imágenes\nClic der: Descargar archivos',
             btn_tooltip_menu: 'Clic: Abrir menú de acciones\n(Copiar / Copiar con prefijo / Vista previa / Descargar todo)',
+            sp_grid_media_btn_label: 'Botones de Grid de Medios',
+            sp_grid_media_btn_desc: 'Mostrar botones de copiar/vista previa/descargar en miniaturas de /media',
+            grid_btn_copy_tip: 'Copiar enlace del tweet',
+            grid_btn_preview_tip: 'Vista previa en galería',
+            grid_btn_download_tip: 'Descargar medio',
+            toast_grid_media_copied: '¡Enlace copiado!',
+            toast_grid_media_saved: '¡Medio guardado!',
             link_tooltip: 'Clic: Copiar ',
             link_tooltip_long: '\nPulsación larga: Copiar prefijo + ',
             msg_prefix_copied: 'Prefijo copiado',
@@ -1267,6 +1314,13 @@
             status_custom: 'Personalizado',
             btn_tooltip: 'Clique esq: Copiar links de mídia\nClique do meio: Visualizar vídeo / Galeria de imagens\nClique dir: Baixar arquivos',
             btn_tooltip_menu: 'Clique: Abrir menu de ações\n(Copiar / Copiar com prefixo / Visualizar / Baixar tudo)',
+            sp_grid_media_btn_label: 'Botões de Grid de Mídia',
+            sp_grid_media_btn_desc: 'Mostrar botões de copiar/visualizar/baixar nas miniaturas de /media',
+            grid_btn_copy_tip: 'Copiar link do tweet',
+            grid_btn_preview_tip: 'Visualizar na galeria',
+            grid_btn_download_tip: 'Baixar mídia',
+            toast_grid_media_copied: 'Link copiado!',
+            toast_grid_media_saved: 'Mídia salva!',
             link_tooltip: 'Clique: Copiar ',
             link_tooltip_long: '\nPressão longa: Copiar prefixo + ',
             msg_prefix_copied: 'Prefixo copiado',
@@ -1432,6 +1486,13 @@
             status_custom: 'Personnalisé',
             btn_tooltip: 'Clic gauche : Copier les liens médias\nClic milieu : Aperçu vidéo / Galerie images\nClic droit : Télécharger les fichiers',
             btn_tooltip_menu: 'Clic : Ouvrir le menu d\u2019actions\n(Copier / Copier avec préfixe / Aperçu / Tout télécharger)',
+            sp_grid_media_btn_label: 'Boutons Grid Média',
+            sp_grid_media_btn_desc: 'Afficher les boutons copier/aperçu/télécharger sur les vignettes de /media',
+            grid_btn_copy_tip: 'Copier le lien du tweet',
+            grid_btn_preview_tip: 'Aperçu dans la galerie',
+            grid_btn_download_tip: 'Télécharger le média',
+            toast_grid_media_copied: 'Lien copié\u00a0!',
+            toast_grid_media_saved: 'Média enregistré\u00a0!',
             link_tooltip: 'Clic : Copier ',
             link_tooltip_long: '\nAppui long : Copier préfixe + ',
             msg_prefix_copied: 'Préfixe copié',
@@ -1597,6 +1658,13 @@
             status_custom: 'Пользовательский',
             btn_tooltip: 'Левый клик: Копировать медиа-ссылки\nСредний клик: Просмотр видео / Галерея изображений\nПравый клик: Скачать файлы',
             btn_tooltip_menu: 'Клик: Открыть меню действий\n(Копировать / Копировать с префиксом / Просмотр / Скачать всё)',
+            sp_grid_media_btn_label: 'Кнопки сетки медиа',
+            sp_grid_media_btn_desc: 'Показывать кнопки копирования/просмотра/скачивания на миниатюрах /media',
+            grid_btn_copy_tip: 'Копировать ссылку на твит',
+            grid_btn_preview_tip: 'Просмотр в галерее',
+            grid_btn_download_tip: 'Скачать медиа',
+            toast_grid_media_copied: 'Ссылка скопирована!',
+            toast_grid_media_saved: 'Медиа сохранено!',
             link_tooltip: 'Клик: Копировать ',
             link_tooltip_long: '\nДолгое нажатие: Копировать с префиксом ',
             msg_prefix_copied: 'Префикс скопирован',
@@ -1837,56 +1905,6 @@
                 setTimeout(() => toast.remove(), 300);
             }
         }, duration);
-    }
-
-    function _showReloadToast(message) {
-        const existing = document.getElementById('tm-reload-action-toast');
-        if (existing) existing.remove();
-
-        const toast = document.createElement('div');
-        toast.id = 'tm-reload-action-toast';
-        toast.style.cssText = `
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: #1d9bf0; color: white; padding: 10px 16px;
-            border-radius: 16px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            font-family: system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: bold;
-            z-index: 999999; display: flex; align-items: center; gap: 10px;
-            transition: opacity 0.3s ease-in-out; opacity: 0; pointer-events: auto;
-            white-space: normal; max-width: min(480px, 90vw); word-break: break-word;
-        `;
-
-        const span = document.createElement('span');
-        span.textContent = message;
-        span.style.flex = '1';
-
-        const reloadBtn = document.createElement('button');
-        reloadBtn.textContent = 'Reload';
-        reloadBtn.style.cssText = `
-            background: rgba(255,255,255,0.25); border: 1.5px solid rgba(255,255,255,0.7);
-            color: white; font-size: 13px; font-weight: 700; border-radius: 8px;
-            padding: 4px 10px; cursor: pointer; white-space: nowrap; flex-shrink: 0;
-            font-family: system-ui, -apple-system, sans-serif;
-        `;
-        reloadBtn.onmouseenter = () => { reloadBtn.style.background = 'rgba(255,255,255,0.4)'; };
-        reloadBtn.onmouseleave = () => { reloadBtn.style.background = 'rgba(255,255,255,0.25)'; };
-        reloadBtn.onclick = () => location.reload();
-
-        const dismissBtn = document.createElement('button');
-        dismissBtn.textContent = '✕';
-        dismissBtn.setAttribute('aria-label', 'Dismiss');
-        dismissBtn.style.cssText = `
-            background: none; border: none; color: rgba(255,255,255,0.7);
-            font-size: 14px; cursor: pointer; padding: 0 2px; flex-shrink: 0;
-            font-family: system-ui, -apple-system, sans-serif;
-        `;
-        dismissBtn.onclick = () => {
-            toast.style.opacity = '0';
-            setTimeout(() => toast.remove(), 300);
-        };
-
-        toast.append(span, reloadBtn, dismissBtn);
-        document.body.appendChild(toast);
-        requestAnimationFrame(() => { toast.style.opacity = '1'; });
     }
 
     function sanitizeHelpHtml(htmlString, container) {
@@ -5067,6 +5085,22 @@
                 registerMenus(); buildContent();
             }, 'sp_date_picker', 'asian'));
 
+            const gridBtnRow = makeRow(
+                T.sp_grid_media_btn_label || 'Media Grid Buttons',
+                () => GM_getValue(KEY_GRID_MEDIA_BTN, true) ? (T.status_on || 'On') : (T.status_off || 'Off'),
+                () => {
+                    const next = !GM_getValue(KEY_GRID_MEDIA_BTN, true);
+                    GM_setValue(KEY_GRID_MEDIA_BTN, next);
+                    showToast((T.sp_grid_media_btn_label || 'Media Grid Buttons') + ' → ' + (next ? (T.status_on || 'On') : (T.status_off || 'Off')));
+                    if (!next) document.querySelectorAll('.tm-grid-btn-layer').forEach(el => el.remove());
+                },
+                'grid_media_btn'
+            );
+            const gridBtnIcon = document.createElement('span');
+            gridBtnIcon.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:6px;"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="9.5" y="3" width="6" height="6" rx="1"/><rect x="16" y="3" width="5" height="6" rx="1"/><rect x="3" y="9.5" width="6" height="6" rx="1"/><rect x="9.5" y="9.5" width="6" height="6" rx="1"/><rect x="16" y="9.5" width="5" height="6" rx="1"/><rect x="3" y="16" width="6" height="5" rx="1"/><rect x="9.5" y="16" width="6" height="5" rx="1"/><rect x="16" y="16" width="5" height="5" rx="1"/></svg>';
+            gridBtnRow.querySelector('.tm-sp-row-label')?.prepend(gridBtnIcon);
+            grpMedia.append(gridBtnRow);
+
             const grpGroups = makeGroup(T.sp_grp_group || '⭐  Groups', true);
 
             const groupOnDlRow = makeRow(
@@ -5852,7 +5886,7 @@
                 KEY_DOCK_STYLE, KEY_DOCK_HOVER_DELAY, KEY_DOCK_TRIGGER_L, KEY_DOCK_TRIGGER_R,
                 KEY_DOCK_PERSISTED, KEY_DOCK_REMEMBER_POS, KEY_GROUP_ON_DOWNLOAD, KEY_SCAN_INTERVAL,
                 KEY_CUSTOM_MEDIA_ACTIONS, KEY_CUSTOM_LINK_ACTIONS, KEY_GROUP_PANEL_CFG,
-                KEY_TF_CSS_SIMPLIFY, KEY_TF_FEED_PRUNE,
+                KEY_TF_CSS_SIMPLIFY, KEY_TF_FEED_PRUNE, KEY_GRID_MEDIA_BTN,
             ];
             function _exportSettings() {
                 const snap = {};
@@ -6534,11 +6568,6 @@
         _pendingStarPipEl = null;
         pip.innerHTML = '<span class="tm-star-pip-glyph">⭐</span><span class="tm-star-pip-badge">+</span>';
         pip.title = 'Click: New Group · Hover: pick group';
-    }
-
-    function onStarPipClick() {
-        if (_fanOpen) closeGroupFan();
-        else openGroupFan();
     }
 
     function _layerCfg(n) {
@@ -12311,6 +12340,11 @@
     function _scanPageMedia() {
         const AVATAR_COLORS = ['#1d9bf0','#7856ff','#ff7a00','#00ba7c','#f91880'];
         const results = [];
+        const _hashColor = (handle) => {
+            let idx = 0;
+            for (let i = 0; i < handle.length; i++) idx += handle.charCodeAt(i);
+            return AVATAR_COLORS[idx % AVATAR_COLORS.length];
+        };
 
         document.querySelectorAll('article[data-testid="tweet"]').forEach(article => {
             let author = '', handle = '';
@@ -12381,13 +12415,47 @@
 
             if (!items.length) return;
 
-            let colorIdx = 0;
-            for (let i = 0; i < handle.length; i++) colorIdx += handle.charCodeAt(i);
-            const avatarColor = AVATAR_COLORS[colorIdx % AVATAR_COLORS.length];
+            const avatarColor = _hashColor(handle);
             const avatarLetter = (author[0] || handle[0] || '?').toUpperCase();
 
             results.push({ tweetId, author, handle, text, items, avatarColor, avatarLetter });
         });
+
+        if (!results.length) {
+            document.querySelectorAll('li[id^="verticalGridItem-"]').forEach(li => {
+                const anchor = li.querySelector('a[href*="/status/"]');
+                if (!anchor) return;
+                const href = anchor.getAttribute('href') || '';
+                const m = href.match(/^\/([^/]+)\/status\/(\d+)\/(photo|video)\/(\d+)/);
+                if (!m) return;
+                const [, handle, tweetId, mediaType] = m;
+                const img = li.querySelector('img');
+                if (!img) return;
+
+                let thumb = img.src;
+                try {
+                    const u = new URL(img.src);
+                    u.searchParams.set('name', '360x360');
+                    thumb = u.toString();
+                } catch(_) {}
+
+                let full = null;
+                if (mediaType === 'photo') {
+                    try {
+                        const u = new URL(img.src);
+                        u.searchParams.set('name', 'large');
+                        full = u.toString();
+                    } catch(_) { full = img.src; }
+                }
+
+                results.push({
+                    tweetId, author: '', handle, text: '',
+                    items: [{ type: mediaType === 'video' ? 'video' : 'image', thumb, url: full }],
+                    avatarColor: _hashColor(handle),
+                    avatarLetter: (handle[0] || '?').toUpperCase(),
+                });
+            });
+        }
 
         return results;
     }
@@ -13246,11 +13314,6 @@
         };
     }
 
-    function extractFiberNode(node) {
-        const key = Object.keys(node).find(k => k.startsWith("__reactFiber"));
-        return key ? node[key] : null;
-    }
-
     const _apiVideoCache = new Map();
     const _API_CACHE_TTL = 300_000;
 
@@ -13474,6 +13537,18 @@
                 });
             };
             walk(core);
+
+            try {
+                const legacy = core.legacy || core.tweet?.legacy || null;
+                if (legacy?.created_at) result.date = legacy.created_at;
+                if (legacy?.full_text)  result.text = legacy.full_text;
+                const userLegacy =
+                    core.core?.user_results?.result?.legacy ||
+                    core.user_results?.result?.legacy ||
+                    core.user?.legacy || null;
+                if (userLegacy?.name) result.displayName = userLegacy.name;
+            } catch(_) {  }
+
             return result;
         } catch(e) {
             return null;
@@ -14441,6 +14516,171 @@
 
     const _processedArticles = new WeakSet();
 
+    const GRID_BTN_CLASS = 'tm-grid-media-btn';
+    const _processedGridItems = new WeakSet();
+
+    if (!document.getElementById('tm-grid-btn-style')) {
+        const _gridStyle = document.createElement('style');
+        _gridStyle.id = 'tm-grid-btn-style';
+        _gridStyle.textContent = `
+            .tm-grid-btn-layer {
+                position: absolute; inset: 0; pointer-events: none;
+                opacity: 0; transition: opacity 0.15s ease;
+                z-index: 2;
+            }
+            li[id^="verticalGridItem-"]:hover .tm-grid-btn-layer { opacity: 1; }
+            .${GRID_BTN_CLASS} {
+                position: absolute; width: 26px; height: 26px;
+                border-radius: 6px; border: none; pointer-events: auto;
+                background: rgba(0,0,0,0.55); backdrop-filter: blur(2px);
+                color: #fff; display: flex; align-items: center; justify-content: center;
+                cursor: pointer; transition: background 0.15s ease, transform 0.1s ease;
+            }
+            .${GRID_BTN_CLASS}:hover { background: rgba(29,155,240,0.85); transform: scale(1.08); }
+            .${GRID_BTN_CLASS}.tm-grid-btn-ok { background: rgba(0,186,124,0.9) !important; }
+            .${GRID_BTN_CLASS}.tm-grid-btn-copy   { top: 6px;    left: 6px; }
+            .${GRID_BTN_CLASS}.tm-grid-btn-preview{ top: 6px;    right: 6px; }
+            .${GRID_BTN_CLASS}.tm-grid-btn-dl     { bottom: 6px; right: 6px; }
+            .${GRID_BTN_CLASS} svg { width: 14px; height: 14px; pointer-events: none; }
+        `;
+        document.head.appendChild(_gridStyle);
+    }
+
+    const SVG_GRID_COPY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+    const SVG_GRID_PREVIEW = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+    const SVG_GRID_DL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
+    const SVG_GRID_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,12 9,17 20,6"/></svg>`;
+
+    function _gridBtnFeedback(btn, originalSvg) {
+        btn.innerHTML = SVG_GRID_CHECK;
+        btn.classList.add('tm-grid-btn-ok');
+        setTimeout(() => {
+            btn.innerHTML = originalSvg;
+            btn.classList.remove('tm-grid-btn-ok');
+        }, 700);
+    }
+
+    function insertGridMediaButtons() {
+        if (!GM_getValue(KEY_GRID_MEDIA_BTN, true)) return;
+
+        document.querySelectorAll('li[id^="verticalGridItem-"]').forEach(li => {
+            const anchor = li.querySelector('a[href*="/status/"]');
+            if (!anchor) return;
+            const href = anchor.getAttribute('href') || '';
+            const m = href.match(/^\/([^/]+)\/status\/(\d+)\/(photo|video)\/(\d+)/);
+            if (!m) return;
+            const [, screenName, tweetId, mediaType] = m;
+
+            if (_processedGridItems.has(li) && li.dataset.tmGridHref === href) return;
+            if (li.dataset.tmGridHref && li.dataset.tmGridHref !== href) {
+                li.querySelector('.tm-grid-btn-layer')?.remove();
+                _processedGridItems.delete(li);
+            }
+
+            const posHost = anchor.querySelector('div') || anchor;
+            if (getComputedStyle(posHost).position === 'static') {
+                posHost.style.position = 'relative';
+            }
+
+            const layer = document.createElement('div');
+            layer.className = 'tm-grid-btn-layer';
+
+            const copyBtn = document.createElement('button');
+            copyBtn.type = 'button';
+            copyBtn.className = `${GRID_BTN_CLASS} tm-grid-btn-copy`;
+            copyBtn.title = T.grid_btn_copy_tip || 'Copy tweet link';
+            copyBtn.innerHTML = SVG_GRID_COPY;
+            let _copyLTimer = null;
+            const _gridTweetUrl = () => `https://${location.hostname}/${screenName}/status/${tweetId}`;
+            copyBtn.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return;
+                e.preventDefault(); e.stopPropagation();
+                _copyLTimer = setTimeout(() => {
+                    _copyLTimer = null;
+                    GM_setClipboard(_buildPrefixedTweetUrl(_gridTweetUrl()));
+                    _gridBtnFeedback(copyBtn, SVG_GRID_COPY);
+                    showToast(T.msg_prefix_copied || 'Prefix Copied');
+                }, 500);
+            });
+            copyBtn.addEventListener('mouseup', (e) => {
+                if (e.button !== 0) return;
+                if (_copyLTimer) {
+                    clearTimeout(_copyLTimer);
+                    _copyLTimer = null;
+                    GM_setClipboard(_convertTweetUrlDomain(_gridTweetUrl()));
+                    _gridBtnFeedback(copyBtn, SVG_GRID_COPY);
+                    showToast(T.toast_grid_media_copied || 'Link copied!');
+                }
+            });
+            copyBtn.addEventListener('mouseleave', () => { if (_copyLTimer) { clearTimeout(_copyLTimer); _copyLTimer = null; } });
+            copyBtn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
+
+            const previewBtn = document.createElement('button');
+            previewBtn.type = 'button';
+            previewBtn.className = `${GRID_BTN_CLASS} tm-grid-btn-preview`;
+            previewBtn.title = T.grid_btn_preview_tip || 'Preview in lightbox';
+            previewBtn.innerHTML = SVG_GRID_PREVIEW;
+            previewBtn.addEventListener('click', async (e) => {
+                e.preventDefault(); e.stopPropagation();
+                previewBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" stroke-dasharray="42" stroke-dashoffset="14"/></svg>';
+                const apiData = await fetchTweetMediaFromAPI(tweetId);
+                previewBtn.innerHTML = SVG_GRID_PREVIEW;
+                if (!apiData || (!apiData.videos.length && !apiData.images.length)) {
+                    showToast(T.msg_no_media || 'No media found');
+                    return;
+                }
+                if (apiData.videos.length) {
+                    showFloatingVideoPlayer(apiData.videos, 0, apiData.images.length ? apiData.images : null);
+                } else {
+                    showImageLightbox(apiData.images, null, true);
+                }
+            });
+
+            const dlBtn = document.createElement('button');
+            dlBtn.type = 'button';
+            dlBtn.className = `${GRID_BTN_CLASS} tm-grid-btn-dl`;
+            dlBtn.title = T.grid_btn_download_tip || 'Download media';
+            dlBtn.innerHTML = SVG_GRID_DL;
+            dlBtn.addEventListener('click', async (e) => {
+                e.preventDefault(); e.stopPropagation();
+                dlBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" stroke-dasharray="42" stroke-dashoffset="14"/></svg>';
+                const apiData = await fetchTweetMediaFromAPI(tweetId);
+                if (!apiData || (!apiData.videos.length && !apiData.images.length)) {
+                    dlBtn.innerHTML = SVG_GRID_DL;
+                    showToast(T.msg_no_media || 'No media found');
+                    return;
+                }
+                const safeScreen = sanitizeForFilename(screenName);
+                const hasRichMeta = !!(apiData.date || apiData.displayName);
+                const dateStr = apiData.date ? formatDate(apiData.date) : '';
+                const safeDisplay = apiData.displayName ? sanitizeForFilename(apiData.displayName) : safeScreen;
+                const textPart = apiData.text ? `_${sanitizeForFilename(apiData.text)}` : '';
+                const urls = mediaType === 'video' && apiData.videos.length ? apiData.videos : apiData.images;
+                let idx = 1;
+                for (const url of urls) {
+                    let ext = '.jpg';
+                    if (url.includes('.mp4')) ext = '.mp4';
+                    else if (url.includes('format=png')) ext = '.png';
+                    else { const parts = url.split('/').pop().split('?')[0].split('.'); if (parts.length > 1) ext = '.' + parts.pop(); }
+                    const filename = hasRichMeta
+                        ? `[twitter] ${safeDisplay}(@${safeScreen})_${dateStr}${textPart}_${tweetId}_${idx}${ext}`
+                        : `[twitter] ${safeScreen}_${tweetId}_${idx}${ext}`;
+                    try { await forceDownloadBlob(url, filename); } catch (_) {}
+                    idx++;
+                }
+                dlBtn.innerHTML = SVG_GRID_DL;
+                _gridBtnFeedback(dlBtn, SVG_GRID_DL);
+                showToast(T.toast_grid_media_saved || 'Media saved!');
+            });
+
+            layer.append(copyBtn, previewBtn, dlBtn);
+            posHost.appendChild(layer);
+
+            li.dataset.tmGridHref = href;
+            _processedGridItems.add(li);
+        });
+    }
+
     function scanAndInsert() {
         _cachedClickMode       = GM_getValue(KEY_CLICK_MODE, 'classic');
         _cachedFeedbackStyle   = GM_getValue(KEY_FEEDBACK_STYLE, 'toast');
@@ -14477,6 +14717,8 @@
                 if (_fingerprint !== null) article.dataset.tmV = _fingerprint;
             }
         });
+
+        insertGridMediaButtons();
     }
 
     let _isScrollingPage = false;
