@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.7.11
+// @version      2.9.8.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -225,6 +225,7 @@
     const KEY_CUSTOM_BEARER     = 'app_custom_bearer';
     const KEY_SCAN_INTERVAL     = 'app_scan_interval';
     const KEY_GRID_MEDIA_BTN    = 'app_grid_media_btn';
+    const KEY_AVATAR_MEDIA_BTN  = 'app_avatar_media_btn';
 
     const KEY_TF_CSS_SIMPLIFY = 'app_tf_css_simplify';
     const KEY_TF_FEED_PRUNE   = 'app_tf_feed_prune';
@@ -254,6 +255,7 @@
         'pt_css_simplify',
         'pt_feed_prune',
         'grid_media_btn',
+        'avatar_media_btn',
     ];
 
     const DOMAIN_LIST = [
@@ -288,6 +290,9 @@
             grid_btn_download_tip: 'Download media',
             toast_grid_media_copied: 'Link copied!',
             toast_grid_media_saved: 'Media saved!',
+            avatar_media_btn_tip: 'Go to /media page',
+            sp_avatar_media_btn_label: 'Avatar Media Shortcut',
+            sp_avatar_media_btn_desc: 'Show a subtle badge on timeline avatars to open that user\'s /media page',
             link_tooltip: 'Click: Copy ',
             link_tooltip_long: '\nLong Press: Copy prefix + ',
             msg_prefix_copied: 'Prefix Copied',
@@ -463,6 +468,9 @@
             grid_btn_download_tip: '下載媒體',
             toast_grid_media_copied: '連結已複製！',
             toast_grid_media_saved: '媒體已儲存！',
+            avatar_media_btn_tip: '前往 /media 頁面',
+            sp_avatar_media_btn_label: '頭像媒體捷徑',
+            sp_avatar_media_btn_desc: '在 timeline 頭像旁顯示低調徽章，點擊直達該使用者的 /media 頁面',
             link_tooltip: '點擊：複製 ',
             link_tooltip_long: '\n長按：複製前綴 + ',
             msg_prefix_copied: '前綴已複製',
@@ -635,6 +643,9 @@
             grid_btn_download_tip: '下载媒体',
             toast_grid_media_copied: '链接已复制！',
             toast_grid_media_saved: '媒体已保存！',
+            avatar_media_btn_tip: '前往 /media 页面',
+            sp_avatar_media_btn_label: '头像媒体快捷方式',
+            sp_avatar_media_btn_desc: '在 timeline 头像旁显示低调徽章，点击直达该用户的 /media 页面',
             link_tooltip: '点击：复制 ',
             link_tooltip_long: '\n长按：复制前缀 + ',
             msg_prefix_copied: '前缀已复制',
@@ -807,6 +818,9 @@
             grid_btn_download_tip: 'メディアをダウンロード',
             toast_grid_media_copied: 'リンクをコピーしました！',
             toast_grid_media_saved: 'メディアを保存しました！',
+            avatar_media_btn_tip: '/media ページへ移動',
+            sp_avatar_media_btn_label: 'アバターメディアショートカット',
+            sp_avatar_media_btn_desc: 'タイムラインのアバター横に控えめなバッジを表示し、そのユーザーの /media ページへ移動',
             link_tooltip: 'クリック：コピー ',
             link_tooltip_long: '\n長押し：プレフィックス付きコピー ',
             msg_prefix_copied: 'プレフィックス付',
@@ -979,6 +993,9 @@
             grid_btn_download_tip: '미디어 다운로드',
             toast_grid_media_copied: '링크가 복사되었습니다!',
             toast_grid_media_saved: '미디어가 저장되었습니다!',
+            avatar_media_btn_tip: '/media 페이지로 이동',
+            sp_avatar_media_btn_label: '아바타 미디어 바로가기',
+            sp_avatar_media_btn_desc: '타임라인 아바타 옆에 은은한 배지를 표시하여 해당 사용자의 /media 페이지로 이동',
             link_tooltip: '클릭: 복사 ',
             link_tooltip_long: '\n길게 누르기: 접두사 포함 복사 ',
             msg_prefix_copied: '접두사 복사됨',
@@ -1151,6 +1168,9 @@
             grid_btn_download_tip: 'Descargar medio',
             toast_grid_media_copied: '¡Enlace copiado!',
             toast_grid_media_saved: '¡Medio guardado!',
+            avatar_media_btn_tip: 'Ir a la página /media',
+            sp_avatar_media_btn_label: 'Atajo de Medios del Avatar',
+            sp_avatar_media_btn_desc: 'Mostrar una insignia sutil junto a los avatares para abrir la página /media de ese usuario',
             link_tooltip: 'Clic: Copiar ',
             link_tooltip_long: '\nPulsación larga: Copiar prefijo + ',
             msg_prefix_copied: 'Prefijo copiado',
@@ -1323,6 +1343,9 @@
             grid_btn_download_tip: 'Baixar mídia',
             toast_grid_media_copied: 'Link copiado!',
             toast_grid_media_saved: 'Mídia salva!',
+            avatar_media_btn_tip: 'Ir para a página /media',
+            sp_avatar_media_btn_label: 'Atalho de Mídia do Avatar',
+            sp_avatar_media_btn_desc: 'Mostrar um selo discreto ao lado dos avatares para abrir a página /media desse usuário',
             link_tooltip: 'Clique: Copiar ',
             link_tooltip_long: '\nPressão longa: Copiar prefixo + ',
             msg_prefix_copied: 'Prefixo copiado',
@@ -1495,6 +1518,9 @@
             grid_btn_download_tip: 'Télécharger le média',
             toast_grid_media_copied: 'Lien copié\u00a0!',
             toast_grid_media_saved: 'Média enregistré\u00a0!',
+            avatar_media_btn_tip: 'Aller \u00e0 la page /media',
+            sp_avatar_media_btn_label: 'Raccourci M\u00e9dia de l\u2019Avatar',
+            sp_avatar_media_btn_desc: 'Afficher un badge discret pr\u00e8s des avatars pour ouvrir la page /media de cet utilisateur',
             link_tooltip: 'Clic : Copier ',
             link_tooltip_long: '\nAppui long : Copier préfixe + ',
             msg_prefix_copied: 'Préfixe copié',
@@ -1667,6 +1693,9 @@
             grid_btn_download_tip: 'Скачать медиа',
             toast_grid_media_copied: 'Ссылка скопирована!',
             toast_grid_media_saved: 'Медиа сохранено!',
+            avatar_media_btn_tip: 'Перейти на страницу /media',
+            sp_avatar_media_btn_label: 'Ярлык медиа аватара',
+            sp_avatar_media_btn_desc: 'Показывать скромный значок рядом с аватарами для перехода на страницу /media этого пользователя',
             link_tooltip: 'Клик: Копировать ',
             link_tooltip_long: '\nДолгое нажатие: Копировать с префиксом ',
             msg_prefix_copied: 'Префикс скопирован',
@@ -5102,6 +5131,22 @@
             gridBtnIcon.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:6px;"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="9.5" y="3" width="6" height="6" rx="1"/><rect x="16" y="3" width="5" height="6" rx="1"/><rect x="3" y="9.5" width="6" height="6" rx="1"/><rect x="9.5" y="9.5" width="6" height="6" rx="1"/><rect x="16" y="9.5" width="5" height="6" rx="1"/><rect x="3" y="16" width="6" height="5" rx="1"/><rect x="9.5" y="16" width="6" height="5" rx="1"/><rect x="16" y="16" width="5" height="5" rx="1"/></svg>';
             gridBtnRow.querySelector('.tm-sp-row-label')?.prepend(gridBtnIcon);
             grpMedia.append(gridBtnRow);
+
+            const avatarBtnRow = makeRow(
+                T.sp_avatar_media_btn_label || 'Avatar Media Shortcut',
+                () => GM_getValue(KEY_AVATAR_MEDIA_BTN, true) ? (T.status_on || 'On') : (T.status_off || 'Off'),
+                () => {
+                    const next = !GM_getValue(KEY_AVATAR_MEDIA_BTN, true);
+                    GM_setValue(KEY_AVATAR_MEDIA_BTN, next);
+                    showToast((T.sp_avatar_media_btn_label || 'Avatar Media Shortcut') + ' → ' + (next ? (T.status_on || 'On') : (T.status_off || 'Off')));
+                    if (!next) document.querySelectorAll('.tm-avatar-media-btn').forEach(el => el.remove());
+                },
+                'avatar_media_btn'
+            );
+            const avatarBtnIcon = document.createElement('span');
+            avatarBtnIcon.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><polygon points="12,2 2,7 12,12 22,7"/><polyline points="2,12 12,17 22,12"/><polyline points="2,17 12,22 22,17"/></svg>';
+            avatarBtnRow.querySelector('.tm-sp-row-label')?.prepend(avatarBtnIcon);
+            grpMedia.append(avatarBtnRow);
 
             const grpGroups = makeGroup(T.sp_grp_group || '⭐  Groups', true);
 
@@ -14710,6 +14755,68 @@
         });
     }
 
+    const AVATAR_BTN_CLASS = 'tm-avatar-media-btn';
+    const _processedAvatars = new WeakSet();
+
+    if (!document.getElementById('tm-avatar-btn-style')) {
+        const _avatarStyle = document.createElement('style');
+        _avatarStyle.id = 'tm-avatar-btn-style';
+        _avatarStyle.textContent = `
+            .${AVATAR_BTN_CLASS} {
+                position: absolute; top: -3px; left: -3px; width: 16px; height: 16px;
+                border-radius: 50%; background: rgba(0,0,0,0.55);
+                display: flex; align-items: center; justify-content: center;
+                color: #fff; text-decoration: none; pointer-events: none;
+                opacity: 0; transition: opacity 0.15s ease, background 0.15s ease;
+                z-index: 3;
+            }
+            .${AVATAR_BTN_CLASS}:hover { opacity: 1 !important; background: rgba(29,155,240,0.85); }
+            [data-testid="Tweet-User-Avatar"]:hover .${AVATAR_BTN_CLASS} { opacity: 0.85; pointer-events: auto; }
+            .${AVATAR_BTN_CLASS} svg { width: 11px; height: 11px; pointer-events: none; }
+        `;
+        document.head.appendChild(_avatarStyle);
+    }
+
+    const SVG_AVATAR_STACK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,2 2,7 12,12 22,7"/><polyline points="2,12 12,17 22,12"/><polyline points="2,17 12,22 22,17"/></svg>`;
+
+    function insertAvatarMediaButtons() {
+        if (!GM_getValue(KEY_AVATAR_MEDIA_BTN, true)) return;
+
+        document.querySelectorAll('article [data-testid="Tweet-User-Avatar"]').forEach(avatarWrap => {
+            if (_processedAvatars.has(avatarWrap)) return;
+
+            const container = avatarWrap.querySelector('[data-testid^="UserAvatar-Container-"]');
+            if (!container) return;
+            const testid = container.getAttribute('data-testid') || '';
+            const screenName = testid.replace('UserAvatar-Container-', '');
+            if (!screenName) return;
+
+            if (getComputedStyle(avatarWrap).position === 'static') {
+                avatarWrap.style.position = 'relative';
+            }
+
+            const badge = document.createElement('a');
+            badge.className = AVATAR_BTN_CLASS;
+            const mediaHref = `https://${location.hostname}/${screenName}/media`;
+            badge.href = mediaHref;
+            badge.rel = 'noopener noreferrer';
+            badge.title = T.avatar_media_btn_tip || 'Go to /media page';
+            badge.innerHTML = SVG_AVATAR_STACK;
+            badge.addEventListener('click', e => {
+                e.stopPropagation();
+                if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                e.preventDefault();
+                try {
+                    history.pushState({ tmNav: true }, '', `/${screenName}/media`);
+                    window.dispatchEvent(new Event('popstate'));
+                } catch (_) { window.open(mediaHref, '_blank'); }
+            });
+
+            avatarWrap.appendChild(badge);
+            _processedAvatars.add(avatarWrap);
+        });
+    }
+
     function scanAndInsert() {
         _cachedClickMode       = GM_getValue(KEY_CLICK_MODE, 'classic');
         _cachedFeedbackStyle   = GM_getValue(KEY_FEEDBACK_STYLE, 'toast');
@@ -14748,6 +14855,8 @@
         });
 
         insertGridMediaButtons();
+
+        insertAvatarMediaButtons();
     }
 
     let _isScrollingPage = false;
