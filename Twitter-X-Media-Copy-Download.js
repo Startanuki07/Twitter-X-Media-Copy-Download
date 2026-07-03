@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.7.8
+// @version      2.9.7.11
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -48,6 +48,8 @@
         .replace(/>/g,  '&gt;')
         .replace(/"/g,  '&quot;')
         .replace(/'/g,  '&#39;');
+
+    const GALLERY_PANEL_WIDTH = 212;
 
     function _convertTweetUrlDomain(tweetUrl) {
         const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
@@ -10511,7 +10513,7 @@
             nav.id = 'tm-thumb-lb-nav';
 
             const prevBtn = document.createElement('button');
-            prevBtn.className = 'tm-lb-nav-btn';
+            prevBtn.className = 'tm-nav-fade-btn';
             prevBtn.innerHTML = `<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="10,3 5,8 10,13"/></svg>`;
             prevBtn.title = 'Previous';
 
@@ -10519,7 +10521,7 @@
             counter.id = 'tm-lb-counter';
 
             const nextBtn = document.createElement('button');
-            nextBtn.className = 'tm-lb-nav-btn';
+            nextBtn.className = 'tm-nav-fade-btn';
             nextBtn.innerHTML = `<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="6,3 11,8 6,13"/></svg>`;
             nextBtn.title = 'Next';
 
@@ -12017,12 +12019,14 @@
         const SVG_NEXT = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,18 15,12 9,6"/></svg>`;
 
         const prevBtn = document.createElement('button');
+        prevBtn.className = 'tm-nav-fade-btn';
         prevBtn.innerHTML = SVG_PREV;
         prevBtn.style.cssText = NAV_BASE + 'left: 20px;';
         prevBtn.onmouseenter = () => prevBtn.style.background = 'rgba(255,255,255,0.25)';
         prevBtn.onmouseleave = () => prevBtn.style.background = 'rgba(0,0,0,0.55)';
 
         const nextBtn = document.createElement('button');
+        nextBtn.className = 'tm-nav-fade-btn';
         nextBtn.innerHTML = SVG_NEXT;
         nextBtn.style.cssText = NAV_BASE + 'right: 20px;';
         nextBtn.onmouseenter = () => nextBtn.style.background = 'rgba(255,255,255,0.25)';
@@ -12036,7 +12040,7 @@
             background: rgba(0,0,0,0.6); color: white; border: none;
             width: 40px; height: 40px; border-radius: 50%;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: background 0.2s; z-index: 4;
+            transition: background 0.2s, right 0.25s ease; z-index: 4;
         `;
         closeBtn.onmouseenter = () => closeBtn.style.background = 'rgba(255,255,255,0.3)';
         closeBtn.onmouseleave = () => closeBtn.style.background = 'rgba(0,0,0,0.6)';
@@ -12050,7 +12054,7 @@
                 background: rgba(29,155,240,0.85); color: white; border: none;
                 width: 40px; height: 40px; border-radius: 50%;
                 cursor: pointer; display: flex; align-items: center; justify-content: center;
-                transition: background 0.2s; z-index: 4;
+                transition: background 0.2s, right 0.25s ease; z-index: 4;
             `;
             viewImgBtn.onmouseenter = () => viewImgBtn.style.background = 'rgba(29,155,240,1)';
             viewImgBtn.onmouseleave = () => viewImgBtn.style.background = 'rgba(29,155,240,0.85)';
@@ -12194,7 +12198,7 @@
             background: rgba(0,0,0,0.6); color: rgba(255,255,255,0.85); border: none;
             width: 40px; height: 40px; border-radius: 50%;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: background 0.2s; z-index: 4;
+            transition: background 0.2s, right 0.25s ease; z-index: 4;
         `;
         vpGalleryBtn.onmouseenter = () => vpGalleryBtn.style.background = _vpGalleryOpen ? 'rgba(29,155,240,1)' : 'rgba(255,255,255,0.25)';
         vpGalleryBtn.onmouseleave = () => vpGalleryBtn.style.background = _vpGalleryOpen ? 'rgba(29,155,240,0.75)' : 'rgba(0,0,0,0.6)';
@@ -12203,10 +12207,10 @@
             const s = document.createElement('style');
             s.id = 'tm-lb-style-gallery';
             s.textContent = `
-                #tm-lb-gallery-btn { position:absolute; top:20px; right:75px; background:rgba(0,0,0,0.6); color:rgba(255,255,255,0.85); border:none; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; z-index:31; }
+                #tm-lb-gallery-btn { position:absolute; top:20px; right:75px; background:rgba(0,0,0,0.6); color:rgba(255,255,255,0.85); border:none; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s, right 0.25s ease; z-index:31; }
                 #tm-lb-gallery-btn.tm-gb-active { background:rgba(29,155,240,0.75); }
                 #tm-lb-gallery-panel {
-                    position:absolute; top:0; right:0; bottom:0; width:212px;
+                    position:absolute; top:0; right:0; bottom:0; width:${GALLERY_PANEL_WIDTH}px;
                     background:rgba(8,8,12,0.82);
                     
                     border-left:1px solid rgba(255,255,255,0.10);
@@ -12223,8 +12227,14 @@
                     backdrop-filter:blur(20px) saturate(1.4);
                     -webkit-backdrop-filter:blur(20px) saturate(1.4);
                 }
+                
+                #tm-floating-video-modal .tm-nav-fade-btn { opacity:0; }
+                #tm-floating-video-modal:hover .tm-nav-fade-btn { opacity:1; }
+                #tm-image-lightbox .tm-nav-fade-btn { opacity:0; }
+                #tm-image-lightbox:hover .tm-nav-fade-btn { opacity:1; }
                 #tm-lb-gallery-panel .tm-gp-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px; }
                 .tm-gp-item { position:relative; aspect-ratio:1/1; border-radius:6px; overflow:hidden; cursor:pointer; border:2px solid transparent; transition:border-color 0.15s, transform 0.15s; background:rgba(40,40,40,0.9); flex-shrink:0; }
+                .tm-gp-item.tm-gp-item-solo { grid-column:1/-1; aspect-ratio:16/9; }
                 .tm-gp-item:hover { transform:scale(0.96); }
                 .tm-gp-item.tm-gp-selected { border-color:rgba(29,155,240,0.9); }
                 .tm-gp-item img { width:100%; height:100%; object-fit:cover; display:block; }
@@ -12254,6 +12264,11 @@
             vpGalleryBtn.style.background = _vpGalleryOpen ? 'rgba(29,155,240,0.75)' : 'rgba(0,0,0,0.6)';
             vpGalleryPanel.classList.toggle('tm-gp-open', _vpGalleryOpen);
 
+            const _shift = _vpGalleryOpen ? GALLERY_PANEL_WIDTH : 0;
+            closeBtn.style.right = (25 + _shift) + 'px';
+            if (viewImgBtn) viewImgBtn.style.right = (75 + _shift) + 'px';
+            vpGalleryBtn.style.right = (_vpGalleryRightBase + _shift) + 'px';
+
             if (_vpGalleryOpen && !_vpGalleryItems) {
                 _vpGalleryItems = _scanPageMedia();
                 if (!_vpGalleryItems.length) {
@@ -12274,6 +12289,7 @@
                     group.items.forEach(item => {
                         const el = document.createElement('div');
                         el.className = 'tm-gp-item';
+                        if (group.items.length === 1) el.classList.add('tm-gp-item-solo');
                         el.dataset.url = item.url ?? item.thumb ?? '';
                         const img = document.createElement('img');
                         img.src = item.thumb; img.alt = ''; img.loading = 'lazy';
@@ -12508,7 +12524,7 @@
                     background: rgba(0,0,0,0.6); color: rgba(255,255,255,0.85); border: none;
                     width: 40px; height: 40px; border-radius: 50%;
                     cursor: pointer; display: flex; align-items: center; justify-content: center;
-                    transition: background 0.2s; z-index: 31;
+                    transition: background 0.2s, right 0.25s ease; z-index: 31;
                 }
                 #tm-lb-gallery-btn:hover        { background: rgba(255,255,255,0.25); }
                 #tm-lb-gallery-btn.tm-gb-active { background: rgba(29,155,240,0.75); }
@@ -12549,6 +12565,8 @@
                     background: rgba(40,40,40,0.9);
                     flex-shrink: 0;
                 }
+                
+                .tm-gp-item.tm-gp-item-solo { grid-column: 1/-1; aspect-ratio: 16/9; }
                 .tm-gp-item:hover  { transform: scale(0.96); }
                 .tm-gp-item.tm-gp-selected { border-color: rgba(29,155,240,0.9); }
                 .tm-gp-item img    { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -12647,7 +12665,7 @@
         let _galleryOpen   = false;
         let _galleryItems  = null;
 
-        function _buildGalleryUI(onSelect) {
+        function _buildGalleryUI(onSelect, extraBtns = [], onToggle = null) {
             const SVG_GRID_ICON = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="1.5" y="1.5" width="5" height="5" rx="1"/>
                 <rect x="9.5" y="1.5" width="5" height="5" rx="1"/>
@@ -12680,6 +12698,11 @@
                 galleryBtn.classList.toggle('tm-gb-active', _galleryOpen);
                 panel.classList.toggle('tm-gp-open', _galleryOpen);
 
+                const _shift = _galleryOpen ? GALLERY_PANEL_WIDTH : 0;
+                galleryBtn.style.right = (75 + _shift) + 'px';
+                extraBtns.forEach(({ el, base }) => { if (el) el.style.right = (base + _shift) + 'px'; });
+                if (onToggle) onToggle(_galleryOpen);
+
                 if (_galleryOpen && !_galleryItems) {
                     _galleryItems = _scanPageMedia();
                     _allThumbEls = [];
@@ -12705,6 +12728,7 @@
                         group.items.forEach(item => {
                             const el = document.createElement('div');
                             el.className = 'tm-gp-item';
+                            if (group.items.length === 1) el.classList.add('tm-gp-item-solo');
                             el.dataset.url = item.url ?? item.thumb ?? '';
 
                             const img = document.createElement('img');
@@ -12769,7 +12793,7 @@
                 background: rgba(0,0,0,0.6); color: white; border: none;
                 width: 40px; height: 40px; border-radius: 50%;
                 cursor: pointer; display: flex; align-items: center; justify-content: center;
-                transition: background 0.2s; z-index: 30;
+                transition: background 0.2s, right 0.25s ease; z-index: 30;
             `;
             closeBtn.onmouseenter = () => closeBtn.style.background = 'rgba(255,255,255,0.25)';
             closeBtn.onmouseleave = () => closeBtn.style.background = 'rgba(0,0,0,0.6)';
@@ -12794,8 +12818,10 @@
             };
             modal.appendChild(closeBtn);
 
+            let viewVidBtn = null;
             if (videoUrls && videoUrls.length) {
-                const viewVidBtn = document.createElement('button');
+                viewVidBtn = document.createElement('button');
+                viewVidBtn.className = 'tm-nav-fade-btn';
                 viewVidBtn.title = T.btn_switch_to_video || 'Switch to Video';
                 viewVidBtn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5,3 19,12 5,21" fill="currentColor" stroke="none"/></svg>`;
                 viewVidBtn.style.cssText = `
@@ -12803,7 +12829,7 @@
                     background: rgba(29,155,240,0.85); color: white; border: none;
                     width: 40px; height: 40px; border-radius: 50%;
                     cursor: pointer; display: flex; align-items: center; justify-content: center;
-                    transition: background 0.2s; z-index: 31;
+                    transition: background 0.2s, right 0.25s ease; z-index: 31;
                 `;
                 viewVidBtn.onmouseenter = () => viewVidBtn.style.background = 'rgba(29,155,240,1)';
                 viewVidBtn.onmouseleave = () => viewVidBtn.style.background = 'rgba(29,155,240,0.85)';
@@ -12885,7 +12911,7 @@
                 img.src = targetUrl;
                 updA(targetUrl);
                 _showPill(pillA, group);
-            });
+            }, [{ el: closeBtn, base: 25 }, { el: viewVidBtn, base: 130 }]);
             container._toggleGalleryRef = tgA;
             modal.appendChild(gbA);
             modal.appendChild(gpA);
@@ -12981,7 +13007,7 @@
             background: rgba(0,0,0,0.6); color: white; border: none;
             width: 40px; height: 40px; border-radius: 50%;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: background 0.2s; z-index: 30;
+            transition: background 0.2s, right 0.25s ease; z-index: 30;
         `;
         closeBtn.onmouseenter = () => closeBtn.style.background = 'rgba(255,255,255,0.25)';
         closeBtn.onmouseleave = () => closeBtn.style.background = 'rgba(0,0,0,0.6)';
@@ -12997,6 +13023,7 @@
 
         const viewVidBtn = videoUrls && videoUrls.length ? document.createElement('button') : null;
         if (viewVidBtn) {
+            viewVidBtn.className = 'tm-nav-fade-btn';
             viewVidBtn.title = T.btn_switch_to_video || 'Switch to Video';
             viewVidBtn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5,3 19,12 5,21" fill="currentColor" stroke="none"/></svg>`;
             viewVidBtn.style.cssText = `
@@ -13004,7 +13031,7 @@
                 background: rgba(29,155,240,0.85); color: white; border: none;
                 width: 40px; height: 40px; border-radius: 50%;
                 cursor: pointer; display: flex; align-items: center; justify-content: center;
-                transition: background 0.2s; z-index: 31;
+                transition: background 0.2s, right 0.25s ease; z-index: 31;
             `;
             viewVidBtn.onmouseenter = () => viewVidBtn.style.background = 'rgba(29,155,240,1)';
             viewVidBtn.onmouseleave = () => viewVidBtn.style.background = 'rgba(29,155,240,0.85)';
@@ -13089,6 +13116,7 @@
         const lbPrevBtn = total > 1 ? document.createElement('button') : null;
         const lbNextBtn = total > 1 ? document.createElement('button') : null;
         if (lbPrevBtn && lbNextBtn) {
+            lbPrevBtn.className = 'tm-nav-fade-btn';
             lbPrevBtn.innerHTML = SVG_PREV;
             lbPrevBtn.style.cssText = NAV_BTN_BASE + 'left: 20px;';
             lbPrevBtn.onmouseenter = () => lbPrevBtn.style.background = 'rgba(255,255,255,0.25)';
@@ -13099,6 +13127,7 @@
                 _bReset(); scheduleUpdate();
             };
 
+            lbNextBtn.className = 'tm-nav-fade-btn';
             lbNextBtn.innerHTML = SVG_NEXT;
             lbNextBtn.style.cssText = NAV_BTN_BASE + 'right: 20px;';
             lbNextBtn.onmouseenter = () => lbNextBtn.style.background = 'rgba(255,255,255,0.25)';
@@ -13122,7 +13151,7 @@
             cards.forEach((card, i) => {
                 const { dx, rot, scale, zIndex, opacity, focused: isFocused } = calcTransform(i - focused);
                 card.style.transform = `translateX(${dx}px) rotate(${rot}deg) scale(${scale}) translateZ(0)`;
-                card.style.opacity   = opacity;
+                card.style.opacity = (_galleryOpen && !isFocused) ? '0' : opacity;
                 card.style.zIndex = String(zIndex);
                 card.classList.toggle('tm-lb-focused', isFocused);
             });
@@ -13180,7 +13209,7 @@
                 updB(targetUrl);
             }
             _showPill(pillB, group);
-        });
+        }, [{ el: closeBtn, base: 25 }, { el: viewVidBtn, base: 130 }], () => scheduleUpdate());
         _toggleGalleryRef = tgB;
 
         modal.appendChild(stage);
