@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.8.0
+// @version      2.9.8.1
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -12690,8 +12690,17 @@
             display: flex; align-items: center; justify-content: center;
             overflow: hidden; overscroll-behavior: contain;
         `;
-        modal.addEventListener('wheel',     e => { e.preventDefault(); e.stopPropagation(); }, { passive: false });
-        modal.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+        const _lbIsOnPanel = e => e.composedPath().some(el =>
+            el instanceof Element && (el.id === 'tm-lb-gallery-panel' || el.id === 'tm-lb-pill')
+        );
+        modal.addEventListener('wheel', e => {
+            if (_lbIsOnPanel(e)) return;
+            e.preventDefault(); e.stopPropagation();
+        }, { passive: false });
+        modal.addEventListener('touchmove', e => {
+            if (_lbIsOnPanel(e)) return;
+            e.preventDefault();
+        }, { passive: false });
 
         let keyHandler = () => {};
         let _lbDragACRef = null;
@@ -12907,6 +12916,7 @@
                 img.style.cursor = _lbScale > 1 ? 'grab' : '';
             };
             modal.addEventListener('wheel', e => {
+                if (_lbIsOnPanel(e)) return;
                 e.preventDefault();
                 e.stopPropagation();
                 const delta = e.deltaY < 0 ? 1.1 : 0.9;
@@ -13104,6 +13114,7 @@
             if (img) { img.style.transform = ''; img.style.cursor = ''; img.style.pointerEvents = 'none'; }
         };
         modal.addEventListener('wheel', e => {
+            if (_lbIsOnPanel(e)) return;
             e.preventDefault();
             e.stopPropagation();
             _bZoom = Math.min(8, Math.max(0.2, _bZoom * (e.deltaY < 0 ? 1.1 : 0.9)));
@@ -14779,17 +14790,21 @@
 
     const SVG_AVATAR_STACK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,2 2,7 12,12 22,7"/><polyline points="2,12 12,17 22,12"/><polyline points="2,17 12,22 22,17"/></svg>`;
 
-    function insertAvatarMediaButtons() {
-        if (!GM_getValue(KEY_AVATAR_MEDIA_BTN, true)) return;
-
-        document.querySelectorAll('article [data-testid="Tweet-User-Avatar"]').forEach(avatarWrap => {
-            if (_processedAvatars.has(avatarWrap)) return;
+    const AVATAR_BATCH_SIZE = 16;
+    let _avatarBatchQueue = [];
+    let _avatarBatchRunning = false;
+    function _processAvatarBatch() {
+        let n = 0;
+        while (n < AVATAR_BATCH_SIZE && _avatarBatchQueue.length > 0) {
+            const avatarWrap = _avatarBatchQueue.shift();
+            n++;
+            if (_processedAvatars.has(avatarWrap) || !avatarWrap.isConnected) continue;
 
             const container = avatarWrap.querySelector('[data-testid^="UserAvatar-Container-"]');
-            if (!container) return;
+            if (!container) continue;
             const testid = container.getAttribute('data-testid') || '';
             const screenName = testid.replace('UserAvatar-Container-', '');
-            if (!screenName) return;
+            if (!screenName) continue;
 
             if (getComputedStyle(avatarWrap).position === 'static') {
                 avatarWrap.style.position = 'relative';
@@ -14814,7 +14829,28 @@
 
             avatarWrap.appendChild(badge);
             _processedAvatars.add(avatarWrap);
+        }
+
+        if (_avatarBatchQueue.length > 0) {
+            requestAnimationFrame(_processAvatarBatch);
+        } else {
+            _avatarBatchRunning = false;
+        }
+    }
+
+    function insertAvatarMediaButtons(enabled) {
+        if (!enabled) return;
+
+        document.querySelectorAll('article [data-testid="Tweet-User-Avatar"]').forEach(avatarWrap => {
+            if (!_processedAvatars.has(avatarWrap) && !_avatarBatchQueue.includes(avatarWrap)) {
+                _avatarBatchQueue.push(avatarWrap);
+            }
         });
+
+        if (!_avatarBatchRunning && _avatarBatchQueue.length > 0) {
+            _avatarBatchRunning = true;
+            requestAnimationFrame(_processAvatarBatch);
+        }
     }
 
     function scanAndInsert() {
@@ -14856,7 +14892,7 @@
 
         insertGridMediaButtons();
 
-        insertAvatarMediaButtons();
+        insertAvatarMediaButtons(GM_getValue(KEY_AVATAR_MEDIA_BTN, true));
     }
 
     let _isScrollingPage = false;
@@ -14891,6 +14927,7 @@
             parseInt(GM_getValue(KEY_SCAN_INTERVAL, '1500'), 10) || 1500
         ));
         _scanIntervalId = setInterval(() => {
+            if (_isScrollingPage) return;
             if (typeof requestIdleCallback !== 'undefined') {
                 requestIdleCallback(scanAndInsert, { timeout: ms * 2 });
             } else {
