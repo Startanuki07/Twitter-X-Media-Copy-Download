@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.8.1
+// @version      2.9.8.2
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -49,6 +49,10 @@
         .replace(/"/g,  '&quot;')
         .replace(/'/g,  '&#39;');
 
+    const _log = (tag, msg, ...rest) => {
+        try { console.warn(`[${tag}]`, msg, ...rest); } catch (_) {  }
+    };
+
     const GALLERY_PANEL_WIDTH = 212;
 
     function _convertTweetUrlDomain(tweetUrl) {
@@ -70,13 +74,14 @@
 
     function _readMonthRecords(ym) {
         try { return JSON.parse(GM_getValue(KEY_HISTORY_PREFIX + ym.replace('.', '_'), '[]')); }
-        catch (_) { return []; }
+        catch (e) { _log('TMHistory', '月份桶 JSON 解析失敗，視為空陣列', ym, e); return []; }
     }
     function _writeMonthRecords(ym, records) {
         GM_setValue(KEY_HISTORY_PREFIX + ym.replace('.', '_'), JSON.stringify(records));
     }
     function _getHistoryIndex() {
-        try { return JSON.parse(GM_getValue(KEY_HISTORY_INDEX, '[]')); } catch (_) { return []; }
+        try { return JSON.parse(GM_getValue(KEY_HISTORY_INDEX, '[]')); }
+        catch (e) { _log('TMHistory', '歷史索引 JSON 解析失敗，視為空陣列', e); return []; }
     }
     function _updateHistoryIndex(ym) {
         const idx = _getHistoryIndex();
@@ -87,8 +92,28 @@
     }
     function _loadAllRecords() {
         return _getHistoryIndex().flatMap(ym => {
-            try { return _readMonthRecords(ym); } catch (_) { return []; }
+            try { return _readMonthRecords(ym); }
+            catch (e) { _log('TMHistory', '_loadAllRecords 讀取月份失敗，略過', ym, e); return []; }
         });
+    }
+
+    function _casMutateMonth(ym, mutateFn, maxRetries = 5) {
+        const storageKey = KEY_HISTORY_PREFIX + ym.replace('.', '_');
+        let recs, ret;
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
+            const rawBefore = GM_getValue(storageKey, '[]');
+            try { recs = JSON.parse(rawBefore); } catch (_) { recs = []; }
+            ret = mutateFn(recs);
+            const rawAfter = GM_getValue(storageKey, '[]');
+            const isLastAttempt = (attempt === maxRetries - 1);
+            if (rawAfter === rawBefore || isLastAttempt) {
+                if (rawAfter !== rawBefore) {
+                    _log('TMHistory', '_casMutateMonth 重試耗盡，強制寫入最後一次結果（可能覆蓋另一分頁的變更）', ym);
+                }
+                GM_setValue(storageKey, JSON.stringify(recs));
+                return ret;
+            }
+        }
     }
 
     function _updateRecord(id, mutateFn) {
@@ -96,9 +121,12 @@
             const recs = _readMonthRecords(ym);
             const i = recs.findIndex(r => r.id === id);
             if (i === -1) continue;
-            mutateFn(recs[i]);
-            _writeMonthRecords(ym, recs);
-            return recs[i];
+            return _casMutateMonth(ym, freshRecs => {
+                const fi = freshRecs.findIndex(r => r.id === id);
+                if (fi === -1) return null;
+                mutateFn(freshRecs[fi]);
+                return freshRecs[fi];
+            });
         }
         return null;
     }
@@ -108,9 +136,12 @@
             const recs = _readMonthRecords(ym);
             const i = recs.findIndex(r => r.id === id);
             if (i === -1) continue;
-            const [record] = recs.splice(i, 1);
-            _writeMonthRecords(ym, recs);
-            return { record };
+            return _casMutateMonth(ym, freshRecs => {
+                const fi = freshRecs.findIndex(r => r.id === id);
+                if (fi === -1) return null;
+                const [record] = freshRecs.splice(fi, 1);
+                return { record };
+            });
         }
         return null;
     }
@@ -119,22 +150,30 @@
         const ym = record.yyyymm ||
             (record.ts ? new Date(record.ts).toISOString().slice(0, 7).replace('-', '.') : '9999.99');
         _updateHistoryIndex(ym);
-        const recs = _readMonthRecords(ym);
-        const pos = recs.findIndex(r => r.id <= record.id);
-        if (pos === -1) recs.push(record); else recs.splice(pos, 0, record);
-        _writeMonthRecords(ym, recs);
+        _casMutateMonth(ym, freshRecs => {
+            const pos = freshRecs.findIndex(r => r.id <= record.id);
+            if (pos === -1) freshRecs.push(record); else freshRecs.splice(pos, 0, record);
+        });
     }
 
     function _batchDeleteRecords(idsToDelete) {
         const deleted = [];
         for (const ym of _getHistoryIndex()) {
             const recs = _readMonthRecords(ym);
-            const kept = recs.filter(r => {
-                if (!idsToDelete.has(r.id) || r.favorited) return true;
-                deleted.push(r.tweetId);
-                return false;
+            const hasTarget = recs.some(r => idsToDelete.has(r.id) && !r.favorited);
+            if (!hasTarget) continue;
+            const deletedThisMonth = _casMutateMonth(ym, freshRecs => {
+                const thisAttemptDeleted = [];
+                const kept = freshRecs.filter(r => {
+                    if (!idsToDelete.has(r.id) || r.favorited) return true;
+                    thisAttemptDeleted.push(r.tweetId);
+                    return false;
+                });
+                freshRecs.length = 0;
+                freshRecs.push(...kept);
+                return thisAttemptDeleted;
             });
-            if (kept.length !== recs.length) _writeMonthRecords(ym, kept);
+            if (deletedThisMonth) deleted.push(...deletedThisMonth);
         }
         return deleted;
     }
@@ -142,9 +181,10 @@
     function _mutateMatchingRecords(predicate, mutateFn) {
         for (const ym of _getHistoryIndex()) {
             const recs = _readMonthRecords(ym);
-            let dirty = false;
-            recs.forEach(r => { if (predicate(r)) { mutateFn(r); dirty = true; } });
-            if (dirty) _writeMonthRecords(ym, recs);
+            if (!recs.some(predicate)) continue;
+            _casMutateMonth(ym, freshRecs => {
+                freshRecs.forEach(r => { if (predicate(r)) mutateFn(r); });
+            });
         }
     }
 
@@ -13423,7 +13463,7 @@
                     const m = text.match(/Bearer (AAAAAAA[A-Za-z0-9%_-]{20,})/);
                     if (m) { _cachedBearerToken = 'Bearer ' + m[1]; break; }
                 }
-            } catch(_) {}
+            } catch(e) { _log('TMApi', 'Bearer token 解析失敗，將降回 fallback', e); }
             _bearerPendingPromise = null;
             if (!_cachedBearerToken) _cachedBearerToken = _FALLBACK_BEARER;
             return _cachedBearerToken;
@@ -13470,7 +13510,7 @@
             if (mp4Urls.length > 0) {
                 return { id: tweetId, urls: [...new Set(mp4Urls)] };
             }
-        } catch (_) {}
+        } catch (e) { _log('TMApi', '_parseVideosFromTweetResult 解析失敗（可能是 schema 變動）', e); }
         return null;
     }
 
@@ -13516,7 +13556,7 @@
                     }
                 }
             }
-        } catch (_) {}
+        } catch (e) { _log('TMApi', '_processApiPayload 解析失敗（可能是 GraphQL 回應格式變動）', e); }
     }
 
     if (_isTwitterDomain) (function _interceptFetch() {
@@ -13533,13 +13573,13 @@
                 _cachedGqlId = _gqlIdMatch[1];
                 GM_setValue('app_gql_tweet_id', _cachedGqlId);
             } else if (!_gqlIdMatch && url.includes('TweetResultByRestId')) {
-                console.warn('[TMApi] TweetResultByRestId URL 結構不符預期 regex，自動更新失效，仍使用舊 ID:', _cachedGqlId, url);
+                _log('TMApi', 'TweetResultByRestId URL 結構不符預期 regex，自動更新失效，仍使用舊 ID:', _cachedGqlId, url);
             }
             const promise = _origFetch.apply(this, args);
             if (!isGraphQL) return promise;
             return promise.then(resp => {
                 const clone = resp.clone();
-                clone.text().then(_processApiPayload).catch(() => {});
+                clone.text().then(_processApiPayload).catch(e => _log('TMApi', 'clone.text() 讀取失敗，跳過本次 GraphQL 回應解析', e));
                 return resp;
             });
         };
@@ -13573,8 +13613,8 @@
             try {
                 res = await fetch(url, { headers, signal: _fetchAC.signal });
             } catch (e) {
-                if (e.name === 'AbortError') console.warn('[TMApi] fetchTweetMediaFromAPI timed out (8s)');
-                else console.warn('[TMApi] fetchTweetMediaFromAPI fetch error:', e);
+                if (e.name === 'AbortError') _log('TMApi', 'fetchTweetMediaFromAPI timed out (8s)');
+                else _log('TMApi', 'fetchTweetMediaFromAPI fetch error:', e);
                 return null;
             } finally {
                 clearTimeout(_fetchTimeout);
@@ -13588,7 +13628,7 @@
                         6000
                     );
                 } else if (res.status === 404) {
-                    console.warn('[TMApi] TweetResultByRestId 404, cachedGqlId=', _cachedGqlId, '— 可能已輪替');
+                    _log('TMApi', 'TweetResultByRestId 404, cachedGqlId=', _cachedGqlId, '— 可能已輪替');
                     GM_deleteValue('app_gql_tweet_id');
                     _cachedGqlId = '2ICDjqPd81tulZcYrtpTuQ';
                 }
@@ -13636,6 +13676,7 @@
 
             return result;
         } catch(e) {
+            _log('TMApi', 'fetchTweetMediaFromAPI 未預期錯誤', e);
             return null;
         }
     }
