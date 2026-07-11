@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.8.2
+// @version      2.9.9.2
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -70,7 +70,18 @@
     let _syncCh = null;
     let _startScanInterval = null;
     let _tfRegistry = null;
-    let _pendingIsText = false;
+    const StarPipState = {
+        pendingGroupRecordId: null,
+        pendingStarPipEl:     null,
+        autoHideTimer:        null,
+        fanNodes:             [],
+        fanOpen:              false,
+        selectedIconId:       null,
+        escaping:             false,
+        pendingIsText:        false,
+        textMenuOpen:         false,
+        textMenuAnchorEl:     null,
+    };
 
     function _readMonthRecords(ym) {
         try { return JSON.parse(GM_getValue(KEY_HISTORY_PREFIX + ym.replace('.', '_'), '[]')); }
@@ -2774,22 +2785,22 @@
         _renderStarPipIcon(pip);
 
         pip.addEventListener('mouseenter', () => {
-            clearTimeout(_starAutoHideTimer);
-            _starAutoHideTimer = setTimeout(() => {
-                if (!_fanOpen && !_textMenuOpen) hideStarPip();
+            clearTimeout(StarPipState.autoHideTimer);
+            StarPipState.autoHideTimer = setTimeout(() => {
+                if (!StarPipState.fanOpen && !StarPipState.textMenuOpen) hideStarPip();
             }, STAR_AUTO_HIDE_SEC * 1000);
-            if (_pendingIsText) {
-                if (!_textMenuOpen) openTextGroupMenu();
+            if (StarPipState.pendingIsText) {
+                if (!StarPipState.textMenuOpen) openTextGroupMenu();
                 return;
             }
-            if (!_fanOpen && getGroups().length) openGroupFan();
+            if (!StarPipState.fanOpen && getGroups().length) openGroupFan();
         });
         pip.addEventListener('click', e => {
             e.preventDefault(); e.stopPropagation();
-            if (_pendingIsText) {
-                if (_textMenuOpen) closeTextGroupMenu(); else openTextGroupMenu();
+            if (StarPipState.pendingIsText) {
+                if (StarPipState.textMenuOpen) closeTextGroupMenu(); else openTextGroupMenu();
             } else {
-                if (_fanOpen) closeGroupFan();
+                if (StarPipState.fanOpen) closeGroupFan();
                 _runStarEscapeAnim(() => showGroupCreateModal());
             }
         });
@@ -6466,18 +6477,20 @@
     let _historyUndoBuffer = null;
     let _historyUndoTimer  = null;
 
-    let _dockSideGlobal         = null;
-    let _dockTabElGlobal        = null;
-    let _dockHoverTimerGlobal   = null;
-    let _dockPeekedGlobal       = false;
-    let _dockRetractTimerGlobal = null;
-    let _dockSnapshotGlobal     = null;
+    const DockState = {
+        side:         null,
+        tabEl:        null,
+        hoverTimer:   null,
+        peeked:       false,
+        retractTimer: null,
+        snapshot:     null,
+    };
     let _dialogOpenGlobal       = false;
 
     (function _restorePersistedDock() {
         const persisted = GM_getValue(KEY_DOCK_PERSISTED, '');
         if (persisted === 'left' || persisted === 'right') {
-            _dockSideGlobal = persisted;
+            DockState.side = persisted;
             requestAnimationFrame(() => {
                 showHistoryPanel();
             });
@@ -6511,21 +6524,36 @@
         btn.querySelector('.tm-hist-badge')?.remove();
     }
 
-    let _pendingGroupRecordId = null;
-    let _pendingStarPipEl     = null;
+    window.addEventListener('scroll', () => { if (!StarPipState.fanOpen) hideStarPip(); if (StarPipState.textMenuOpen) closeTextGroupMenu(); }, { passive: true, capture: true });
+    document.addEventListener('visibilitychange', () => { if (document.hidden) { if (StarPipState.fanOpen) closeGroupFan(); if (StarPipState.textMenuOpen) closeTextGroupMenu(); hideStarPip(); } });
 
-    window.addEventListener('scroll', () => { if (!_fanOpen) hideStarPip(); if (_textMenuOpen) closeTextGroupMenu(); }, { passive: true, capture: true });
-    document.addEventListener('visibilitychange', () => { if (document.hidden) { if (_fanOpen) closeGroupFan(); if (_textMenuOpen) closeTextGroupMenu(); hideStarPip(); } });
+    let _navScanTimer1 = null;
+    let _navScanTimer2 = null;
+    function _scheduleNavScan() {
+        clearTimeout(_navScanTimer1);
+        clearTimeout(_navScanTimer2);
+        _navScanTimer1 = setTimeout(scanAndInsert, 50);
+        _navScanTimer2 = setTimeout(scanAndInsert, 500);
+    }
+    window.addEventListener('popstate', _scheduleNavScan, { passive: true });
+
     (() => {
         const _wrap = fn => function(...args) {
             const r = fn.apply(this, args);
-            hideStarPip?.();
-            if (GM_getValue(KEY_HIST_PINNED, false) && !document.getElementById('tm-hist-panel')) {
-                setTimeout(() => {
-                    if (GM_getValue(KEY_HIST_PINNED, false) && !document.getElementById('tm-hist-panel')) {
-                        showHistoryPanel();
-                    }
-                }, 300);
+            try {
+                hideStarPip?.();
+                _scheduleNavScan();
+                if (GM_getValue(KEY_HIST_PINNED, false) && !document.getElementById('tm-hist-panel')) {
+                    setTimeout(() => {
+                        try {
+                            if (GM_getValue(KEY_HIST_PINNED, false) && !document.getElementById('tm-hist-panel')) {
+                                showHistoryPanel();
+                            }
+                        } catch (e) { _log('TMNav', 'pinned history panel reopen failed', e); }
+                    }, 300);
+                }
+            } catch (e) {
+                _log('TMNav', 'pushState/replaceState wrapper side-effect failed', e);
             }
             return r;
         };
@@ -6614,13 +6642,9 @@
         'rgba(180,80,200,.28)', 'rgba(100,200,120,.28)',  'rgba(240,120,160,.28)',
         'rgba(220,160,60,.28)',
     ];
-    let _starAutoHideTimer = null;
-    let _fanNodes          = [];
-    let _fanOpen           = false;
-    let _selectedIconId    = null;
 
     function _renderStarPipIcon(pip) {
-        pip.innerHTML = _pendingIsText
+        pip.innerHTML = StarPipState.pendingIsText
             ? '<span class="tm-star-pip-glyph">📁</span>'
             : '<span class="tm-star-pip-glyph">⭐</span><span class="tm-star-pip-badge">+</span>';
     }
@@ -6630,10 +6654,10 @@
         if (!pip) return;
 
         _renderStarPipIcon(pip);
-        pip.title = _pendingIsText ? 'Group this text bookmark' : 'Click: New Group · Hover: pick group';
+        pip.title = StarPipState.pendingIsText ? 'Group this text bookmark' : 'Click: New Group · Hover: pick group';
 
         if (mediaBtnEl) {
-            _pendingStarPipEl = pip;
+            StarPipState.pendingStarPipEl = pip;
             const r = mediaBtnEl.getBoundingClientRect();
             pip.style.left = (r.right + 2) + 'px';
             pip.style.top  = (r.top   - 9) + 'px';
@@ -6641,9 +6665,9 @@
 
         pip.classList.add('tm-popped');
 
-        clearTimeout(_starAutoHideTimer);
-        _starAutoHideTimer = setTimeout(() => {
-            if (!_fanOpen && !_textMenuOpen) hideStarPip();
+        clearTimeout(StarPipState.autoHideTimer);
+        StarPipState.autoHideTimer = setTimeout(() => {
+            if (!StarPipState.fanOpen && !StarPipState.textMenuOpen) hideStarPip();
         }, STAR_AUTO_HIDE_SEC * 1000);
     }
 
@@ -6651,8 +6675,8 @@
         const pip = document.getElementById('tm-star-pip');
         if (!pip) return;
         pip.classList.remove('tm-popped');
-        clearTimeout(_starAutoHideTimer);
-        _pendingStarPipEl = null;
+        clearTimeout(StarPipState.autoHideTimer);
+        StarPipState.pendingStarPipEl = null;
         pip.innerHTML = '<span class="tm-star-pip-glyph">⭐</span><span class="tm-star-pip-badge">+</span>';
         pip.title = 'Click: New Group · Hover: pick group';
     }
@@ -6698,8 +6722,8 @@
     }
 
     function _buildFanDom() {
-        _fanNodes.forEach(n => n.remove());
-        _fanNodes = [];
+        StarPipState.fanNodes.forEach(n => n.remove());
+        StarPipState.fanNodes = [];
 
         const _cfg      = (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })();
         const _glowClr  = _cfg.glowColor || 'multi';
@@ -6714,7 +6738,7 @@
             : _txtClrMap.white;
         const _glowPx   = Math.max(4, Math.min(60, _glowSz));
 
-        const groups = _pendingIsText ? getTextGroups() : getGroups();
+        const groups = StarPipState.pendingIsText ? getTextGroups() : getGroups();
         groups.forEach((g, i) => {
             const _rawGlow = _glowClr === 'multi'
                 ? (g.glow || STAR_GLOW_COLORS[i % STAR_GLOW_COLORS.length])
@@ -6737,7 +6761,7 @@
                 <span class="tm-fan-label" style="color:${_txtClr}">${_escHtml(g.name)}</span>`;
             el.addEventListener('click', () => _onFanGroupClick(g.id, g.name));
             document.body.appendChild(el);
-            _fanNodes.push(el);
+            StarPipState.fanNodes.push(el);
         });
     }
 
@@ -6746,14 +6770,12 @@
         catch (_) { return 0; }
     }
 
-    let _starEscaping = false;
-
     function _runStarEscapeAnim(callback) {
         const pip = document.getElementById('tm-star-pip');
-        if (!pip || _starEscaping) { if (!pip) callback?.(); return; }
-        _starEscaping = true;
+        if (!pip || StarPipState.escaping) { if (!pip) callback?.(); return; }
+        StarPipState.escaping = true;
 
-        clearTimeout(_starAutoHideTimer);
+        clearTimeout(StarPipState.autoHideTimer);
 
         pip.classList.add('tm-escaping');
 
@@ -6781,8 +6803,8 @@
             pip.style.transform  = '';
             pip.style.opacity    = '';
             pip.classList.remove('tm-popped', 'tm-escaping');
-            _pendingStarPipEl = null;
-            _starEscaping = false;
+            StarPipState.pendingStarPipEl = null;
+            StarPipState.escaping = false;
             callback?.();
         }, 600);
     }
@@ -6838,18 +6860,18 @@
     }
 
     function openGroupFan() {
-        if (_pendingIsText) { openTextGroupMenu(); return; }
+        if (StarPipState.pendingIsText) { openTextGroupMenu(); return; }
         const _activeGroups = getGroups();
         if (!_activeGroups.length) {
             _runStarEscapeAnim(() => showGroupCreateModal());
             return;
         }
 
-        _fanOpen = true;
+        StarPipState.fanOpen = true;
         _buildFanDom();
         const { cx, cy } = _getStarPipPos();
         const groups = _activeGroups;
-        const groupNodeCount = _fanNodes.length;
+        const groupNodeCount = StarPipState.fanNodes.length;
         const positions = _fanPositions(groupNodeCount, cx, cy);
         const pip = document.getElementById('tm-star-pip');
         if (pip) pip.classList.add('tm-lit');
@@ -6859,7 +6881,7 @@
         _spawnRipple(cx, cy);
         setTimeout(() => _spawnRipple(cx, cy), 110);
 
-        _fanNodes.forEach((node, i) => {
+        StarPipState.fanNodes.forEach((node, i) => {
             const pos = positions[i];
             node.style.cssText = `left:${cx-16}px;top:${cy-16}px;opacity:0;transition:none`;
             node.classList.remove('tm-spawned');
@@ -6875,12 +6897,12 @@
     }
 
     function closeGroupFan() {
-        _fanOpen = false;
+        StarPipState.fanOpen = false;
         const { cx, cy } = _getStarPipPos();
         const pip = document.getElementById('tm-star-pip');
         if (pip) pip.classList.remove('tm-lit');
         _hideFanMask();
-        _fanNodes.forEach(node => {
+        StarPipState.fanNodes.forEach(node => {
             node.classList.remove('tm-spawned');
             node.style.transition = 'opacity .15s ease, left .22s cubic-bezier(.6,0,.2,1), top .22s cubic-bezier(.6,0,.2,1)';
             node.style.left    = (cx - 16) + 'px';
@@ -6888,23 +6910,20 @@
             node.style.opacity = '0';
         });
         setTimeout(() => {
-            _fanNodes.forEach(n => n.remove());
-            _fanNodes = [];
+            StarPipState.fanNodes.forEach(n => n.remove());
+            StarPipState.fanNodes = [];
             document.getElementById('tm-fan-mask')?.remove();
         }, 300);
     }
 
     function _onFanGroupClick(groupId, groupName) {
-        assignGroup(_pendingGroupRecordId, groupId);
-        _pendingGroupRecordId = null;
-        _pendingIsText        = false;
+        assignGroup(StarPipState.pendingGroupRecordId, groupId);
+        StarPipState.pendingGroupRecordId = null;
+        StarPipState.pendingIsText        = false;
         showToast(`⭐ → ${groupName}`);
         closeGroupFan();
         _runStarEscapeAnim(() => hideStarPip());
     }
-
-    let _textMenuOpen     = false;
-    let _textMenuAnchorEl = null;
 
     function openTextGroupMenu(anchorEl) {
         let menu = document.getElementById('tm-text-group-menu');
@@ -6917,33 +6936,33 @@
             menu.addEventListener('mouseleave', () => {
                 setTimeout(() => {
                     const pip = document.getElementById('tm-star-pip');
-                    if (!pip?.matches(':hover') && !_textMenuAnchorEl?.matches(':hover') && !menu.matches(':hover')) {
+                    if (!pip?.matches(':hover') && !StarPipState.textMenuAnchorEl?.matches(':hover') && !menu.matches(':hover')) {
                         closeTextGroupMenu();
                     }
                 }, 160);
             });
         }
 
-        _textMenuAnchorEl = anchorEl || document.getElementById('tm-star-pip');
+        StarPipState.textMenuAnchorEl = anchorEl || document.getElementById('tm-star-pip');
 
         _renderTextGroupMenu(menu);
 
         _positionTextGroupMenu(menu);
 
-        _textMenuOpen = true;
+        StarPipState.textMenuOpen = true;
         requestAnimationFrame(() => menu.classList.add('tm-tgm-open'));
     }
 
     function closeTextGroupMenu() {
         const menu = document.getElementById('tm-text-group-menu');
         if (!menu) return;
-        _textMenuOpen = false;
-        _textMenuAnchorEl = null;
+        StarPipState.textMenuOpen = false;
+        StarPipState.textMenuAnchorEl = null;
         menu.classList.remove('tm-tgm-open');
     }
 
     function _positionTextGroupMenu(menu) {
-        const anchor = _textMenuAnchorEl || document.getElementById('tm-star-pip');
+        const anchor = StarPipState.textMenuAnchorEl || document.getElementById('tm-star-pip');
         if (!anchor) return;
         const r   = anchor.getBoundingClientRect();
         menu.style.top   = '';
@@ -6999,9 +7018,9 @@
                 list.appendChild(btn);
 
                 btn.addEventListener('click', () => {
-                    assignGroup(_pendingGroupRecordId, g.id);
-                    _pendingGroupRecordId = null;
-                    _pendingIsText        = false;
+                    assignGroup(StarPipState.pendingGroupRecordId, g.id);
+                    StarPipState.pendingGroupRecordId = null;
+                    StarPipState.pendingIsText        = false;
                     showToast(`📁 → ${g.name}`);
                     closeTextGroupMenu();
                     _runStarEscapeAnim(() => hideStarPip());
@@ -7033,13 +7052,13 @@
     }
 
     document.addEventListener('click', e => {
-        if (_textMenuOpen &&
+        if (StarPipState.textMenuOpen &&
             !e.target.closest('#tm-text-group-menu') &&
             !e.target.closest('#tm-star-pip') &&
-            !(_textMenuAnchorEl && _textMenuAnchorEl.contains?.(e.target))) {
+            !(StarPipState.textMenuAnchorEl && StarPipState.textMenuAnchorEl.contains?.(e.target))) {
             closeTextGroupMenu();
         }
-        if (!_fanOpen) return;
+        if (!StarPipState.fanOpen) return;
         if (e.target.closest('.tm-fan-node') ||
             e.target.closest('#tm-star-pip')  ||
             e.target.closest('.tm-group-modal-overlay')) return;
@@ -7110,7 +7129,7 @@
     function showGroupCreateModal() {
         const old = document.getElementById('tm-group-modal-overlay');
         if (old) old.remove();
-        _selectedIconId = null;
+        StarPipState.selectedIconId = null;
 
         const overlay = document.createElement('div');
         overlay.id        = 'tm-group-modal-overlay';
@@ -7152,7 +7171,7 @@
             const cell = document.createElement('button');
             cell.type = 'button';
             cell.dataset.iconId = ic.id;
-            const isSel = ic.id === _selectedIconId;
+            const isSel = ic.id === StarPipState.selectedIconId;
             cell.style.cssText = `
                 display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
                 padding:7px 3px;border-radius:8px;border:1.5px solid ${isSel ? ic.color : 'transparent'};
@@ -7174,7 +7193,7 @@
             cell.appendChild(iconLbl);
 
             cell.addEventListener('click', () => {
-                _selectedIconId = ic.id;
+                StarPipState.selectedIconId = ic.id;
                 iconGrid.querySelectorAll('button[data-icon-id]').forEach(b => {
                     const bid = b.dataset.iconId;
                     const bic = _GROUP_ICON_FLAT.find(x => x.id === bid);
@@ -7254,17 +7273,17 @@
             return;
         }
 
-        const ic      = (_selectedIconId && _GROUP_ICON_FLAT.find(x => x.id === _selectedIconId)) || _GROUP_ICON_FLAT[0];
-        const _baseLookup = _pendingIsText ? getTextGroups() : getGroups();
+        const ic      = (StarPipState.selectedIconId && _GROUP_ICON_FLAT.find(x => x.id === StarPipState.selectedIconId)) || _GROUP_ICON_FLAT[0];
+        const _baseLookup = StarPipState.pendingIsText ? getTextGroups() : getGroups();
         const glowIdx = _baseLookup.length % STAR_GLOW_COLORS.length;
-        const group   = _pendingIsText
+        const group   = StarPipState.pendingIsText
             ? createTextGroup(name, ic.id, STAR_GLOW_COLORS[glowIdx])
             : createGroup(name, ic.id, STAR_GLOW_COLORS[glowIdx]);
-        if (_pendingGroupRecordId !== null) {
-            assignGroup(_pendingGroupRecordId, group.id);
-            _pendingGroupRecordId = null;
+        if (StarPipState.pendingGroupRecordId !== null) {
+            assignGroup(StarPipState.pendingGroupRecordId, group.id);
+            StarPipState.pendingGroupRecordId = null;
         }
-        _pendingIsText = false;
+        StarPipState.pendingIsText = false;
         showToast(`⭐ Created「${ic.label} · ${name}」`);
 
         setTimeout(() => {
@@ -7644,8 +7663,8 @@
             }
 
             if (GM_getValue(KEY_GROUP_ON_DOWNLOAD, false)) {
-                _pendingIsText        = false;
-                _pendingGroupRecordId = record.id;
+                StarPipState.pendingIsText        = false;
+                StarPipState.pendingGroupRecordId = record.id;
                 setTimeout(() => popStarPip(mediaBtn || null), 80);
             }
 
@@ -7670,7 +7689,7 @@
 
         const existing = document.getElementById('tm-hist-panel');
         if (existing) {
-            if (_dockSideGlobal) {
+            if (DockState.side) {
                 existing.dispatchEvent(new CustomEvent('tm-hist-toggle-peek'));
                 return;
             }
@@ -7723,6 +7742,8 @@
         const selectedIds    = new Set();
         const collapsedGroups = new Set();
         let anchorIdx          = -1;
+        let _navRecords        = [];
+        let _crossKeyHandlerRef = null;
         const _textAuthorCollapsed = new Set();
         let _textAuthorScrollTarget = null;
         const _loadTbmCfg = () => { try { return JSON.parse(GM_getValue(KEY_TEXT_BM_CFG, '{}')); } catch(_) { return {}; } };
@@ -8715,7 +8736,7 @@
         panel.setAttribute('data-ss-preserve', '');
         panel.style.cssText = `left:${pos.x}px; top:${pos.y}px; width:${pos.w}px; height:${pos.h}px;`;
 
-        if (_dockSideGlobal && !_pinned) {
+        if (DockState.side && !_pinned) {
             panel.style.opacity = '0';
             panel.style.transition = 'none';
         }
@@ -8890,7 +8911,7 @@
             btnAddGroup.addEventListener('mouseout',  () => { btnAddGroup.style.background = 'transparent'; btnAddGroup.style.color = 'rgba(255,255,255,.35)'; });
             btnAddGroup.addEventListener('click', e => {
                 e.stopPropagation();
-                _pendingIsText = isTextTab;
+                StarPipState.pendingIsText = isTextTab;
                 showGroupCreateModal();
             });
 
@@ -9190,9 +9211,9 @@
             countBadge.textContent = `${records.length} entries`;
             delSelBtn.textContent = `Delete selected (${selectedIds.size})`;
 
-            const visibleIds = filtered
-                .filter(r => !collapsedGroups.has(r.yyyymm))
-                .map(r => r.id);
+            const _visibleRecs = filtered.filter(r => !collapsedGroups.has(r.yyyymm));
+            _navRecords = _visibleRecs;
+            const visibleIds = _visibleRecs.map(r => r.id);
             const allSelected = visibleIds.length > 0 && visibleIds.every(id => selectedIds.has(id));
             selAllBtn.textContent = allSelected ? 'Deselect All' : 'Select All';
 
@@ -9787,6 +9808,7 @@
                         e.stopPropagation();
                         _hideZoom();
                         _openHistMediaLightbox(rec, 0, thumbWrap.querySelector('img'));
+                        _injectHistCrossNav(rec);
                     });
                 } else if (rec.textOnly) {
                     if (rec.avatarUrl) {
@@ -10203,6 +10225,7 @@
                         _handleCheckbox(rec.id, idx, e.shiftKey);
                     } else {
                         _openHistMediaLightbox(rec, 0, cell.querySelector('img'));
+                        _injectHistCrossNav(rec);
                     }
                 });
 
@@ -10282,6 +10305,7 @@
                     const CTX_VIEW = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="1" y="3" width="14" height="10" rx="1.5"/><circle cx="5.5" cy="7.5" r="1.5"/><path d="M9 10l2-2.5 2.5 2.5"/></svg>`;
                     menu.appendChild(mkItem(CTX_VIEW, 'View media', () => {
                         _openHistMediaLightbox(rec, 0, null);
+                        _injectHistCrossNav(rec);
                     }));
                     const CTX_DLOAD = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 2v8"/><path d="M5 7l3 3 3-3"/><path d="M2 13h12"/></svg>`;
                     const hasMedia = rec.mediaUrls && rec.mediaUrls.length > 0;
@@ -10483,6 +10507,103 @@
         function _hideZoom() {
             if (_zoomRafId) { cancelAnimationFrame(_zoomRafId); _zoomRafId = null; }
             document.getElementById('tm-hist-zoom')?.remove();
+        }
+
+        function _getCrossNavNeighbor(recId, dir) {
+            if (_navRecords.length < 2) return null;
+            const i = _navRecords.findIndex(r => r.id === recId);
+            if (i === -1) return null;
+            const n = _navRecords.length;
+            return _navRecords[(i + dir + n) % n];
+        }
+
+        function _removeCrossNavButtons() {
+            document.getElementById('tm-hcn-prev')?.remove();
+            document.getElementById('tm-hcn-next')?.remove();
+            if (_crossKeyHandlerRef) {
+                document.removeEventListener('keydown', _crossKeyHandlerRef);
+                _crossKeyHandlerRef = null;
+            }
+        }
+
+        const _HCN_MODAL_IDS = ['tm-image-lightbox', 'tm-floating-video-modal', 'tm-thumb-lb-backdrop'];
+
+        function _injectHistCrossNav(rec) {
+            _removeCrossNavButtons();
+            if (_navRecords.length < 2) return;
+            let tries = 0;
+            const poll = () => {
+                const modal = _HCN_MODAL_IDS.map(id => document.getElementById(id)).find(Boolean);
+                if (modal) { _buildCrossNavButtons(rec, modal); return; }
+                if (++tries < 20) setTimeout(poll, 50);
+            };
+            poll();
+        }
+
+        function _buildCrossNavButtons(rec, modal) {
+            if (document.getElementById('tm-hcn-prev')) return;
+
+            modal.querySelectorAll('.tm-nav-fade-btn').forEach(btn => {
+                if (btn.style.left  === '20px') btn.style.left  = '76px';
+                if (btn.style.right === '20px') btn.style.right = '76px';
+            });
+
+            const BTN_BASE = `
+                position: fixed; top: 50%; transform: translateY(-50%);
+                background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+                color: white; border: none;
+                width: 40px; height: 40px; border-radius: 50%;
+                cursor: pointer; display: flex; align-items: center; justify-content: center;
+                transition: background 0.2s; z-index: 10000020;
+            `;
+            const SVG_DPREV = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18,18 10,12 18,6"/><polyline points="11,18 3,12 11,6"/></svg>`;
+            const SVG_DNEXT = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,18 14,12 6,6"/><polyline points="13,18 21,12 13,6"/></svg>`;
+
+            const _go = (dir) => {
+                const neighbor = _getCrossNavNeighbor(rec.id, dir);
+                if (!neighbor) return;
+                _removeCrossNavButtons();
+                document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+                setTimeout(() => {
+                    _openHistMediaLightbox(neighbor, 0, null);
+                    _injectHistCrossNav(neighbor);
+                }, 340);
+            };
+
+            const prevBtn = document.createElement('button');
+            prevBtn.id = 'tm-hcn-prev';
+            prevBtn.title = 'Previous record in history ([)';
+            prevBtn.setAttribute('aria-label', 'Previous record in history');
+            prevBtn.innerHTML = SVG_DPREV;
+            prevBtn.style.cssText = BTN_BASE + 'left: 20px;';
+            prevBtn.onmouseenter = () => prevBtn.style.background = 'rgba(255,255,255,0.25)';
+            prevBtn.onmouseleave = () => prevBtn.style.background = 'rgba(0,0,0,0.55)';
+            prevBtn.onclick = (e) => { e.stopPropagation(); _go(-1); };
+
+            const nextBtn = document.createElement('button');
+            nextBtn.id = 'tm-hcn-next';
+            nextBtn.title = 'Next record in history (])';
+            nextBtn.setAttribute('aria-label', 'Next record in history');
+            nextBtn.innerHTML = SVG_DNEXT;
+            nextBtn.style.cssText = BTN_BASE + 'right: 20px;';
+            nextBtn.onmouseenter = () => nextBtn.style.background = 'rgba(255,255,255,0.25)';
+            nextBtn.onmouseleave = () => nextBtn.style.background = 'rgba(0,0,0,0.55)';
+            nextBtn.onclick = (e) => { e.stopPropagation(); _go(1); };
+
+            document.body.appendChild(prevBtn);
+            document.body.appendChild(nextBtn);
+
+            _crossKeyHandlerRef = (e) => {
+                if (e.key === '[') { e.preventDefault(); _go(-1); }
+                if (e.key === ']') { e.preventDefault(); _go(1); }
+            };
+            document.addEventListener('keydown', _crossKeyHandlerRef);
+
+            const _watchClose = new MutationObserver(() => {
+                const stillOpen = _HCN_MODAL_IDS.some(id => document.getElementById(id));
+                if (!stillOpen) { _removeCrossNavButtons(); _watchClose.disconnect(); }
+            });
+            _watchClose.observe(document.body, { childList: true });
         }
 
         function _openHistMediaLightbox(rec, startIdx, originEl) {
@@ -10741,7 +10862,7 @@
                 return;
             }
 
-            if (_dockSideGlobal) {
+            if (DockState.side) {
                 _retract();
                 return;
             }
@@ -10973,7 +11094,7 @@
         });
 
         panel.addEventListener('tm-hist-toggle-peek', () => {
-            if (_dockPeekedGlobal) _retract();
+            if (DockState.peeked) _retract();
             else _peekOut();
         });
 
@@ -10983,13 +11104,13 @@
             panel.style.transition = 'none';
             panel.style.width  = defW + 'px';
             panel.style.height = defH + 'px';
-            if (_dockSideGlobal) {
-                _dockSnapshotGlobal = { left: defX, top: defY, width: defW, height: defH };
-                if (_dockPeekedGlobal) panel.style.top = defY + 'px';
-                if (_dockTabElGlobal) {
+            if (DockState.side) {
+                DockState.snapshot = { left: defX, top: defY, width: defW, height: defH };
+                if (DockState.peeked) panel.style.top = defY + 'px';
+                if (DockState.tabEl) {
                     const { h, top } = _dockTabGeometry();
-                    _dockTabElGlobal.style.height = h   + 'px';
-                    _dockTabElGlobal.style.top    = top + 'px';
+                    DockState.tabEl.style.height = h   + 'px';
+                    DockState.tabEl.style.top    = top + 'px';
                 }
             } else {
                 panel.style.left = defX + 'px';
@@ -11051,7 +11172,7 @@
 
         function _savePos() {
             const r = panel.getBoundingClientRect();
-            const inDockedPeek = _dockSideGlobal && _dockPeekedGlobal;
+            const inDockedPeek = DockState.side && DockState.peeked;
             const remember = GM_getValue(KEY_DOCK_REMEMBER_POS, false);
             let pos = { x: r.left, y: r.top, w: r.width, h: r.height };
             if (inDockedPeek && !remember) {
@@ -11063,10 +11184,10 @@
             GM_setValue(KEY_HISTORY_PANEL_POS, JSON.stringify(pos));
             if (inDockedPeek) {
                 if (remember) {
-                    _dockSnapshotGlobal = { left: r.left, top: r.top, width: r.width, height: r.height };
-                } else if (_dockSnapshotGlobal) {
-                    _dockSnapshotGlobal.width  = r.width;
-                    _dockSnapshotGlobal.height = r.height;
+                    DockState.snapshot = { left: r.left, top: r.top, width: r.width, height: r.height };
+                } else if (DockState.snapshot) {
+                    DockState.snapshot.width  = r.width;
+                    DockState.snapshot.height = r.height;
                 }
             }
         }
@@ -11074,7 +11195,7 @@
         panel.addEventListener('click', e => e.stopPropagation());
 
         function _dockTabGeometry() {
-            const snap = _dockSnapshotGlobal;
+            const snap = DockState.snapshot;
             if (!snap) {
                 const r = panel.getBoundingClientRect();
                 const h   = Math.min(r.height * 0.55, 200);
@@ -11122,13 +11243,13 @@
             ].join(';');
 
             const _onHotEnter = () => {
-                clearTimeout(_dockHoverTimerGlobal);
+                clearTimeout(DockState.hoverTimer);
                 const delay = parseInt(GM_getValue(KEY_DOCK_HOVER_DELAY, '500'), 10) || 500;
-                _dockHoverTimerGlobal = setTimeout(() => _peekOut(), delay);
+                DockState.hoverTimer = setTimeout(() => _peekOut(), delay);
             };
             const _onHotLeave = () => {
-                clearTimeout(_dockHoverTimerGlobal);
-                _dockHoverTimerGlobal = null;
+                clearTimeout(DockState.hoverTimer);
+                DockState.hoverTimer = null;
             };
 
             hotzone.addEventListener('mouseenter', _onHotEnter);
@@ -11176,14 +11297,14 @@
         }
 
         function _dock(side) {
-            if (_dockSideGlobal) return;
-            _dockPeekedGlobal = false;
+            if (DockState.side) return;
+            DockState.peeked = false;
 
             const r   = panel.getBoundingClientRect();
             const vpW = window.innerWidth;
 
-            _dockSnapshotGlobal = { left: r.left, top: r.top, width: r.width, height: r.height };
-            _dockSideGlobal = side;
+            DockState.snapshot = { left: r.left, top: r.top, width: r.width, height: r.height };
+            DockState.side = side;
 
             GM_setValue(KEY_DOCK_PERSISTED, side);
 
@@ -11212,19 +11333,19 @@
             panel.style.transform = `translateX(${offX}px)`;
             panel.classList.add('tm-docked');
 
-            if (_dockTabElGlobal) _dockTabElGlobal.remove();
-            _dockTabElGlobal = _buildDockTab(side);
-            document.body.appendChild(_dockTabElGlobal);
+            if (DockState.tabEl) DockState.tabEl.remove();
+            DockState.tabEl = _buildDockTab(side);
+            document.body.appendChild(DockState.tabEl);
         }
 
         function _peekOut() {
-            if (!_dockSideGlobal || _dockPeekedGlobal) return;
-            _dockPeekedGlobal = true;
+            if (!DockState.side || DockState.peeked) return;
+            DockState.peeked = true;
 
-            clearTimeout(_dockRetractTimerGlobal);
-            _dockRetractTimerGlobal = null;
+            clearTimeout(DockState.retractTimer);
+            DockState.retractTimer = null;
 
-            const snap = _dockSnapshotGlobal;
+            const snap = DockState.snapshot;
             const vpW  = window.innerWidth;
             const vpH  = window.innerHeight;
 
@@ -11243,7 +11364,7 @@
             panel.style.transform = 'translateX(0)';
             panel.classList.remove('tm-docked');
 
-            if (_dockTabElGlobal) _dockTabElGlobal.style.pointerEvents = 'none';
+            if (DockState.tabEl) DockState.tabEl.style.pointerEvents = 'none';
 
             let bridge = document.getElementById('tm-hover-bridge');
             if (!bridge) {
@@ -11252,7 +11373,7 @@
                 bridge.style.cssText = 'position:absolute; top:0; bottom:0; width:15px; background:transparent; z-index:-1;';
                 panel.appendChild(bridge);
             }
-            if (_dockSideGlobal === 'left') {
+            if (DockState.side === 'left') {
                 bridge.style.left = '-10px';
                 bridge.style.right = '';
             } else {
@@ -11265,15 +11386,15 @@
         }
 
         function _retract() {
-            if (!_dockSideGlobal || !_dockPeekedGlobal) return;
+            if (!DockState.side || !DockState.peeked) return;
             if (_pinned) return;
-            _dockPeekedGlobal = false;
+            DockState.peeked = false;
 
             const PEEK         = 6;
             const OFFSET_LEFT  =  15;
             const OFFSET_RIGHT = -15;
             const pw = panel.offsetWidth;
-            const offX = _dockSideGlobal === 'left'
+            const offX = DockState.side === 'left'
                 ? -(OFFSET_LEFT  + pw - PEEK)
                 :  (pw           - PEEK - OFFSET_RIGHT);
 
@@ -11287,16 +11408,16 @@
             panel.style.transform = `translateX(${offX}px)`;
             panel.classList.add('tm-docked');
 
-            if (_dockTabElGlobal) _dockTabElGlobal.style.pointerEvents = '';
+            if (DockState.tabEl) DockState.tabEl.style.pointerEvents = '';
         }
 
         function _exitDockMode() {
-            clearTimeout(_dockHoverTimerGlobal);
-            clearTimeout(_dockRetractTimerGlobal);
-            _dockHoverTimerGlobal   = null;
-            _dockRetractTimerGlobal = null;
+            clearTimeout(DockState.hoverTimer);
+            clearTimeout(DockState.retractTimer);
+            DockState.hoverTimer   = null;
+            DockState.retractTimer = null;
 
-            const snap = _dockSnapshotGlobal;
+            const snap = DockState.snapshot;
             if (snap) {
                 const safeLeft = Math.max(0, Math.min(snap.left, window.innerWidth  - snap.width));
                 const safeTop  = Math.max(0, Math.min(snap.top,  window.innerHeight - 60));
@@ -11308,27 +11429,27 @@
                 panel.style.transition = '';
             }
             panel.classList.remove('tm-docked');
-            _dockSideGlobal     = null;
-            _dockPeekedGlobal   = false;
-            _dockSnapshotGlobal = null;
+            DockState.side     = null;
+            DockState.peeked   = false;
+            DockState.snapshot = null;
 
             GM_setValue(KEY_DOCK_PERSISTED, '');
 
-            if (_dockTabElGlobal) {
-                _dockTabElGlobal.remove();
-                _dockTabElGlobal = null;
+            if (DockState.tabEl) {
+                DockState.tabEl.remove();
+                DockState.tabEl = null;
             }
         }
 
         function _forceResetDock() {
-            clearTimeout(_dockHoverTimerGlobal);
-            clearTimeout(_dockRetractTimerGlobal);
-            _dockHoverTimerGlobal   = null;
-            _dockRetractTimerGlobal = null;
-            _dockSideGlobal         = null;
-            _dockPeekedGlobal       = false;
-            _dockSnapshotGlobal     = null;
-            if (_dockTabElGlobal) { _dockTabElGlobal.remove(); _dockTabElGlobal = null; }
+            clearTimeout(DockState.hoverTimer);
+            clearTimeout(DockState.retractTimer);
+            DockState.hoverTimer   = null;
+            DockState.retractTimer = null;
+            DockState.side         = null;
+            DockState.peeked       = false;
+            DockState.snapshot     = null;
+            if (DockState.tabEl) { DockState.tabEl.remove(); DockState.tabEl = null; }
             GM_setValue(KEY_DOCK_PERSISTED, '');
 
             panel.classList.remove('tm-docked');
@@ -11346,9 +11467,9 @@
 
         dockTriggerL.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (_dockSideGlobal === 'left') {
+            if (DockState.side === 'left') {
                 _exitDockMode();
-            } else if (_dockSideGlobal === 'right') {
+            } else if (DockState.side === 'right') {
                 showToast('⚠️ Undock right side first before docking left');
             } else {
                 _dock('left');
@@ -11356,9 +11477,9 @@
         });
         dockTriggerR.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (_dockSideGlobal === 'right') {
+            if (DockState.side === 'right') {
                 _exitDockMode();
-            } else if (_dockSideGlobal === 'left') {
+            } else if (DockState.side === 'left') {
                 showToast('⚠️ Undock left side first before docking right');
             } else {
                 _dock('right');
@@ -11366,42 +11487,42 @@
         });
 
         panel.addEventListener('mouseleave', () => {
-            if (!_dockSideGlobal || !_dockPeekedGlobal) return;
+            if (!DockState.side || !DockState.peeked) return;
             if (_dialogOpenGlobal) return;
             if (_pinned) return;
-            clearTimeout(_dockRetractTimerGlobal);
-            _dockRetractTimerGlobal = setTimeout(() => _retract(), 480);
+            clearTimeout(DockState.retractTimer);
+            DockState.retractTimer = setTimeout(() => _retract(), 480);
         });
         panel.addEventListener('mouseenter', () => {
-            if (!_dockSideGlobal) return;
-            clearTimeout(_dockRetractTimerGlobal);
-            _dockRetractTimerGlobal = null;
+            if (!DockState.side) return;
+            clearTimeout(DockState.retractTimer);
+            DockState.retractTimer = null;
         });
 
         const _origCleanup = panel._tmCleanup;
         panel._tmCleanup = () => {
             _origCleanup();
-            clearTimeout(_dockHoverTimerGlobal);
-            clearTimeout(_dockRetractTimerGlobal);
-            _dockHoverTimerGlobal   = null;
-            _dockRetractTimerGlobal = null;
-            if (_dockTabElGlobal) { _dockTabElGlobal.remove(); _dockTabElGlobal = null; }
+            clearTimeout(DockState.hoverTimer);
+            clearTimeout(DockState.retractTimer);
+            DockState.hoverTimer   = null;
+            DockState.retractTimer = null;
+            if (DockState.tabEl) { DockState.tabEl.remove(); DockState.tabEl = null; }
         };
 
-        if (_dockSideGlobal && !_pinned) {
+        if (DockState.side && !_pinned) {
             requestAnimationFrame(() => {
-                const side = _dockSideGlobal;
-                _dockSideGlobal = null;
+                const side = DockState.side;
+                DockState.side = null;
                 _dock(side);
                 requestAnimationFrame(() => {
                     panel.style.transition = '';
                     panel.style.opacity = '';
                 });
             });
-        } else if (_dockSideGlobal && _pinned) {
+        } else if (DockState.side && _pinned) {
             requestAnimationFrame(() => {
-                const side = _dockSideGlobal;
-                _dockSideGlobal = null;
+                const side = DockState.side;
+                DockState.side = null;
                 _dock(side);
                 requestAnimationFrame(() => {
                     panel.style.transition = '';
@@ -13588,9 +13709,36 @@
     const _fiberVideoCache = new WeakMap();
     const _FIBER_CACHE_TTL = 60_000;
 
+    const _CIRCUIT_FAIL_THRESHOLD = 4;
+    const _CIRCUIT_BASE_COOLDOWN  = 30_000;
+    const _CIRCUIT_MAX_COOLDOWN   = 300_000;
+    let _circuitFailCount  = 0;
+    let _circuitOpenUntil  = 0;
+    let _circuitCooldown   = _CIRCUIT_BASE_COOLDOWN;
+
+    function _circuitIsOpen() {
+        return _circuitOpenUntil > Date.now();
+    }
+    function _circuitRecordFailure() {
+        _circuitFailCount++;
+        if (_circuitFailCount >= _CIRCUIT_FAIL_THRESHOLD && !_circuitIsOpen()) {
+            _circuitOpenUntil = Date.now() + _circuitCooldown;
+            _log('TMApi', `電路斷路器開啟，${_circuitCooldown / 1000}s 內跳過網路請求直接降級（連續失敗 ${_circuitFailCount} 次）`);
+            _circuitCooldown = Math.min(_circuitCooldown * 2, _CIRCUIT_MAX_COOLDOWN);
+        }
+    }
+    function _circuitRecordSuccess() {
+        if (_circuitFailCount > 0) _log('TMApi', '電路斷路器重置（請求已恢復成功）');
+        _circuitFailCount = 0;
+        _circuitOpenUntil = 0;
+        _circuitCooldown  = _CIRCUIT_BASE_COOLDOWN;
+    }
+
     async function fetchTweetMediaFromAPI(statusId) {
         const _cacheHit = _apiVideoCache.get(statusId);
         if (_cacheHit && (Date.now() - _cacheHit.ts < _API_CACHE_TTL)) return { videos: _cacheHit.urls, images: [] };
+
+        if (_circuitIsOpen()) return null;
 
         try {
             const ct0 = document.cookie.match(/(?:^|;\s*)ct0=([^;]+)/)?.[1]?.trim() ?? '';
@@ -13615,6 +13763,7 @@
             } catch (e) {
                 if (e.name === 'AbortError') _log('TMApi', 'fetchTweetMediaFromAPI timed out (8s)');
                 else _log('TMApi', 'fetchTweetMediaFromAPI fetch error:', e);
+                _circuitRecordFailure();
                 return null;
             } finally {
                 clearTimeout(_fetchTimeout);
@@ -13632,11 +13781,17 @@
                     GM_deleteValue('app_gql_tweet_id');
                     _cachedGqlId = '2ICDjqPd81tulZcYrtpTuQ';
                 }
+                _circuitRecordFailure();
                 return null;
             }
+            _circuitRecordSuccess();
             let json = await res.json();
             let core = json.data?.tweetResult?.result?.tweet || json.data?.tweetResult?.result;
-            if (!core) return null;
+            if (!core) {
+                _log('TMApi', 'fetchTweetMediaFromAPI: result 整層缺失（非 tombstone/unavailable），計入電路斷路器', statusId);
+                _circuitRecordFailure();
+                return null;
+            }
 
             let result = { videos: [], images: [] };
 
@@ -13677,6 +13832,7 @@
             return result;
         } catch(e) {
             _log('TMApi', 'fetchTweetMediaFromAPI 未預期錯誤', e);
+            _circuitRecordFailure();
             return null;
         }
     }
@@ -14234,8 +14390,8 @@
                         setMediaIcon('ok', '📌 Saved', 'Saved');
                         setTimeout(() => setMediaIcon('default'), 1800);
                         if (GM_getValue(KEY_GROUP_ON_DOWNLOAD, false)) {
-                            _pendingIsText        = true;
-                            _pendingGroupRecordId = record.id;
+                            StarPipState.pendingIsText        = true;
+                            StarPipState.pendingGroupRecordId = record.id;
                             setTimeout(() => popStarPip(btn || null), 80);
                         }
                     } catch (err) {
@@ -14459,8 +14615,8 @@
                     const _existPanel = document.getElementById('tm-hist-panel');
                     if (_existPanel) _existPanel.dispatchEvent(new CustomEvent('tm-hist-refresh'));
                     if (GM_getValue(KEY_GROUP_ON_DOWNLOAD, false)) {
-                        _pendingIsText        = true;
-                        _pendingGroupRecordId = record.id;
+                        StarPipState.pendingIsText        = true;
+                        StarPipState.pendingGroupRecordId = record.id;
                         setTimeout(() => openTextGroupMenu(icon), 80);
                     }
                 } catch (err) {
@@ -14469,43 +14625,61 @@
                 }
             };
 
+            const _linkTargetUrl = () => {
+                const useCustom = _cachedClickModeCustom;
+                const targetDomain = useCustom ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
+                return extractTweetUrl(article, 'https://' + targetDomain);
+            };
+
+            const _linkActionCopyUrl = async () => {
+                const url = _linkTargetUrl();
+                if (!url) return;
+                GM_setClipboard(url);
+                setLinkIcon('ok', T.msg_copied, 'Copied', 'copy');
+                setTimeout(() => setLinkIcon('default'), 1500);
+            };
+
+            const _linkActionCopyPrefixUrl = async () => {
+                const url = _linkTargetUrl();
+                if (!url) return;
+                const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
+                GM_setClipboard(`${prefix}(${url})`);
+                setLinkIcon('ok', T.msg_prefix_copied, 'Prefix Copied', 'prefix');
+                setTimeout(() => setLinkIcon('default'), 1500);
+            };
+
+            const _linkActionSaveTextBookmark = _doSaveLinkTextBookmark;
+
+            const _linkActionNone = async () => {};
+
+            const _LINK_ACTION_REGISTRY = {
+                copy_url:           _linkActionCopyUrl,
+                copy_prefix_url:    _linkActionCopyPrefixUrl,
+                save_text_bookmark: _linkActionSaveTextBookmark,
+                none:               _linkActionNone,
+            };
+
             if (_cachedClickMode === 'menu') {
-                const _getLinkItems = () => {
-                    const useCustom = _cachedClickModeCustom;
-                    const targetDomain = useCustom ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
-                    const url = extractTweetUrl(article, 'https://' + targetDomain);
-                    return [
-                        {
-                            itemClass: 'tm-menu-item--copied',
-                            icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5a3.5 3.5 0 0 0 5 0l2-2a3.5 3.5 0 0 0-5-5L7 4"/><path d="M9.5 6.5a3.5 3.5 0 0 0-5 0l-2 2a3.5 3.5 0 0 0 5 5L9 12"/></svg>`,
-                            label: T.cma_action_copy_url || 'Copy Tweet URL',
-                            action: () => {
-                                if (!url) return;
-                                GM_setClipboard(url);
-                                setLinkIcon('ok', T.msg_copied, 'Copied', 'copy');
-                                setTimeout(() => setLinkIcon('default'), 1500);
-                            },
-                        },
-                        {
-                            itemClass: 'tm-menu-item--prefix',
-                            icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="4" width="9" height="9" rx="1.5"/><path d="M5.5 4V2.5A1 1 0 0 1 6.5 1.5h7a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H12"/><line x1="4" y1="8" x2="8" y2="8"/><line x1="4" y1="10.5" x2="7" y2="10.5"/></svg>`,
-                            label: T.cma_action_copy_prefix || 'Copy with Prefix',
-                            action: () => {
-                                if (!url) return;
-                                const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
-                                GM_setClipboard(`${prefix}(${url})`);
-                                setLinkIcon('ok', T.msg_prefix_copied, 'Prefix Copied', 'prefix');
-                                setTimeout(() => setLinkIcon('default'), 1500);
-                            },
-                        },
-                        'divider',
-                        {
-                            icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2h10a1 1 0 0 1 1 1v11l-5-3-5 3V3a1 1 0 0 1 1-1z"/></svg>`,
-                            label: T.cma_action_save_bookmark || 'Save as Text Bookmark',
-                            action: _doSaveLinkTextBookmark,
-                        },
-                    ];
-                };
+                const _getLinkItems = () => [
+                    {
+                        itemClass: 'tm-menu-item--copied',
+                        icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5a3.5 3.5 0 0 0 5 0l2-2a3.5 3.5 0 0 0-5-5L7 4"/><path d="M9.5 6.5a3.5 3.5 0 0 0-5 0l-2 2a3.5 3.5 0 0 0 5 5L9 12"/></svg>`,
+                        label: T.cma_action_copy_url || 'Copy Tweet URL',
+                        action: _linkActionCopyUrl,
+                    },
+                    {
+                        itemClass: 'tm-menu-item--prefix',
+                        icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="4" width="9" height="9" rx="1.5"/><path d="M5.5 4V2.5A1 1 0 0 1 6.5 1.5h7a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H12"/><line x1="4" y1="8" x2="8" y2="8"/><line x1="4" y1="10.5" x2="7" y2="10.5"/></svg>`,
+                        label: T.cma_action_copy_prefix || 'Copy with Prefix',
+                        action: _linkActionCopyPrefixUrl,
+                    },
+                    'divider',
+                    {
+                        icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2h10a1 1 0 0 1 1 1v11l-5-3-5 3V3a1 1 0 0 1 1-1z"/></svg>`,
+                        label: T.cma_action_save_bookmark || 'Save as Text Bookmark',
+                        action: _linkActionSaveTextBookmark,
+                    },
+                ];
                 { const _acC = _bindMenuClick(icon, _getLinkItems);
                   const _acH = _bindMenuHover(icon, _getLinkItems);
                   icon._menuAC = { abort() { _acC.abort(); _acH.abort(); } }; }
@@ -14516,40 +14690,6 @@
                     try {
                         return { ...DEFAULT_LINK_ACTIONS, ...JSON.parse(GM_getValue(KEY_CUSTOM_LINK_ACTIONS, '{}')) };
                     } catch (_) { return { ...DEFAULT_LINK_ACTIONS }; }
-                };
-
-                const _linkTargetUrl = () => {
-                    const useCustom = _cachedClickModeCustom;
-                    const targetDomain = useCustom ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
-                    return extractTweetUrl(article, 'https://' + targetDomain);
-                };
-
-                const _linkActionCopyUrl = async () => {
-                    const url = _linkTargetUrl();
-                    if (!url) return;
-                    GM_setClipboard(url);
-                    setLinkIcon('ok', T.msg_copied, 'Copied', 'copy');
-                    setTimeout(() => setLinkIcon('default'), 1500);
-                };
-
-                const _linkActionCopyPrefixUrl = async () => {
-                    const url = _linkTargetUrl();
-                    if (!url) return;
-                    const prefix = GM_getValue(KEY_PREFIX_TEXT, '[text]');
-                    GM_setClipboard(`${prefix}(${url})`);
-                    setLinkIcon('ok', T.msg_prefix_copied, 'Prefix Copied', 'prefix');
-                    setTimeout(() => setLinkIcon('default'), 1500);
-                };
-
-                const _linkActionSaveTextBookmark = _doSaveLinkTextBookmark;
-
-                const _linkActionNone = async () => {};
-
-                const _LINK_ACTION_REGISTRY = {
-                    copy_url:           _linkActionCopyUrl,
-                    copy_prefix_url:    _linkActionCopyPrefixUrl,
-                    save_text_bookmark: _linkActionSaveTextBookmark,
-                    none:               _linkActionNone,
                 };
 
                 icon.addEventListener('mouseenter', () => {
