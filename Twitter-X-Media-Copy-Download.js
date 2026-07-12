@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.9.2
+// @version      2.9.10.1
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -295,6 +295,8 @@
         'sp_group_on_dl',
         'sp_group_glow_color',
         'sp_group_glow_size',
+        'sp_group_label_size',
+        'sp_group_icon_size',
         'sp_group_text_color',
         'sp_corner_position',
         'sp_feedback_pulse',
@@ -472,6 +474,8 @@
             sp_grp_glow_multi:      'Multi',
             sp_grp_glow_size:       'Glow Size',
             sp_grp_label_color:     'Label Color',
+            sp_grp_label_size:      'Label Text Size',
+            sp_grp_icon_size:       'Icon Size',
             sp_grp_manage:          'Manage Groups',
             sp_grp_corner:          '📌  Corner Position',
             sp_grp_history:         '🗂  History Panel',
@@ -647,6 +651,8 @@
             sp_grp_glow_multi:      '多色',
             sp_grp_glow_size:       '光暈大小',
             sp_grp_label_color:     '標籤顏色',
+            sp_grp_label_size:      '標籤文字大小',
+            sp_grp_icon_size:       '圖示大小',
             sp_grp_manage:          '管理群組',
             sp_grp_corner:          '📌  按鈕位置',
             sp_grp_history:         '🗂  下載履歷面板',
@@ -822,6 +828,8 @@
             sp_grp_glow_multi:      '多色',
             sp_grp_glow_size:       '光晕大小',
             sp_grp_label_color:     '标签颜色',
+            sp_grp_label_size:      '标签文字大小',
+            sp_grp_icon_size:       '图标大小',
             sp_grp_manage:          '管理分组',
             sp_grp_corner:          '📌  按钮位置',
             sp_grp_history:         '🗂  下载记录面板',
@@ -997,6 +1005,8 @@
             sp_grp_glow_multi:      'マルチ',
             sp_grp_glow_size:       'グローサイズ',
             sp_grp_label_color:     'ラベル色',
+            sp_grp_label_size:      'ラベル文字サイズ',
+            sp_grp_icon_size:       'アイコンサイズ',
             sp_grp_manage:          'グループ管理',
             sp_grp_corner:          '📌  ボタン位置',
             sp_grp_history:         '🗂  履歴パネル',
@@ -1172,6 +1182,8 @@
             sp_grp_glow_multi:      '멀티',
             sp_grp_glow_size:       '글로우 크기',
             sp_grp_label_color:     '레이블 색상',
+            sp_grp_label_size:      '레이블 텍스트 크기',
+            sp_grp_icon_size:       '아이콘 크기',
             sp_grp_manage:          '그룹 관리',
             sp_grp_corner:          '📌  버튼 위치',
             sp_grp_history:         '🗂  기록 패널',
@@ -1347,6 +1359,8 @@
             sp_grp_glow_multi:      'Multi',
             sp_grp_glow_size:       'Tamaño del brillo',
             sp_grp_label_color:     'Color de etiqueta',
+            sp_grp_label_size:      'Tamaño de texto de etiqueta',
+            sp_grp_icon_size:       'Tamaño de icono',
             sp_grp_manage:          'Gestionar grupos',
             sp_grp_corner:          '📌  Posición del botón',
             sp_grp_history:         '🗂  Panel de historial',
@@ -1522,6 +1536,8 @@
             sp_grp_glow_multi:      'Multi',
             sp_grp_glow_size:       'Tamanho do brilho',
             sp_grp_label_color:     'Cor do rótulo',
+            sp_grp_label_size:      'Tamanho do texto do rótulo',
+            sp_grp_icon_size:       'Tamanho do ícone',
             sp_grp_manage:          'Gerenciar grupos',
             sp_grp_corner:          '📌  Posição do botão',
             sp_grp_history:         '🗂  Painel de histórico',
@@ -1697,6 +1713,8 @@
             sp_grp_glow_multi:      'Multi',
             sp_grp_glow_size:       'Taille de lueur',
             sp_grp_label_color:     'Couleur d\'étiquette',
+            sp_grp_label_size:      'Taille du texte d\'étiquette',
+            sp_grp_icon_size:       'Taille de l\'icône',
             sp_grp_manage:          'Gérer les groupes',
             sp_grp_corner:          '📌  Position du bouton',
             sp_grp_history:         '🗂  Panneau historique',
@@ -1872,6 +1890,8 @@
             sp_grp_glow_multi:      'Мульти',
             sp_grp_glow_size:       'Размер свечения',
             sp_grp_label_color:     'Цвет подписи',
+            sp_grp_label_size:      'Размер текста подписи',
+            sp_grp_icon_size:       'Размер значка',
             sp_grp_manage:          'Управление группами',
             sp_grp_corner:          '📌  Позиция кнопки',
             sp_grp_history:         '🗂  Панель истории',
@@ -4058,7 +4078,7 @@
             .tm-group-modal-box {
                 background: #1a1f2e;
                 border: 0.5px solid rgba(255,255,255,.13);
-                border-radius: 14px; padding: 20px 22px; width: 310px;
+                border-radius: 14px; padding: 20px 22px; width: 380px;
                 max-height: calc(100dvh - 48px);
                 overflow: hidden;
                 display: flex; flex-direction: column;
@@ -5218,6 +5238,8 @@
             const _grpGlowClr = _grpCfgRaw.glowColor || 'multi';
             const _grpGlowSz  = Number(_grpCfgRaw.glowSize  ?? 12);
             const _grpTxtClr  = _grpCfgRaw.textColor || 'white';
+            const _grpLabelSz = Number(_grpCfgRaw.labelSize ?? 9);
+            const _grpIconSz  = Number(_grpCfgRaw.iconSize  ?? 18);
 
             const glowColorRow = (() => {
                 const wrap = document.createElement('div');
@@ -5320,6 +5342,28 @@
                     GM_setValue(KEY_GROUP_PANEL_CFG, JSON.stringify(cfg));
                 },
                 'sp_group_glow_size', 12
+            ));
+
+            grpGroups.append(makeSliderRow(
+                T.sp_grp_label_size || 'Label Text Size', _grpLabelSz, 7, 16, 1, 'px',
+                null,
+                (n) => {
+                    const cfg = (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })();
+                    cfg.labelSize = n;
+                    GM_setValue(KEY_GROUP_PANEL_CFG, JSON.stringify(cfg));
+                },
+                'sp_group_label_size', 9
+            ));
+
+            grpGroups.append(makeSliderRow(
+                T.sp_grp_icon_size || 'Icon Size', _grpIconSz, 14, 28, 1, 'px',
+                null,
+                (n) => {
+                    const cfg = (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })();
+                    cfg.iconSize = n;
+                    GM_setValue(KEY_GROUP_PANEL_CFG, JSON.stringify(cfg));
+                },
+                'sp_group_icon_size', 18
             ));
 
             const labelColorRow = (() => {
@@ -6737,6 +6781,8 @@
             ? (_txtClrMap[_cfg.textColor] || (_isSafeColor(_cfg.textColor) ? _cfg.textColor : _txtClrMap.white))
             : _txtClrMap.white;
         const _glowPx   = Math.max(4, Math.min(60, _glowSz));
+        const _labelPx  = Math.max(7, Math.min(16, Number(_cfg.labelSize ?? 9)));
+        const _iconPx   = Math.max(14, Math.min(28, Number(_cfg.iconSize ?? 18)));
 
         const groups = StarPipState.pendingIsText ? getTextGroups() : getGroups();
         groups.forEach((g, i) => {
@@ -6748,7 +6794,7 @@
             const half = Math.round(_glowPx / 2);
 
             const ic       = _resolveGroupIcon(g.icon);
-            const iconHtml = `<div style="width:18px;height:18px;color:${ic.color};flex-shrink:0">${ic.svg}</div>`;
+            const iconHtml = `<div style="width:${_iconPx}px;height:${_iconPx}px;color:${ic.color};flex-shrink:0">${ic.svg}</div>`;
 
             const el = document.createElement('div');
             el.className = 'tm-fan-node ' + STAR_FLOAT_CLS[i % STAR_FLOAT_CLS.length];
@@ -6758,7 +6804,7 @@
                     <div class="tm-fan-glow" style="background:radial-gradient(circle,${baseGlow} 0%,transparent 68%);inset:-${half}px"></div>
                     ${iconHtml}
                 </div>
-                <span class="tm-fan-label" style="color:${_txtClr}">${_escHtml(g.name)}</span>`;
+                <span class="tm-fan-label" style="color:${_txtClr};font-size:${_labelPx}px">${_escHtml(g.name)}</span>`;
             el.addEventListener('click', () => _onFanGroupClick(g.id, g.name));
             document.body.appendChild(el);
             StarPipState.fanNodes.push(el);
@@ -7075,6 +7121,8 @@
         { id:'film',      label:'Film',      color:'#ef9a9a', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="7" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="17" y2="20"/><line x1="2" y1="9" x2="7" y2="9"/><line x1="17" y1="9" x2="22" y2="9"/><line x1="2" y1="15" x2="7" y2="15"/><line x1="17" y1="15" x2="22" y2="15"/></svg>' },
         { id:'mic',       label:'Mic',       color:'#b39ddb', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M19 10a7 7 0 0 1-14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>' },
         { id:'headphone', label:'Audio',     color:'#90caf9', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>' },
+        { id:'podcast',   label:'Podcast',   color:'#4dd0e1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="4" height="6"/><rect x="10" y="5" width="4" height="14"/><rect x="17" y="12" width="4" height="3"/><path d="M1 21h22"/></svg>' },
+        { id:'design',    label:'Design',    color:'#f06292', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>' },
         { div: '🎮  Entertainment' },
         { id:'game',      label:'Game',      color:'#80cbc4', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="3"/><path d="M7 11v4M5 13h4"/><circle cx="16.5" cy="12" r=".8" fill="currentColor"/><circle cx="18.5" cy="14" r=".8" fill="currentColor"/></svg>' },
         { id:'book',      label:'Book',      color:'#ffcc80', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' },
@@ -7084,6 +7132,8 @@
         { id:'coffee',    label:'Coffee',    color:'#bcaaa4', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>' },
         { id:'moon',      label:'Night',     color:'#90caf9', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>' },
         { id:'gift',      label:'Gift',      color:'#f48fb1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>' },
+        { id:'dice',      label:'Dice',      color:'#80deea', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/><circle cx="6" cy="6" r=".8" fill="currentColor" stroke="none"/><circle cx="8" cy="8" r=".8" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r=".8" fill="currentColor" stroke="none"/><circle cx="18" cy="18" r=".8" fill="currentColor" stroke="none"/><circle cx="16" cy="20" r=".8" fill="currentColor" stroke="none"/></svg>' },
+        { id:'ticket',    label:'Ticket',    color:'#ffd54f', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a2 2 0 0 0 0 4v3a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-3a2 2 0 0 1 0-4V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1z"/><line x1="10" y1="6" x2="10" y2="18" stroke-dasharray="2 2"/></svg>' },
         { div: '🌍  Travel & Lifestyle' },
         { id:'travel',    label:'Travel',    color:'#4dd0e1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.5-8 13-8 13S4 15.5 4 10a8 8 0 0 1 8-8z"/></svg>' },
         { id:'plane',     label:'Plane',     color:'#4dd0e1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16l-9-9-9 9"/><path d="M3 8l4.5 4.5L12 8l4.5 4.5L21 8"/><line x1="12" y1="3" x2="12" y2="8"/></svg>' },
@@ -7092,6 +7142,9 @@
         { id:'food',      label:'Food',      color:'#a5d6a7', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="8"/><line x1="10" y1="2" x2="10" y2="8"/><line x1="14" y1="2" x2="14" y2="8"/></svg>' },
         { id:'fashion',   label:'Fashion',   color:'#f8bbd0', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>' },
         { id:'home',      label:'Home',      color:'#ffb74d', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>' },
+        { id:'mountain',  label:'Mountain',  color:'#a5d6a7', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21l4-13 4 13"/><path d="M3 21l6.5-16 2 5"/><path d="M22 21H2"/></svg>' },
+        { id:'tent',      label:'Camping',   color:'#ffb74d', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 5v13H5V8z"/><path d="M12 3v9l5 3"/></svg>' },
+        { id:'car',       label:'Car',       color:'#90caf9', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l2-6a2 2 0 0 1 2-1h10a2 2 0 0 1 2 1l2 6"/><rect x="2" y="13" width="20" height="6" rx="1.5"/><circle cx="7" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg>' },
         { div: '💪  Sport & Health' },
         { id:'sport',     label:'Sport',     color:'#ef9a9a', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93c2.34 2.34 3.07 5.71 2.07 8.71M19.07 4.93c-2.34 2.34-3.07 5.71-2.07 8.71M4.93 19.07c2.34-2.34 5.71-3.07 8.71-2.07M19.07 19.07c-2.34-2.34-5.71-3.07-8.71-2.07"/></svg>' },
         { id:'run',       label:'Run',       color:'#ffb74d', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="M7 21l2-6 3 3 3-8 3 3"/><path d="M5 12l2-3 4 1 2-4"/></svg>' },
@@ -7099,6 +7152,8 @@
         { id:'bike',      label:'Bike',      color:'#a5d6a7', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M8.5 17.5l3-8h5.5"/><path d="M15 9.5l3 8"/><circle cx="15" cy="5.5" r="1.5"/></svg>' },
         { id:'health',    label:'Health',    color:'#ef9a9a', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' },
         { id:'pet',       label:'Pet',       color:'#ffab91', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="14" r="6"/><circle cx="7" cy="6" r="2"/><circle cx="17" cy="6" r="2"/><circle cx="4" cy="11" r="1.5"/><circle cx="20" cy="11" r="1.5"/></svg>' },
+        { id:'swim',      label:'Swim',      color:'#4dd0e1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17c1.5-1.5 3-1.5 4.5 0s3 1.5 4.5 0 3-1.5 4.5 0 3 1.5 4.5 0"/><path d="M2 21c1.5-1.5 3-1.5 4.5 0s3 1.5 4.5 0 3-1.5 4.5 0 3 1.5 4.5 0"/><circle cx="17" cy="6" r="2.5"/><path d="M13.5 14L8 9 4 12"/></svg>' },
+        { id:'basketball', label:'Basketball', color:'#ff8a65', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/><path d="M5.5 5.5c2 2 4 2.5 6.5 2.5s4.5-.5 6.5-2.5M5.5 18.5c2-2 4-2.5 6.5-2.5s4.5.5 6.5 2.5"/></svg>' },
         { div: '💼  Work & Knowledge' },
         { id:'work',      label:'Work',      color:'#b0bec5', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="12.01"/></svg>' },
         { id:'tech',      label:'Tech',      color:'#90caf9', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>' },
@@ -7108,6 +7163,8 @@
         { id:'clock',     label:'Clock',     color:'#b0bec5', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' },
         { id:'chat',      label:'Chat',      color:'#80cbc4', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' },
         { id:'lock',      label:'Private',   color:'#ef9a9a', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' },
+        { id:'calendar',  label:'Calendar',  color:'#b0bec5', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><circle cx="8" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="14" r="1" fill="currentColor" stroke="none"/></svg>' },
+        { id:'folder',    label:'Folder',    color:'#ffcc80', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>' },
         { div: '✨  Special' },
         { id:'nature',    label:'Nature',    color:'#c5e1a5', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 22V12"/><path d="M5 12c0-4 3-7 7-7s7 3 7 7c0 2.5-1.5 4.5-4 5.5"/><path d="M3 18c0-2.5 2-4 4.5-4C9 14 10 15.5 12 16"/></svg>' },
         { id:'flower',    label:'Flower',    color:'#f48fb1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2a3 3 0 0 1 3 3 3 3 0 0 1-3 3 3 3 0 0 1-3-3 3 3 0 0 1 3-3zm0 14a3 3 0 0 1 3 3 3 3 0 0 1-3 3 3 3 0 0 1-3-3 3 3 0 0 1 3-3zm10-7a3 3 0 0 1 0 6 3 3 0 0 1-3-3 3 3 0 0 1 3-3zM2 12a3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3 3 3 0 0 1-3-3zm12.24-5.76a3 3 0 0 1 4.24 0 3 3 0 0 1 0 4.24 3 3 0 0 1-4.24 0 3 3 0 0 1 0-4.24zm-8.48 0a3 3 0 0 1 4.24 0 3 3 0 0 1 0 4.24 3 3 0 0 1-4.24 0 3 3 0 0 1 0-4.24zm0 8.48a3 3 0 0 1 4.24 0 3 3 0 0 1 0 4.24 3 3 0 0 1-4.24 0 3 3 0 0 1 0-4.24zm8.48 0a3 3 0 0 1 4.24 0 3 3 0 0 1 0 4.24 3 3 0 0 1-4.24 0 3 3 0 0 1 0-4.24z"/></svg>' },
@@ -7116,6 +7173,9 @@
         { id:'award',     label:'Award',     color:'#ffd54f', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>' },
         { id:'bell',      label:'Alert',     color:'#ffcc80', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>' },
         { id:'diamond',   label:'VIP',       color:'#4dd0e1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9z"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="2" y2="9"/><line x1="12" y1="3" x2="22" y2="9"/><line x1="12" y1="9" x2="12" y2="22"/></svg>' },
+        { id:'heart',     label:'Heart',     color:'#f48fb1', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21.2l8.8-8.8a5.5 5.5 0 0 0 0-7.8z"/></svg>' },
+        { id:'rocket',    label:'Rocket',    color:'#ce93d8', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c3 2 5 6 5 10 0 2-1 4-1 4l-4 3-4-3s-1-2-1-4c0-4 2-8 5-10z"/><circle cx="12" cy="9" r="1.6"/><path d="M8 15l-3 2 1-4M16 15l3 2-1-4"/></svg>' },
+        { id:'crown',     label:'Crown',     color:'#ffd700', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l4 3 5-7 5 7 4-3-2 11H5z"/><line x1="5" y1="21" x2="19" y2="21"/></svg>' },
     ];
     const _GROUP_ICON_FLAT = _GROUP_SVG_ICONS.filter(x => !x.div);
 
@@ -7152,7 +7212,7 @@
         iconLabel.textContent = 'Icon';
 
         const iconGrid = document.createElement('div');
-        iconGrid.style.cssText = 'display:grid;grid-template-columns:repeat(6,1fr);gap:5px;max-height:320px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;padding-right:2px';
+        iconGrid.style.cssText = 'display:grid;grid-template-columns:repeat(6,1fr);gap:6px;max-height:380px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;padding-right:2px';
 
         _GROUP_SVG_ICONS.forEach(ic => {
             if (ic.div) {
@@ -7174,19 +7234,19 @@
             const isSel = ic.id === StarPipState.selectedIconId;
             cell.style.cssText = `
                 display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-                padding:7px 3px;border-radius:8px;border:1.5px solid ${isSel ? ic.color : 'transparent'};
+                padding:8px 3px;border-radius:8px;border:1.5px solid ${isSel ? ic.color : 'transparent'};
                 background:${isSel ? 'rgba(255,255,255,.07)' : 'transparent'};
                 cursor:pointer;transition:all .12s;font-family:inherit;
             `;
 
             const iconWrap = document.createElement('div');
-            iconWrap.style.cssText = `width:22px;height:22px;color:${ic.color};flex-shrink:0`;
+            iconWrap.style.cssText = `width:24px;height:24px;color:${ic.color};flex-shrink:0`;
             iconWrap.innerHTML = ic.svg;
             const svgEl = iconWrap.querySelector('svg');
-            if (svgEl) { svgEl.style.width = '22px'; svgEl.style.height = '22px'; }
+            if (svgEl) { svgEl.style.width = '24px'; svgEl.style.height = '24px'; }
 
             const iconLbl = document.createElement('span');
-            iconLbl.style.cssText = 'font-size:9px;color:rgba(255,255,255,.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:44px';
+            iconLbl.style.cssText = 'font-size:9px;color:rgba(255,255,255,.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:56px';
             iconLbl.textContent = ic.label;
 
             cell.appendChild(iconWrap);
