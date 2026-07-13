@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.10.1
+// @version      2.9.11.13
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -70,6 +70,7 @@
     let _syncCh = null;
     let _startScanInterval = null;
     let _tfRegistry = null;
+    const _GROUP_LIST_TRIGGER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="6" r="1.4" fill="currentColor" stroke="none"/><line x1="9" y1="6" x2="21" y2="6"/><circle cx="4" cy="12" r="1.4" fill="currentColor" stroke="none"/><line x1="9" y1="12" x2="21" y2="12"/><circle cx="4" cy="18" r="1.4" fill="currentColor" stroke="none"/><line x1="9" y1="18" x2="21" y2="18"/></svg>';
     const StarPipState = {
         pendingGroupRecordId: null,
         pendingStarPipEl:     null,
@@ -253,6 +254,7 @@
     const KEY_HISTORY_VIEW_MODE = 'app_history_view_mode';
     const KEY_HIST_PINNED       = 'app_hist_pinned';
     const KEY_DOCK_STYLE        = 'app_dock_style';
+    const KEY_GROUP_POPUP_STYLE = 'app_group_popup_style';
     const KEY_DOCK_HOVER_DELAY  = 'app_dock_hover_delay';
     const KEY_DOCK_TRIGGER_L    = 'app_dock_trigger_l';
     const KEY_DOCK_TRIGGER_R    = 'app_dock_trigger_r';
@@ -277,6 +279,7 @@
     const KEY_SCAN_INTERVAL     = 'app_scan_interval';
     const KEY_GRID_MEDIA_BTN    = 'app_grid_media_btn';
     const KEY_AVATAR_MEDIA_BTN  = 'app_avatar_media_btn';
+    const KEY_APP_THEME         = 'app_theme';
 
     const KEY_TF_CSS_SIMPLIFY = 'app_tf_css_simplify';
     const KEY_TF_FEED_PRUNE   = 'app_tf_feed_prune';
@@ -297,6 +300,7 @@
         'sp_group_glow_size',
         'sp_group_label_size',
         'sp_group_icon_size',
+        'sp_group_popup_style',
         'sp_group_text_color',
         'sp_corner_position',
         'sp_feedback_pulse',
@@ -470,6 +474,9 @@
             
             sp_grp_group:           '⭐  Groups',
             sp_grp_on_dl:           'Group on Download',
+            sp_grp_popup_style:      'Popup Style',
+            sp_grp_popup_style_fan:  'Fan',
+            sp_grp_popup_style_list: 'List',
             sp_grp_glow_color:      'Glow Color',
             sp_grp_glow_multi:      'Multi',
             sp_grp_glow_size:       'Glow Size',
@@ -647,6 +654,9 @@
             hist_search_ph:         '🔍  搜尋…',
             sp_grp_group:           '⭐  群組',
             sp_grp_on_dl:           '下載時分組',
+            sp_grp_popup_style:      '彈出樣式',
+            sp_grp_popup_style_fan:  '扇形',
+            sp_grp_popup_style_list: '清單',
             sp_grp_glow_color:      '光暈顏色',
             sp_grp_glow_multi:      '多色',
             sp_grp_glow_size:       '光暈大小',
@@ -824,6 +834,9 @@
             hist_search_ph:         '🔍  搜索…',
             sp_grp_group:           '⭐  分组',
             sp_grp_on_dl:           '下载时分组',
+            sp_grp_popup_style:      '弹出样式',
+            sp_grp_popup_style_fan:  '扇形',
+            sp_grp_popup_style_list: '列表',
             sp_grp_glow_color:      '光晕颜色',
             sp_grp_glow_multi:      '多色',
             sp_grp_glow_size:       '光晕大小',
@@ -1001,6 +1014,9 @@
             hist_search_ph:         '🔍  検索…',
             sp_grp_group:           '⭐  グループ',
             sp_grp_on_dl:           'DL時にグループ分け',
+            sp_grp_popup_style:      'ポップアップ様式',
+            sp_grp_popup_style_fan:  'ファン型',
+            sp_grp_popup_style_list: 'リスト',
             sp_grp_glow_color:      'グロー色',
             sp_grp_glow_multi:      'マルチ',
             sp_grp_glow_size:       'グローサイズ',
@@ -1178,6 +1194,9 @@
             hist_search_ph:         '🔍  검색…',
             sp_grp_group:           '⭐  그룹',
             sp_grp_on_dl:           '다운로드 시 그룹화',
+            sp_grp_popup_style:      '팝업 스타일',
+            sp_grp_popup_style_fan:  '부채꼴',
+            sp_grp_popup_style_list: '목록',
             sp_grp_glow_color:      '글로우 색상',
             sp_grp_glow_multi:      '멀티',
             sp_grp_glow_size:       '글로우 크기',
@@ -1355,6 +1374,9 @@
             hist_search_ph:         '🔍  Buscar…',
             sp_grp_group:           '⭐  Grupos',
             sp_grp_on_dl:           'Agrupar al descargar',
+            sp_grp_popup_style:      'Estilo emergente',
+            sp_grp_popup_style_fan:  'Abanico',
+            sp_grp_popup_style_list: 'Lista',
             sp_grp_glow_color:      'Color de brillo',
             sp_grp_glow_multi:      'Multi',
             sp_grp_glow_size:       'Tamaño del brillo',
@@ -1532,6 +1554,9 @@
             hist_search_ph:         '🔍  Pesquisar…',
             sp_grp_group:           '⭐  Grupos',
             sp_grp_on_dl:           'Agrupar ao baixar',
+            sp_grp_popup_style:      'Estilo pop-up',
+            sp_grp_popup_style_fan:  'Leque',
+            sp_grp_popup_style_list: 'Lista',
             sp_grp_glow_color:      'Cor do brilho',
             sp_grp_glow_multi:      'Multi',
             sp_grp_glow_size:       'Tamanho do brilho',
@@ -1709,6 +1734,9 @@
             hist_search_ph:         '🔍  Rechercher…',
             sp_grp_group:           '⭐  Groupes',
             sp_grp_on_dl:           'Grouper au téléchargement',
+            sp_grp_popup_style:      'Style de popup',
+            sp_grp_popup_style_fan:  'Éventail',
+            sp_grp_popup_style_list: 'Liste',
             sp_grp_glow_color:      'Couleur de lueur',
             sp_grp_glow_multi:      'Multi',
             sp_grp_glow_size:       'Taille de lueur',
@@ -1886,6 +1914,9 @@
             hist_search_ph:         '🔍  Поиск…',
             sp_grp_group:           '⭐  Группы',
             sp_grp_on_dl:           'Группировать при загрузке',
+            sp_grp_popup_style:      'Стиль всплывающего меню',
+            sp_grp_popup_style_fan:  'Веер',
+            sp_grp_popup_style_list: 'Список',
             sp_grp_glow_color:      'Цвет свечения',
             sp_grp_glow_multi:      'Мульти',
             sp_grp_glow_size:       'Размер свечения',
@@ -2057,7 +2088,7 @@
         const curLang = GM_getValue(KEY_LANG, 'en');
         const curT = TR[curLang] || TR['en'];
 
-        const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const dark = _isDarkTheme();
         const C = dark ? {
             overlay: 'rgba(0,0,0,0.82)',
             panel:   '#16202b',
@@ -2124,7 +2155,7 @@
         const old = document.getElementById('tm-lang-picker-modal');
         if (old) old.remove();
 
-        const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const dark = _isDarkTheme();
         const C = dark ? {
             overlay:     'rgba(0,0,0,0.82)',
             panel:       '#16202b',
@@ -2326,7 +2357,7 @@
         const old = document.getElementById('tm-custom-lang-modal');
         if (old) old.remove();
 
-        const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const dark = _isDarkTheme();
         const C = dark ? {
             overlay:      'rgba(0,0,0,0.82)',
             panel:        '#16202b',
@@ -2643,6 +2674,20 @@
 
     const _isTwitterDomain = ['twitter.com', 'x.com'].includes(location.hostname);
 
+    function _isDarkTheme() {
+        const stored = GM_getValue(KEY_APP_THEME, null);
+        if (stored === 'dark' || stored === 'light') return stored === 'dark';
+        const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        GM_setValue(KEY_APP_THEME, sysDark ? 'dark' : 'light');
+        return sysDark;
+    }
+
+    function _toggleAppTheme() {
+        const next = _isDarkTheme() ? 'light' : 'dark';
+        GM_setValue(KEY_APP_THEME, next);
+        return next === 'dark';
+    }
+
     let _lcRcResizeHandler = null;
     let _spClickAC = null;
     function _applyGearCorner(corner) {
@@ -2790,9 +2835,6 @@
         } else {
             document.addEventListener('DOMContentLoaded', _doInit, { once: true });
         }
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-            if (document.getElementById('tm-settings-wrapper')) createSettingsPanel();
-        });
     }
 
     function _initStarPip() {
@@ -2813,12 +2855,18 @@
                 if (!StarPipState.textMenuOpen) openTextGroupMenu();
                 return;
             }
+            if (GM_getValue(KEY_GROUP_POPUP_STYLE, 'fan') === 'list') {
+                if (!StarPipState.textMenuOpen && getGroups().length) openMediaListMenu();
+                return;
+            }
             if (!StarPipState.fanOpen && getGroups().length) openGroupFan();
         });
         pip.addEventListener('click', e => {
             e.preventDefault(); e.stopPropagation();
             if (StarPipState.pendingIsText) {
                 if (StarPipState.textMenuOpen) closeTextGroupMenu(); else openTextGroupMenu();
+            } else if (GM_getValue(KEY_GROUP_POPUP_STYLE, 'fan') === 'list') {
+                if (StarPipState.textMenuOpen) closeTextGroupMenu(); else openMediaListMenu();
             } else {
                 if (StarPipState.fanOpen) closeGroupFan();
                 _runStarEscapeAnim(() => showGroupCreateModal());
@@ -2883,7 +2931,7 @@
         `;
         document.head.appendChild(obStyle);
 
-        const dark     = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const dark     = _isDarkTheme();
         const cardBg   = dark ? '#16202b' : '#ffffff';
         const cardText = dark ? '#e7e9ea' : '#0f1419';
         const cardSub  = dark ? '#8b98a5' : '#536471';
@@ -3175,7 +3223,7 @@
         const old = document.getElementById('tm-domain-picker-modal');
         if (old) old.remove();
 
-        const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const dark = _isDarkTheme();
         const C = dark ? {
             overlay: 'rgba(0,0,0,0.82)', panel: '#16202b', text: '#e7e9ea',
             sub: '#8b98a5', border: '#2f3336', rowBg: '#1e2732',
@@ -3183,7 +3231,7 @@
             activeBorder: '#1d9bf0', activeText: '#1d9bf0',
         } : {
             overlay: 'rgba(0,0,0,0.72)', panel: '#ffffff', text: '#0f1419',
-            sub: '#536471', border: '#eff3f4', rowBg: '#ffffff',
+            sub: '#536471', border: '#d8dcdf', rowBg: '#ffffff',
             rowHover: '#f7f9f9', activeBg: '#e8f5fe',
             activeBorder: '#1d9bf0', activeText: '#1d9bf0',
         };
@@ -3267,13 +3315,15 @@
 
     function createSettingsPanel() {
         const existingWrapper = document.getElementById('tm-settings-wrapper');
+        const _wasOpen  = existingWrapper?.getAttribute('data-open')  === 'true';
+        const _prevFocus = existingWrapper?.getAttribute('data-focus') || null;
         if (existingWrapper) existingWrapper.remove();
         const existingStyle = document.getElementById('tm-settings-panel-style');
         if (existingStyle) existingStyle.remove();
         if (_spClickAC) _spClickAC.abort();
         _spClickAC = new AbortController();
 
-        const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const dark = _isDarkTheme();
         const C = dark ? {
             panel:     '#16202b',
             header:    '#1e2732',
@@ -3284,16 +3334,20 @@
             badge:     '#1d9bf0',
             gearFg:    '#e7e9ea',
             gearBg:    'rgba(255,255,255,0.08)',
+            sliderTrackDisabled: 'rgba(255,255,255,.2)',
+            valMuted:  '#8b98a5',
         } : {
             panel:     '#ffffff',
             header:    '#f7f9f9',
             text:      '#0f1419',
             sub:       '#536471',
-            border:    '#eff3f4',
+            border:    '#d8dcdf',
             rowHover:  '#f7f9f9',
             badge:     '#1d9bf0',
             gearFg:    '#536471',
             gearBg:    'rgba(0,0,0,0.06)',
+            sliderTrackDisabled: 'rgba(15,20,25,.15)',
+            valMuted:  '#536471',
         };
 
         const panelStyle = document.createElement('style');
@@ -3435,6 +3489,18 @@
             }
 
             .tm-sp-header { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; padding: 11px 14px 10px; background: ${C.header}; border-bottom: 1px solid ${C.border}; font-size: 12px; font-weight: 700; color: ${C.sub}; letter-spacing: 0.04em; text-transform: uppercase; }
+            .tm-sp-header-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            
+            .tm-sp-theme-toggle {
+                flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+                width: 26px; height: 26px; border-radius: 50%; border: none;
+                background: ${C.gearBg}; color: ${C.gearFg};
+                cursor: pointer; padding: 0; margin-left: 8px;
+                transition: background 0.15s, transform 0.15s;
+            }
+            .tm-sp-theme-toggle:hover { transform: scale(1.08); }
+            .tm-sp-theme-toggle:active { transform: scale(0.94); }
+            .tm-sp-theme-toggle svg { width: 15px; height: 15px; display: block; }
             
             .tm-sp-group-header {
                 padding: 8px 14px 5px;
@@ -3454,12 +3520,12 @@
             .tm-sp-row-label { font-size: 12px; color: ${C.sub}; white-space: nowrap; }
             .tm-sp-row-value { font-size: 13px; color: ${C.text}; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: color 0.2s, text-shadow 0.2s; }
             
-            .tm-sp-val-on  { color: #38bdf8 !important; font-weight: 700; letter-spacing: 0.3px;
-                             text-shadow: 0 0 6px rgba(56,189,248,0.85), 0 0 14px rgba(56,189,248,0.45); }
-            .tm-sp-val-off { color: #f87171 !important; font-weight: 700; letter-spacing: 0.3px;
-                             text-shadow: 0 0 6px rgba(248,113,113,0.8), 0 0 14px rgba(248,113,113,0.45); }
-            .tm-sp-val-option { color: #a78bfa !important; font-weight: 600; letter-spacing: 0.2px;
-                                text-shadow: 0 0 6px rgba(167,139,250,0.75), 0 0 12px rgba(167,139,250,0.35); }
+            .tm-sp-val-on  { color: ${dark ? '#38bdf8' : C.text} !important; font-weight: 700; letter-spacing: 0.3px;
+                             text-shadow: ${dark ? '0 0 6px rgba(56,189,248,0.85), 0 0 14px rgba(56,189,248,0.45)' : 'none'}; }
+            .tm-sp-val-off { color: ${dark ? '#f87171' : C.text} !important; font-weight: 700; letter-spacing: 0.3px;
+                             text-shadow: ${dark ? '0 0 6px rgba(248,113,113,0.8), 0 0 14px rgba(248,113,113,0.45)' : 'none'}; }
+            .tm-sp-val-option { color: ${dark ? '#a78bfa' : C.valMuted} !important; font-weight: 600; letter-spacing: 0.2px;
+                                text-shadow: ${dark ? '0 0 6px rgba(167,139,250,0.75), 0 0 12px rgba(167,139,250,0.35)' : 'none'}; }
             
             .tm-sp-row-desc { font-size: 11px; color: ${C.sub}; opacity: 0.6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
             .tm-sp-arrow { font-size: 11px; color: ${C.sub}; flex-shrink: 0; margin-left: 4px; opacity: 0.5; }
@@ -3599,15 +3665,15 @@
             
             .tm-tf-val-on {
                 font-size: 12px; font-weight: 700; letter-spacing: 0.3px;
-                color: #38bdf8;
-                text-shadow: 0 0 6px rgba(56,189,248,0.85), 0 0 14px rgba(56,189,248,0.45);
+                color: ${dark ? '#38bdf8' : C.text};
+                text-shadow: ${dark ? '0 0 6px rgba(56,189,248,0.85), 0 0 14px rgba(56,189,248,0.45)' : 'none'};
                 transition: color 0.2s, text-shadow 0.2s;
             }
             
             .tm-tf-val-off {
                 font-size: 12px; font-weight: 700; letter-spacing: 0.3px;
-                color: #f87171;
-                text-shadow: 0 0 6px rgba(248,113,113,0.8), 0 0 14px rgba(248,113,113,0.45);
+                color: ${dark ? '#f87171' : C.text};
+                text-shadow: ${dark ? '0 0 6px rgba(248,113,113,0.8), 0 0 14px rgba(248,113,113,0.45)' : 'none'};
                 transition: color 0.2s, text-shadow 0.2s;
             }
             .tm-tf-arrow { font-size: 11px; color: ${C.sub}; opacity: 0.5; flex-shrink: 0; }
@@ -3664,7 +3730,7 @@
             }
             .tm-sp-disabled-child .tm-sp-slider {
                 cursor: default;
-                accent-color: rgba(255,255,255,.2);
+                accent-color: ${C.sliderTrackDisabled};
             }
             
             .tm-sp-reset-btn {
@@ -3969,7 +4035,7 @@
 
             .tm-star-pip {
                 position: fixed;
-                width: 18px; height: 18px;
+                width: 22px; height: 22px;
                 border-radius: 50%; border: none;
                 background: transparent;
                 display: flex; align-items: center; justify-content: center;
@@ -3977,11 +4043,17 @@
                 box-shadow: none; outline: none; pointer-events: none;
                 transform: scale(0); opacity: 0;
                 transition: transform .38s cubic-bezier(.34,1.56,.64,1), opacity .25s ease;
-                font-size: 13px; line-height: 1;
+                font-size: 16px; line-height: 1;
                 filter: drop-shadow(0 1px 2px rgba(0,0,0,.5));
             }
             .tm-star-pip.tm-popped { transform: scale(1); opacity: 1; pointer-events: all; }
             .tm-star-pip:hover     { transform: scale(1.35) !important; }
+            
+            .tm-star-pip-svg {
+                display: flex; align-items: center; justify-content: center;
+                width: 16px; height: 16px; color: #e8eaf0;
+            }
+            .tm-star-pip-svg svg { width: 100%; height: 100%; }
             .tm-star-pip.tm-escaping,
             .tm-star-pip.tm-escaping:hover { transform: scale(0.7) translate(-6px, 2px) !important; pointer-events: none !important; }
             
@@ -4154,17 +4226,31 @@
                 user-select: none;
             }
             .tm-tgm-list {
-                max-height: 184px;
+                max-height: 320px;
                 overflow-y: auto;
                 overflow-x: hidden;
                 scrollbar-width: thin;
                 scrollbar-color: rgba(255,255,255,.15) transparent;
             }
+            .tm-tgm-item-wrap {
+                display: flex;
+                align-items: center;
+            }
+            .tm-tgm-drag-handle {
+                flex-shrink: 0;
+                width: 14px;
+                display: flex; align-items: center; justify-content: center;
+                color: rgba(255,255,255,.15);
+                cursor: grab;
+                transition: color .12s;
+                user-select: none;
+            }
+            .tm-tgm-item-wrap:hover .tm-tgm-drag-handle { color: rgba(255,255,255,.45); }
             .tm-tgm-item {
                 display: flex;
                 align-items: center;
                 gap: 8px;
-                padding: 8px 13px;
+                padding: 8px 13px 8px 2px;
                 font-size: 12.5px;
                 color: rgba(255,255,255,.82);
                 cursor: pointer;
@@ -4361,7 +4447,24 @@
 
             const header = document.createElement('div');
             header.className = 'tm-sp-header';
-            header.textContent = T.onboard_title || '⚙ Media Script Settings';
+            const headerTitle = document.createElement('span');
+            headerTitle.className = 'tm-sp-header-title';
+            headerTitle.textContent = T.onboard_title || '⚙ Media Script Settings';
+            header.appendChild(headerTitle);
+
+            const themeToggleBtn = document.createElement('button');
+            themeToggleBtn.type = 'button';
+            themeToggleBtn.className = 'tm-sp-theme-toggle';
+            themeToggleBtn.title = dark ? 'Switch to light theme' : 'Switch to dark theme';
+            themeToggleBtn.innerHTML = dark
+                ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+                : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+            themeToggleBtn.addEventListener('click', e => {
+                e.stopPropagation();
+                _toggleAppTheme();
+                createSettingsPanel();
+            });
+            header.appendChild(themeToggleBtn);
             panel.appendChild(header);
 
             const makeRow = (label, value, onClick, featureId = null) => {
@@ -4555,7 +4658,11 @@
                 return wrap;
             };
 
-            const makeDockStylePickerRow = (label, options, currentVal, onSelect, featureId = null, defaultVal = undefined) => {
+            const makeDockStylePickerRow = (label, options, currentVal, onSelect, featureId = null, defaultVal = undefined, svgW = 28, svgH = 52) => {
+                const _optBgIdle  = dark ? 'rgba(255,255,255,0.04)' : 'rgba(15,20,25,0.04)';
+                const _optOutIdle = dark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(15,20,25,0.12)';
+                const _optFgIdle  = dark ? 'rgba(255,255,255,0.55)' : '#536471';
+
                 const wrap = document.createElement('div');
                 wrap.className = 'tm-sp-picker-wrap';
 
@@ -4596,8 +4703,8 @@
                     btn.style.cssText = `
                         display:flex; flex-direction:column; align-items:center; gap:5px;
                         padding:8px 6px; border-radius:8px; border:none; cursor:pointer;
-                        background:${opt.value === currentVal ? 'rgba(29,155,240,0.12)' : 'rgba(255,255,255,0.04)'};
-                        outline:${opt.value === currentVal ? '1.5px solid rgba(29,155,240,0.5)' : '1px solid rgba(255,255,255,0.08)'};
+                        background:${opt.value === currentVal ? 'rgba(29,155,240,0.12)' : _optBgIdle};
+                        outline:${opt.value === currentVal ? '1.5px solid rgba(29,155,240,0.5)' : _optOutIdle};
                         transition:background 0.15s, outline 0.15s;
                     `;
 
@@ -4605,14 +4712,14 @@
                     tmpDiv.innerHTML = opt.svg;
                     const svgEl = tmpDiv.querySelector('svg');
                     if (svgEl) {
-                        svgEl.setAttribute('width', '28');
-                        svgEl.setAttribute('height', '52');
+                        svgEl.setAttribute('width', String(svgW));
+                        svgEl.setAttribute('height', String(svgH));
                         btn.appendChild(svgEl);
                     }
 
                     const nameLbl = document.createElement('span');
                     nameLbl.textContent = opt.label;
-                    nameLbl.style.cssText = `font-size:10px; color:${opt.value === currentVal ? '#1d9bf0' : 'rgba(255,255,255,0.55)'}; font-weight:${opt.value === currentVal ? '600' : '400'};`;
+                    nameLbl.style.cssText = `font-size:10px; color:${opt.value === currentVal ? '#1d9bf0' : _optFgIdle}; font-weight:${opt.value === currentVal ? '600' : '400'};`;
                     btn.appendChild(nameLbl);
 
                     btn.addEventListener('click', e => {
@@ -4622,9 +4729,9 @@
                         val.textContent = opt.label;
                         val.classList.toggle('tm-sp-val-option', defaultVal !== undefined && opt.value !== defaultVal);
                         picker.querySelectorAll('button').forEach(b => {
-                            b.style.background = 'rgba(255,255,255,0.04)';
-                            b.style.outline = '1px solid rgba(255,255,255,0.08)';
-                            b.querySelector('span:last-child').style.color = 'rgba(255,255,255,0.55)';
+                            b.style.background = _optBgIdle;
+                            b.style.outline = _optOutIdle;
+                            b.querySelector('span:last-child').style.color = _optFgIdle;
                             b.querySelector('span:last-child').style.fontWeight = '400';
                         });
                         btn.style.background = 'rgba(29,155,240,0.12)';
@@ -5221,6 +5328,15 @@
 
             const grpGroups = makeGroup(T.sp_grp_group || '⭐  Groups', true);
 
+            const _grpSub    = dark ? 'rgba(255,255,255,.7)'  : '#536471';
+            const _grpDiv    = dark ? 'rgba(255,255,255,.06)' : 'rgba(15,20,25,.08)';
+            const _grpBtnBg  = dark ? 'rgba(255,255,255,.06)' : 'rgba(15,20,25,.05)';
+            const _grpBtnBgH = dark ? 'rgba(255,255,255,.12)' : 'rgba(15,20,25,.09)';
+            const _grpBtnFg  = dark ? 'rgba(255,255,255,.75)' : '#0f1419';
+            const _grpBtnBd  = dark ? 'rgba(255,255,255,.15)' : 'rgba(15,20,25,.18)';
+            const _grpBtnBdH = dark ? 'rgba(255,255,255,.3)'  : 'rgba(15,20,25,.32)';
+            const _grpSelRing = dark ? 'rgba(255,255,255,.8)' : 'rgba(15,20,25,.65)';
+
             const groupOnDlRow = makeRow(
                 T.sp_grp_on_dl || 'Group on Download',
                 () => GM_getValue(KEY_GROUP_ON_DOWNLOAD, false) ? (T.status_on || 'On') : (T.status_off || 'Off'),
@@ -5234,6 +5350,34 @@
             );
             grpGroups.append(groupOnDlRow);
 
+            const _popupSvgFaint  = dark ? 'rgba(255,255,255,0.35)' : 'rgba(15,20,25,0.32)';
+            const _popupSvgLine   = dark ? 'rgba(255,255,255,0.18)' : 'rgba(15,20,25,0.18)';
+            const _popupSvgBg     = dark ? 'rgba(255,255,255,0.04)' : 'rgba(15,20,25,0.04)';
+            const _popupSvgBorder = dark ? 'rgba(255,255,255,0.12)' : 'rgba(15,20,25,0.15)';
+            const _popupSvgDot    = dark ? 'rgba(255,255,255,0.35)' : 'rgba(15,20,25,0.32)';
+            const _popupSvgBar    = dark ? 'rgba(255,255,255,0.3)'  : 'rgba(15,20,25,0.28)';
+
+            grpGroups.append(makeDockStylePickerRow(
+                T.sp_grp_popup_style || 'Popup Style',
+                [
+                    {
+                        value: 'fan', label: T.sp_grp_popup_style_fan || 'Fan',
+                        svg: `<svg viewBox="0 0 36 36" fill="none"><circle cx="18" cy="30" r="2.2" fill="rgba(29,155,240,0.7)"/><circle cx="7" cy="14" r="2.5" fill="${_popupSvgFaint}"/><circle cx="15" cy="7" r="2.5" fill="${_popupSvgFaint}"/><circle cx="24" cy="7" r="2.5" fill="${_popupSvgFaint}"/><circle cx="30" cy="15" r="2.5" fill="${_popupSvgFaint}"/><line x1="18" y1="30" x2="7" y2="14" stroke="${_popupSvgLine}" stroke-width="1"/><line x1="18" y1="30" x2="15" y2="7" stroke="${_popupSvgLine}" stroke-width="1"/><line x1="18" y1="30" x2="24" y2="7" stroke="${_popupSvgLine}" stroke-width="1"/><line x1="18" y1="30" x2="30" y2="15" stroke="${_popupSvgLine}" stroke-width="1"/></svg>`
+                    },
+                    {
+                        value: 'list', label: T.sp_grp_popup_style_list || 'List',
+                        svg: `<svg viewBox="0 0 36 36" fill="none"><rect x="5" y="6" width="26" height="24" rx="3" fill="${_popupSvgBg}" stroke="${_popupSvgBorder}" stroke-width="1"/><circle cx="10" cy="12" r="1.3" fill="${_popupSvgDot}"/><rect x="14" y="11" width="13" height="1.6" rx="0.8" fill="${_popupSvgBar}"/><circle cx="10" cy="18" r="1.3" fill="rgba(29,155,240,0.7)"/><rect x="14" y="17" width="13" height="1.6" rx="0.8" fill="rgba(29,155,240,0.6)"/><circle cx="10" cy="24" r="1.3" fill="${_popupSvgDot}"/><rect x="14" y="23" width="9" height="1.6" rx="0.8" fill="${_popupSvgBar}"/></svg>`
+                    }
+                ],
+                GM_getValue(KEY_GROUP_POPUP_STYLE, 'fan'),
+                (val) => {
+                    GM_setValue(KEY_GROUP_POPUP_STYLE, val);
+                    showToast((T.sp_grp_popup_style || 'Popup Style') + ' → ' + (val === 'list' ? (T.sp_grp_popup_style_list || 'List') : (T.sp_grp_popup_style_fan || 'Fan')));
+                },
+                'sp_group_popup_style', 'fan',
+                36, 36
+            ));
+
             const _grpCfgRaw  = (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })();
             const _grpGlowClr = _grpCfgRaw.glowColor || 'multi';
             const _grpGlowSz  = Number(_grpCfgRaw.glowSize  ?? 12);
@@ -5243,13 +5387,13 @@
 
             const glowColorRow = (() => {
                 const wrap = document.createElement('div');
-                wrap.style.cssText = 'padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.06)';
+                wrap.style.cssText = `padding:8px 12px;border-bottom:1px solid ${_grpDiv}`;
                 wrap.addEventListener('click', e => e.stopPropagation());
 
                 const labelRow = document.createElement('div');
                 labelRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:7px';
                 const lbl = document.createElement('span');
-                lbl.style.cssText = 'font-size:12px;color:rgba(255,255,255,.7)';
+                lbl.style.cssText = `font-size:12px;color:${_grpSub}`;
                 lbl.textContent   = T.sp_grp_glow_color || 'Glow Color';
 
                 const multiToggle = document.createElement('button');
@@ -5259,8 +5403,8 @@
                     padding:2px 8px;border-radius:99px;font-size:10px;
                     cursor:pointer;font-family:inherit;line-height:1.4;
                     background:${isMulti ? 'rgba(29,155,240,.7)' : 'transparent'};
-                    color:${isMulti ? '#fff' : 'rgba(255,255,255,.65)'};
-                    border:${isMulti ? '1px solid transparent' : '1px solid rgba(255,255,255,.3)'};
+                    color:${isMulti ? '#fff' : _grpBtnFg};
+                    border:${isMulti ? '1px solid transparent' : `1px solid ${_grpBtnBd}`};
                     transition:background .12s,color .12s,border-color .12s;
                 `;
                 multiToggle.textContent = T.sp_grp_glow_multi || 'Multi';
@@ -5271,8 +5415,8 @@
                     cfg.glowColor = next;
                     GM_setValue(KEY_GROUP_PANEL_CFG, JSON.stringify(cfg));
                     multiToggle.style.background    = next === 'multi' ? 'rgba(29,155,240,.7)' : 'transparent';
-                    multiToggle.style.color         = next === 'multi' ? '#fff' : 'rgba(255,255,255,.65)';
-                    multiToggle.style.borderColor   = next === 'multi' ? 'transparent' : 'rgba(255,255,255,.3)';
+                    multiToggle.style.color         = next === 'multi' ? '#fff' : _grpBtnFg;
+                    multiToggle.style.borderColor   = next === 'multi' ? 'transparent' : _grpBtnBd;
                     showToast((T.sp_grp_glow_color || 'Glow Color') + ' → ' + (next === 'multi' ? (T.sp_grp_glow_multi || 'Multi') : next));
                 });
 
@@ -5299,8 +5443,8 @@
                     const cfg = (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })();
                     cfg.glowColor = hex;
                     GM_setValue(KEY_GROUP_PANEL_CFG, JSON.stringify(cfg));
-                    multiToggle.style.background = 'rgba(255,255,255,.1)';
-                    multiToggle.style.color      = 'rgba(255,255,255,.5)';
+                    multiToggle.style.background = _grpBtnBg;
+                    multiToggle.style.color      = _grpBtnFg;
                 };
 
                 colorInput.addEventListener('input',  () => saveColor(colorInput.value));
@@ -5310,9 +5454,10 @@
                     const swatch = document.createElement('button');
                     swatch.type  = 'button';
                     swatch.style.cssText = `
-                        width:18px;height:18px;border-radius:50%;border:2px solid ${hex === curHex ? 'rgba(255,255,255,.8)' : 'transparent'};
+                        width:18px;height:18px;border-radius:50%;border:2px solid ${hex === curHex ? _grpSelRing : 'transparent'};
                         background:${hex};cursor:pointer;flex-shrink:0;padding:0;
                         transition:border-color .1s,transform .1s;
+                        box-shadow: inset 0 0 0 1px rgba(0,0,0,.15);
                     `;
                     swatch.addEventListener('mouseover', () => swatch.style.transform = 'scale(1.2)');
                     swatch.addEventListener('mouseout',  () => swatch.style.transform = '');
@@ -5320,7 +5465,7 @@
                         colorInput.value = hex;
                         saveColor(hex);
                         colorRow.querySelectorAll('button[data-swatch]').forEach(s => s.style.borderColor = 'transparent');
-                        swatch.style.borderColor = 'rgba(255,255,255,.8)';
+                        swatch.style.borderColor = _grpSelRing;
                     });
                     swatch.dataset.swatch = hex;
                     colorRow.appendChild(swatch);
@@ -5368,13 +5513,13 @@
 
             const labelColorRow = (() => {
                 const wrap = document.createElement('div');
-                wrap.style.cssText = 'padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.06)';
+                wrap.style.cssText = `padding:8px 12px;border-bottom:1px solid ${_grpDiv}`;
                 wrap.addEventListener('click', e => e.stopPropagation());
 
                 const topRow = document.createElement('div');
                 topRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:7px';
                 const lbl = document.createElement('span');
-                lbl.style.cssText = 'font-size:12px;color:rgba(255,255,255,.7)';
+                lbl.style.cssText = `font-size:12px;color:${_grpSub}`;
                 lbl.textContent   = T.sp_grp_label_color || 'Label Color';
                 topRow.appendChild(lbl);
 
@@ -5405,9 +5550,10 @@
                     sw.type  = 'button';
                     sw.style.cssText = `
                         width:18px;height:18px;border-radius:50%;
-                        border:2px solid ${hex === curTxt ? 'rgba(255,255,255,.8)' : 'transparent'};
+                        border:2px solid ${hex === curTxt ? _grpSelRing : 'transparent'};
                         background:${hex};cursor:pointer;flex-shrink:0;padding:0;
                         transition:border-color .1s,transform .1s;
+                        box-shadow: inset 0 0 0 1px rgba(0,0,0,.15);
                     `;
                     sw.addEventListener('mouseover', () => sw.style.transform = 'scale(1.2)');
                     sw.addEventListener('mouseout',  () => sw.style.transform = '');
@@ -5415,7 +5561,7 @@
                         txtInput.value = hex;
                         saveTxt(hex);
                         colorRow.querySelectorAll('button[data-swatch]').forEach(s => s.style.borderColor = 'transparent');
-                        sw.style.borderColor = 'rgba(255,255,255,.8)';
+                        sw.style.borderColor = _grpSelRing;
                     });
                     sw.dataset.swatch = hex;
                     colorRow.appendChild(sw);
@@ -5455,13 +5601,13 @@
 
             const fanMaskColorRow = (() => {
                 const wrap = document.createElement('div');
-                wrap.style.cssText = 'padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.06)';
+                wrap.style.cssText = `padding:8px 12px;border-bottom:1px solid ${_grpDiv}`;
                 wrap.addEventListener('click', e => e.stopPropagation());
 
                 const topRow = document.createElement('div');
                 topRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:7px';
                 const lbl = document.createElement('span');
-                lbl.style.cssText = 'font-size:12px;color:rgba(255,255,255,.7)';
+                lbl.style.cssText = `font-size:12px;color:${_grpSub}`;
                 lbl.textContent = T.sp_grp_fan_mask_color || 'Backdrop Color';
                 topRow.appendChild(lbl);
 
@@ -5486,10 +5632,10 @@
                     sw.type  = 'button';
                     sw.style.cssText = `
                         width:18px;height:18px;border-radius:50%;
-                        border:2px solid ${hex === curMaskHex ? 'rgba(255,255,255,.8)' : 'transparent'};
+                        border:2px solid ${hex === curMaskHex ? _grpSelRing : 'transparent'};
                         background:${hex};cursor:pointer;flex-shrink:0;padding:0;
                         transition:border-color .1s,transform .1s;
-                        box-shadow: inset 0 0 0 1px rgba(255,255,255,.15);
+                        box-shadow: inset 0 0 0 1px rgba(0,0,0,.15);
                     `;
                     sw.addEventListener('mouseover', () => sw.style.transform = 'scale(1.2)');
                     sw.addEventListener('mouseout',  () => sw.style.transform = '');
@@ -5497,7 +5643,7 @@
                         maskColorInput.value = hex;
                         saveMaskColor(hex);
                         colorRow.querySelectorAll('button[data-swatch]').forEach(s => s.style.borderColor = 'transparent');
-                        sw.style.borderColor = 'rgba(255,255,255,.8)';
+                        sw.style.borderColor = _grpSelRing;
                     });
                     sw.dataset.swatch = hex;
                     colorRow.appendChild(sw);
@@ -5539,15 +5685,15 @@
             manageBtn.textContent = T.sp_grp_manage || 'Manage Groups';
             manageBtn.style.cssText = `
                 width:100%;padding:8px 0;border-radius:8px;
-                border:1px solid rgba(255,255,255,.15);
-                background:rgba(255,255,255,.06);
-                color:rgba(255,255,255,.75);
+                border:1px solid ${_grpBtnBd};
+                background:${_grpBtnBg};
+                color:${_grpBtnFg};
                 font-size:12px;font-weight:500;cursor:pointer;
                 font-family:inherit;text-align:center;line-height:1;
                 transition:background .12s,border-color .12s;
             `;
-            manageBtn.addEventListener('mouseover', () => { manageBtn.style.background='rgba(255,255,255,.12)'; manageBtn.style.borderColor='rgba(255,255,255,.3)'; });
-            manageBtn.addEventListener('mouseout',  () => { manageBtn.style.background='rgba(255,255,255,.06)'; manageBtn.style.borderColor='rgba(255,255,255,.15)'; });
+            manageBtn.addEventListener('mouseover', () => { manageBtn.style.background=_grpBtnBgH; manageBtn.style.borderColor=_grpBtnBdH; });
+            manageBtn.addEventListener('mouseout',  () => { manageBtn.style.background=_grpBtnBg; manageBtn.style.borderColor=_grpBtnBd; });
             manageBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 showGroupManagerModal();
@@ -5557,13 +5703,13 @@
 
             const textBmColorRow = (() => {
                 const wrap = document.createElement('div');
-                wrap.style.cssText = 'padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.06)';
+                wrap.style.cssText = `padding:8px 12px;border-bottom:1px solid ${_grpDiv}`;
                 wrap.addEventListener('click', e => e.stopPropagation());
 
                 const topRow = document.createElement('div');
                 topRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:7px';
                 const lbl = document.createElement('span');
-                lbl.style.cssText = 'font-size:12px;color:rgba(255,255,255,.7)';
+                lbl.style.cssText = `font-size:12px;color:${_grpSub}`;
                 lbl.textContent = '📝 Text Bookmark — Content Color';
                 topRow.appendChild(lbl);
 
@@ -5593,7 +5739,7 @@
                     sw.type = 'button';
                     sw.style.cssText = `
                         width:18px;height:18px;border-radius:50%;
-                        border:2px solid ${hex === curTbmColor ? 'rgba(255,255,255,.8)' : 'transparent'};
+                        border:2px solid ${hex === curTbmColor ? _grpSelRing : 'transparent'};
                         background:${hex};cursor:pointer;flex-shrink:0;padding:0;
                         transition:border-color .1s,transform .1s;
                         box-shadow:inset 0 0 0 1px rgba(0,0,0,.2);
@@ -5604,7 +5750,7 @@
                         tbmInput.value = hex;
                         saveTbmColor(hex);
                         colorRow.querySelectorAll('button[data-tbm-swatch]').forEach(s => s.style.borderColor = 'transparent');
-                        sw.style.borderColor = 'rgba(255,255,255,.8)';
+                        sw.style.borderColor = _grpSelRing;
                         showToast('Text Bookmark Content Color → ' + hex);
                     });
                     sw.dataset.tbmSwatch = hex;
@@ -5917,19 +6063,21 @@
             const grpHist = makeGroup(T.sp_grp_history || '🗂  History Panel', false, HIST_TOOLTIP, showDockSpotlight);
 
             const _DS = {
-                bg:    'rgba(255,255,255,0.06)',
-                strip: 'rgba(255,255,255,0.12)',
+                bg:    dark ? 'rgba(255,255,255,0.06)' : 'rgba(15,20,25,0.05)',
+                strip: dark ? 'rgba(255,255,255,0.12)' : 'rgba(15,20,25,0.09)',
                 blue:  'rgba(29,155,240,0.7)',
                 blueL: 'rgba(29,155,240,0.35)',
-                sub:   'rgba(255,255,255,0.25)',
+                sub:   dark ? 'rgba(255,255,255,0.25)' : 'rgba(15,20,25,0.22)',
             };
+            const _DS_ghostBorder = dark ? 'rgba(255,255,255,0.10)' : 'rgba(15,20,25,0.15)';
+            const _DS_ghostLine   = dark ? 'rgba(255,255,255,0.08)' : 'rgba(15,20,25,0.12)';
             const dockStyleOpts = [
                 { value: 'notch', label: T.sp_dock_notch || 'Notch',
                   svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="0" width="10" height="52" rx="1" fill="${_DS.bg}"/><rect x="12" y="20" width="4" height="12" rx="2" fill="${_DS.blue}"/></svg>` },
                 { value: 'ruler', label: T.sp_dock_ruler || 'Ruler',
                   svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="0" width="10" height="52" rx="1" fill="${_DS.strip}"/><line x1="9" y1="4"  x2="19" y2="4"  stroke="${_DS.blue}"  stroke-width="1.5"/><line x1="9" y1="10" x2="15" y2="10" stroke="${_DS.blueL}" stroke-width="0.8"/><line x1="9" y1="16" x2="15" y2="16" stroke="${_DS.blueL}" stroke-width="0.8"/><line x1="9" y1="22" x2="19" y2="22" stroke="${_DS.blue}"  stroke-width="1.5"/><line x1="9" y1="28" x2="15" y2="28" stroke="${_DS.blueL}" stroke-width="0.8"/><line x1="9" y1="34" x2="15" y2="34" stroke="${_DS.blueL}" stroke-width="0.8"/><line x1="9" y1="40" x2="19" y2="40" stroke="${_DS.blue}"  stroke-width="1.5"/><line x1="9" y1="46" x2="15" y2="46" stroke="${_DS.blueL}" stroke-width="0.8"/></svg>` },
                 { value: 'ghost', label: T.sp_dock_ghost || 'Ghost',
-                  svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="0" width="8" height="52" rx="1" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="1" stroke-dasharray="3 4"/><line x1="10" y1="7"  x2="18" y2="7"  stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><line x1="10" y1="14" x2="18" y2="14" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><line x1="10" y1="21" x2="18" y2="21" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><line x1="10" y1="28" x2="18" y2="28" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><line x1="10" y1="35" x2="18" y2="35" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><line x1="10" y1="42" x2="18" y2="42" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/></svg>` },
+                  svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="0" width="8" height="52" rx="1" fill="none" stroke="${_DS_ghostBorder}" stroke-width="1" stroke-dasharray="3 4"/><line x1="10" y1="7"  x2="18" y2="7"  stroke="${_DS_ghostLine}" stroke-width="0.8"/><line x1="10" y1="14" x2="18" y2="14" stroke="${_DS_ghostLine}" stroke-width="0.8"/><line x1="10" y1="21" x2="18" y2="21" stroke="${_DS_ghostLine}" stroke-width="0.8"/><line x1="10" y1="28" x2="18" y2="28" stroke="${_DS_ghostLine}" stroke-width="0.8"/><line x1="10" y1="35" x2="18" y2="35" stroke="${_DS_ghostLine}" stroke-width="0.8"/><line x1="10" y1="42" x2="18" y2="42" stroke="${_DS_ghostLine}" stroke-width="0.8"/></svg>` },
                 { value: 'pill',  label: T.sp_dock_pill  || 'Pill',
                   svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="11" y="0" width="6" height="52" rx="0" fill="${_DS.bg}"/><rect x="11" y="16" width="6" height="20" rx="3" fill="${_DS.blue}"/></svg>` },
                 { value: 'arrow', label: T.sp_dock_arrow || 'Arrow',
@@ -6506,6 +6654,12 @@
         wrapper.appendChild(gearBtn);
         wrapper.appendChild(panel);
         document.body.appendChild(wrapper);
+
+        if (_wasOpen) {
+            wrapper.setAttribute('data-open', 'true');
+            wrapper.style.transform = '';
+        }
+        if (_prevFocus) wrapper.setAttribute('data-focus', _prevFocus);
     }
 
     const _downloadedIds = (() => {
@@ -6568,7 +6722,11 @@
         btn.querySelector('.tm-hist-badge')?.remove();
     }
 
-    window.addEventListener('scroll', () => { if (!StarPipState.fanOpen) hideStarPip(); if (StarPipState.textMenuOpen) closeTextGroupMenu(); }, { passive: true, capture: true });
+    window.addEventListener('scroll', e => {
+        const fromMenuList = e.target?.nodeType === 1 && e.target.closest?.('.tm-tgm-list');
+        if (!StarPipState.fanOpen) hideStarPip();
+        if (StarPipState.textMenuOpen && !fromMenuList) closeTextGroupMenu();
+    }, { passive: true, capture: true });
     document.addEventListener('visibilitychange', () => { if (document.hidden) { if (StarPipState.fanOpen) closeGroupFan(); if (StarPipState.textMenuOpen) closeTextGroupMenu(); hideStarPip(); } });
 
     let _navScanTimer1 = null;
@@ -6688,9 +6846,15 @@
     ];
 
     function _renderStarPipIcon(pip) {
-        pip.innerHTML = StarPipState.pendingIsText
-            ? '<span class="tm-star-pip-glyph">📁</span>'
-            : '<span class="tm-star-pip-glyph">⭐</span><span class="tm-star-pip-badge">+</span>';
+        if (StarPipState.pendingIsText) {
+            pip.innerHTML = '<span class="tm-star-pip-glyph">📁</span>';
+            return;
+        }
+        if (GM_getValue(KEY_GROUP_POPUP_STYLE, 'fan') === 'list') {
+            pip.innerHTML = `<span class="tm-star-pip-glyph tm-star-pip-svg">${_GROUP_LIST_TRIGGER_SVG}</span>`;
+            return;
+        }
+        pip.innerHTML = '<span class="tm-star-pip-glyph">⭐</span><span class="tm-star-pip-badge">+</span>';
     }
 
     function popStarPip(mediaBtnEl) {
@@ -6721,7 +6885,11 @@
         pip.classList.remove('tm-popped');
         clearTimeout(StarPipState.autoHideTimer);
         StarPipState.pendingStarPipEl = null;
-        pip.innerHTML = '<span class="tm-star-pip-glyph">⭐</span><span class="tm-star-pip-badge">+</span>';
+        if (GM_getValue(KEY_GROUP_POPUP_STYLE, 'fan') === 'list') {
+            pip.innerHTML = `<span class="tm-star-pip-glyph tm-star-pip-svg">${_GROUP_LIST_TRIGGER_SVG}</span>`;
+        } else {
+            pip.innerHTML = '<span class="tm-star-pip-glyph">⭐</span><span class="tm-star-pip-badge">+</span>';
+        }
         pip.title = 'Click: New Group · Hover: pick group';
     }
 
@@ -6971,7 +7139,7 @@
         _runStarEscapeAnim(() => hideStarPip());
     }
 
-    function openTextGroupMenu(anchorEl) {
+    function openTextGroupMenu(anchorEl, renderFn) {
         let menu = document.getElementById('tm-text-group-menu');
         if (!menu) {
             menu = document.createElement('div');
@@ -6991,12 +7159,16 @@
 
         StarPipState.textMenuAnchorEl = anchorEl || document.getElementById('tm-star-pip');
 
-        _renderTextGroupMenu(menu);
+        (renderFn || _renderTextGroupMenu)(menu);
 
         _positionTextGroupMenu(menu);
 
         StarPipState.textMenuOpen = true;
         requestAnimationFrame(() => menu.classList.add('tm-tgm-open'));
+    }
+
+    function openMediaListMenu(anchorEl) {
+        openTextGroupMenu(anchorEl, _renderMediaListMenu);
     }
 
     function closeTextGroupMenu() {
@@ -7020,7 +7192,7 @@
         menu.style.display    = '';
 
         const mw    = Math.max(menu.offsetWidth || 168, 168);
-        const right = r.left - 8;
+        const right = r.left - 1;
         const left  = Math.max(4, right - mw);
         let top = r.top + r.height / 2 - mh / 2 - 30;
         top = Math.max(8, Math.min(top, window.innerHeight - mh - 8));
@@ -7029,10 +7201,8 @@
         menu.style.top  = top  + 'px';
     }
 
-    function _renderTextGroupMenu(menu) {
+    function _renderGroupMenu(menu, groups, toastPrefix, saveFn = saveGroups) {
         menu.innerHTML = '';
-
-        const groups = getTextGroups();
 
         const header = document.createElement('div');
         header.className = 'tm-tgm-header';
@@ -7041,9 +7211,77 @@
 
         const list = document.createElement('div');
         list.className = 'tm-tgm-list';
+        const ITEM_H = 32;
+        const visibleCount = Math.min(groups.length || 1, 15);
+        list.style.maxHeight = (visibleCount * ITEM_H) + 'px';
+        list.addEventListener('wheel', e => {
+            e.preventDefault();
+            e.stopPropagation();
+            const max = list.scrollHeight - list.clientHeight;
+            list.scrollTop = Math.max(0, Math.min(max, list.scrollTop + e.deltaY));
+        }, { passive: false });
+
+        let _dragSrcIdx = -1;
 
         if (groups.length) {
-            groups.forEach(g => {
+            groups.forEach((g, gIdx) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'tm-tgm-item-wrap';
+                wrapper.draggable = false;
+                wrapper.dataset.groupIdx = gIdx;
+
+                wrapper.addEventListener('dragstart', e => {
+                    _dragSrcIdx = gIdx;
+                    wrapper.style.opacity = '0.45';
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                wrapper.addEventListener('dragend', () => {
+                    wrapper.style.opacity = '1';
+                    list.querySelectorAll('.tm-tgm-item-wrap').forEach(el => {
+                        el.style.borderTop = ''; el.style.borderBottom = '';
+                    });
+                });
+                wrapper.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    const rect = wrapper.getBoundingClientRect();
+                    const mid  = rect.top + rect.height / 2;
+                    list.querySelectorAll('.tm-tgm-item-wrap').forEach(el => {
+                        el.style.borderTop = ''; el.style.borderBottom = '';
+                    });
+                    if (e.clientY < mid) wrapper.style.borderTop    = '2px solid rgba(29,155,240,.7)';
+                    else                 wrapper.style.borderBottom = '2px solid rgba(29,155,240,.7)';
+                });
+                wrapper.addEventListener('dragleave', () => {
+                    wrapper.style.borderTop = ''; wrapper.style.borderBottom = '';
+                });
+                wrapper.addEventListener('drop', e => {
+                    e.preventDefault();
+                    wrapper.style.borderTop = ''; wrapper.style.borderBottom = '';
+                    const destIdx = parseInt(wrapper.dataset.groupIdx);
+                    if (_dragSrcIdx === -1 || _dragSrcIdx === destIdx) return;
+                    const rect = wrapper.getBoundingClientRect();
+                    const insertAfter = e.clientY >= rect.top + rect.height / 2;
+                    const arr = groups.slice();
+                    const [moved] = arr.splice(_dragSrcIdx, 1);
+                    const newDest = insertAfter
+                        ? (_dragSrcIdx < destIdx ? destIdx : destIdx + 1)
+                        : (_dragSrcIdx < destIdx ? destIdx - 1 : destIdx);
+                    arr.splice(Math.max(0, Math.min(arr.length, newDest)), 0, moved);
+                    (saveFn)(arr);
+                    _dragSrcIdx = -1;
+                    _renderGroupMenu(menu, arr, toastPrefix, saveFn);
+                });
+
+                const dragHandle = document.createElement('span');
+                dragHandle.className = 'tm-tgm-drag-handle';
+                dragHandle.title = 'Drag to reorder';
+                dragHandle.innerHTML = '<svg viewBox="0 0 10 16" width="8" height="13" fill="currentColor"><circle cx="3" cy="3" r="1.2"/><circle cx="7" cy="3" r="1.2"/><circle cx="3" cy="8" r="1.2"/><circle cx="7" cy="8" r="1.2"/><circle cx="3" cy="13" r="1.2"/><circle cx="7" cy="13" r="1.2"/></svg>';
+                dragHandle.addEventListener('mousedown', () => { wrapper.draggable = true; });
+                wrapper.addEventListener('mousedown', e => {
+                    if (!e.target.closest('.tm-tgm-drag-handle')) wrapper.draggable = false;
+                });
+
                 const btn = document.createElement('button');
                 btn.type      = 'button';
                 btn.className = 'tm-tgm-item';
@@ -7061,13 +7299,15 @@
 
                 btn.appendChild(iconEl);
                 btn.appendChild(label);
-                list.appendChild(btn);
+                wrapper.appendChild(dragHandle);
+                wrapper.appendChild(btn);
+                list.appendChild(wrapper);
 
                 btn.addEventListener('click', () => {
                     assignGroup(StarPipState.pendingGroupRecordId, g.id);
                     StarPipState.pendingGroupRecordId = null;
                     StarPipState.pendingIsText        = false;
-                    showToast(`📁 → ${g.name}`);
+                    showToast(`${toastPrefix} → ${g.name}`);
                     closeTextGroupMenu();
                     _runStarEscapeAnim(() => hideStarPip());
                 });
@@ -7095,6 +7335,14 @@
             _runStarEscapeAnim(() => showGroupCreateModal());
         });
         menu.appendChild(newBtn);
+    }
+
+    function _renderTextGroupMenu(menu) {
+        _renderGroupMenu(menu, getTextGroups(), '📁', saveTextGroups);
+    }
+
+    function _renderMediaListMenu(menu) {
+        _renderGroupMenu(menu, getGroups(), '🗂', saveGroups);
     }
 
     document.addEventListener('click', e => {
@@ -7762,7 +8010,7 @@
             return;
         }
 
-        const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const dark = _isDarkTheme();
         const C = dark ? {
             bg: '#16202b', header: '#1e2732', text: '#e7e9ea', sub: '#8b98a5',
             border: '#2f3336', rowHover: '#1e2732', inputBg: '#1e2732',
@@ -7771,7 +8019,7 @@
             badgeNew: '#1d9bf0', scrollbar: '#2f3336',
         } : {
             bg: '#ffffff', header: '#f7f9f9', text: '#0f1419', sub: '#536471',
-            border: '#eff3f4', rowHover: '#f7f9f9', inputBg: '#f7f9f9',
+            border: '#d8dcdf', rowHover: '#f7f9f9', inputBg: '#f7f9f9',
             groupHdr: '#f7f9f9', groupTxt: '#536471',
             thumbBg: '#f7f9f9', danger: '#e0245e', dangerHover: '#c01e4e',
             badgeNew: '#1d9bf0', scrollbar: '#eff3f4',
@@ -7970,6 +8218,8 @@
                 overflow: hidden;
                 min-width: 300px; min-height: 280px;
             }
+            
+            .tm-hist-theme-fade { transition: opacity 0.16s ease; }
             #tm-hist-titlebar {
                 display: flex; align-items: center; gap: 6px;
                 padding: 9px 12px; cursor: grab;
@@ -8041,6 +8291,10 @@
             .tm-hist-icon-btn:hover { background: ${C.rowHover}; color: ${C.text}; }
             .tm-hist-icon-btn svg { width: 14px; height: 14px; pointer-events: none; }
             .tm-hist-icon-btn.active { color: #1d9bf0; }
+            
+            .tm-hist-theme-toggle:hover { transform: scale(1.08); }
+            .tm-hist-theme-toggle:active { transform: scale(0.92); }
+            .tm-hist-theme-toggle svg { width: 14px; height: 14px; }
             .tm-hist-searchbar {
                 
                 flex: 1; min-width: 120px;
@@ -8816,6 +9070,43 @@
         const countBadge = document.createElement('span');
         countBadge.className = 'tm-hist-count-badge';
 
+        const themeToggleBtn = document.createElement('button');
+        themeToggleBtn.className = 'tm-hist-icon-btn tm-hist-theme-toggle';
+        themeToggleBtn.type = 'button';
+        themeToggleBtn.title = dark ? 'Switch to light theme' : 'Switch to dark theme';
+        themeToggleBtn.innerHTML = dark
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+        themeToggleBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            _toggleAppTheme();
+            const FADE_MS = 160;
+            panel.classList.add('tm-hist-theme-fade');
+            panel.style.opacity = '0';
+            const _wasDocked = !!DockState.side;
+            setTimeout(() => {
+                if (typeof panel._tmCleanup === 'function') panel._tmCleanup();
+                if (_historyUndoTimer) { clearTimeout(_historyUndoTimer); _historyUndoTimer = null; _historyUndoBuffer = null; }
+                panel.remove();
+                _cleanZoom();
+                showHistoryPanel();
+                if (_wasDocked) return;
+                const fresh = document.getElementById('tm-hist-panel');
+                if (fresh) {
+                    fresh.style.opacity = '0';
+                    void fresh.offsetWidth;
+                    fresh.classList.add('tm-hist-theme-fade');
+                    fresh.style.opacity = '1';
+                    fresh.addEventListener('transitionend', function _rmFade(ev) {
+                        if (ev.propertyName !== 'opacity') return;
+                        fresh.classList.remove('tm-hist-theme-fade');
+                        fresh.style.opacity = '';
+                        fresh.removeEventListener('transitionend', _rmFade);
+                    });
+                }
+            }, FADE_MS);
+        });
+
         const SVG_LIST  = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg>`;
         const SVG_GRID  = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>`;
         const SVG_EDIT  = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M11 2l3 3-8 8H3v-3L11 2z"/></svg>`;
@@ -8828,15 +9119,16 @@
         const btnExp   = _mkIconBtn(SVG_EXP,   'Export');
         const btnClose = _mkIconBtn(SVG_CLOSE, 'Close');
 
-        const SVG_PIN = `<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="5" y="1.8" width="6" height="5.6" rx="1"/>
-            <line x1="8" y1="7.4" x2="8" y2="10.8"/>
-            <path d="M5.7 10.8h4.6l-2.3 3.4z"/>
+        const SVG_PIN = `<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="10" cy="5" r="3.2"/>
+            <circle cx="8.7" cy="3.7" r="0.55" fill="currentColor" stroke="none" opacity="0.6"/>
+            <line x1="7.6" y1="7.3" x2="3.6" y2="14.4"/>
         </svg>`;
-        const SVG_PIN_FILLED = `<svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="5" y="1.8" width="6" height="5.6" rx="1"/>
-            <path d="M8 7.4v3.4" stroke-width="1.8" fill="none"/>
-            <path d="M5.7 10.8h4.6l-2.3 3.4z"/>
+        const SVG_PIN_FILLED = `<svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" stroke="currentColor" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="10" cy="5" r="3.2"/>
+            <circle cx="8.7" cy="3.7" r="0.6" fill="${C.bg}" stroke="none"/>
+            <path d="M7.4 7.05 L8.3 7.6 L3.6 14.4 Z"/>
+            <line x1="1.6" y1="13.5" x2="5.6" y2="14.7" stroke-width="1.1" opacity="0.55"/>
         </svg>`;
 
         const btnPin = document.createElement('button');
@@ -8873,6 +9165,7 @@
         titlebar.appendChild(titleIcon);
         titlebar.appendChild(titleEl);
         titlebar.appendChild(countBadge);
+        titlebar.appendChild(themeToggleBtn);
         titlebar.appendChild(btnPin);
         const sortSel = document.createElement('select');
         sortSel.id = 'tm-hist-sort';
