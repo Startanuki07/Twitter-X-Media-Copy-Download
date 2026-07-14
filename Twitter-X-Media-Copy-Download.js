@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.11.13
+// @version      2.9.12.6
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -3527,6 +3527,10 @@
             .tm-sp-val-option { color: ${dark ? '#a78bfa' : C.valMuted} !important; font-weight: 600; letter-spacing: 0.2px;
                                 text-shadow: ${dark ? '0 0 6px rgba(167,139,250,0.75), 0 0 12px rgba(167,139,250,0.35)' : 'none'}; }
             
+            .tm-sp-label { font-size: 12px; color: ${C.sub}; white-space: nowrap; }
+            .tm-sp-val   { font-size: 13px; color: ${C.text}; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: color 0.2s; }
+            .tm-sp-row-picker {  }
+            
             .tm-sp-row-desc { font-size: 11px; color: ${C.sub}; opacity: 0.6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
             .tm-sp-arrow { font-size: 11px; color: ${C.sub}; flex-shrink: 0; margin-left: 4px; opacity: 0.5; }
             
@@ -5357,7 +5361,7 @@
             const _popupSvgDot    = dark ? 'rgba(255,255,255,0.35)' : 'rgba(15,20,25,0.32)';
             const _popupSvgBar    = dark ? 'rgba(255,255,255,0.3)'  : 'rgba(15,20,25,0.28)';
 
-            grpGroups.append(makeDockStylePickerRow(
+            const popupStyleRow = makeDockStylePickerRow(
                 T.sp_grp_popup_style || 'Popup Style',
                 [
                     {
@@ -5373,10 +5377,12 @@
                 (val) => {
                     GM_setValue(KEY_GROUP_POPUP_STYLE, val);
                     showToast((T.sp_grp_popup_style || 'Popup Style') + ' → ' + (val === 'list' ? (T.sp_grp_popup_style_list || 'List') : (T.sp_grp_popup_style_fan || 'Fan')));
+                    _syncGroupChildrenDisabled();
                 },
                 'sp_group_popup_style', 'fan',
                 36, 36
-            ));
+            );
+            grpGroups.append(popupStyleRow);
 
             const _grpCfgRaw  = (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })();
             const _grpGlowClr = _grpCfgRaw.glowColor || 'multi';
@@ -5763,11 +5769,17 @@
             })();
             grpGroups.append(textBmColorRow);
 
-            const _groupChildren = [glowColorRow, labelColorRow, fanMaskRow, fanMaskColorRow, grpBtnRow];
+            const _fanOnlyChildren = [glowColorRow, labelColorRow, fanMaskRow, fanMaskColorRow];
+            const _mainToggleOnlyChildren = [popupStyleRow, grpBtnRow];
             const _getGroupSliders = () => Array.from(grpGroups.body.querySelectorAll('.tm-sp-slider-row'));
             const _syncGroupChildrenDisabled = () => {
                 const isOn = GM_getValue(KEY_GROUP_ON_DOWNLOAD, false);
-                [..._groupChildren, ..._getGroupSliders()].forEach(el => {
+                const isListStyle = GM_getValue(KEY_GROUP_POPUP_STYLE, 'fan') === 'list';
+                const fanDisabled = !isOn || isListStyle;
+                [..._fanOnlyChildren, ..._getGroupSliders()].forEach(el => {
+                    el.classList.toggle('tm-sp-disabled-child', fanDisabled);
+                });
+                _mainToggleOnlyChildren.forEach(el => {
                     el.classList.toggle('tm-sp-disabled-child', !isOn);
                 });
             };
@@ -7994,6 +8006,7 @@
 
     function showHistoryPanel() {
         let _pinned = GM_getValue(KEY_HIST_PINNED, false);
+        let _pinCloseAlertCount = 0;
 
         const existing = document.getElementById('tm-hist-panel');
         if (existing) {
@@ -8267,13 +8280,64 @@
                 animation: tm-pin-alert 1.5s ease forwards;
             }
             
+            @keyframes tm-pin-egg-2x-in {
+                0%   { transform: scale(1); }
+                100% { transform: scale(2); }
+            }
+            @keyframes tm-pin-egg-2x-breathe {
+                0%, 100% { transform: scale(2); }
+                50%      { transform: scale(2.12); }
+            }
+            @keyframes tm-pin-egg-mushroom {
+                0%   { transform: scale(1)   rotate(0deg); }
+                18%  { transform: scale(2.6) rotate(-6deg); }
+                28%  { transform: scale(2.6) rotate(6deg); }
+                38%  { transform: scale(2.6) rotate(-5deg); }
+                48%  { transform: scale(2.6) rotate(4deg); }
+                58%  { transform: scale(2.6) rotate(-4deg); }
+                68%  { transform: scale(2.6) rotate(3deg); }
+                78%  { transform: scale(2.6) rotate(-2deg); }
+                90%  { transform: scale(2.6) rotate(0deg); }
+                100% { transform: scale(2.6) rotate(0deg); }
+            }
+            #tm-hist-btn-pin.pin-egg-2x {
+                position: relative; z-index: 5;
+                
+                animation: tm-pin-egg-2x-in 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards,
+                           tm-pin-egg-2x-breathe 1.6s ease-in-out 0.4s infinite;
+            }
+            #tm-hist-btn-pin.pin-egg-mushroom {
+                position: relative; z-index: 5;
+                font-size: 15px; line-height: 1;
+                animation: tm-pin-egg-mushroom 1.1s ease-in-out forwards;
+            }
+            
             #tm-hist-panel.tm-pinned .tm-dock-trigger {
                 opacity: 0.15 !important; pointer-events: none !important; cursor: default !important;
             }
             #tm-hist-titlebar:active { cursor: grabbing; }
+            
             .tm-hist-title {
-                font-size: 13px; font-weight: 700; color: ${C.text};
                 flex: 1; min-width: 0;
+                display: flex; align-items: center;
+            }
+            .tm-hist-badge {
+                display: inline-flex; align-items: center; gap: 5px;
+                padding: 3px 10px 3px 7px; border-radius: 6px;
+                border: 1px solid ${dark ? '#8a6d3f' : '#d9d0bd'};
+                background: ${dark
+                    ? 'linear-gradient(180deg, #23180d 0%, #14100a 100%)'
+                    : 'linear-gradient(180deg, #faf7f0 0%, #f2ecdd 100%)'};
+                white-space: nowrap; overflow: hidden;
+                box-shadow: inset 0 1px 0 ${dark ? 'rgba(201,168,118,.14)' : 'rgba(255,255,255,.7)'};
+            }
+            .tm-hist-badge-icon {
+                display: inline-flex; align-items: center; flex-shrink: 0;
+                color: ${dark ? '#d9b876' : '#3d3527'};
+            }
+            .tm-hist-badge-text {
+                font-size: 12px; font-weight: 700; letter-spacing: .3px;
+                color: ${dark ? '#e8c988' : '#3d3527'};
                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             }
             .tm-hist-count-badge {
@@ -9059,13 +9123,22 @@
         titlebar.id = 'tm-hist-titlebar';
 
         const titleIcon = document.createElement('span');
-        titleIcon.style.cssText = 'display:inline-flex;align-items:center;flex-shrink:0;opacity:0.55;margin-right:2px;';
-        titleIcon.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="1" width="10" height="14" rx="1.5"/><line x1="6" y1="5" x2="10" y2="5"/><line x1="6" y1="8" x2="10" y2="8"/><line x1="6" y1="11" x2="8.5" y2="11"/></svg>`;
+        titleIcon.className = 'tm-hist-badge-icon';
+        titleIcon.innerHTML = `<svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.2 13.2 3v4.1c0 3.4-2.2 5.9-5.2 7.1-3-1.2-5.2-3.7-5.2-7.1V3L8 1.2z"/><path d="M8 5.4 8.9 7.2 10.9 7.5 9.45 8.9 9.8 10.9 8 9.95 6.2 10.9 6.55 8.9 5.1 7.5 7.1 7.2 8 5.4z" fill="currentColor" stroke="none"/></svg>`;
+
+        const titleText = document.createElement('span');
+        titleText.className = 'tm-hist-badge-text';
+        titleText.textContent = 'History';
+
+        const titleBadge = document.createElement('span');
+        titleBadge.className = 'tm-hist-badge';
+        titleBadge.title = 'Download History';
+        titleBadge.appendChild(titleIcon);
+        titleBadge.appendChild(titleText);
 
         const titleEl = document.createElement('span');
         titleEl.className = 'tm-hist-title';
-        titleEl.textContent = 'Download History';
-        titleEl.title = 'Download History';
+        titleEl.appendChild(titleBadge);
 
         const countBadge = document.createElement('span');
         countBadge.className = 'tm-hist-count-badge';
@@ -9153,6 +9226,8 @@
                 btnPin.title = 'Unpin panel (currently persistent across navigation)';
                 panel.classList.add('tm-pinned');
             } else {
+                _pinCloseAlertCount = 0;
+                btnPin.classList.remove('pin-alert', 'pin-egg-2x', 'pin-egg-mushroom');
                 btnPin.classList.remove('pinned');
                 btnPin.classList.add('unpinning');
                 btnPin.innerHTML = SVG_PIN;
@@ -9162,7 +9237,6 @@
             }
         });
 
-        titlebar.appendChild(titleIcon);
         titlebar.appendChild(titleEl);
         titlebar.appendChild(countBadge);
         titlebar.appendChild(themeToggleBtn);
@@ -9258,10 +9332,10 @@
             const btnAddGroup = document.createElement('button');
             btnAddGroup.type = 'button';
             btnAddGroup.title = 'New group';
-            btnAddGroup.style.cssText = 'flex-shrink:0;width:26px;height:26px;border-radius:7px;border:none;background:transparent;color:rgba(255,255,255,.35);cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s;margin:0 3px 0 2px';
+            btnAddGroup.style.cssText = `flex-shrink:0;width:26px;height:26px;border-radius:7px;border:none;background:transparent;color:${C.sub};cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s;margin:0 3px 0 2px`;
             btnAddGroup.innerHTML = '<svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>';
             btnAddGroup.addEventListener('mouseover', () => { btnAddGroup.style.background = 'rgba(29,155,240,.18)'; btnAddGroup.style.color = '#1d9bf0'; });
-            btnAddGroup.addEventListener('mouseout',  () => { btnAddGroup.style.background = 'transparent'; btnAddGroup.style.color = 'rgba(255,255,255,.35)'; });
+            btnAddGroup.addEventListener('mouseout',  () => { btnAddGroup.style.background = 'transparent'; btnAddGroup.style.color = C.sub; });
             btnAddGroup.addEventListener('click', e => {
                 e.stopPropagation();
                 StarPipState.pendingIsText = isTextTab;
@@ -9607,7 +9681,7 @@
                 sentinel.style.cssText = 'height:44px;display:flex;align-items:center;justify-content:center;gap:7px;';
                 for (let _di = 0; _di < 3; _di++) {
                     const _dot = document.createElement('span');
-                    _dot.style.cssText = `display:block;width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.28);animation:tm-sentinel-pulse 1.1s ease-in-out ${_di * 0.17}s infinite;`;
+                    _dot.style.cssText = `display:block;width:5px;height:5px;border-radius:50%;background:${dark ? 'rgba(255,255,255,.28)' : 'rgba(15,20,25,.3)'};animation:tm-sentinel-pulse 1.1s ease-in-out ${_di * 0.17}s infinite;`;
                     sentinel.appendChild(_dot);
                 }
                 _loadSentinelObserver = new IntersectionObserver(entries => {
@@ -9776,19 +9850,20 @@
                 const header = document.createElement('div');
                 header.className = 'tm-hist-group-header';
                 header.dataset.authorHandle = screenName;
-                header.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 10px 8px 8px;cursor:pointer;border-radius:8px;margin:2px 0;background:rgba(255,255,255,.04);transition:background .12s';
+                const _hdrBgIdle = dark ? 'rgba(255,255,255,.04)' : 'rgba(15,20,25,.035)';
+                header.style.cssText = `display:flex;align-items:center;gap:8px;padding:8px 10px 8px 8px;cursor:pointer;border-radius:8px;margin:2px 0;background:${_hdrBgIdle};transition:background .12s`;
                 header.addEventListener('mouseover', () => header.style.background = 'rgba(29,155,240,.1)');
-                header.addEventListener('mouseout',  () => header.style.background = 'rgba(255,255,255,.04)');
+                header.addEventListener('mouseout',  () => header.style.background = _hdrBgIdle);
 
                 if (avatarUrl) {
                     const av = document.createElement('img');
                     av.src = avatarUrl; av.alt = ''; av.loading = 'lazy';
-                    av.style.cssText = 'width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(255,255,255,.12)';
+                    av.style.cssText = `width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid ${dark ? 'rgba(255,255,255,.12)' : 'rgba(15,20,25,.14)'}`;
                     av.decode && av.decode().catch(() => {});
                     header.appendChild(av);
                 } else {
                     const avFb = document.createElement('div');
-                    avFb.style.cssText = 'width:40px;height:40px;border-radius:50%;background:rgba(29,155,240,.25);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;color:rgba(255,255,255,.5)';
+                    avFb.style.cssText = `width:40px;height:40px;border-radius:50%;background:rgba(29,155,240,.25);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;color:${dark ? 'rgba(255,255,255,.5)' : '#ffffff'};flex-shrink:0`;
                     avFb.textContent = (displayName || screenName).charAt(0).toUpperCase();
                     header.appendChild(avFb);
                 }
@@ -9797,33 +9872,34 @@
                 authorInfo.style.cssText = 'flex:1;min-width:0';
                 const dname = document.createElement('div');
                 dname.textContent = displayName;
-                dname.style.cssText = 'font-size:13px;font-weight:700;color:#e7e9ea;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+                dname.style.cssText = `font-size:13px;font-weight:700;color:${C.text};white-space:nowrap;overflow:hidden;text-overflow:ellipsis`;
                 const sname = document.createElement('div');
                 sname.style.cssText = 'display:flex;align-items:center;gap:5px;margin-top:1px';
                 const snameText = document.createElement('span');
                 snameText.textContent = '@' + screenName;
-                snameText.style.cssText = 'font-size:11px;color:rgba(255,255,255,.4)';
+                snameText.style.cssText = `font-size:11px;color:${dark ? 'rgba(255,255,255,.4)' : 'rgba(15,20,25,.42)'}`;
                 sname.appendChild(snameText);
                 const homeLink = document.createElement('a');
                 homeLink.href = `https://x.com/${screenName}`;
                 homeLink.target = '_blank'; homeLink.rel = 'noopener noreferrer';
                 homeLink.innerHTML = SVG_HOME;
-                homeLink.style.cssText = 'display:inline-flex;align-items:center;color:rgba(255,255,255,.3);transition:color .12s;flex-shrink:0';
+                const _homeLinkIdle = dark ? 'rgba(255,255,255,.3)' : 'rgba(15,20,25,.32)';
+                homeLink.style.cssText = `display:inline-flex;align-items:center;color:${_homeLinkIdle};transition:color .12s;flex-shrink:0`;
                 homeLink.title = `@${screenName} profile`;
                 homeLink.addEventListener('click', e => e.stopPropagation());
                 homeLink.addEventListener('mouseover', () => homeLink.style.color = '#1d9bf0');
-                homeLink.addEventListener('mouseout',  () => homeLink.style.color = 'rgba(255,255,255,.3)');
+                homeLink.addEventListener('mouseout',  () => homeLink.style.color = _homeLinkIdle);
                 sname.appendChild(homeLink);
                 authorInfo.appendChild(dname); authorInfo.appendChild(sname);
                 header.appendChild(authorInfo);
 
                 const countBdg = document.createElement('span');
                 countBdg.textContent = `${recs.length}`;
-                countBdg.style.cssText = 'font-size:10px;color:rgba(255,255,255,.4);background:rgba(255,255,255,.09);border-radius:99px;padding:1px 7px;flex-shrink:0';
+                countBdg.style.cssText = `font-size:10px;color:${dark ? 'rgba(255,255,255,.4)' : 'rgba(15,20,25,.42)'};background:${dark ? 'rgba(255,255,255,.09)' : 'rgba(15,20,25,.07)'};border-radius:99px;padding:1px 7px;flex-shrink:0`;
                 header.appendChild(countBdg);
 
                 const chev = document.createElement('span');
-                chev.style.cssText = 'color:rgba(255,255,255,.3);flex-shrink:0;line-height:0';
+                chev.style.cssText = `color:${dark ? 'rgba(255,255,255,.3)' : 'rgba(15,20,25,.32)'};flex-shrink:0;line-height:0`;
                 chev.innerHTML = isCollapsed ? SVG_CHEV_RIGHT : SVG_CHEV_DOWN;
                 header.appendChild(chev);
 
@@ -9896,7 +9972,7 @@
                     infoLine.style.cssText = 'display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0';
                     if (rec.downloadDate) {
                         const dateSep = document.createElement('span');
-                        dateSep.style.cssText = 'font-size:11px;color:rgba(255,255,255,.28);white-space:nowrap;padding-top:1px;flex-shrink:0';
+                        dateSep.style.cssText = `font-size:11px;color:${dark ? 'rgba(255,255,255,.28)' : 'rgba(15,20,25,.4)'};white-space:nowrap;padding-top:1px;flex-shrink:0`;
                         dateSep.textContent = dateEl.textContent;
                         infoLine.appendChild(dateSep);
                     }
@@ -10007,26 +10083,26 @@
                 if (avatarUrl) {
                     const av = document.createElement('img');
                     av.src = avatarUrl; av.alt = ''; av.loading = 'lazy';
-                    av.style.cssText = 'width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.18);flex-shrink:0';
+                    av.style.cssText = `width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid ${dark ? 'rgba(255,255,255,.18)' : 'rgba(15,20,25,.14)'};flex-shrink:0`;
                     av.decode && av.decode().catch(() => {});
                     inner.appendChild(av);
                 } else {
                     const avFb = document.createElement('div');
-                    avFb.style.cssText = 'width:40px;height:40px;border-radius:50%;background:rgba(29,155,240,.3);display:flex;align-items:center;justify-content:center;font-size:18px;color:rgba(255,255,255,.6);flex-shrink:0';
+                    avFb.style.cssText = `width:40px;height:40px;border-radius:50%;background:rgba(29,155,240,.3);display:flex;align-items:center;justify-content:center;font-size:18px;color:${dark ? 'rgba(255,255,255,.6)' : '#ffffff'};flex-shrink:0`;
                     avFb.textContent = (displayName || screenName).charAt(0).toUpperCase();
                     inner.appendChild(avFb);
                 }
 
                 const nameEl = document.createElement('div');
-                nameEl.style.cssText = 'font-size:11px;font-weight:700;color:#e7e9ea;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;width:100%;padding:0 6px;box-sizing:border-box;line-height:1.3';
+                nameEl.style.cssText = `font-size:11px;font-weight:700;color:${C.text};text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;width:100%;padding:0 6px;box-sizing:border-box;line-height:1.3`;
                 nameEl.textContent = displayName;
 
                 const handleEl = document.createElement('div');
-                handleEl.style.cssText = 'font-size:10px;color:rgba(255,255,255,.4);text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;width:100%;padding:0 6px;box-sizing:border-box;margin-top:-2px';
+                handleEl.style.cssText = `font-size:10px;color:${dark ? 'rgba(255,255,255,.4)' : 'rgba(15,20,25,.42)'};text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;width:100%;padding:0 6px;box-sizing:border-box;margin-top:-2px`;
                 handleEl.textContent = '@' + screenName;
 
                 const cntEl = document.createElement('div');
-                cntEl.style.cssText = 'font-size:9px;color:rgba(255,255,255,.28);background:rgba(255,255,255,.07);border-radius:99px;padding:1px 6px;margin-top:1px;flex-shrink:0';
+                cntEl.style.cssText = `font-size:9px;color:${dark ? 'rgba(255,255,255,.28)' : 'rgba(15,20,25,.4)'};background:${dark ? 'rgba(255,255,255,.07)' : 'rgba(15,20,25,.06)'};border-radius:99px;padding:1px 6px;margin-top:1px;flex-shrink:0`;
                 cntEl.textContent = `${recCount} post${recCount > 1 ? 's' : ''}`;
 
                 inner.appendChild(nameEl); inner.appendChild(handleEl); inner.appendChild(cntEl);
@@ -10418,7 +10494,7 @@
                         tc.appendChild(tcIcon);
                     }
                     const tcText = document.createElement('div');
-                    tcText.style.cssText = 'font-size:10px;color:rgba(255,255,255,.5);text-align:center;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;word-break:break-all';
+                    tcText.style.cssText = `font-size:10px;color:${dark ? 'rgba(255,255,255,.5)' : 'rgba(15,20,25,.5)'};text-align:center;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;word-break:break-all`;
                     tcText.textContent = rec.text || '';
                     tc.appendChild(tcText);
                     cell.appendChild(tc);
@@ -11208,10 +11284,19 @@
         });
         btnClose.addEventListener('click', () => {
             if (_pinned) {
-                btnPin.classList.remove('pin-alert');
+                btnPin.classList.remove('pin-alert', 'pin-egg-2x', 'pin-egg-mushroom');
                 void btnPin.offsetWidth;
-                btnPin.classList.add('pin-alert');
-                btnPin.addEventListener('animationend', () => btnPin.classList.remove('pin-alert'), { once: true });
+                _pinCloseAlertCount++;
+
+                if (_pinCloseAlertCount === 1) {
+                    btnPin.classList.add('pin-alert');
+                    btnPin.addEventListener('animationend', () => btnPin.classList.remove('pin-alert'), { once: true });
+                } else if (_pinCloseAlertCount === 2) {
+                    btnPin.classList.add('pin-egg-2x');
+                } else {
+                    btnPin.innerHTML = '🍄';
+                    btnPin.classList.add('pin-egg-mushroom');
+                }
                 return;
             }
 
