@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.12.6
+// @version      2.9.13.4
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -261,6 +261,8 @@
     const KEY_DOCK_PERSISTED    = 'app_dock_persisted';
     const KEY_DOCK_REMEMBER_POS = 'app_dock_remember_pos';
     const KEY_GROUP_ON_DOWNLOAD = 'app_group_on_download';
+    const KEY_CUSTOM_FILENAME_ENABLED  = 'app_custom_filename_enabled';
+    const KEY_CUSTOM_FILENAME_TEMPLATE = 'app_custom_filename_template';
     const KEY_GROUPS            = 'app_media_groups';
     const KEY_TEXT_GROUPS       = 'app_text_groups';
     const KEY_GROUP_PANEL_CFG   = 'app_group_panel_cfg';
@@ -313,6 +315,7 @@
         'pt_feed_prune',
         'grid_media_btn',
         'avatar_media_btn',
+        'custom_filename_toggle',
     ];
 
     const DOMAIN_LIST = [
@@ -350,6 +353,17 @@
             avatar_media_btn_tip: 'Go to /media page',
             sp_avatar_media_btn_label: 'Avatar Media Shortcut',
             sp_avatar_media_btn_desc: 'Show a subtle badge on timeline avatars to open that user\'s /media page',
+            sp_custom_filename_label: 'Custom Filename',
+            cfn_input_tip: 'Available tokens: {screenName} {displayName} {date} {id} {index} {ext}',
+            cfn_preview_label: 'Preview',
+            cfn_preview_empty: '(empty template — falls back to default format)',
+            cfn_reset_toast: '↺ Filename template reset to default',
+            cfn_token_screenName: '{screenName}',
+            cfn_token_displayName: '{displayName}',
+            cfn_token_date: '{date}',
+            cfn_token_id: '{id}',
+            cfn_token_index: '{index}',
+            cfn_token_ext: '{ext}',
             link_tooltip: 'Click: Copy ',
             link_tooltip_long: '\nLong Press: Copy prefix + ',
             msg_prefix_copied: 'Prefix Copied',
@@ -1988,6 +2002,13 @@
     let _cachedDateFormat = GM_getValue(KEY_DATE_FORMAT, 'asian');
     function _refreshDateFormatCache() {
         _cachedDateFormat = GM_getValue(KEY_DATE_FORMAT, 'asian');
+    }
+
+    let _cachedCustomFilenameEnabled  = GM_getValue(KEY_CUSTOM_FILENAME_ENABLED, false);
+    let _cachedCustomFilenameTemplate = GM_getValue(KEY_CUSTOM_FILENAME_TEMPLATE, '');
+    function _refreshCustomFilenameCache() {
+        _cachedCustomFilenameEnabled  = GM_getValue(KEY_CUSTOM_FILENAME_ENABLED, false);
+        _cachedCustomFilenameTemplate = GM_getValue(KEY_CUSTOM_FILENAME_TEMPLATE, '');
     }
 
     let _cachedClickMode       = GM_getValue(KEY_CLICK_MODE, 'classic');
@@ -4440,9 +4461,12 @@
         panel.id = 'tm-settings-panel';
 
         let _lastEggBubbleAC = null;
+        let _lastCfnMenuAC = null;
         function buildContent() {
             if (_lastEggBubbleAC) { _lastEggBubbleAC.abort(); _lastEggBubbleAC = null; }
+            if (_lastCfnMenuAC) { _lastCfnMenuAC.abort(); _lastCfnMenuAC = null; }
             document.getElementById('tm-egg-bubble-el')?.remove();
+            document.getElementById('tm-cfn-menu-el')?.remove();
             panel.innerHTML = '';
 
             const s = _readSettings();
@@ -5329,6 +5353,185 @@
             avatarBtnIcon.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><polygon points="12,2 2,7 12,12 22,7"/><polyline points="2,12 12,17 22,12"/><polyline points="2,17 12,22 22,17"/></svg>';
             avatarBtnRow.querySelector('.tm-sp-row-label')?.prepend(avatarBtnIcon);
             grpMedia.append(avatarBtnRow);
+
+            const CUSTOM_FN_DEFAULT_TEMPLATE = '[twitter] {displayName}(@{screenName})_{date}_{id}_{index}{ext}';
+            const CUSTOM_FN_TOKENS = [
+                { labelKey: 'cfn_token_screenName',  label: T.cfn_token_screenName  || '{screenName}',  token: '{screenName}'  },
+                { labelKey: 'cfn_token_displayName', label: T.cfn_token_displayName || '{displayName}', token: '{displayName}' },
+                { labelKey: 'cfn_token_date',        label: T.cfn_token_date        || '{date}',        token: '{date}'        },
+                { labelKey: 'cfn_token_id',          label: T.cfn_token_id          || '{id}',          token: '{id}'          },
+                { labelKey: 'cfn_token_index',       label: T.cfn_token_index       || '{index}',       token: '{index}'       },
+                { labelKey: 'cfn_token_ext',         label: T.cfn_token_ext         || '{ext}',         token: '{ext}'         },
+            ];
+
+            const customFnRow = makeRow(
+                T.sp_custom_filename_label || 'Custom Filename',
+                () => GM_getValue(KEY_CUSTOM_FILENAME_ENABLED, false) ? (T.status_on || 'On') : (T.status_off || 'Off'),
+                () => {
+                    const next = !GM_getValue(KEY_CUSTOM_FILENAME_ENABLED, false);
+                    GM_setValue(KEY_CUSTOM_FILENAME_ENABLED, next);
+                    _refreshCustomFilenameCache();
+                    showToast((T.sp_custom_filename_label || 'Custom Filename') + ' → ' + (next ? (T.status_on || 'On') : (T.status_off || 'Off')));
+                    _syncCustomFilenameChildDisabled();
+                },
+                'custom_filename_toggle'
+            );
+            grpMedia.append(customFnRow);
+
+            const customFnWrap = (() => {
+                const wrap = document.createElement('div');
+                wrap.style.cssText = `padding:8px 12px;border-bottom:1px solid ${C.border};position:relative;`;
+                wrap.addEventListener('click', e => e.stopPropagation());
+
+                const editRow = document.createElement('div');
+                editRow.style.cssText = 'display:flex;align-items:center;gap:6px;';
+
+                const tplInput = document.createElement('input');
+                tplInput.type = 'text';
+                tplInput.spellcheck = false;
+                tplInput.autocomplete = 'off';
+                tplInput.value = GM_getValue(KEY_CUSTOM_FILENAME_TEMPLATE, '') || CUSTOM_FN_DEFAULT_TEMPLATE;
+                tplInput.style.cssText = `
+                    flex: 1; min-width: 0; font-size: 12px; font-family: ui-monospace, monospace;
+                    padding: 6px 8px; border-radius: 6px; border: 1px solid ${C.border};
+                    background: ${C.panel}; color: ${C.text}; outline: none;
+                `;
+                tplInput.title = T.cfn_input_tip || 'Available tokens: {screenName} {displayName} {date} {id} {index} {ext}';
+
+                const resetBtn = _makeResetBtn(() => {
+                    tplInput.value = CUSTOM_FN_DEFAULT_TEMPLATE;
+                    GM_setValue(KEY_CUSTOM_FILENAME_TEMPLATE, CUSTOM_FN_DEFAULT_TEMPLATE);
+                    _refreshCustomFilenameCache();
+                    _updateCfnPreview();
+                    _updateCfnResetState();
+                    showToast(T.cfn_reset_toast || '↺ Filename template reset to default');
+                });
+                editRow.appendChild(tplInput);
+                editRow.appendChild(resetBtn);
+                wrap.appendChild(editRow);
+
+                const _updateCfnResetState = () => {
+                    resetBtn.classList.toggle('is-modified', tplInput.value !== CUSTOM_FN_DEFAULT_TEMPLATE);
+                };
+                _updateCfnResetState();
+
+                const previewLabel = document.createElement('div');
+                previewLabel.style.cssText = `font-size:10px;color:${C.sub};margin-top:7px;letter-spacing:.03em;text-transform:uppercase;`;
+                previewLabel.textContent = T.cfn_preview_label || 'Preview';
+                wrap.appendChild(previewLabel);
+
+                const previewBox = document.createElement('div');
+                previewBox.style.cssText = `
+                    font-size: 12px; font-family: ui-monospace, monospace; margin-top: 4px;
+                    padding: 6px 8px; border-radius: 6px; background: ${C.rowHover || C.border};
+                    color: ${C.text}; word-break: break-all; line-height: 1.5;
+                `;
+                wrap.appendChild(previewBox);
+
+                const _CFN_SAMPLE = { screenName: 'example', displayName: 'Example User', date: '2026.07.14', id: '1234567890123456789', index: 1, ext: '.mp4' };
+                const _updateCfnPreview = () => {
+                    const tpl = tplInput.value;
+                    if (!tpl) { previewBox.textContent = T.cfn_preview_empty || '(empty template — falls back to default format)'; return; }
+                    let rendered = tpl
+                        .replace(/\{screenName\}/g,  _CFN_SAMPLE.screenName)
+                        .replace(/\{displayName\}/g, _CFN_SAMPLE.displayName)
+                        .replace(/\{date\}/g,        _CFN_SAMPLE.date)
+                        .replace(/\{id\}/g,          _CFN_SAMPLE.id)
+                        .replace(/\{index\}/g,       String(_CFN_SAMPLE.index))
+                        .replace(/\{ext\}/g,         _CFN_SAMPLE.ext);
+                    rendered = rendered.replace(/[\\/]/g, '_');
+                    previewBox.textContent = rendered;
+                };
+                _updateCfnPreview();
+
+                tplInput.addEventListener('input', () => {
+                    GM_setValue(KEY_CUSTOM_FILENAME_TEMPLATE, tplInput.value);
+                    _refreshCustomFilenameCache();
+                    _updateCfnPreview();
+                    _updateCfnResetState();
+                });
+
+                const menu = document.createElement('div');
+                menu.id = 'tm-cfn-menu-el';
+                menu.style.cssText = `
+                    display: none; position: fixed; z-index: 9999999;
+                    background: ${C.panel}; border: 1px solid ${C.border}; border-radius: 8px;
+                    padding: 5px; box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+                    min-width: 150px; max-width: 200px;
+                `;
+                document.body.appendChild(menu);
+
+                const _insertCfnToken = (token) => {
+                    const start = tplInput.selectionStart ?? tplInput.value.length;
+                    const end = tplInput.selectionEnd ?? tplInput.value.length;
+                    const cur = tplInput.value;
+                    const nextVal = cur.slice(0, start) + token + cur.slice(end);
+                    tplInput.value = nextVal;
+                    const caret = start + token.length;
+                    tplInput.setSelectionRange(caret, caret);
+                    GM_setValue(KEY_CUSTOM_FILENAME_TEMPLATE, nextVal);
+                    _refreshCustomFilenameCache();
+                    _updateCfnPreview();
+                    _updateCfnResetState();
+                };
+
+                CUSTOM_FN_TOKENS.forEach(t => {
+                    const item = document.createElement('button');
+                    item.type = 'button';
+                    item.textContent = t.label;
+                    item.style.cssText = `
+                        display: block; width: 100%; text-align: left;
+                        padding: 7px 9px; font-size: 12px; font-family: ui-monospace, monospace;
+                        color: ${C.text}; background: transparent; border: none; border-radius: 5px;
+                        cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                    `;
+                    item.addEventListener('mouseenter', () => { item.style.background = C.rowHover || C.border; });
+                    item.addEventListener('mouseleave', () => { item.style.background = 'transparent'; });
+                    item.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        _insertCfnToken(t.token);
+                    });
+                    menu.appendChild(item);
+                });
+
+                const _positionCfnMenu = () => {
+                    const r = tplInput.getBoundingClientRect();
+                    menu.style.display = 'block';
+                    requestAnimationFrame(() => {
+                        const mw = menu.offsetWidth;
+                        const leftPos = r.left - mw - 8;
+                        if (leftPos < 8) {
+                            menu.style.left = Math.min(r.right + 8, window.innerWidth - mw - 8) + 'px';
+                        } else {
+                            menu.style.left = leftPos + 'px';
+                        }
+                        const mh = menu.offsetHeight;
+                        let topPos = r.top;
+                        if (topPos + mh > window.innerHeight - 8) topPos = window.innerHeight - mh - 8;
+                        if (topPos < 8) topPos = 8;
+                        menu.style.top = topPos + 'px';
+                    });
+                };
+                const _hideCfnMenu = () => { menu.style.display = 'none'; };
+
+                tplInput.addEventListener('focus', _positionCfnMenu);
+                const _cfnMenuAC = new AbortController();
+                _lastCfnMenuAC = _cfnMenuAC;
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('#tm-cfn-menu-el') && e.target !== tplInput) {
+                        _hideCfnMenu();
+                    }
+                }, { capture: true, passive: true, signal: _cfnMenuAC.signal });
+
+                return wrap;
+            })();
+            grpMedia.append(customFnWrap);
+
+            const _syncCustomFilenameChildDisabled = () => {
+                const isOn = GM_getValue(KEY_CUSTOM_FILENAME_ENABLED, false);
+                customFnWrap.classList.toggle('tm-sp-disabled-child', !isOn);
+            };
+            _syncCustomFilenameChildDisabled();
 
             const grpGroups = makeGroup(T.sp_grp_group || '⭐  Groups', true);
 
@@ -6616,6 +6819,7 @@
             if (e.target.closest('#tm-group-modal-overlay'))  return;
             if (e.target.closest('#tm-group-mgr-overlay'))    return;
             if (e.target.closest('.tm-sp-picker'))            return;
+            if (e.target.closest('#tm-cfn-menu-el'))          return;
             wrapper.setAttribute('data-open', 'false');
         }, { signal: _spClickAC.signal });
 
@@ -6716,12 +6920,13 @@
     }
 
     function _applyHistoryBadge(btn) {
-        if (!btn || btn.querySelector('.tm-hist-badge')) return;
+        if (!btn || btn.querySelector('.tm-media-dl-dot')) return;
         const badge = document.createElement('span');
-        badge.className = 'tm-hist-badge';
+        badge.className = 'tm-media-dl-dot';
         badge.style.cssText = `
             position: absolute; top: 6px; right: 6px;
             width: 8px; height: 8px; border-radius: 50%;
+            padding: 0; margin: 0; box-sizing: border-box;
             background: #00ba7c; pointer-events: none;
             box-shadow: 0 0 0 2px rgba(0,0,0,0.65);
             animation: tm-pop-bounce 0.35s cubic-bezier(0.175,0.885,0.32,1.275) both;
@@ -6731,7 +6936,7 @@
     }
     function _removeHistoryBadge(btn) {
         if (!btn) return;
-        btn.querySelector('.tm-hist-badge')?.remove();
+        btn.querySelector('.tm-media-dl-dot')?.remove();
     }
 
     window.addEventListener('scroll', e => {
@@ -10433,7 +10638,10 @@
                                 ext = fmtParam || url.match(/\.(\w{3,4})(?:\?|$)/)?.[1] || 'jpg';
                             } catch (_) {}
                         }
-                        const fname = `[twitter] ${safeDisplay}(@${safeScreen})_${datePart}${textPart}_${idPart}_${i + 1}.${ext}`;
+                        const fname = buildCustomFilename(
+                            { screenName: safeScreen, displayName: safeDisplay, date: datePart, id: idPart, index: i + 1, ext },
+                            () => `[twitter] ${safeDisplay}(@${safeScreen})_${datePart}${textPart}_${idPart}_${i + 1}.${ext}`
+                        );
                         setTimeout(() => forceDownloadBlob(url, fname), i * 600);
                     });
                 });
@@ -10591,7 +10799,10 @@
                                 ext = fmtParam || url.match(/\.(\w{3,4})(?:\?|$)/)?.[1] || 'jpg';
                             } catch (_) {}
                         }
-                        const fname = `[twitter] ${safeDisplay}(@${safeScreen})_${datePart}${textPart}_${idPart}_${i + 1}.${ext}`;
+                        const fname = buildCustomFilename(
+                            { screenName: safeScreen, displayName: safeDisplay, date: datePart, id: idPart, index: i + 1, ext },
+                            () => `[twitter] ${safeDisplay}(@${safeScreen})_${datePart}${textPart}_${idPart}_${i + 1}.${ext}`
+                        );
                         setTimeout(() => forceDownloadBlob(url, fname), i * 600);
                     });
                 });
@@ -10755,7 +10966,10 @@
                                     ext = fmtParam || url.match(/\.(\w{3,4})(?:\?|$)/)?.[1] || 'jpg';
                                 } catch (_) {}
                             }
-                            const fname = `[twitter] ${safeDisplay}(@${safeScreen})_${datePart}${textPart}_${idPart}_${i + 1}.${ext}`;
+                            const fname = buildCustomFilename(
+                                { screenName: safeScreen, displayName: safeDisplay, date: datePart, id: idPart, index: i + 1, ext },
+                                () => `[twitter] ${safeDisplay}(@${safeScreen})_${datePart}${textPart}_${idPart}_${i + 1}.${ext}`
+                            );
                             setTimeout(() => forceDownloadBlob(url, fname), i * 600);
                         });
                     }));
@@ -13932,6 +14146,19 @@
         return clean;
     }
 
+    function buildCustomFilename(vars, fallbackFn) {
+        if (!_cachedCustomFilenameEnabled || !_cachedCustomFilenameTemplate) return fallbackFn();
+        let name = _cachedCustomFilenameTemplate
+            .replace(/\{screenName\}/g,  vars.screenName)
+            .replace(/\{displayName\}/g, vars.displayName)
+            .replace(/\{date\}/g,        vars.date)
+            .replace(/\{id\}/g,          vars.id)
+            .replace(/\{index\}/g,       String(vars.index))
+            .replace(/\{ext\}/g,         vars.ext);
+        name = name.replace(/[\\/]/g, '_');
+        return name || fallbackFn();
+    }
+
     function getTweetInfo(article) {
         let date = '0000.00.00';
         let id = '0000';
@@ -14611,7 +14838,10 @@
                     const safeDisplay = sanitizeForFilename(info.displayName);
                     const safeScreen  = sanitizeForFilename(info.screenName);
                     const textPart    = info.text ? `_${info.text}` : '';
-                    const filename    = `[twitter] ${safeDisplay}(@${safeScreen})_${info.date}${textPart}_${info.id}_${index}${ext}`;
+                    const filename    = buildCustomFilename(
+                        { screenName: safeScreen, displayName: safeDisplay, date: info.date, id: info.id, index, ext: ext.replace(/^\./, '') },
+                        () => `[twitter] ${safeDisplay}(@${safeScreen})_${info.date}${textPart}_${info.id}_${index}${ext}`
+                    );
                     const fileOffset  = (index - 1) / total;
                     const fileShare   = 1 / total;
                     try {
@@ -14861,7 +15091,10 @@
                     const textPart = info.text ? `_${info.text}` : "";
                     const safeDisplay = sanitizeForFilename(info.displayName);
                     const safeScreen = sanitizeForFilename(info.screenName);
-                    const filename = `[twitter] ${safeDisplay}(@${safeScreen})_${info.date}${textPart}_${info.id}_${index}${ext}`;
+                    const filename = buildCustomFilename(
+                        { screenName: safeScreen, displayName: safeDisplay, date: info.date, id: info.id, index, ext: ext.replace(/^\./, '') },
+                        () => `[twitter] ${safeDisplay}(@${safeScreen})_${info.date}${textPart}_${info.id}_${index}${ext}`
+                    );
 
                     const fileOffset = (index - 1) / total;
                     const fileShare  = 1 / total;
@@ -15367,7 +15600,10 @@
                     else if (url.includes('format=png')) ext = '.png';
                     else { const parts = url.split('/').pop().split('?')[0].split('.'); if (parts.length > 1) ext = '.' + parts.pop(); }
                     const filename = hasRichMeta
-                        ? `[twitter] ${safeDisplay}(@${safeScreen})_${dateStr}${textPart}_${tweetId}_${idx}${ext}`
+                        ? buildCustomFilename(
+                            { screenName: safeScreen, displayName: safeDisplay, date: dateStr, id: tweetId, index: idx, ext: ext.replace(/^\./, '') },
+                            () => `[twitter] ${safeDisplay}(@${safeScreen})_${dateStr}${textPart}_${tweetId}_${idx}${ext}`
+                          )
                         : `[twitter] ${safeScreen}_${tweetId}_${idx}${ext}`;
                     try { await forceDownloadBlob(url, filename); } catch (_) {}
                     idx++;
