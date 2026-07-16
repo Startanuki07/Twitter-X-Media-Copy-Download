@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.13.4
+// @version      2.9.14.1
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -364,6 +364,8 @@
             cfn_token_id: '{id}',
             cfn_token_index: '{index}',
             cfn_token_ext: '{ext}',
+            sp_collapseall_expand_tip: 'Expand all groups',
+            sp_collapseall_collapse_tip: 'Collapse all groups',
             link_tooltip: 'Click: Copy ',
             link_tooltip_long: '\nLong Press: Copy prefix + ',
             msg_prefix_copied: 'Prefix Copied',
@@ -3523,6 +3525,17 @@
             .tm-sp-theme-toggle:active { transform: scale(0.94); }
             .tm-sp-theme-toggle svg { width: 15px; height: 15px; display: block; }
             
+            .tm-sp-collapseall-toggle {
+                flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+                width: 26px; height: 26px; border-radius: 50%; border: none;
+                background: ${C.gearBg}; color: ${C.gearFg};
+                cursor: pointer; padding: 0; margin-left: 6px;
+                transition: background 0.15s, transform 0.15s;
+            }
+            .tm-sp-collapseall-toggle:hover { transform: scale(1.08); }
+            .tm-sp-collapseall-toggle:active { transform: scale(0.94); }
+            .tm-sp-collapseall-toggle svg { width: 14px; height: 14px; display: block; }
+            
             .tm-sp-group-header {
                 padding: 8px 14px 5px;
                 font-size: 10px; font-weight: 800; letter-spacing: 0.08em;
@@ -4492,6 +4505,11 @@
                 _toggleAppTheme();
                 createSettingsPanel();
             });
+
+            const collapseAllBtn = document.createElement('button');
+            collapseAllBtn.type = 'button';
+            collapseAllBtn.className = 'tm-sp-collapseall-toggle';
+            header.appendChild(collapseAllBtn);
             header.appendChild(themeToggleBtn);
             panel.appendChild(header);
 
@@ -4549,6 +4567,8 @@
                 return btn;
             };
 
+            const _spGroupRegistry = [];
+
             const makeGroup = (label, defaultOpen = true, tooltip = null, onOpen = null) => {
                 const SVG_CHEVRON = `<svg viewBox="0 0 10 10" width="9" height="9" fill="currentColor"><path d="M1 3l4 4 4-4z"/></svg>`;
                 const SVG_HELP    = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"/><path d="M6 6.2C6 5.1 6.9 4.2 8 4.2s2 .9 2 2c0 1-1 1.5-2 2v.6"/><circle cx="8" cy="11.2" r=".6" fill="currentColor" stroke="none"/></svg>`;
@@ -4600,6 +4620,7 @@
 
                 panel.appendChild(g);
                 panel.appendChild(body);
+                _spGroupRegistry.push({ header: g, body, chevron, label });
                 return {
                     body,
                     append: (el) => body.appendChild(el),
@@ -6794,6 +6815,39 @@
                 });
             }
 
+            const SVG_CHEVRONS_OUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8l5-5 5 5"/><path d="M7 16l5 5 5-5"/></svg>'; // 外張：點擊後展開全部
+            const SVG_CHEVRONS_IN  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l5-5 5 5"/><path d="M7 14l5 5 5-5"/></svg>'; // 內聚：點擊後收合全部
+
+            const _isAllGroupsOpen = () => _spGroupRegistry.every(gr => !gr.body.classList.contains('collapsed'));
+
+            const _updateCollapseAllBtnIcon = () => {
+                const allOpen = _isAllGroupsOpen();
+                collapseAllBtn.innerHTML = allOpen ? SVG_CHEVRONS_IN : SVG_CHEVRONS_OUT;
+                collapseAllBtn.title = allOpen
+                    ? (T.sp_collapseall_collapse_tip || 'Collapse all groups')
+                    : (T.sp_collapseall_expand_tip   || 'Expand all groups');
+            };
+
+            const _setAllGroupsOpen = (open) => {
+                let saved = {};
+                try { saved = JSON.parse(GM_getValue(KEY_SP_GROUP_OPEN, '{}')); } catch (e) { console.warn('[TM] collapseAll read openState failed:', e); }
+                _spGroupRegistry.forEach(({ header: gh, body: gb, chevron: gc, label: gl }) => {
+                    gb.classList.toggle('collapsed', !open);
+                    gh.classList.toggle('collapsed', !open);
+                    gc.style.transform = open ? 'rotate(0deg)' : 'rotate(-90deg)';
+                    saved[gl] = open;
+                });
+                try { GM_setValue(KEY_SP_GROUP_OPEN, JSON.stringify(saved)); } catch (e) { console.warn('[TM] collapseAll write openState failed:', e); }
+                if (_lcRcResizeHandler) requestAnimationFrame(_lcRcResizeHandler);
+                _updateCollapseAllBtnIcon();
+            };
+
+            collapseAllBtn.addEventListener('click', e => {
+                e.stopPropagation();
+                _setAllGroupsOpen(!_isAllGroupsOpen());
+            });
+            _updateCollapseAllBtnIcon();
+
             const helpLabel = T.menu_help ? T.menu_help.replace(/^📖\s*/, '') : 'Help / Manual';
             const helpRow = makeRow('📖 ' + helpLabel, '', () => {
                 showHelpModal();
@@ -7082,7 +7136,6 @@
         pip.title = StarPipState.pendingIsText ? 'Group this text bookmark' : 'Click: New Group · Hover: pick group';
 
         if (mediaBtnEl) {
-            StarPipState.pendingStarPipEl = pip;
             const r = mediaBtnEl.getBoundingClientRect();
             pip.style.left = (r.right + 2) + 'px';
             pip.style.top  = (r.top   - 9) + 'px';
@@ -7101,7 +7154,6 @@
         if (!pip) return;
         pip.classList.remove('tm-popped');
         clearTimeout(StarPipState.autoHideTimer);
-        StarPipState.pendingStarPipEl = null;
         if (GM_getValue(KEY_GROUP_POPUP_STYLE, 'fan') === 'list') {
             pip.innerHTML = `<span class="tm-star-pip-glyph tm-star-pip-svg">${_GROUP_LIST_TRIGGER_SVG}</span>`;
         } else {
@@ -7234,7 +7286,6 @@
             pip.style.transform  = '';
             pip.style.opacity    = '';
             pip.classList.remove('tm-popped', 'tm-escaping');
-            StarPipState.pendingStarPipEl = null;
             StarPipState.escaping = false;
             callback?.();
         }, 600);
