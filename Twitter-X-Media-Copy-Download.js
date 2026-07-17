@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      2.9.14.1
+// @version      v2.9.14.24
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -69,6 +69,7 @@
 
     let _syncCh = null;
     let _startScanInterval = null;
+    let scanAndInsert = null;
     let _tfRegistry = null;
     const _GROUP_LIST_TRIGGER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="6" r="1.4" fill="currentColor" stroke="none"/><line x1="9" y1="6" x2="21" y2="6"/><circle cx="4" cy="12" r="1.4" fill="currentColor" stroke="none"/><line x1="9" y1="12" x2="21" y2="12"/><circle cx="4" cy="18" r="1.4" fill="currentColor" stroke="none"/><line x1="9" y1="18" x2="21" y2="18"/></svg>';
     const StarPipState = {
@@ -263,6 +264,7 @@
     const KEY_GROUP_ON_DOWNLOAD = 'app_group_on_download';
     const KEY_CUSTOM_FILENAME_ENABLED  = 'app_custom_filename_enabled';
     const KEY_CUSTOM_FILENAME_TEMPLATE = 'app_custom_filename_template';
+    const CUSTOM_FN_TEXT_MAXLEN = 20;
     const KEY_GROUPS            = 'app_media_groups';
     const KEY_TEXT_GROUPS       = 'app_text_groups';
     const KEY_GROUP_PANEL_CFG   = 'app_group_panel_cfg';
@@ -354,7 +356,7 @@
             sp_avatar_media_btn_label: 'Avatar Media Shortcut',
             sp_avatar_media_btn_desc: 'Show a subtle badge on timeline avatars to open that user\'s /media page',
             sp_custom_filename_label: 'Custom Filename',
-            cfn_input_tip: 'Available tokens: {screenName} {displayName} {date} {id} {index} {ext}',
+            cfn_input_tip: 'Available tokens: {screenName} {displayName} {date} {id} {index} {ext} {text}\nNote: {ext} does not include the dot — write .{ext} if you need one. {text} is truncated but may still make filenames long.',
             cfn_preview_label: 'Preview',
             cfn_preview_empty: '(empty template — falls back to default format)',
             cfn_reset_toast: '↺ Filename template reset to default',
@@ -364,6 +366,9 @@
             cfn_token_id: '{id}',
             cfn_token_index: '{index}',
             cfn_token_ext: '{ext}',
+            cfn_token_text: '{text}',
+            cfn_token_text_warn_badge: '⚠ long',
+            cfn_token_text_warn_tip: 'Tweet text is unpredictable in length. Even truncated to 20 characters here, combining with other tokens may still produce an overly long filename.',
             sp_collapseall_expand_tip: 'Expand all groups',
             sp_collapseall_collapse_tip: 'Collapse all groups',
             link_tooltip: 'Click: Copy ',
@@ -3354,6 +3359,7 @@
             sub:       '#8b98a5',
             border:    '#2f3336',
             rowHover:  '#1e2732',
+            inputBg:   '#1e2732',
             badge:     '#1d9bf0',
             gearFg:    '#e7e9ea',
             gearBg:    'rgba(255,255,255,0.08)',
@@ -3366,6 +3372,7 @@
             sub:       '#536471',
             border:    '#d8dcdf',
             rowHover:  '#f7f9f9',
+            inputBg:   '#f7f9f9',
             badge:     '#1d9bf0',
             gearFg:    '#536471',
             gearBg:    'rgba(0,0,0,0.06)',
@@ -3392,6 +3399,7 @@
             }
 
             #tm-history-btn {
+                
                 position: absolute; right: 28px; top: 2px;
                 width: 44px; height: 44px;
                 border-radius: 50%; border: none; background: transparent;
@@ -3405,6 +3413,7 @@
             #tm-history-btn svg { width: 24px; height: 24px; display: block; }
 
             #tm-settings-gear-btn {
+                
                 position: absolute; right: 4px; top: 6px;
                 width: 36px; height: 36px;
                 border-radius: 50%; border: none; background: transparent;
@@ -3414,8 +3423,15 @@
                 z-index: 1; opacity: 0.5;
                 transform: scale(0.9) translateX(0);
                 transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+                overflow: hidden;
             }
-            #tm-settings-gear-btn svg { width: 20px; height: 20px; display: block; transition: transform 0.3s ease; }
+            
+            #tm-settings-gear-btn::before {
+                content: ''; position: absolute; inset: 0; border-radius: 50%;
+                background: radial-gradient(circle 30px at -6px 18px, rgba(0,0,0,0.08), rgba(0,0,0,0) 55%);
+                pointer-events: none; z-index: 0;
+            }
+            #tm-settings-gear-btn svg { width: 20px; height: 20px; display: block; transition: transform 0.3s ease; position: relative; z-index: 1; }
 
             @keyframes tm-pulse-ring {
                 0%   { transform: scale(0.10); opacity: 0.85; }
@@ -4355,6 +4371,8 @@
         let _gearLock   = false;
         let _gearLockTimer = null;
         let _leaveTimer = null;
+        let _sideStreak = 0;
+        let _lastSide   = null;
 
         wrapper.addEventListener('mouseenter', () => {
             if (_leaveTimer) { clearTimeout(_leaveTimer); _leaveTimer = null; }
@@ -4366,7 +4384,21 @@
             if (wrapper.getAttribute('data-open') === 'true') return;
             const rect = wrapper.getBoundingClientRect();
             const x = e.clientX - rect.left;
-            const targetFocus = x > 60 ? 'gear' : 'hist';
+            const y = e.clientY - rect.top;
+            const HIST_CX = 40, HIST_CY = 24, GEAR_CX = 68, GEAR_CY = 24;
+            const _WEIGHT_HIST = 0.4;
+            const distHist = Math.hypot(x - HIST_CX, y - HIST_CY) * _WEIGHT_HIST;
+            const distGear = Math.hypot(x - GEAR_CX, y - GEAR_CY);
+            const targetFocus = distGear < distHist ? 'gear' : 'hist';
+
+            const _SIDE_STREAK_MIN = 2;
+            if (targetFocus !== _lastSide) {
+                _lastSide = targetFocus;
+                _sideStreak = 1;
+            } else {
+                _sideStreak++;
+            }
+            if (_sideStreak < _SIDE_STREAK_MIN) return;
 
             if (_gearLock && targetFocus === 'hist') {
                 if (focusTimer) { clearTimeout(focusTimer); focusTimer = null; }
@@ -4402,6 +4434,8 @@
                 _gearLock    = false;
                 currentFocus = 'hist';
                 wrapper.setAttribute('data-focus', 'hist');
+                _sideStreak = 0;
+                _lastSide   = null;
             }, 400);
         });
 
@@ -4509,8 +4543,8 @@
             const collapseAllBtn = document.createElement('button');
             collapseAllBtn.type = 'button';
             collapseAllBtn.className = 'tm-sp-collapseall-toggle';
-            header.appendChild(collapseAllBtn);
             header.appendChild(themeToggleBtn);
+            header.appendChild(collapseAllBtn);
             panel.appendChild(header);
 
             const makeRow = (label, value, onClick, featureId = null) => {
@@ -5375,7 +5409,7 @@
             avatarBtnRow.querySelector('.tm-sp-row-label')?.prepend(avatarBtnIcon);
             grpMedia.append(avatarBtnRow);
 
-            const CUSTOM_FN_DEFAULT_TEMPLATE = '[twitter] {displayName}(@{screenName})_{date}_{id}_{index}{ext}';
+            const CUSTOM_FN_DEFAULT_TEMPLATE = '[twitter] {displayName}(@{screenName})_{date}_{id}_{index}.{ext}';
             const CUSTOM_FN_TOKENS = [
                 { labelKey: 'cfn_token_screenName',  label: T.cfn_token_screenName  || '{screenName}',  token: '{screenName}'  },
                 { labelKey: 'cfn_token_displayName', label: T.cfn_token_displayName || '{displayName}', token: '{displayName}' },
@@ -5383,6 +5417,7 @@
                 { labelKey: 'cfn_token_id',          label: T.cfn_token_id          || '{id}',          token: '{id}'          },
                 { labelKey: 'cfn_token_index',       label: T.cfn_token_index       || '{index}',       token: '{index}'       },
                 { labelKey: 'cfn_token_ext',         label: T.cfn_token_ext         || '{ext}',         token: '{ext}'         },
+                { labelKey: 'cfn_token_text', label: T.cfn_token_text || '{text}', token: '{text}', warn: true },
             ];
 
             const customFnRow = makeRow(
@@ -5417,7 +5452,7 @@
                     padding: 6px 8px; border-radius: 6px; border: 1px solid ${C.border};
                     background: ${C.panel}; color: ${C.text}; outline: none;
                 `;
-                tplInput.title = T.cfn_input_tip || 'Available tokens: {screenName} {displayName} {date} {id} {index} {ext}';
+                tplInput.title = T.cfn_input_tip || 'Available tokens: {screenName} {displayName} {date} {id} {index} {ext} {text}\nNote: {ext} does not include the dot — write .{ext} if you need one. {text} is truncated but may still make filenames long.';
 
                 const resetBtn = _makeResetBtn(() => {
                     tplInput.value = CUSTOM_FN_DEFAULT_TEMPLATE;
@@ -5449,7 +5484,7 @@
                 `;
                 wrap.appendChild(previewBox);
 
-                const _CFN_SAMPLE = { screenName: 'example', displayName: 'Example User', date: '2026.07.14', id: '1234567890123456789', index: 1, ext: '.mp4' };
+                const _CFN_SAMPLE = { screenName: 'example', displayName: 'Example User', date: '2026.07.14', id: '1234567890123456789', index: 1, ext: 'mp4', text: sanitizeForFilename('This is a sample tweet content for preview', CUSTOM_FN_TEXT_MAXLEN) };
                 const _updateCfnPreview = () => {
                     const tpl = tplInput.value;
                     if (!tpl) { previewBox.textContent = T.cfn_preview_empty || '(empty template — falls back to default format)'; return; }
@@ -5459,7 +5494,8 @@
                         .replace(/\{date\}/g,        _CFN_SAMPLE.date)
                         .replace(/\{id\}/g,          _CFN_SAMPLE.id)
                         .replace(/\{index\}/g,       String(_CFN_SAMPLE.index))
-                        .replace(/\{ext\}/g,         _CFN_SAMPLE.ext);
+                        .replace(/\{ext\}/g,         _CFN_SAMPLE.ext)
+                        .replace(/\{text\}/g,        _CFN_SAMPLE.text);
                     rendered = rendered.replace(/[\\/]/g, '_');
                     previewBox.textContent = rendered;
                 };
@@ -5478,7 +5514,7 @@
                     display: none; position: fixed; z-index: 9999999;
                     background: ${C.panel}; border: 1px solid ${C.border}; border-radius: 8px;
                     padding: 5px; box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-                    min-width: 150px; max-width: 200px;
+                    min-width: 150px; max-width: 220px;
                 `;
                 document.body.appendChild(menu);
 
@@ -5499,13 +5535,28 @@
                 CUSTOM_FN_TOKENS.forEach(t => {
                     const item = document.createElement('button');
                     item.type = 'button';
-                    item.textContent = t.label;
                     item.style.cssText = `
-                        display: block; width: 100%; text-align: left;
+                        display: flex; align-items: center; justify-content: space-between; gap: 6px;
+                        width: 100%; text-align: left;
                         padding: 7px 9px; font-size: 12px; font-family: ui-monospace, monospace;
                         color: ${C.text}; background: transparent; border: none; border-radius: 5px;
-                        cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                        cursor: pointer;
                     `;
+                    const labelSpan = document.createElement('span');
+                    labelSpan.textContent = t.label;
+                    labelSpan.style.cssText = 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+                    item.appendChild(labelSpan);
+                    if (t.warn) {
+                        const warnBadge = document.createElement('span');
+                        warnBadge.textContent = T.cfn_token_text_warn_badge || '⚠ long';
+                        warnBadge.title = T.cfn_token_text_warn_tip || `Tweet text is unpredictable in length. Even truncated to ${CUSTOM_FN_TEXT_MAXLEN} characters here, combining with other tokens may still produce an overly long filename.`;
+                        warnBadge.style.cssText = `
+                            flex-shrink: 0; font-size: 9px; line-height: 1; padding: 3px 5px;
+                            border-radius: 4px; background: rgba(255,159,10,0.16); color: #ff9f0a;
+                            white-space: nowrap;
+                        `;
+                        item.appendChild(warnBadge);
+                    }
                     item.addEventListener('mouseenter', () => { item.style.background = C.rowHover || C.border; });
                     item.addEventListener('mouseleave', () => { item.style.background = 'transparent'; });
                     item.addEventListener('mousedown', (e) => {
@@ -6815,8 +6866,8 @@
                 });
             }
 
-            const SVG_CHEVRONS_OUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8l5-5 5 5"/><path d="M7 16l5 5 5-5"/></svg>'; // 外張：點擊後展開全部
-            const SVG_CHEVRONS_IN  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l5-5 5 5"/><path d="M7 14l5 5 5-5"/></svg>'; // 內聚：點擊後收合全部
+            const SVG_CHEVRONS_OUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8l5-5 5 5"/><path d="M7 16l5 5 5-5"/></svg>'; 
+            const SVG_CHEVRONS_IN  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l5-5 5 5"/><path d="M7 14l5 5 5-5"/></svg>'; 
 
             const _isAllGroupsOpen = () => _spGroupRegistry.every(gr => !gr.body.classList.contains('collapsed'));
 
@@ -7003,6 +7054,7 @@
     let _navScanTimer1 = null;
     let _navScanTimer2 = null;
     function _scheduleNavScan() {
+        if (!scanAndInsert) return;
         clearTimeout(_navScanTimer1);
         clearTimeout(_navScanTimer2);
         _navScanTimer1 = setTimeout(scanAndInsert, 50);
@@ -7248,11 +7300,6 @@
         });
     }
 
-    function _countGroupRecords(groupId) {
-        try { return _loadAllRecords().filter(r => r.groupId === groupId).length; }
-        catch (_) { return 0; }
-    }
-
     function _runStarEscapeAnim(callback) {
         const pip = document.getElementById('tm-star-pip');
         if (!pip || StarPipState.escaping) { if (!pip) callback?.(); return; }
@@ -7261,8 +7308,6 @@
         clearTimeout(StarPipState.autoHideTimer);
 
         pip.classList.add('tm-escaping');
-
-        const rect = pip.getBoundingClientRect();
 
         const directions = [
             { dx:  220, dy: -180, rot:  340 },
@@ -7352,7 +7397,6 @@
         StarPipState.fanOpen = true;
         _buildFanDom();
         const { cx, cy } = _getStarPipPos();
-        const groups = _activeGroups;
         const groupNodeCount = StarPipState.fanNodes.length;
         const positions = _fanPositions(groupNodeCount, cx, cy);
         const pip = document.getElementById('tm-star-pip');
@@ -7965,6 +8009,11 @@
 
             let _dragSrcIdx = -1;
 
+            const _groupCountMap = _loadAllRecords().reduce((m, r) => {
+                if (r.groupId) m.set(r.groupId, (m.get(r.groupId) || 0) + 1);
+                return m;
+            }, new Map());
+
             groups.forEach((g, gIdx) => {
                 const wrapper = document.createElement('div');
                 wrapper.style.cssText = 'display:flex;flex-direction:column;gap:0';
@@ -8098,7 +8147,7 @@
                 row.addEventListener('mouseenter', () => { editBtn.style.opacity = '1'; });
                 row.addEventListener('mouseleave', () => { if (nameInput.readOnly) editBtn.style.opacity = '0'; });
 
-                const cnt = _countGroupRecords(g.id);
+                const cnt = _groupCountMap.get(g.id) || 0;
                 const cntBadge = document.createElement('span');
                 cntBadge.style.cssText = 'font-size:10px;color:rgba(255,255,255,.3);flex-shrink:0;white-space:nowrap';
                 cntBadge.textContent = cnt ? `${cnt} items` : '';
@@ -8260,6 +8309,2234 @@
         } catch (e) { console.error('[TMHist] recordHistory error:', e); }
     }
 
+    function _createMediaRenderer(deps) {
+        const {
+            body, selectedIds, collapsedGroups, dark, delSelBtn,
+            getFiltered, getRecords, _invalidateRecordsCache, _fmtGroupLabel,
+            render, _openHistMediaLightbox, _injectHistCrossNav,
+            getEditMode, getQuery, getAnchorIdx, setAnchorIdx,
+        } = deps;
+
+        function renderList(records) {
+            const editMode = getEditMode();
+            if (!records.length) { _renderEmpty(); return; }
+
+            const groupCounts = {};
+            records.forEach(r => { groupCounts[r.yyyymm] = (groupCounts[r.yyyymm] || 0) + 1; });
+
+            let lastGroup = null;
+            let _cbShiftDown = false;
+
+            const frag = document.createDocumentFragment();
+
+            records.forEach((rec, idx) => {
+                if (rec.yyyymm !== lastGroup) {
+                    lastGroup = rec.yyyymm;
+                    const isCollapsed = collapsedGroups.has(rec.yyyymm);
+                    const gh = document.createElement('div');
+                    gh.className = 'tm-hist-group-header' + (isCollapsed ? ' tm-collapsed' : '');
+                    gh.dataset.yyyymm = rec.yyyymm;
+
+                    const chevron = document.createElement('span');
+                    chevron.className = 'tm-hist-group-chevron';
+                    chevron.innerHTML = `<svg viewBox="0 0 10 10" width="8" height="8" fill="currentColor"><path d="M1 3l4 4 4-4z"/></svg>`;
+
+                    const label = document.createElement('span');
+                    label.textContent = _fmtGroupLabel(rec.yyyymm);
+
+                    const countEl = document.createElement('span');
+                    countEl.className = 'tm-hist-group-count';
+                    countEl.textContent = `${groupCounts[rec.yyyymm]}`;
+
+                    gh.appendChild(chevron);
+                    gh.appendChild(label);
+                    gh.appendChild(countEl);
+
+                    gh.addEventListener('click', () => {
+                        if (collapsedGroups.has(rec.yyyymm)) collapsedGroups.delete(rec.yyyymm);
+                        else collapsedGroups.add(rec.yyyymm);
+                        render();
+                    });
+                    frag.appendChild(gh);
+                }
+
+                if (collapsedGroups.has(rec.yyyymm)) return;
+
+                const row = document.createElement('div');
+                row.className = 'tm-hist-row' + (selectedIds.has(rec.id) ? ' selected' : '');
+                row.dataset.id = rec.id;
+                row.dataset.idx = idx;
+
+                if (editMode) {
+                    if (!rec.favorited) {
+                        const cb = document.createElement('input');
+                        cb.type = 'checkbox';
+                        cb.className = 'tm-hist-cb';
+                        cb.checked = selectedIds.has(rec.id);
+                        cb.addEventListener('mousedown', e => { _cbShiftDown = e.shiftKey; });
+                        cb.addEventListener('change', e => {
+                            e.stopPropagation();
+                            _handleCheckbox(rec.id, idx, _cbShiftDown);
+                            _cbShiftDown = false;
+                        });
+                        row.appendChild(cb);
+                    } else {
+                        const lock = document.createElement('span');
+                        lock.className = 'tm-hist-cb';
+                        lock.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;opacity:0.35;font-size:10px;';
+                        lock.textContent = '♥';
+                        row.appendChild(lock);
+                    }
+                }
+
+                const thumbWrap = document.createElement('div');
+                thumbWrap.className = 'tm-hist-thumb-wrap';
+                if (rec.thumbUrls && rec.thumbUrls.length > 0) {
+                    const img = document.createElement('img');
+                    img.src = _thumbUrl(rec.thumbUrls[0]);
+                    img.loading = 'lazy';
+                    img.alt = '';
+                    img.decode().catch(() => {});
+                    thumbWrap.appendChild(img);
+                    thumbWrap.classList.add('tm-has-thumb');
+                    thumbWrap.addEventListener('mouseenter', (e) => _showZoom(rec.thumbUrls[0], e));
+                    thumbWrap.addEventListener('mousemove',  (e) => _moveZoom(e));
+                    thumbWrap.addEventListener('mouseleave', _hideZoom);
+                    thumbWrap.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        _hideZoom();
+                        _openHistMediaLightbox(rec, 0, thumbWrap.querySelector('img'));
+                        _injectHistCrossNav(rec);
+                    });
+                } else if (rec.textOnly) {
+                    if (rec.avatarUrl) {
+                        const avImg = document.createElement('img');
+                        avImg.src = rec.avatarUrl;
+                        avImg.loading = 'lazy';
+                        avImg.alt = '';
+                        avImg.style.cssText = 'width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;';
+                        avImg.decode().catch(() => {});
+                        thumbWrap.style.cssText += ';display:flex;align-items:center;justify-content:center;background:rgba(29,155,240,.06);';
+                        thumbWrap.appendChild(avImg);
+                    } else {
+                        const vi = document.createElement('div');
+                        vi.className = 'tm-hist-video-icon';
+                        vi.style.color = 'rgba(29,155,240,.5)';
+                        vi.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg>`;
+                        thumbWrap.appendChild(vi);
+                    }
+                } else {
+                    const vi = document.createElement('div');
+                    vi.className = 'tm-hist-video-icon';
+                    vi.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M15 10l4.55-2.28A1 1 0 0 1 21 8.65v6.7a1 1 0 0 1-1.45.93L15 14"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg>`;
+                    thumbWrap.appendChild(vi);
+                }
+                row.appendChild(thumbWrap);
+
+                const info = document.createElement('div');
+                info.className = 'tm-hist-info';
+
+                const author = document.createElement('div');
+                author.className = 'tm-hist-author';
+                author.textContent = rec.displayName || rec.screenName;
+                const handle = document.createElement('span');
+                handle.className = 'tm-hist-handle';
+                handle.textContent = `@${rec.screenName}`;
+                author.appendChild(handle);
+
+                const textEl = document.createElement('div');
+                textEl.className = 'tm-hist-text';
+                textEl.textContent = rec.text || '(no caption)';
+
+                const dateEl = document.createElement('div');
+                dateEl.className = 'tm-hist-date';
+                if (rec.downloadDate) {
+                    const [dy, dm, dd] = rec.downloadDate.split('-');
+                    if (_cachedDateFormat === 'western') {
+                        const MON = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                        dateEl.textContent = `${parseInt(dd, 10)} ${MON[parseInt(dm, 10)] || dm} ${dy}`;
+                    } else {
+                        dateEl.textContent = `${dy}.${dm}.${dd}`;
+                    }
+                }
+
+                const urlEl = document.createElement('div');
+                urlEl.className = 'tm-hist-url';
+                if (rec.tweetUrl) {
+                    urlEl.textContent = rec.tweetUrl;
+                    urlEl.title = rec.tweetUrl + '\nClick to navigate to tweet';
+                    urlEl.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                    try {
+                        const path = new URL(rec.tweetUrl).pathname;
+                        history.pushState({ tmNav: true }, '', path);
+                        window.dispatchEvent(new Event('popstate'));
+                    } catch (_) { window.open(rec.tweetUrl, '_blank'); }
+                });
+                }
+
+                info.appendChild(author);
+                info.appendChild(textEl);
+
+                const metaEl = document.createElement('div');
+                metaEl.className = 'tm-hist-meta';
+                if (rec.downloadDate) metaEl.appendChild(dateEl);
+                if (rec.downloadDate && rec.tweetUrl) {
+                    const sep = document.createElement('span');
+                    sep.className = 'tm-hist-meta-sep';
+                    sep.textContent = '·';
+                    metaEl.appendChild(sep);
+                }
+                if (rec.tweetUrl) metaEl.appendChild(urlEl);
+                if (metaEl.hasChildNodes()) info.appendChild(metaEl);
+
+                row.appendChild(info);
+
+                const acts = document.createElement('div');
+                acts.className = 'tm-hist-actions';
+
+                const SVG_JUMP    = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 2h4v4"/><path d="M7 9L14 2"/><path d="M12 10v4H2V4h4"/></svg>`;
+                const SVG_DEL     = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><polyline points="2,4 4,4 14,4"/><path d="M13 4l-.9 9H3.9L3 4"/><path d="M6.5 7v4M9.5 7v4"/><path d="M5.5 4V2.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5V4"/></svg>`;
+                const SVG_COPY    = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="9" height="10" rx="1.5"/><path d="M3 11H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v1"/></svg>`;
+                const SVG_HEART_EMPTY = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
+                const SVG_HEART_FULL  = `<svg viewBox="0 0 16 16" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
+
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'tm-hist-act-btn tm-copy-btn';
+                copyBtn.innerHTML = SVG_COPY;
+                copyBtn.title = 'Click: Copy tweet URL\nHold: Copy with prefix';
+
+                const _getMediaUrls = () => {
+                    const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
+                        ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
+                    const _toUrl = u => {
+                        try {
+                            const o = new URL(u);
+                            if (o.hostname.includes('twimg.com') || u.includes('.mp4')) return u;
+                            o.hostname = _dom;
+                            return o.toString();
+                        }
+                        catch(_) { return u; }
+                    };
+                    return _toUrl(rec.tweetUrl);
+                };
+
+                let _cpTimer = null;
+
+                copyBtn.addEventListener('mousedown', e => {
+                    if (e.button !== 0) return;
+                    e.stopPropagation();
+                    _cpTimer = setTimeout(() => {
+                        _cpTimer = null;
+                        GM_setClipboard(_buildPrefixedTweetUrl(rec.tweetUrl));
+                        copyBtn.style.color = '#f59e0b';
+                        setTimeout(() => { copyBtn.style.color = ''; }, 900);
+                    }, 500);
+                });
+
+                copyBtn.addEventListener('mouseup', e => {
+                    if (_cpTimer) {
+                        clearTimeout(_cpTimer); _cpTimer = null;
+                        GM_setClipboard(_getMediaUrls());
+                        copyBtn.style.color = '#1d9bf0';
+                        setTimeout(() => { copyBtn.style.color = ''; }, 800);
+                    }
+                });
+
+                copyBtn.addEventListener('mouseleave', () => { if (_cpTimer) { clearTimeout(_cpTimer); _cpTimer = null; } });
+                copyBtn.addEventListener('click', e => e.stopPropagation());
+
+                const jmpBtn = document.createElement('button');
+                jmpBtn.className = 'tm-hist-act-btn';
+                jmpBtn.innerHTML = SVG_JUMP;
+                jmpBtn.title = 'Open tweet';
+                jmpBtn.addEventListener('click', (e) => { e.stopPropagation(); window.open(rec.tweetUrl, '_blank'); });
+
+                const favBtn = document.createElement('button');
+                const isFav = !!rec.favorited;
+                favBtn.className = 'tm-hist-act-btn tm-fav-btn' + (isFav ? ' tm-fav-active' : '');
+                favBtn.innerHTML = isFav ? SVG_HEART_FULL : SVG_HEART_EMPTY;
+                favBtn.title = isFav ? 'Unfavorite' : 'Favorite';
+                if (editMode) {
+                    favBtn.style.opacity = '0.3';
+                    favBtn.style.pointerEvents = 'none';
+                }
+                favBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const updated = _updateRecord(rec.id, r => { r.favorited = !r.favorited; });
+                    if (!updated) return;
+                    const nowFav = updated.favorited;
+                    favBtn.innerHTML = nowFav ? SVG_HEART_FULL : SVG_HEART_EMPTY;
+                    favBtn.title = nowFav ? 'Unfavorite' : 'Favorite';
+                    favBtn.classList.toggle('tm-fav-active', nowFav);
+                    rec.favorited = nowFav;
+                });
+
+                const delBtn = document.createElement('button');
+                delBtn.className = 'tm-hist-act-btn danger';
+                delBtn.innerHTML = SVG_DEL;
+                delBtn.title = 'Delete';
+                delBtn.addEventListener('click', (e) => { e.stopPropagation(); _deleteOne(rec.id, idx, favBtn); });
+
+                const SVG_DLOAD = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 2v8"/><path d="M5 7l3 3 3-3"/><path d="M2 13h12"/></svg>`;
+                const dlBtn = document.createElement('button');
+                dlBtn.className = 'tm-hist-act-btn';
+                dlBtn.innerHTML = SVG_DLOAD;
+                const hasMedia = rec.mediaUrls && rec.mediaUrls.length > 0;
+                dlBtn.title = hasMedia ? `Re-download (${rec.mediaUrls.length} file${rec.mediaUrls.length > 1 ? 's' : ''})` : 'Open tweet to re-download';
+                dlBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (!hasMedia) { window.open(rec.tweetUrl, '_blank'); return; }
+                    const safeDisplay = sanitizeForFilename(rec.displayName || rec.screenName || 'unknown');
+                    const safeScreen  = sanitizeForFilename(rec.screenName  || 'unknown');
+                    const datePart    = rec.tweetDate || rec.downloadDate || 'unknown';
+                    const textPart    = rec.text ? `_${sanitizeForFilename(rec.text, 40)}` : '';
+                    const safeTextForToken = sanitizeForFilename(rec.text || '', CUSTOM_FN_TEXT_MAXLEN);
+                    const idPart      = rec.tweetId || rec.id;
+                    rec.mediaUrls.forEach((url, i) => {
+                        let ext = 'jpg';
+                        if (url.includes('.mp4')) {
+                            ext = 'mp4';
+                        } else {
+                            try {
+                                const fmtParam = new URL(url).searchParams.get('format');
+                                ext = fmtParam || url.match(/\.(\w{3,4})(?:\?|$)/)?.[1] || 'jpg';
+                            } catch (_) {}
+                        }
+                        const fname = buildCustomFilename(
+                            { screenName: safeScreen, displayName: safeDisplay, date: datePart, id: idPart, index: i + 1, ext, text: safeTextForToken },
+                            () => `[twitter] ${safeDisplay}(@${safeScreen})_${datePart}${textPart}_${idPart}_${i + 1}.${ext}`
+                        );
+                        setTimeout(() => forceDownloadBlob(url, fname), i * 600);
+                    });
+                });
+
+                acts.appendChild(copyBtn);
+                acts.appendChild(favBtn);
+                acts.appendChild(jmpBtn);
+                if (!rec.textOnly) acts.appendChild(dlBtn);
+                acts.appendChild(delBtn);
+                row.appendChild(acts);
+
+                if (editMode && !rec.favorited) {
+                    row.style.cursor = 'pointer';
+                    row.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('tm-hist-cb')) return;
+                        _handleCheckbox(rec.id, idx, e.shiftKey);
+                    });
+                }
+
+                frag.appendChild(row);
+            });
+            body.appendChild(frag);
+        }
+
+        function renderThumb(records) {
+            const editMode = getEditMode();
+            if (!records.length) { _renderEmpty(); return; }
+            const grid = document.createElement('div');
+            grid.id = 'tm-hist-thumb-grid';
+
+            const frag = document.createDocumentFragment();
+
+            records.forEach((rec, idx) => {
+                const cell = document.createElement('div');
+                cell.className = 'tm-hist-grid-cell';
+                cell.title = `${rec.displayName} @${rec.screenName}`;
+
+                if (rec.thumbUrls && rec.thumbUrls.length > 0) {
+                    const img = document.createElement('img');
+                    img.src = _thumbUrl(rec.thumbUrls[0]);
+                    img.loading = 'lazy';
+                    img.alt = '';
+                    img.decode().catch(() => {});
+                    cell.appendChild(img);
+                } else if (rec.textOnly) {
+                    const tc = document.createElement('div');
+                    tc.style.cssText = 'width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;padding:10px;box-sizing:border-box;background:rgba(29,155,240,.08)';
+                    if (rec.avatarUrl) {
+                        const avImg = document.createElement('img');
+                        avImg.src = rec.avatarUrl;
+                        avImg.loading = 'lazy';
+                        avImg.alt = '';
+                        avImg.style.cssText = 'width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;';
+                        avImg.decode().catch(() => {});
+                        tc.appendChild(avImg);
+                    } else {
+                        const tcIcon = document.createElement('div');
+                        tcIcon.innerHTML = `<svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="rgba(29,155,240,.6)" stroke-width="1.6" stroke-linecap="round"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="9" x2="17" y2="9"/><line x1="3" y1="13" x2="12" y2="13"/></svg>`;
+                        tc.appendChild(tcIcon);
+                    }
+                    const tcText = document.createElement('div');
+                    tcText.style.cssText = `font-size:10px;color:${dark ? 'rgba(255,255,255,.5)' : 'rgba(15,20,25,.5)'};text-align:center;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;word-break:break-all`;
+                    tcText.textContent = rec.text || '';
+                    tc.appendChild(tcText);
+                    cell.appendChild(tc);
+                } else {
+                    const ni = document.createElement('div');
+                    ni.className = 'tm-hist-grid-nothumb';
+                    ni.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M15 10l4.55-2.28A1 1 0 0 1 21 8.65v6.7a1 1 0 0 1-1.45.93L15 14"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg>`;
+                    cell.appendChild(ni);
+                }
+
+                const overlay = document.createElement('div');
+                overlay.className = 'tm-hist-grid-overlay';
+                const govAuthor = document.createElement('div');
+                govAuthor.className = 'gov-author';
+                govAuthor.textContent = rec.displayName || rec.screenName;
+                const govText = document.createElement('div');
+                govText.className = 'gov-text';
+                govText.textContent = rec.text || '';
+                overlay.appendChild(govAuthor);
+                overlay.appendChild(govText);
+                cell.appendChild(overlay);
+
+                const SVG_COPY_SM = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="9" height="10" rx="1.5"/><path d="M3 11H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v1"/></svg>`;
+                const gridCopyBtn = document.createElement('button');
+                gridCopyBtn.className = 'tm-grid-copy-btn';
+                gridCopyBtn.innerHTML = SVG_COPY_SM;
+                gridCopyBtn.title = 'Click: Copy tweet URL\nHold: Copy with prefix';
+
+                const _gcGetUrls = () => {
+                    const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
+                        ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
+                    const _toUrl = u => {
+                        try {
+                            const o = new URL(u);
+                            if (o.hostname.includes('twimg.com') || u.includes('.mp4')) return u;
+                            o.hostname = _dom;
+                            return o.toString();
+                        }
+                        catch(_) { return u; }
+                    };
+                    return _toUrl(rec.tweetUrl);
+                };
+
+                let _gcTimer = null;
+                let _gcPressing = false;
+                gridCopyBtn.addEventListener('mousedown', e => {
+                    if (e.button !== 0) return;
+                    e.stopPropagation();
+                    _gcPressing = true;
+                    _gcTimer = setTimeout(() => {
+                        _gcTimer = null;
+                        _gcPressing = false;
+                        GM_setClipboard(_buildPrefixedTweetUrl(rec.tweetUrl));
+                        gridCopyBtn.style.background = 'rgba(245,158,11,0.9)';
+                        setTimeout(() => { gridCopyBtn.style.background = ''; }, 800);
+                    }, 500);
+                });
+                gridCopyBtn.addEventListener('mouseup', e => {
+                    _gcPressing = false;
+                    if (_gcTimer) {
+                        clearTimeout(_gcTimer); _gcTimer = null;
+                        GM_setClipboard(_gcGetUrls());
+                        gridCopyBtn.style.background = 'rgba(29,155,240,0.9)';
+                        setTimeout(() => { gridCopyBtn.style.background = ''; }, 700);
+                    }
+                });
+                gridCopyBtn.addEventListener('mouseleave', () => { if (_gcTimer && !_gcPressing) { clearTimeout(_gcTimer); _gcTimer = null; } });
+                gridCopyBtn.addEventListener('click', e => e.stopPropagation());
+                cell.appendChild(gridCopyBtn);
+
+                const SVG_DL_SM = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 2v8"/><path d="M5 7l3 3 3-3"/><path d="M2 13h12"/></svg>`;
+                const gridDlBtn = document.createElement('button');
+                gridDlBtn.className = 'tm-grid-dl-btn';
+                gridDlBtn.innerHTML = SVG_DL_SM;
+                const _gcHasMedia = rec.mediaUrls && rec.mediaUrls.length > 0;
+                gridDlBtn.title = _gcHasMedia
+                    ? `Re-download (${rec.mediaUrls.length} file${rec.mediaUrls.length > 1 ? 's' : ''})`
+                    : 'Open tweet to re-download';
+                gridDlBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    if (!_gcHasMedia) { window.open(rec.tweetUrl, '_blank'); return; }
+                    const safeDisplay = sanitizeForFilename(rec.displayName || rec.screenName || 'unknown');
+                    const safeScreen  = sanitizeForFilename(rec.screenName  || 'unknown');
+                    const datePart    = rec.tweetDate || rec.downloadDate || 'unknown';
+                    const textPart    = rec.text ? `_${sanitizeForFilename(rec.text, 40)}` : '';
+                    const safeTextForToken = sanitizeForFilename(rec.text || '', CUSTOM_FN_TEXT_MAXLEN);
+                    const idPart      = rec.tweetId || rec.id;
+                    rec.mediaUrls.forEach((url, i) => {
+                        let ext = 'jpg';
+                        if (url.includes('.mp4')) {
+                            ext = 'mp4';
+                        } else {
+                            try {
+                                const fmtParam = new URL(url).searchParams.get('format');
+                                ext = fmtParam || url.match(/\.(\w{3,4})(?:\?|$)/)?.[1] || 'jpg';
+                            } catch (_) {}
+                        }
+                        const fname = buildCustomFilename(
+                            { screenName: safeScreen, displayName: safeDisplay, date: datePart, id: idPart, index: i + 1, ext, text: safeTextForToken },
+                            () => `[twitter] ${safeDisplay}(@${safeScreen})_${datePart}${textPart}_${idPart}_${i + 1}.${ext}`
+                        );
+                        setTimeout(() => forceDownloadBlob(url, fname), i * 600);
+                    });
+                });
+                if (!rec.textOnly) cell.appendChild(gridDlBtn);
+
+                const SVG_GOTO_SM = `<svg viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10 L10 4"/><path d="M6.5 4h3.5v3.5"/></svg>`;
+                const gridGotoBtn = document.createElement('button');
+                gridGotoBtn.className = 'tm-grid-goto-btn';
+                gridGotoBtn.innerHTML = SVG_GOTO_SM;
+                gridGotoBtn.title = 'Go to tweet';
+                gridGotoBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    if (_isTwitterDomain) {
+                        try {
+                            const path = new URL(rec.tweetUrl).pathname;
+                            history.pushState({ tmNav: true }, '', path);
+                            window.dispatchEvent(new Event('popstate'));
+                        } catch (_) { window.open(rec.tweetUrl, '_blank'); }
+                    } else {
+                        window.open(rec.tweetUrl, '_blank');
+                    }
+                });
+                cell.appendChild(gridGotoBtn);
+
+                const _GFB_HEART_EMPTY = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
+                const _GFB_HEART_FULL  = `<svg viewBox="0 0 16 16" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
+                const gridFavBtn = document.createElement('button');
+                gridFavBtn.className = 'tm-grid-fav-btn' + (rec.favorited ? ' tm-fav-active' : '');
+                gridFavBtn.innerHTML = rec.favorited ? _GFB_HEART_FULL : _GFB_HEART_EMPTY;
+                gridFavBtn.title = rec.favorited ? 'Unfavorite' : 'Favorite';
+                gridFavBtn.setAttribute('aria-label', rec.favorited ? 'Unfavorite' : 'Favorite');
+                gridFavBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    const updated = _updateRecord(rec.id, r => { r.favorited = !r.favorited; });
+                    if (!updated) return;
+                    const nowFav = updated.favorited;
+                    gridFavBtn.innerHTML = nowFav ? _GFB_HEART_FULL : _GFB_HEART_EMPTY;
+                    gridFavBtn.title = nowFav ? 'Unfavorite' : 'Favorite';
+                    gridFavBtn.setAttribute('aria-label', nowFav ? 'Unfavorite' : 'Favorite');
+                    gridFavBtn.classList.toggle('tm-fav-active', nowFav);
+                    if (editMode) cell.classList.toggle('tm-grid-fav-lock', nowFav);
+                    rec.favorited = nowFav;
+                });
+                cell.appendChild(gridFavBtn);
+
+                if (editMode) {
+                    if (rec.favorited) {
+                        cell.classList.add('tm-grid-fav-lock');
+                        cell.style.cursor = 'default';
+                    } else {
+                        if (selectedIds.has(rec.id)) cell.classList.add('selected');
+                        cell.style.cursor = 'pointer';
+                    }
+                }
+
+                cell.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (editMode) {
+                        if (rec.favorited) return;
+                        _handleCheckbox(rec.id, idx, e.shiftKey);
+                    } else {
+                        _openHistMediaLightbox(rec, 0, cell.querySelector('img'));
+                        _injectHistCrossNav(rec);
+                    }
+                });
+
+                cell.addEventListener('contextmenu', e => {
+                    e.preventDefault(); e.stopPropagation();
+                    document.getElementById('tm-thumb-ctx')?.remove();
+                    _dialogOpenGlobal = true;
+                    const menu = document.createElement('div');
+                    menu.id = 'tm-thumb-ctx';
+                    menu.style.cssText = `
+                        position:fixed;left:${e.clientX}px;top:${e.clientY}px;
+                        background:#1a1f2e;border:0.5px solid rgba(255,255,255,.15);
+                        border-radius:10px;padding:4px;min-width:160px;
+                        z-index:999999;box-shadow:0 8px 32px rgba(0,0,0,.6);
+                        font-size:13px;
+                    `;
+                    const mkItem = (svgOrEmoji, label, onClick, danger = false) => {
+                        const item = document.createElement('button');
+                        item.type = 'button';
+                        item.style.cssText = `display:flex;align-items:center;gap:9px;width:100%;padding:7px 12px;background:transparent;border:none;border-radius:7px;color:${danger ? 'rgba(255,100,100,.9)' : 'rgba(255,255,255,.88)'};cursor:pointer;font-size:13px;font-family:inherit;text-align:left;transition:background .1s`;
+                        item.addEventListener('mouseover', () => item.style.background = danger ? 'rgba(255,80,80,.1)' : 'rgba(255,255,255,.08)');
+                        item.addEventListener('mouseout',  () => item.style.background = 'transparent');
+                        const iconEl = document.createElement('span');
+                        iconEl.style.cssText = 'width:16px;height:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:inherit;opacity:0.8';
+                        if (svgOrEmoji.trim().startsWith('<svg')) {
+                            iconEl.innerHTML = svgOrEmoji;
+                            iconEl.querySelector('svg')?.setAttribute('width', '14');
+                            iconEl.querySelector('svg')?.setAttribute('height', '14');
+                        } else {
+                            iconEl.style.fontSize = '14px';
+                            iconEl.textContent = svgOrEmoji;
+                        }
+                        const labelEl = document.createElement('span');
+                        labelEl.textContent = label;
+                        item.appendChild(iconEl); item.appendChild(labelEl);
+                        item.addEventListener('click', () => { menu.remove(); _dialogOpenGlobal = false; onClick(); });
+                        return item;
+                    };
+
+                    const CTX_FAV_ON  = `<svg viewBox="0 0 16 16" fill="currentColor"  stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
+                    const CTX_FAV_OFF = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
+                    const CTX_COPY    = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="9" height="10" rx="1.5"/><path d="M3 11H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v1"/></svg>`;
+                    const CTX_OPEN    = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 2h4v4"/><path d="M7 9L14 2"/><path d="M12 10v4H2V4h4"/></svg>`;
+                    const CTX_DEL     = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><polyline points="2,4 4,4 14,4"/><path d="M13 4l-.9 9H3.9L3 4"/><path d="M6.5 7v4M9.5 7v4"/><path d="M5.5 4V2.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5V4"/></svg>`;
+
+                    menu.appendChild(mkItem(CTX_COPY, 'Copy media URL(s)', () => {
+                        const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
+                            ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
+                        const _toUrl = u => {
+                            try {
+                                const o = new URL(u);
+                                if (o.hostname.includes('twimg.com') || u.includes('.mp4')) return u;
+                                o.hostname = _dom;
+                                return o.toString();
+                            }
+                            catch(_) { return u; }
+                        };
+                        const urls = (rec.mediaUrls || []).length
+                            ? rec.mediaUrls.map(_toUrl).join('\n')
+                            : _toUrl(rec.tweetUrl);
+                        GM_setClipboard(urls);
+                    }));
+                    const CTX_PREFIX = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="10" height="8" rx="1.2"/><path d="M11 6h2a2 2 0 0 1 0 4h-2"/></svg>`;
+                    menu.appendChild(mkItem(CTX_PREFIX, 'Copy with prefix', () => {
+                        GM_setClipboard(_buildPrefixedTweetUrl(rec.tweetUrl));
+                    }));
+                    const isFav = !!rec.favorited;
+                    menu.appendChild(mkItem(isFav ? CTX_FAV_ON : CTX_FAV_OFF, isFav ? 'Unfavorite' : 'Favorite', () => {
+                        const updated = _updateRecord(rec.id, r => { r.favorited = !r.favorited; });
+                        if (!updated) return;
+                        rec.favorited = updated.favorited;
+                        render();
+                    }));
+                    menu.appendChild(mkItem(CTX_OPEN, 'Open in new tab', () => {
+                        window.open(rec.tweetUrl, '_blank');
+                    }));
+                    const CTX_VIEW = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="1" y="3" width="14" height="10" rx="1.5"/><circle cx="5.5" cy="7.5" r="1.5"/><path d="M9 10l2-2.5 2.5 2.5"/></svg>`;
+                    menu.appendChild(mkItem(CTX_VIEW, 'View media', () => {
+                        _openHistMediaLightbox(rec, 0, null);
+                        _injectHistCrossNav(rec);
+                    }));
+                    const CTX_DLOAD = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 2v8"/><path d="M5 7l3 3 3-3"/><path d="M2 13h12"/></svg>`;
+                    const hasMedia = rec.mediaUrls && rec.mediaUrls.length > 0;
+                    menu.appendChild(mkItem(CTX_DLOAD, hasMedia ? 'Re-download' : 'Open tweet to re-download', () => {
+                        if (!hasMedia) { window.open(rec.tweetUrl, '_blank'); return; }
+                        const safeDisplay = sanitizeForFilename(rec.displayName || rec.screenName || 'unknown');
+                        const safeScreen  = sanitizeForFilename(rec.screenName  || 'unknown');
+                        const datePart    = rec.tweetDate || rec.downloadDate || 'unknown';
+                        const textPart    = rec.text ? `_${sanitizeForFilename(rec.text, 40)}` : '';
+                        const safeTextForToken = sanitizeForFilename(rec.text || '', CUSTOM_FN_TEXT_MAXLEN);
+                        const idPart      = rec.tweetId || rec.id;
+                        rec.mediaUrls.forEach((url, i) => {
+                            let ext = 'jpg';
+                            if (url.includes('.mp4')) {
+                                ext = 'mp4';
+                            } else {
+                                try {
+                                    const fmtParam = new URL(url).searchParams.get('format');
+                                    ext = fmtParam || url.match(/\.(\w{3,4})(?:\?|$)/)?.[1] || 'jpg';
+                                } catch (_) {}
+                            }
+                            const fname = buildCustomFilename(
+                                { screenName: safeScreen, displayName: safeDisplay, date: datePart, id: idPart, index: i + 1, ext, text: safeTextForToken },
+                                () => `[twitter] ${safeDisplay}(@${safeScreen})_${datePart}${textPart}_${idPart}_${i + 1}.${ext}`
+                            );
+                            setTimeout(() => forceDownloadBlob(url, fname), i * 600);
+                        });
+                    }));
+                    const sep = document.createElement('div');
+                    sep.style.cssText = 'height:0.5px;background:rgba(255,255,255,.1);margin:3px 8px';
+                    menu.appendChild(sep);
+                    menu.appendChild(mkItem(CTX_DEL, 'Delete', () => {
+                        _deleteOne(rec.id, records.indexOf(rec), cell);
+                    }, true));
+
+                    document.body.appendChild(menu);
+                    requestAnimationFrame(() => {
+                        const r = menu.getBoundingClientRect();
+                        if (r.right  > window.innerWidth)  menu.style.left = (e.clientX - r.width)  + 'px';
+                        if (r.bottom > window.innerHeight)  menu.style.top  = (e.clientY - r.height) + 'px';
+                    });
+                    const close = ev => {
+                        if (!menu.contains(ev.target)) {
+                            menu.remove();
+                            _dialogOpenGlobal = false;
+                            document.removeEventListener('mousedown', close, true);
+                        }
+                    };
+                    document.addEventListener('mousedown', close, true);
+                });
+                frag.appendChild(cell);
+            });
+
+            grid.appendChild(frag);
+            body.appendChild(grid);
+        }
+
+        function _renderEmpty() {
+            const query = getQuery();
+            const em = document.createElement('div');
+            em.className = 'tm-hist-empty';
+            em.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+            const msg = document.createElement('div');
+            msg.textContent = query ? 'No results matching search.' : 'No download history yet.\nRight-click 🎞️ to download & record.';
+            msg.style.whiteSpace = 'pre-line';
+            em.appendChild(msg);
+            body.appendChild(em);
+        }
+
+        function _toggleTextRowSel(id, row, cb) {
+            const allRecs = getFiltered(getRecords());
+            const target = allRecs.find(r => r.id === id);
+            if (target && target.favorited) return;
+            if (selectedIds.has(id)) {
+                selectedIds.delete(id);
+                row.classList.remove('selected');
+                if (cb) cb.checked = false;
+            } else {
+                selectedIds.add(id);
+                row.classList.add('selected');
+                if (cb) cb.checked = true;
+            }
+            delSelBtn.textContent = `Delete selected (${selectedIds.size})`;
+        }
+
+        function _handleCheckbox(id, idx, shiftKey) {
+            const allRecords = getFiltered(getRecords());
+            const target = allRecords.find(r => r.id === id);
+            if (target && target.favorited) return;
+            if (shiftKey && getAnchorIdx() >= 0) {
+                const lo = Math.min(getAnchorIdx(), idx);
+                const hi = Math.max(getAnchorIdx(), idx);
+                for (let i = lo; i <= hi; i++) {
+                    if (allRecords[i] && !allRecords[i].favorited) selectedIds.add(allRecords[i].id);
+                }
+            } else {
+                if (selectedIds.has(id)) selectedIds.delete(id);
+                else { selectedIds.add(id); setAnchorIdx(idx); }
+            }
+            render();
+        }
+
+        function _deleteOne(id, idx, hintEl = null) {
+            let records = getRecords();
+            const record = records.find(r => r.id === id);
+            if (!record) return;
+            if (record.favorited) {
+                const favBtn = hintEl?.classList?.contains('tm-grid-fav-btn') ? hintEl
+                    : hintEl?.classList?.contains('tm-hist-act-btn') ? hintEl
+                    : hintEl?.querySelector?.('.tm-grid-fav-btn')
+                    ?? null;
+                if (favBtn) {
+                    favBtn.classList.remove('tm-fav-shake', 'tm-grid-fav-shake');
+                    void favBtn.offsetWidth;
+                    const shakeClass = favBtn.classList.contains('tm-grid-fav-btn')
+                        ? 'tm-grid-fav-shake' : 'tm-fav-shake';
+                    favBtn.classList.add(shakeClass);
+                    favBtn.addEventListener('animationend', () => {
+                        favBtn.classList.remove(shakeClass);
+                    }, { once: true });
+                }
+                return;
+            }
+            const deleted = _deleteRecordById(id);
+            if (!deleted) return;
+            _downloadedIds.delete(deleted.record.tweetId);
+
+            if (_historyUndoTimer) clearTimeout(_historyUndoTimer);
+            _historyUndoBuffer = { record: deleted.record, index: idx };
+            _invalidateRecordsCache();
+            render();
+
+            const ut = document.createElement('div');
+            ut.style.cssText = `
+                position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+                background:rgba(15,20,25,0.92); color:#fff; padding:8px 16px;
+                border-radius:99px; font-size:12px; font-family:system-ui;
+                display:flex; align-items:center; gap:10px;
+                z-index:9999999; box-shadow:0 4px 16px rgba(0,0,0,0.3);
+                animation:tm-toast-rise 5s forwards;
+            `;
+            ut.id = 'tm-hist-undo-toast';
+            const msg = document.createElement('span');
+            msg.textContent = 'Record deleted';
+            const undoBtn = document.createElement('button');
+            undoBtn.textContent = 'Undo';
+            undoBtn.style.cssText = `background:none;border:none;color:#1d9bf0;cursor:pointer;font-weight:700;font-size:12px;padding:0;`;
+            undoBtn.addEventListener('click', () => {
+                if (_historyUndoBuffer) {
+                    _insertRecordUndo(_historyUndoBuffer.record);
+                    _downloadedIds.add(_historyUndoBuffer.record.tweetId);
+                    _historyUndoBuffer = null;
+                    ut.remove();
+                    clearTimeout(_historyUndoTimer);
+                    _invalidateRecordsCache();
+                    render();
+                }
+            });
+            ut.appendChild(msg);
+            ut.appendChild(undoBtn);
+            document.getElementById('tm-hist-undo-toast')?.remove();
+            document.body.appendChild(ut);
+            _historyUndoTimer = setTimeout(() => { ut.remove(); _historyUndoBuffer = null; }, 5000);
+        }
+
+        function _thumbUrl(url) {
+            try {
+                if (url.includes('pbs.twimg.com') && url.includes('/media/')) {
+                    const u = new URL(url);
+                    u.searchParams.set('name', 'small');
+                    return u.toString();
+                }
+            } catch (_) {}
+            return url;
+        }
+
+        function _showZoom(url, e) {
+            let z = document.getElementById('tm-hist-zoom');
+            if (!z) { z = document.createElement('div'); z.id = 'tm-hist-zoom'; document.body.appendChild(z); }
+            z.innerHTML = '';
+            const img = document.createElement('img');
+            img.src = _thumbUrl(url).replace('name=small', 'name=medium');
+            img.alt = '';
+            z.appendChild(img);
+            _moveZoom(e);
+        }
+        let _zoomRafId = null;
+        function _moveZoom(e) {
+            if (_zoomRafId) return;
+            const cx = e.clientX, cy = e.clientY;
+            _zoomRafId = requestAnimationFrame(() => {
+                _zoomRafId = null;
+                const z = document.getElementById('tm-hist-zoom');
+                if (!z) return;
+                const w = 200, h = 200, margin = 14;
+                let left = cx - w - margin;
+                let top  = cy - h / 2;
+                if (left < 4) left = cx + margin;
+                if (top < 4)  top  = 4;
+                if (top + h > window.innerHeight - 4) top = window.innerHeight - h - 4;
+                z.style.cssText = `position:fixed;z-index:9999999;width:${w}px;height:${h}px;left:${left}px;top:${top}px;border-radius:8px;overflow:hidden;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.2);`;
+            });
+        }
+        function _hideZoom() {
+            if (_zoomRafId) { cancelAnimationFrame(_zoomRafId); _zoomRafId = null; }
+            document.getElementById('tm-hist-zoom')?.remove();
+        }
+
+        return {
+            renderList, renderThumb, renderEmpty: _renderEmpty,
+            handleCheckbox: _handleCheckbox, toggleTextRowSel: _toggleTextRowSel,
+            deleteOne: _deleteOne, thumbUrl: _thumbUrl,
+            showZoom: _showZoom, hideZoom: _hideZoom, moveZoom: _moveZoom,
+        };
+    }
+
+    function _createDockController(deps) {
+        const { panel, render, getPinned } = deps;
+
+        function _savePos() {
+            const r = panel.getBoundingClientRect();
+            const inDockedPeek = DockState.side && DockState.peeked;
+            const remember = GM_getValue(KEY_DOCK_REMEMBER_POS, false);
+            let pos = { x: r.left, y: r.top, w: r.width, h: r.height };
+            if (inDockedPeek && !remember) {
+                try {
+                    const old = JSON.parse(GM_getValue(KEY_HISTORY_PANEL_POS, 'null'));
+                    if (old) { pos.x = old.x; pos.y = old.y; }
+                } catch (_) {}
+            }
+            GM_setValue(KEY_HISTORY_PANEL_POS, JSON.stringify(pos));
+            if (inDockedPeek) {
+                if (remember) {
+                    DockState.snapshot = { left: r.left, top: r.top, width: r.width, height: r.height };
+                } else if (DockState.snapshot) {
+                    DockState.snapshot.width  = r.width;
+                    DockState.snapshot.height = r.height;
+                }
+            }
+        }
+
+        function _dockTabGeometry() {
+            const snap = DockState.snapshot;
+            if (!snap) {
+                const r = panel.getBoundingClientRect();
+                const h   = Math.min(r.height * 0.55, 200);
+                const top = r.top + (r.height - h) / 2;
+                return { h, top };
+            }
+            const h   = Math.min(snap.height * 0.55, 200);
+            const top = snap.top + (snap.height - h) / 2;
+            return { h, top };
+        }
+
+        function _buildDockTab(side) {
+            const style = GM_getValue(KEY_DOCK_STYLE, 'ruler');
+            const { h, top } = _dockTabGeometry();
+
+            const triggerKey  = side === 'left' ? KEY_DOCK_TRIGGER_L : KEY_DOCK_TRIGGER_R;
+            const triggerDist = Math.max(6, parseInt(GM_getValue(triggerKey, '80'), 10) || 80);
+
+            const tab = document.createElement('div');
+            tab.id = 'tm-hist-dock-tab';
+            tab.className = 'style-' + style + ' side-' + side;
+            tab.style.cssText = [
+                'top:'    + top + 'px',
+                'height:' + h   + 'px',
+                side === 'left' ? 'left:0' : 'right:0',
+            ].join(';');
+            if (style === 'dots') {
+                for (let i = 0; i < 3; i++) {
+                    const d = document.createElement('span');
+                    d.className = 'tm-dock-dot';
+                    tab.appendChild(d);
+                }
+            }
+
+            const hotzone = document.createElement('div');
+            hotzone.className = 'tm-dock-hotzone';
+            hotzone.style.cssText = [
+                'position:absolute',
+                'top:0',
+                'height:100%',
+                'width:' + triggerDist + 'px',
+                side === 'left' ? 'left:0' : 'right:0',
+                'cursor:pointer',
+                'z-index:1',
+            ].join(';');
+
+            const _onHotEnter = () => {
+                clearTimeout(DockState.hoverTimer);
+                const delay = parseInt(GM_getValue(KEY_DOCK_HOVER_DELAY, '500'), 10) || 500;
+                DockState.hoverTimer = setTimeout(() => _peekOut(), delay);
+            };
+            const _onHotLeave = () => {
+                clearTimeout(DockState.hoverTimer);
+                DockState.hoverTimer = null;
+            };
+
+            hotzone.addEventListener('mouseenter', _onHotEnter);
+            hotzone.addEventListener('mouseleave', _onHotLeave);
+            tab.addEventListener('mouseenter', _onHotEnter);
+            tab.addEventListener('mouseleave', _onHotLeave);
+
+            let _tabHoldTimer   = null;
+            let _tabHoldRAF     = null;
+            let _tabHoldElapsed = 0;
+            const TAB_HOLD_MS   = 2000;
+
+            const _tabTick = () => {
+                _tabHoldElapsed += 16;
+                const pct = Math.min(_tabHoldElapsed / TAB_HOLD_MS, 1);
+                tab.style.opacity = (0.4 + pct * 0.6).toFixed(2);
+                if (pct < 1) _tabHoldRAF = requestAnimationFrame(_tabTick);
+            };
+
+            const _cancelTabHold = () => {
+                if (_tabHoldTimer) { clearTimeout(_tabHoldTimer); _tabHoldTimer = null; }
+                if (_tabHoldRAF)   { cancelAnimationFrame(_tabHoldRAF); _tabHoldRAF = null; }
+                _tabHoldElapsed = 0;
+                tab.style.opacity = '';
+            };
+
+            tab.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return;
+                e.stopPropagation();
+                _tabHoldElapsed = 0;
+                _tabHoldTimer = setTimeout(() => {
+                    cancelAnimationFrame(_tabHoldRAF);
+                    _tabHoldRAF  = null;
+                    _tabHoldTimer = null;
+                    tab.style.opacity = '';
+                    _forceResetDock();
+                }, TAB_HOLD_MS);
+                _tabHoldRAF = requestAnimationFrame(_tabTick);
+            });
+            tab.addEventListener('mouseup',    _cancelTabHold);
+            tab.addEventListener('mouseleave',  _cancelTabHold);
+
+            tab.appendChild(hotzone);
+            return tab;
+        }
+
+        function _dock(side) {
+            if (DockState.side) return;
+            DockState.peeked = false;
+
+            const r   = panel.getBoundingClientRect();
+            const vpW = window.innerWidth;
+
+            DockState.snapshot = { left: r.left, top: r.top, width: r.width, height: r.height };
+            DockState.side = side;
+
+            GM_setValue(KEY_DOCK_PERSISTED, side);
+
+            const PEEK = 6;
+            const OFFSET_LEFT  =  15;
+            const OFFSET_RIGHT = -15;
+
+            const peekLeft = side === 'left'
+                ? OFFSET_LEFT
+                : (vpW - r.width + OFFSET_RIGHT);
+            panel.style.left = peekLeft + 'px';
+
+            panel.style.transform = `translateX(${r.left - peekLeft}px)`;
+            panel.offsetWidth;
+
+            panel.classList.add('tm-animating');
+            panel.addEventListener('transitionend', function _rm(e) {
+                if (e.propertyName !== 'transform') return;
+                panel.classList.remove('tm-animating');
+                panel.removeEventListener('transitionend', _rm);
+            });
+
+            const offX = side === 'left'
+                ? -(OFFSET_LEFT  + r.width - PEEK)
+                :  (r.width      - PEEK - OFFSET_RIGHT);
+            panel.style.transform = `translateX(${offX}px)`;
+            panel.classList.add('tm-docked');
+
+            if (DockState.tabEl) DockState.tabEl.remove();
+            DockState.tabEl = _buildDockTab(side);
+            document.body.appendChild(DockState.tabEl);
+        }
+
+        function _peekOut() {
+            if (!DockState.side || DockState.peeked) return;
+            DockState.peeked = true;
+
+            clearTimeout(DockState.retractTimer);
+            DockState.retractTimer = null;
+
+            const snap = DockState.snapshot;
+            const vpH  = window.innerHeight;
+
+            if (snap) {
+                const safeTop = Math.max(0, Math.min(snap.top, vpH - snap.height - 10));
+                panel.style.top = safeTop + 'px';
+            }
+
+            panel.classList.add('tm-animating');
+            panel.addEventListener('transitionend', function _rm(e) {
+                if (e.propertyName !== 'transform') return;
+                panel.classList.remove('tm-animating');
+                panel.removeEventListener('transitionend', _rm);
+            });
+
+            panel.style.transform = 'translateX(0)';
+            panel.classList.remove('tm-docked');
+
+            if (DockState.tabEl) DockState.tabEl.style.pointerEvents = 'none';
+
+            let bridge = document.getElementById('tm-hover-bridge');
+            if (!bridge) {
+                bridge = document.createElement('div');
+                bridge.id = 'tm-hover-bridge';
+                bridge.style.cssText = 'position:absolute; top:0; bottom:0; width:15px; background:transparent; z-index:-1;';
+                panel.appendChild(bridge);
+            }
+            if (DockState.side === 'left') {
+                bridge.style.left = '-10px';
+                bridge.style.right = '';
+            } else {
+                bridge.style.right = '-10px';
+                bridge.style.left = '';
+            }
+
+            const body = document.getElementById('tm-hist-body');
+            if (body && !body.hasChildNodes()) render();
+        }
+
+        function _retract() {
+            if (!DockState.side || !DockState.peeked) return;
+            const _pinned = getPinned();
+            if (_pinned) return;
+            DockState.peeked = false;
+
+            const PEEK         = 6;
+            const OFFSET_LEFT  =  15;
+            const OFFSET_RIGHT = -15;
+            const pw = panel.offsetWidth;
+            const offX = DockState.side === 'left'
+                ? -(OFFSET_LEFT  + pw - PEEK)
+                :  (pw           - PEEK - OFFSET_RIGHT);
+
+            panel.classList.add('tm-animating');
+            panel.addEventListener('transitionend', function _rm(e) {
+                if (e.propertyName !== 'transform') return;
+                panel.classList.remove('tm-animating');
+                panel.removeEventListener('transitionend', _rm);
+            });
+
+            panel.style.transform = `translateX(${offX}px)`;
+            panel.classList.add('tm-docked');
+
+            if (DockState.tabEl) DockState.tabEl.style.pointerEvents = '';
+        }
+
+        function _exitDockMode() {
+            clearTimeout(DockState.hoverTimer);
+            clearTimeout(DockState.retractTimer);
+            DockState.hoverTimer   = null;
+            DockState.retractTimer = null;
+
+            const snap = DockState.snapshot;
+            if (snap) {
+                const safeLeft = Math.max(0, Math.min(snap.left, window.innerWidth  - snap.width));
+                const safeTop  = Math.max(0, Math.min(snap.top,  window.innerHeight - 60));
+                panel.style.transition = 'none';
+                panel.style.left = safeLeft + 'px';
+                panel.style.top  = safeTop  + 'px';
+                panel.style.transform = '';
+                panel.offsetWidth;
+                panel.style.transition = '';
+            }
+            panel.classList.remove('tm-docked');
+            DockState.side     = null;
+            DockState.peeked   = false;
+            DockState.snapshot = null;
+
+            GM_setValue(KEY_DOCK_PERSISTED, '');
+
+            if (DockState.tabEl) {
+                DockState.tabEl.remove();
+                DockState.tabEl = null;
+            }
+        }
+
+        function _forceResetDock() {
+            clearTimeout(DockState.hoverTimer);
+            clearTimeout(DockState.retractTimer);
+            DockState.hoverTimer   = null;
+            DockState.retractTimer = null;
+            DockState.side         = null;
+            DockState.peeked       = false;
+            DockState.snapshot     = null;
+            if (DockState.tabEl) { DockState.tabEl.remove(); DockState.tabEl = null; }
+            GM_setValue(KEY_DOCK_PERSISTED, '');
+
+            panel.classList.remove('tm-docked');
+            const pw = panel.offsetWidth  || 390;
+            const ph = panel.offsetHeight || 540;
+            panel.style.transition = 'none';
+            panel.style.left = Math.round((window.innerWidth  - pw) / 2) + 'px';
+            panel.style.top  = Math.round((window.innerHeight - ph) / 4) + 'px';
+            panel.style.transform = '';
+            panel.offsetWidth;
+            panel.style.transition = '';
+            render();
+            showToast('🔓 Dock reset — panel restored');
+        }
+
+        return {
+            savePos: _savePos,
+            dockTabGeometry: _dockTabGeometry,
+            buildDockTab: _buildDockTab,
+            dock: _dock,
+            peekOut: _peekOut,
+            retract: _retract,
+            exitDockMode: _exitDockMode,
+            forceResetDock: _forceResetDock,
+        };
+    }
+
+    function _createSearchHistoryController(deps) {
+        const { render, getSearchInput, getSearchDrop, setQuery } = deps;
+        let _searchDropVisible = false;
+
+        const _SRCH_HIST_MAX = 30;
+        function _loadSearchHist() {
+            try { return JSON.parse(GM_getValue(KEY_SEARCH_HISTORY, '[]')); } catch (_) { return []; }
+        }
+        function _saveSearchHist(h) { GM_setValue(KEY_SEARCH_HISTORY, JSON.stringify(h)); }
+        function _addSearchHist(text) {
+            if (!text || text.length < 2) return;
+            let h = _loadSearchHist().filter(e => e.text.toLowerCase() !== text.toLowerCase());
+            h.unshift({ text, pinned: false, ts: Date.now() });
+            const pinned   = h.filter(e => e.pinned);
+            const unpinned = h.filter(e => !e.pinned).slice(0, _SRCH_HIST_MAX);
+            _saveSearchHist([...pinned, ...unpinned]);
+        }
+        function _getSortedHist() {
+            const h = _loadSearchHist();
+            return [
+                ...h.filter(e => e.pinned).sort((a, b) => a.ts - b.ts),
+                ...h.filter(e => !e.pinned).sort((a, b) => b.ts - a.ts),
+            ];
+        }
+        const _SPIN_HOLLOW = `<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="1.8" width="6" height="5.6" rx="1"/><line x1="8" y1="7.4" x2="8" y2="10.8"/><path d="M5.7 10.8h4.6l-2.3 3.4z"/></svg>`;
+        const _SPIN_FILL   = `<svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="1.8" width="6" height="5.6" rx="1"/><path d="M8 7.4v3.4" stroke-width="1.8" fill="none"/><path d="M5.7 10.8h4.6l-2.3 3.4z"/></svg>`;
+        function _buildSearchHistRow(item) {
+            const row = document.createElement('div');
+            row.className = 'tm-search-hist-item';
+            row.dataset.histKey = item.text;
+            const pinBtn = document.createElement('button');
+            pinBtn.className = 'tm-search-pin-btn' + (item.pinned ? ' pinned' : '');
+            pinBtn.title = item.pinned ? 'Unpin' : 'Pin to top';
+            pinBtn.innerHTML = item.pinned ? _SPIN_FILL : _SPIN_HOLLOW;
+            pinBtn.addEventListener('click', e => {
+                e.stopPropagation();
+                const h2 = _loadSearchHist();
+                const entry = h2.find(e2 => e2.text === item.text);
+                if (entry) {
+                    entry.pinned = !entry.pinned;
+                    if (entry.pinned) entry.ts = Date.now();
+                    _saveSearchHist(h2);
+                }
+                _renderSearchDrop();
+            });
+            const textEl = document.createElement('span');
+            textEl.className = 'tm-search-hist-text';
+            textEl.textContent = item.text;
+            const delBtn = document.createElement('button');
+            delBtn.className = 'tm-search-del-btn';
+            delBtn.title = 'Remove';
+            delBtn.textContent = '✕';
+            delBtn.addEventListener('click', e => {
+                e.stopPropagation();
+                const remaining = _loadSearchHist().filter(e2 => e2.text !== item.text);
+                _saveSearchHist(remaining);
+                _renderSearchDrop();
+            });
+            row.addEventListener('mousedown', e => {
+                if (pinBtn.contains(e.target) || delBtn.contains(e.target)) return;
+                e.preventDefault();
+                getSearchInput().value = item.text;
+                setQuery(item.text); render();
+                _hideSearchDrop();
+            });
+            row.appendChild(pinBtn); row.appendChild(textEl); row.appendChild(delBtn);
+            return row;
+        }
+        function _renderSearchDrop() {
+            const _searchDrop = getSearchDrop();
+            if (!_searchDrop) return;
+            const hist = _getSortedHist();
+            if (!hist.length) { _hideSearchDrop(); return; }
+
+            const existingMap = new Map();
+            _searchDrop.querySelectorAll('.tm-search-hist-item[data-hist-key]')
+                .forEach(el => existingMap.set(el.dataset.histKey, el));
+
+            const fragment = document.createDocumentFragment();
+            hist.forEach(item => {
+                let row = existingMap.get(item.text);
+                existingMap.delete(item.text);
+                if (!row) {
+                    row = _buildSearchHistRow(item);
+                } else {
+                    const pinBtn = row.querySelector('.tm-search-pin-btn');
+                    if (pinBtn) {
+                        pinBtn.className = 'tm-search-pin-btn' + (item.pinned ? ' pinned' : '');
+                        pinBtn.title     = item.pinned ? 'Unpin' : 'Pin to top';
+                        pinBtn.innerHTML = item.pinned ? _SPIN_FILL : _SPIN_HOLLOW;
+                    }
+                }
+                fragment.appendChild(row);
+            });
+            existingMap.forEach(el => el.remove());
+            const unpinCnt = hist.filter(e => !e.pinned).length;
+            if (unpinCnt > 0) {
+                const footer = document.createElement('div');
+                footer.className = 'tm-search-drop-footer';
+                const clearBtn = document.createElement('button');
+                clearBtn.className = 'tm-search-clear-all';
+                clearBtn.textContent = `Clear history (${unpinCnt})`;
+                clearBtn.addEventListener('mousedown', e => {
+                    e.preventDefault();
+                    _saveSearchHist(_loadSearchHist().filter(e2 => e2.pinned));
+                    _renderSearchDrop();
+                });
+                footer.appendChild(clearBtn);
+                fragment.appendChild(footer);
+            }
+            _searchDrop.appendChild(fragment);
+        }
+        function _showSearchDrop() {
+            const _searchDrop = getSearchDrop();
+            if (_searchDropVisible || !_getSortedHist().length) return;
+            _searchDropVisible = true;
+            _searchDrop.classList.remove('closing');
+            _searchDrop.style.display = 'block';
+            requestAnimationFrame(() => _searchDrop.style.transform = '');
+            _renderSearchDrop();
+        }
+        function _hideSearchDrop() {
+            const _searchDrop = getSearchDrop();
+            if (!_searchDrop || !_searchDropVisible) return;
+            _searchDropVisible = false;
+            _searchDrop.classList.add('closing');
+            const onEnd = () => {
+                if (_searchDropVisible) return;
+                _searchDrop.classList.remove('closing');
+                _searchDrop.style.display = 'none';
+            };
+            _searchDrop.addEventListener('transitionend', onEnd, { once: true });
+        }
+
+        return {
+            load: _loadSearchHist,
+            save: _saveSearchHist,
+            add: _addSearchHist,
+            getSorted: _getSortedHist,
+            buildRow: _buildSearchHistRow,
+            renderDrop: _renderSearchDrop,
+            show: _showSearchDrop,
+            hide: _hideSearchDrop,
+        };
+    }
+
+    function _createTextRenderer(deps) {
+        const {
+            dark, C, selectedIds, body, render,
+            _textPinnedAuthors, _savePinnedAuthors, _textAuthorCollapsed,
+            getEditMode, getRenderEmpty, getToggleTextRowSel, getDeleteOne,
+            getScrollTarget, setScrollTarget, setViewMode,
+        } = deps;
+
+        function _getTextBmContentColor() {
+            try {
+                const cfg = JSON.parse(GM_getValue(KEY_TEXT_BM_CFG, '{}'));
+                return cfg.textContentColor || '#ffd700';
+            } catch(_) { return '#ffd700'; }
+        }
+
+        function _showTextPreview(rec) {
+            const existing = document.getElementById('tm-text-preview-overlay');
+            if (existing) existing.remove();
+
+            _dialogOpenGlobal = true;
+
+            const _closePreview = () => {
+                overlay.remove();
+                _dialogOpenGlobal = false;
+            };
+
+            const overlay = document.createElement('div');
+            overlay.id = 'tm-text-preview-overlay';
+            overlay.style.cssText = `
+                position:fixed;inset:0;z-index:99999999;
+                background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;
+                backdrop-filter:blur(4px);cursor:pointer;
+            `;
+
+            const card = document.createElement('div');
+            card.style.cssText = `
+                background:#192734;border-radius:14px;padding:24px 28px;
+                max-width:520px;width:calc(100vw - 48px);max-height:80vh;
+                overflow-y:auto;cursor:default;
+                border:1px solid rgba(255,255,255,.12);
+                box-shadow:0 24px 64px rgba(0,0,0,.7);
+            `;
+            card.addEventListener('click', e => e.stopPropagation());
+
+            const authorRow = document.createElement('div');
+            authorRow.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:14px';
+            if (rec.avatarUrl) {
+                const av = document.createElement('img');
+                av.src = rec.avatarUrl; av.alt = ''; av.loading = 'lazy';
+                av.style.cssText = 'width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0';
+                authorRow.appendChild(av);
+            }
+            const authorMeta = document.createElement('div');
+            authorMeta.style.cssText = 'display:flex;flex-direction:column;gap:2px;min-width:0';
+            const dname = document.createElement('div');
+            dname.textContent = rec.displayName || rec.screenName;
+            dname.style.cssText = 'font-size:14px;font-weight:700;color:#e7e9ea;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+            const sname = document.createElement('div');
+            sname.textContent = '@' + (rec.screenName || '');
+            sname.style.cssText = 'font-size:12px;color:rgba(255,255,255,.45)';
+            authorMeta.appendChild(dname); authorMeta.appendChild(sname);
+            authorRow.appendChild(authorMeta);
+            card.appendChild(authorRow);
+
+            const hr = document.createElement('div');
+            hr.style.cssText = 'border-top:1px solid rgba(255,255,255,.1);margin-bottom:16px';
+            card.appendChild(hr);
+
+            const textEl = document.createElement('div');
+            textEl.textContent = rec.text || '(no text)';
+            textEl.style.cssText = `
+                font-size:18px;line-height:1.7;color:${_getTextBmContentColor()};
+                white-space:pre-wrap;word-break:break-word;margin-bottom:16px;
+            `;
+            card.appendChild(textEl);
+
+            const meta = document.createElement('div');
+            meta.style.cssText = 'display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:4px';
+            if (rec.downloadDate) {
+                const d = document.createElement('span');
+                d.textContent = rec.downloadDate;
+                d.style.cssText = 'font-size:12px;color:rgba(255,255,255,.35)';
+                meta.appendChild(d);
+            }
+            if (rec.tweetUrl) {
+                const link = document.createElement('a');
+                link.href = rec.tweetUrl; link.target = '_blank'; link.rel = 'noopener noreferrer';
+                link.textContent = 'Open tweet ↗';
+                link.style.cssText = 'font-size:12px;color:#1d9bf0;text-decoration:none';
+                link.addEventListener('click', e => e.stopPropagation());
+                meta.appendChild(link);
+            }
+            card.appendChild(meta);
+
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = '✕';
+            closeBtn.style.cssText = `
+                position:absolute;top:14px;right:14px;
+                background:rgba(255,255,255,.12);border:none;color:rgba(255,255,255,.7);
+                width:28px;height:28px;border-radius:50%;cursor:pointer;
+                font-size:13px;display:flex;align-items:center;justify-content:center;
+                transition:background .12s;
+            `;
+            closeBtn.addEventListener('mouseover', () => closeBtn.style.background = 'rgba(255,255,255,.22)');
+            closeBtn.addEventListener('mouseout',  () => closeBtn.style.background = 'rgba(255,255,255,.12)');
+            closeBtn.addEventListener('click', () => _closePreview());
+            card.style.position = 'relative';
+            card.appendChild(closeBtn);
+
+            overlay.appendChild(card);
+            overlay.addEventListener('click', () => _closePreview());
+            const _onEsc = (e) => { if (e.key === 'Escape') { _closePreview(); document.removeEventListener('keydown', _onEsc); } };
+            document.addEventListener('keydown', _onEsc);
+            document.body.appendChild(overlay);
+        }
+
+        function renderTextAuthorList(records) {
+            const editMode = getEditMode();
+            const _renderEmpty = getRenderEmpty();
+            if (!records.length) { _renderEmpty(); return; }
+            const frag = document.createDocumentFragment();
+
+            const authorMap = new Map();
+            records.forEach(r => {
+                const key = r.screenName || '';
+                if (!authorMap.has(key)) {
+                    authorMap.set(key, {
+                        recs: [], maxTs: 0,
+                        displayName: r.displayName || key,
+                        avatarUrl: r.avatarUrl || '',
+                        screenName: key,
+                    });
+                }
+                const entry = authorMap.get(key);
+                entry.recs.push(r);
+                if ((r.ts || 0) > entry.maxTs) entry.maxTs = r.ts || 0;
+            });
+
+            const authors = Array.from(authorMap.values())
+                .sort((a, b) => b.maxTs - a.maxTs);
+
+            const SVG_HOME = `<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7L8 2l6 5"/><path d="M4 7v6h3v-3h2v3h3V7"/></svg>`;
+            const SVG_JUMP = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 2h4v4"/><path d="M7 9L14 2"/><path d="M12 10v4H2V4h4"/></svg>`;
+            const SVG_DEL  = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><polyline points="2,4 4,4 14,4"/><path d="M13 4l-.9 9H3.9L3 4"/><path d="M6.5 7v4M9.5 7v4"/><path d="M5.5 4V2.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5V4"/></svg>`;
+            const SVG_HEART_EMPTY = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
+            const SVG_HEART_FULL  = `<svg viewBox="0 0 16 16" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
+            const SVG_CHEV_DOWN   = `<svg viewBox="0 0 10 10" width="10" height="10" fill="currentColor"><path d="M1 3l4 4 4-4z"/></svg>`;
+            const SVG_CHEV_RIGHT  = `<svg viewBox="0 0 10 10" width="10" height="10" fill="currentColor"><path d="M3 1l4 4-4 4z"/></svg>`;
+
+            const textColor = _getTextBmContentColor();
+            let globalItemIdx = 0;
+
+            authors.forEach(({ screenName, displayName, avatarUrl, recs }) => {
+                const isCollapsed = _textAuthorCollapsed.has(screenName);
+
+                const header = document.createElement('div');
+                header.className = 'tm-hist-group-header';
+                header.dataset.authorHandle = screenName;
+                const _hdrBgIdle = dark ? 'rgba(255,255,255,.04)' : 'rgba(15,20,25,.035)';
+                header.style.cssText = `display:flex;align-items:center;gap:8px;padding:8px 10px 8px 8px;cursor:pointer;border-radius:8px;margin:2px 0;background:${_hdrBgIdle};transition:background .12s`;
+                header.addEventListener('mouseover', () => header.style.background = 'rgba(29,155,240,.1)');
+                header.addEventListener('mouseout',  () => header.style.background = _hdrBgIdle);
+
+                if (avatarUrl) {
+                    const av = document.createElement('img');
+                    av.src = avatarUrl; av.alt = ''; av.loading = 'lazy';
+                    av.style.cssText = `width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid ${dark ? 'rgba(255,255,255,.12)' : 'rgba(15,20,25,.14)'}`;
+                    av.decode && av.decode().catch(() => {});
+                    header.appendChild(av);
+                } else {
+                    const avFb = document.createElement('div');
+                    avFb.style.cssText = `width:40px;height:40px;border-radius:50%;background:rgba(29,155,240,.25);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;color:${dark ? 'rgba(255,255,255,.5)' : '#ffffff'};flex-shrink:0`;
+                    avFb.textContent = (displayName || screenName).charAt(0).toUpperCase();
+                    header.appendChild(avFb);
+                }
+
+                const authorInfo = document.createElement('div');
+                authorInfo.style.cssText = 'flex:1;min-width:0';
+                const dname = document.createElement('div');
+                dname.textContent = displayName;
+                dname.style.cssText = `font-size:13px;font-weight:700;color:${C.text};white-space:nowrap;overflow:hidden;text-overflow:ellipsis`;
+                const sname = document.createElement('div');
+                sname.style.cssText = 'display:flex;align-items:center;gap:5px;margin-top:1px';
+                const snameText = document.createElement('span');
+                snameText.textContent = '@' + screenName;
+                snameText.style.cssText = `font-size:11px;color:${dark ? 'rgba(255,255,255,.4)' : 'rgba(15,20,25,.42)'}`;
+                sname.appendChild(snameText);
+                const homeLink = document.createElement('a');
+                homeLink.href = `https://x.com/${screenName}`;
+                homeLink.target = '_blank'; homeLink.rel = 'noopener noreferrer';
+                homeLink.innerHTML = SVG_HOME;
+                const _homeLinkIdle = dark ? 'rgba(255,255,255,.3)' : 'rgba(15,20,25,.32)';
+                homeLink.style.cssText = `display:inline-flex;align-items:center;color:${_homeLinkIdle};transition:color .12s;flex-shrink:0`;
+                homeLink.title = `@${screenName} profile`;
+                homeLink.addEventListener('click', e => e.stopPropagation());
+                homeLink.addEventListener('mouseover', () => homeLink.style.color = '#1d9bf0');
+                homeLink.addEventListener('mouseout',  () => homeLink.style.color = _homeLinkIdle);
+                sname.appendChild(homeLink);
+                authorInfo.appendChild(dname); authorInfo.appendChild(sname);
+                header.appendChild(authorInfo);
+
+                const countBdg = document.createElement('span');
+                countBdg.textContent = `${recs.length}`;
+                countBdg.style.cssText = `font-size:10px;color:${dark ? 'rgba(255,255,255,.4)' : 'rgba(15,20,25,.42)'};background:${dark ? 'rgba(255,255,255,.09)' : 'rgba(15,20,25,.07)'};border-radius:99px;padding:1px 7px;flex-shrink:0`;
+                header.appendChild(countBdg);
+
+                const chev = document.createElement('span');
+                chev.style.cssText = `color:${dark ? 'rgba(255,255,255,.3)' : 'rgba(15,20,25,.32)'};flex-shrink:0;line-height:0`;
+                chev.innerHTML = isCollapsed ? SVG_CHEV_RIGHT : SVG_CHEV_DOWN;
+                header.appendChild(chev);
+
+                header.addEventListener('click', () => {
+                    if (_textAuthorCollapsed.has(screenName)) _textAuthorCollapsed.delete(screenName);
+                    else _textAuthorCollapsed.add(screenName);
+                    render();
+                });
+
+                frag.appendChild(header);
+
+                if (isCollapsed) return;
+
+                const sortedRecs = recs.slice().sort((a, b) => (b.ts || 0) - (a.ts || 0));
+                let _cbShiftDown = false;
+                sortedRecs.forEach(rec => {
+                    const row = document.createElement('div');
+                    row.className = 'tm-hist-row tm-text-author-item' + (selectedIds.has(rec.id) ? ' selected' : '');
+                    row.dataset.id = rec.id;
+                    if (globalItemIdx < 8) row.style.animationDelay = `${globalItemIdx * 30}ms`;
+                    globalItemIdx++;
+                    row.style.paddingLeft = '56px';
+                    row.title = editMode ? '' : 'Click to preview full text';
+
+                    if (editMode) {
+                        if (!rec.favorited) {
+                            const cb = document.createElement('input');
+                            cb.type = 'checkbox';
+                            cb.className = 'tm-hist-cb';
+                            cb.checked = selectedIds.has(rec.id);
+                            cb.addEventListener('mousedown', e => { _cbShiftDown = e.shiftKey; });
+                            cb.addEventListener('change', e => {
+                                e.stopPropagation();
+                                getToggleTextRowSel()(rec.id, row, cb);
+                                _cbShiftDown = false;
+                            });
+                            row.appendChild(cb);
+                        } else {
+                            const lock = document.createElement('span');
+                            lock.className = 'tm-hist-cb';
+                            lock.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;opacity:0.35;font-size:10px;';
+                            lock.textContent = '♥';
+                            row.appendChild(lock);
+                        }
+                        row.style.cursor = rec.favorited ? 'default' : 'pointer';
+                    }
+
+                    const textEl = document.createElement('div');
+                    textEl.className = 'tm-hist-text';
+                    textEl.textContent = rec.text || '(no caption)';
+                    textEl.style.cssText = `
+                        color:${textColor};font-size:13px;line-height:1.55;
+                        display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+                        overflow:hidden;word-break:break-word;flex:1;min-width:0;
+                    `;
+
+                    const dateEl = document.createElement('span');
+                    dateEl.className = 'tm-hist-date';
+                    if (rec.downloadDate) {
+                        const [dy, dm, dd] = rec.downloadDate.split('-');
+                        if (_cachedDateFormat === 'western') {
+                            const MON = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                            dateEl.textContent = `${parseInt(dd, 10)} ${MON[parseInt(dm, 10)] || dm} ${dy}`;
+                        } else {
+                            dateEl.textContent = `${dy}.${dm}.${dd}`;
+                        }
+                    }
+
+                    const infoLine = document.createElement('div');
+                    infoLine.style.cssText = 'display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0';
+                    if (rec.downloadDate) {
+                        const dateSep = document.createElement('span');
+                        dateSep.style.cssText = `font-size:11px;color:${dark ? 'rgba(255,255,255,.28)' : 'rgba(15,20,25,.4)'};white-space:nowrap;padding-top:1px;flex-shrink:0`;
+                        dateSep.textContent = dateEl.textContent;
+                        infoLine.appendChild(dateSep);
+                    }
+                    infoLine.appendChild(textEl);
+                    row.appendChild(infoLine);
+
+                    const acts = document.createElement('div');
+                    acts.className = 'tm-hist-actions';
+
+                    const jmpBtn = document.createElement('button');
+                    jmpBtn.className = 'tm-hist-act-btn'; jmpBtn.innerHTML = SVG_JUMP;
+                    jmpBtn.title = 'Open tweet';
+                    jmpBtn.addEventListener('click', e => { e.stopPropagation(); window.open(rec.tweetUrl, '_blank'); });
+
+                    const favBtn = document.createElement('button');
+                    const isFav = !!rec.favorited;
+                    favBtn.className = 'tm-hist-act-btn tm-fav-btn' + (isFav ? ' tm-fav-active' : '');
+                    favBtn.innerHTML = isFav ? SVG_HEART_FULL : SVG_HEART_EMPTY;
+                    favBtn.title = isFav ? 'Unfavorite' : 'Favorite';
+                    favBtn.addEventListener('click', e => {
+                        e.stopPropagation();
+                        const updated = _updateRecord(rec.id, r => { r.favorited = !r.favorited; });
+                        if (!updated) return;
+                        const nowFav = updated.favorited;
+                        favBtn.innerHTML = nowFav ? SVG_HEART_FULL : SVG_HEART_EMPTY;
+                        favBtn.title = nowFav ? 'Unfavorite' : 'Favorite';
+                        favBtn.classList.toggle('tm-fav-active', nowFav);
+                        rec.favorited = nowFav;
+                    });
+
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'tm-hist-act-btn danger'; delBtn.innerHTML = SVG_DEL;
+                    delBtn.title = 'Delete';
+                    delBtn.addEventListener('click', e => { e.stopPropagation(); getDeleteOne()(rec.id, 0, favBtn); });
+
+                    acts.appendChild(favBtn); acts.appendChild(jmpBtn); acts.appendChild(delBtn);
+                    row.appendChild(acts);
+
+                    row.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('tm-hist-act-btn') ||
+                            e.target.closest('.tm-hist-actions')) return;
+                        if (editMode) {
+                            if (e.target.classList.contains('tm-hist-cb')) return;
+                            if (!rec.favorited) {
+                                const cb = row.querySelector('input[type="checkbox"].tm-hist-cb');
+                                getToggleTextRowSel()(rec.id, row, cb);
+                            }
+                            return;
+                        }
+                        _showTextPreview(rec);
+                    });
+
+                    frag.appendChild(row);
+                });
+            });
+
+            body.appendChild(frag);
+
+            if (getScrollTarget()) {
+                const target = getScrollTarget();
+                setScrollTarget(null);
+                requestAnimationFrame(() => {
+                    const el = body.querySelector(`[data-author-handle="${CSS.escape(target)}"]`);
+                    if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+                });
+            }
+        }
+
+        function renderTextAuthorThumb(records) {
+            const _renderEmpty = getRenderEmpty();
+            if (!records.length) { _renderEmpty(); return; }
+
+            const authorMap = new Map();
+            records.forEach(r => {
+                const key = r.screenName || '';
+                if (!authorMap.has(key) || (r.ts || 0) > authorMap.get(key).maxTs) {
+                    authorMap.set(key, {
+                        screenName: key,
+                        displayName: r.displayName || key,
+                        avatarUrl:   r.avatarUrl   || '',
+                        maxTs: r.ts || 0,
+                        recCount: 0,
+                    });
+                }
+                authorMap.get(key).recCount++;
+            });
+
+            const authors = Array.from(authorMap.values()).sort((a, b) => {
+                const ap = _textPinnedAuthors.has(a.screenName) ? 0 : 1;
+                const bp = _textPinnedAuthors.has(b.screenName) ? 0 : 1;
+                if (ap !== bp) return ap - bp;
+                return b.maxTs - a.maxTs;
+            });
+
+            const grid = document.createElement('div');
+            grid.id = 'tm-hist-thumb-grid';
+            const frag = document.createDocumentFragment();
+
+            authors.forEach(({ screenName, displayName, avatarUrl, recCount }) => {
+                const isPinned = _textPinnedAuthors.has(screenName);
+
+                const cell = document.createElement('div');
+                cell.className = 'tm-hist-grid-cell tm-text-author-cell';
+                cell.title = `${displayName} @${screenName} — ${recCount} bookmark${recCount > 1 ? 's' : ''}`;
+
+                const inner = document.createElement('div');
+                inner.style.cssText = 'width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;padding:14px 6px 10px;box-sizing:border-box;background:rgba(29,155,240,.08)';
+
+                if (avatarUrl) {
+                    const av = document.createElement('img');
+                    av.src = avatarUrl; av.alt = ''; av.loading = 'lazy';
+                    av.style.cssText = `width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid ${dark ? 'rgba(255,255,255,.18)' : 'rgba(15,20,25,.14)'};flex-shrink:0`;
+                    av.decode && av.decode().catch(() => {});
+                    inner.appendChild(av);
+                } else {
+                    const avFb = document.createElement('div');
+                    avFb.style.cssText = `width:40px;height:40px;border-radius:50%;background:rgba(29,155,240,.3);display:flex;align-items:center;justify-content:center;font-size:18px;color:${dark ? 'rgba(255,255,255,.6)' : '#ffffff'};flex-shrink:0`;
+                    avFb.textContent = (displayName || screenName).charAt(0).toUpperCase();
+                    inner.appendChild(avFb);
+                }
+
+                const nameEl = document.createElement('div');
+                nameEl.style.cssText = `font-size:11px;font-weight:700;color:${C.text};text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;width:100%;padding:0 6px;box-sizing:border-box;line-height:1.3`;
+                nameEl.textContent = displayName;
+
+                const handleEl = document.createElement('div');
+                handleEl.style.cssText = `font-size:10px;color:${dark ? 'rgba(255,255,255,.4)' : 'rgba(15,20,25,.42)'};text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;width:100%;padding:0 6px;box-sizing:border-box;margin-top:-2px`;
+                handleEl.textContent = '@' + screenName;
+
+                const cntEl = document.createElement('div');
+                cntEl.style.cssText = `font-size:9px;color:${dark ? 'rgba(255,255,255,.28)' : 'rgba(15,20,25,.4)'};background:${dark ? 'rgba(255,255,255,.07)' : 'rgba(15,20,25,.06)'};border-radius:99px;padding:1px 6px;margin-top:1px;flex-shrink:0`;
+                cntEl.textContent = `${recCount} post${recCount > 1 ? 's' : ''}`;
+
+                inner.appendChild(nameEl); inner.appendChild(handleEl); inner.appendChild(cntEl);
+                cell.appendChild(inner);
+
+                const pinBtn = document.createElement('button');
+                pinBtn.className = 'tm-text-pin-btn';
+                pinBtn.textContent = '📌';
+                pinBtn.title = isPinned ? 'Unpin (remove from top)' : 'Pin to top';
+                pinBtn.style.opacity = isPinned ? '1' : '0.3';
+                pinBtn.addEventListener('mouseover', () => {
+                    pinBtn.style.opacity = '1';
+                    pinBtn.style.background = 'rgba(0,0,0,.7)';
+                });
+                pinBtn.addEventListener('mouseout', () => {
+                    const stillPinned = _textPinnedAuthors.has(screenName);
+                    pinBtn.style.opacity = stillPinned ? '1' : '0.3';
+                    pinBtn.style.background = 'rgba(0,0,0,.5)';
+                });
+                pinBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    const nowPinned = !_textPinnedAuthors.has(screenName);
+                    if (nowPinned) _textPinnedAuthors.add(screenName);
+                    else           _textPinnedAuthors.delete(screenName);
+                    _savePinnedAuthors();
+                    pinBtn.title   = nowPinned ? 'Unpin (remove from top)' : 'Pin to top';
+                    pinBtn.style.opacity = nowPinned ? '1' : '0.3';
+                    render();
+                });
+                cell.appendChild(pinBtn);
+
+                cell.addEventListener('click', (e) => {
+                    if (e.target.closest('button')) return;
+                    setScrollTarget(screenName);
+                    setViewMode('list');
+                    GM_setValue(KEY_HISTORY_VIEW_MODE, 'list');
+                    render();
+                });
+
+                frag.appendChild(cell);
+            });
+
+            grid.appendChild(frag);
+            body.appendChild(grid);
+        }
+
+        return {
+            getTextBmContentColor: _getTextBmContentColor,
+            showTextPreview: _showTextPreview,
+            renderAuthorList: renderTextAuthorList,
+            renderAuthorThumb: renderTextAuthorThumb,
+        };
+    }
+
+    function _createGroupTabsBuilder(deps) {
+        const { groupTabBar, C, render, getMediaFilter, getActiveGroupId, setActiveGroupId } = deps;
+
+        function buildGroupTabs() {
+            groupTabBar.innerHTML = '';
+            const mediaFilter = getMediaFilter();
+            const activeGroupId = getActiveGroupId();
+            const isTextTab = mediaFilter === 'text';
+            const groups = isTextTab ? getTextGroups() : getGroups();
+            groupTabBar.style.display = 'flex';
+
+            const SVG_LEFT  = `<svg viewBox="0 0 10 10" fill="currentColor"><path d="M6.5 2L3.5 5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>`;
+            const SVG_RIGHT = `<svg viewBox="0 0 10 10" fill="currentColor"><path d="M3.5 2L6.5 5l-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>`;
+
+            const btnAddGroup = document.createElement('button');
+            btnAddGroup.type = 'button';
+            btnAddGroup.title = 'New group';
+            btnAddGroup.style.cssText = `flex-shrink:0;width:26px;height:26px;border-radius:7px;border:none;background:transparent;color:${C.sub};cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s;margin:0 3px 0 2px`;
+            btnAddGroup.innerHTML = '<svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>';
+            btnAddGroup.addEventListener('mouseover', () => { btnAddGroup.style.background = 'rgba(29,155,240,.18)'; btnAddGroup.style.color = '#1d9bf0'; });
+            btnAddGroup.addEventListener('mouseout',  () => { btnAddGroup.style.background = 'transparent'; btnAddGroup.style.color = C.sub; });
+            btnAddGroup.addEventListener('click', e => {
+                e.stopPropagation();
+                StarPipState.pendingIsText = isTextTab;
+                showGroupCreateModal();
+            });
+
+            const btnLeft = document.createElement('button');
+            btnLeft.className = 'tm-gtab-scroll-btn left';
+            btnLeft.innerHTML = SVG_LEFT;
+            btnLeft.title = 'Scroll left';
+            btnLeft.addEventListener('click', (e) => {
+                e.stopPropagation();
+                scrollArea.scrollBy({ left: -120, behavior: 'smooth' });
+            });
+
+            const scrollArea = document.createElement('div');
+            scrollArea.id = 'tm-group-tab-scroll';
+
+            const btnRight = document.createElement('button');
+            btnRight.className = 'tm-gtab-scroll-btn right visible';
+            btnRight.innerHTML = SVG_RIGHT;
+            btnRight.title = 'Scroll right';
+            btnRight.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const maxScroll = scrollArea.scrollWidth - scrollArea.clientWidth;
+                if (scrollArea.scrollLeft >= maxScroll - 2) {
+                    btnRight.classList.remove('tm-end-flash');
+                    void btnRight.offsetWidth;
+                    btnRight.classList.add('tm-end-flash');
+                    btnRight.addEventListener('animationend', () => btnRight.classList.remove('tm-end-flash'), { once: true });
+                    scrollArea.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    scrollArea.scrollBy({ left: 120, behavior: 'smooth' });
+                }
+            });
+
+            const makePill = (iconHtml, label, value) => {
+                const pill = document.createElement('button');
+                pill.type = 'button';
+                const isActive =
+                    (value === '__all__'       && (activeGroupId === null || activeGroupId === '__all__')) ||
+                    (value === '__ungrouped__' && activeGroupId === '__ungrouped__') ||
+                    (value !== '__all__' && value !== '__ungrouped__' && activeGroupId === value);
+                pill.className = 'tm-gtab-pill' + (isActive ? ' active' : '');
+                const iconSpan = document.createElement('span');
+                iconSpan.innerHTML = iconHtml;
+                iconSpan.style.cssText = 'display:inline-flex;align-items:center;flex-shrink:0';
+                pill.appendChild(iconSpan);
+                if (label) {
+                    const txtSpan = document.createElement('span');
+                    txtSpan.textContent = label;
+                    pill.appendChild(txtSpan);
+                }
+                if (value !== '__ungrouped__' && value !== '__all__' && value !== '__favorites__' && GM_getValue('app_group_unread_' + value, false)) {
+                    const dot = document.createElement('span');
+                    dot.className = 'tm-gtab-dot';
+                    pill.appendChild(dot);
+                }
+                pill.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    setActiveGroupId(value === '__all__' ? null : value);
+                    if (value !== '__ungrouped__' && value !== '__all__' && value !== '__favorites__') {
+                        GM_deleteValue('app_group_unread_' + value);
+                        pill.querySelector('.tm-gtab-dot')?.remove();
+                    }
+                    scrollArea.querySelectorAll('.tm-gtab-pill').forEach(p => p.classList.remove('active'));
+                    pill.classList.add('active');
+                    pill.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                    render();
+                });
+
+                if (value !== '__ungrouped__' && value !== '__all__' && value !== '__favorites__') {
+                    pill.addEventListener('contextmenu', e => {
+                        e.preventDefault(); e.stopPropagation();
+                        document.getElementById('tm-pill-ctx')?.remove();
+                        _dialogOpenGlobal = true;
+                        const menu = document.createElement('div');
+                        menu.id = 'tm-pill-ctx';
+                        menu.style.cssText = `
+                            position:fixed;left:${e.clientX}px;top:${e.clientY}px;
+                            background:#1a1f2e;border:0.5px solid rgba(255,255,255,.15);
+                            border-radius:10px;padding:4px;min-width:150px;
+                            z-index:999999;box-shadow:0 8px 32px rgba(0,0,0,.6);
+                            font-size:13px;
+                        `;
+                        const mkItem = (icon, label, color, onClick) => {
+                            const item = document.createElement('button');
+                            item.type = 'button';
+                            item.style.cssText = `display:flex;align-items:center;gap:9px;width:100%;padding:8px 12px;background:transparent;border:none;border-radius:7px;color:${color || 'rgba(255,255,255,.88)'};cursor:pointer;font-size:13px;font-family:inherit;text-align:left;transition:background .1s`;
+                            item.addEventListener('mouseover', () => item.style.background = 'rgba(255,255,255,.08)');
+                            item.addEventListener('mouseout',  () => item.style.background = 'transparent');
+                            const iconEl = document.createElement('span');
+                            iconEl.style.cssText = 'font-size:15px;flex-shrink:0;line-height:1';
+                            iconEl.textContent = icon;
+                            const labelEl = document.createElement('span');
+                            labelEl.textContent = label;
+                            item.appendChild(iconEl); item.appendChild(labelEl);
+                            item.addEventListener('click', () => { menu.remove(); _dialogOpenGlobal = false; onClick(); });
+                            return item;
+                        };
+                        menu.appendChild(mkItem('✏️', 'Rename', null, () => {
+                            _dialogOpenGlobal = true;
+                            const newName = prompt('Rename group:', label);
+                            _dialogOpenGlobal = false;
+                            if (!newName || !newName.trim()) return;
+                            const arr = isTextTab ? getTextGroups() : getGroups();
+                            const idx = arr.findIndex(x => x.id === value);
+                            if (idx > -1) {
+                                arr[idx].name = newName.trim();
+                                isTextTab ? saveTextGroups(arr) : saveGroups(arr);
+                            }
+                            render();
+                        }));
+                        const sep = document.createElement('div');
+                        sep.style.cssText = 'height:0.5px;background:rgba(255,255,255,.1);margin:3px 8px';
+                        menu.appendChild(sep);
+                        menu.appendChild(mkItem('🗑️', 'Delete group', 'rgba(255,100,100,.9)', () => {
+                            _dialogOpenGlobal = true;
+                            const ok = confirm(`Delete group「${label}」? Records will be ungrouped.`);
+                            _dialogOpenGlobal = false;
+                            if (!ok) return;
+                            if (isTextTab) deleteTextGroup(value);
+                            else deleteGroup(value);
+                            if (getActiveGroupId() === value) setActiveGroupId(null);
+                            render();
+                        }));
+                        document.body.appendChild(menu);
+                        requestAnimationFrame(() => {
+                            const r = menu.getBoundingClientRect();
+                            if (r.right  > window.innerWidth)  menu.style.left = (e.clientX - r.width)  + 'px';
+                            if (r.bottom > window.innerHeight)  menu.style.top  = (e.clientY - r.height) + 'px';
+                        });
+                        const close = ev => {
+                            if (!menu.contains(ev.target)) {
+                                menu.remove();
+                                _dialogOpenGlobal = false;
+                                document.removeEventListener('mousedown', close, true);
+                            }
+                        };
+                        document.addEventListener('mousedown', close, true);
+                    });
+                }
+                return pill;
+            };
+
+            const SVG_ALL = `<svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="8" y="1" width="5" height="5" rx="1"/><rect x="1" y="8" width="5" height="5" rx="1"/><rect x="8" y="8" width="5" height="5" rx="1"/></svg>`;
+            scrollArea.appendChild(makePill(SVG_ALL, 'All', '__all__'));
+
+            const SVG_HEART = `<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" stroke="none"><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91z"/></svg>`;
+            scrollArea.appendChild(makePill(SVG_HEART, '', '__favorites__'));
+
+            groups.forEach(g => {
+                const ic = _resolveGroupIcon(g.icon);
+                const iconHtml = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">${ic.svg.match(/<svg[^>]*>([\s\S]*?)<\/svg>/)?.[1] || ''}</svg>`;
+                scrollArea.appendChild(makePill(iconHtml, g.name, g.id));
+            });
+
+            const SVG_DASH = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="2" y1="6" x2="10" y2="6"/></svg>`;
+            scrollArea.appendChild(makePill(SVG_DASH, 'Ungrouped', '__ungrouped__'));
+
+            groupTabBar.appendChild(btnAddGroup);
+            groupTabBar.appendChild(btnLeft);
+            groupTabBar.appendChild(scrollArea);
+            groupTabBar.appendChild(btnRight);
+
+            const syncArrows = () => {
+                const canLeft = scrollArea.scrollLeft > 2;
+                btnLeft.classList.toggle('visible', canLeft);
+            };
+            scrollArea.addEventListener('scroll', syncArrows, { passive: true });
+            if (window.ResizeObserver) {
+                const ro = new ResizeObserver(syncArrows);
+                ro.observe(scrollArea);
+            }
+            requestAnimationFrame(syncArrows);
+        }
+
+        return { buildGroupTabs };
+    }
+
+    function _createCrossNavController(deps) {
+        const { _openHistMediaLightbox, getNavRecords } = deps;
+        let _crossKeyHandlerRef = null;
+
+        function _getCrossNavNeighbor(recId, dir) {
+            if (getNavRecords().length < 2) return null;
+            const i = getNavRecords().findIndex(r => r.id === recId);
+            if (i === -1) return null;
+            const n = getNavRecords().length;
+            return getNavRecords()[(i + dir + n) % n];
+        }
+
+        function _removeCrossNavButtons() {
+            document.getElementById('tm-hcn-prev')?.remove();
+            document.getElementById('tm-hcn-next')?.remove();
+            if (_crossKeyHandlerRef) {
+                document.removeEventListener('keydown', _crossKeyHandlerRef);
+                _crossKeyHandlerRef = null;
+            }
+        }
+
+        const _HCN_MODAL_IDS = ['tm-image-lightbox', 'tm-floating-video-modal', 'tm-thumb-lb-backdrop'];
+
+        function _injectHistCrossNav(rec) {
+            _removeCrossNavButtons();
+            if (getNavRecords().length < 2) return;
+            let tries = 0;
+            const poll = () => {
+                const modal = _HCN_MODAL_IDS.map(id => document.getElementById(id)).find(Boolean);
+                if (modal) { _buildCrossNavButtons(rec, modal); return; }
+                if (++tries < 20) setTimeout(poll, 50);
+            };
+            poll();
+        }
+
+        function _buildCrossNavButtons(rec, modal) {
+            if (document.getElementById('tm-hcn-prev')) return;
+
+            modal.querySelectorAll('.tm-nav-fade-btn').forEach(btn => {
+                if (btn.style.left  === '20px') btn.style.left  = '76px';
+                if (btn.style.right === '20px') btn.style.right = '76px';
+            });
+
+            const BTN_BASE = `
+                position: fixed; top: 50%; transform: translateY(-50%);
+                background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+                color: white; border: none;
+                width: 40px; height: 40px; border-radius: 50%;
+                cursor: pointer; display: flex; align-items: center; justify-content: center;
+                transition: background 0.2s; z-index: 10000020;
+            `;
+            const SVG_DPREV = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18,18 10,12 18,6"/><polyline points="11,18 3,12 11,6"/></svg>`;
+            const SVG_DNEXT = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,18 14,12 6,6"/><polyline points="13,18 21,12 13,6"/></svg>`;
+
+            const _go = (dir) => {
+                const neighbor = _getCrossNavNeighbor(rec.id, dir);
+                if (!neighbor) return;
+                _removeCrossNavButtons();
+                document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+                setTimeout(() => {
+                    _openHistMediaLightbox(neighbor, 0, null);
+                    _injectHistCrossNav(neighbor);
+                }, 340);
+            };
+
+            const prevBtn = document.createElement('button');
+            prevBtn.id = 'tm-hcn-prev';
+            prevBtn.title = 'Previous record in history ([)';
+            prevBtn.setAttribute('aria-label', 'Previous record in history');
+            prevBtn.innerHTML = SVG_DPREV;
+            prevBtn.style.cssText = BTN_BASE + 'left: 20px;';
+            prevBtn.onmouseenter = () => prevBtn.style.background = 'rgba(255,255,255,0.25)';
+            prevBtn.onmouseleave = () => prevBtn.style.background = 'rgba(0,0,0,0.55)';
+            prevBtn.onclick = (e) => { e.stopPropagation(); _go(-1); };
+
+            const nextBtn = document.createElement('button');
+            nextBtn.id = 'tm-hcn-next';
+            nextBtn.title = 'Next record in history (])';
+            nextBtn.setAttribute('aria-label', 'Next record in history');
+            nextBtn.innerHTML = SVG_DNEXT;
+            nextBtn.style.cssText = BTN_BASE + 'right: 20px;';
+            nextBtn.onmouseenter = () => nextBtn.style.background = 'rgba(255,255,255,0.25)';
+            nextBtn.onmouseleave = () => nextBtn.style.background = 'rgba(0,0,0,0.55)';
+            nextBtn.onclick = (e) => { e.stopPropagation(); _go(1); };
+
+            document.body.appendChild(prevBtn);
+            document.body.appendChild(nextBtn);
+
+            _crossKeyHandlerRef = (e) => {
+                if (e.key === '[') { e.preventDefault(); _go(-1); }
+                if (e.key === ']') { e.preventDefault(); _go(1); }
+            };
+            document.addEventListener('keydown', _crossKeyHandlerRef);
+
+            const _watchClose = new MutationObserver(() => {
+                const stillOpen = _HCN_MODAL_IDS.some(id => document.getElementById(id));
+                if (!stillOpen) { _removeCrossNavButtons(); _watchClose.disconnect(); }
+            });
+            _watchClose.observe(document.body, { childList: true });
+        }
+
+        return {
+            getNeighbor: _getCrossNavNeighbor,
+            removeCrossNavButtons: _removeCrossNavButtons,
+            injectCrossNav: _injectHistCrossNav,
+            buildCrossNavButtons: _buildCrossNavButtons,
+        };
+    }
+
+    function _createImportExportController(deps) {
+        const { getRecords, btnExp, render } = deps;
+        let _expMenu = null;
+
+        function _exportCSV() {
+            const csvCell = v => {
+                const s = String(v == null ? '' : v);
+                return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+            };
+            const records = getRecords();
+            const groupNameMap = new Map(
+                [...getGroups(), ...getTextGroups()].map(g => [g.id, g.name])
+            );
+            const header  = 'tweetId,tweetUrl,date,screenName,displayName,text,mediaUrls,groupId,groupName,favorited\n';
+            const rows    = records.map(r => [
+                r.tweetId,
+                r.tweetUrl,
+                r.tweetDate,
+                r.screenName,
+                csvCell(r.displayName),
+                csvCell(r.tweetText),
+                csvCell((r.mediaUrls || []).join(' ')),
+                r.groupId || '',
+                csvCell(r.groupId ? (groupNameMap.get(r.groupId) || '') : ''),
+                r.favorited ? '1' : '0',
+            ].join(',')).join('\n');
+            _download('history.csv', header + rows, 'text/csv');
+        }
+        function _exportJSON() {
+            const payload = {
+                __tm_export_version: 1,
+                records: getRecords(),
+                groups: getGroups(),
+                textGroups: getTextGroups(),
+            };
+            _download('history.json', JSON.stringify(payload, null, 2), 'application/json');
+        }
+        function _download(filename, content, type) {
+            const blob = new Blob([content], { type });
+            const url  = URL.createObjectURL(blob);
+            const a    = document.createElement('a');
+            a.href = url; a.download = filename;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 5000);
+        }
+
+        function _importJSON() {
+            const input = document.createElement('input');
+            input.type   = 'file';
+            input.accept = '.json,application/json';
+            input.style.display = 'none';
+            document.body.appendChild(input);
+
+            input.addEventListener('change', () => {
+                const file = input.files?.[0];
+                if (!file) { input.remove(); return; }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const parsed = JSON.parse(e.target.result);
+
+                        let imported, importedGroups, importedTextGroups;
+                        if (Array.isArray(parsed)) {
+                            imported = parsed;
+                            importedGroups = importedTextGroups = [];
+                        } else if (parsed && Array.isArray(parsed.records)) {
+                            imported           = parsed.records;
+                            importedGroups     = Array.isArray(parsed.groups) ? parsed.groups : [];
+                            importedTextGroups = Array.isArray(parsed.textGroups) ? parsed.textGroups : [];
+                        } else {
+                            throw new Error('Not a valid history export');
+                        }
+
+                        const groupAddCount = _mergeImportedGroups(importedGroups, getGroups, saveGroups)
+                            + _mergeImportedGroups(importedTextGroups, getTextGroups, saveTextGroups);
+
+                        const addCount = _mergeImportedRecords(imported);
+                        imported.forEach(r => { if (r.tweetId) _downloadedIds.add(r.tweetId); });
+                        showToast(groupAddCount > 0
+                            ? `✅ Imported ${addCount} record(s), ${groupAddCount} group(s)`
+                            : `✅ Imported ${addCount} new record(s)`);
+                        render();
+                    } catch (err) {
+                        showToast(`❌ Import failed: ${err.message}`);
+                    } finally {
+                        input.remove();
+                    }
+                };
+                reader.readAsText(file);
+            });
+
+            input.click();
+        }
+
+        function _showExpMenu() {
+            const existing = document.getElementById('tm-exp-menu');
+            if (existing) { existing.remove(); _expMenu = null; return; }
+
+            const menu = document.createElement('div');
+            menu.id = 'tm-exp-menu';
+            _expMenu = menu;
+
+            const btnRect = btnExp.getBoundingClientRect();
+            const menuWidth = 152;
+            const menuLeft  = Math.max(4, btnRect.right - menuWidth);
+            menu.style.cssText = `
+                position:fixed;
+                left:${menuLeft}px;
+                top:${btnRect.bottom + 6}px;
+                background:rgba(22,32,43,.97);
+                border:1px solid rgba(255,255,255,.12);
+                border-radius:10px;
+                padding:4px;
+                z-index:999999;
+                min-width:${menuWidth}px;
+                box-shadow:0 6px 20px rgba(0,0,0,.5);
+                animation:tm-exp-menu-in .15s cubic-bezier(.34,1.56,.64,1);
+            `;
+
+            if (!document.getElementById('tm-exp-menu-style')) {
+                const s = document.createElement('style');
+                s.id = 'tm-exp-menu-style';
+                s.textContent = `@keyframes tm-exp-menu-in{from{opacity:0;transform:scale(.88) translateY(-4px)}to{opacity:1;transform:scale(1) translateY(0)}}`;
+                document.head.appendChild(s);
+            }
+
+            const mkItem = (icon, label, onClick) => {
+                const item = document.createElement('button');
+                item.type = 'button';
+                item.style.cssText = `
+                    display:flex;align-items:center;gap:8px;
+                    width:100%;padding:7px 10px;border:none;
+                    background:transparent;border-radius:7px;
+                    color:rgba(255,255,255,.8);font-size:12px;
+                    cursor:pointer;font-family:inherit;text-align:left;
+                    transition:background .1s;white-space:nowrap;
+                `;
+                item.innerHTML = `<span style="opacity:.65;display:flex;align-items:center">${icon}</span><span>${label}</span>`;
+                item.addEventListener('mouseover', () => item.style.background = 'rgba(255,255,255,.09)');
+                item.addEventListener('mouseout',  () => item.style.background = 'transparent');
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    menu.remove(); _expMenu = null;
+                    document.removeEventListener('click', closeMenu, true);
+                    onClick();
+                });
+                return item;
+            };
+
+            const SVG_CSV  = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="2" y="1" width="12" height="14" rx="1.5"/><line x1="5" y1="5" x2="11" y2="5"/><line x1="5" y1="8" x2="11" y2="8"/><line x1="5" y1="11" x2="8" y2="11"/></svg>`;
+            const SVG_JSON = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 2C3.5 2 3 3 3 4v2c0 1-.5 1.5-1 2 .5.5 1 1 1 2v2c0 1 .5 2 2 2"/><path d="M11 2c1.5 0 2 1 2 2v2c0 1 .5 1.5 1 2-.5.5-1 1-1 2v2c0 1-.5 2-2 2"/></svg>`;
+            const SVG_IMP  = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 10V2M5 7l3 3 3-3"/><path d="M2 12h12"/></svg>`;
+
+            const divider = document.createElement('div');
+            divider.style.cssText = 'height:1px;background:rgba(255,255,255,.08);margin:3px 4px';
+
+            menu.appendChild(mkItem(SVG_CSV,  'Export CSV',  _exportCSV));
+            menu.appendChild(mkItem(SVG_JSON, 'Export JSON', _exportJSON));
+            menu.appendChild(divider);
+            menu.appendChild(mkItem(SVG_IMP,  'Import JSON', _importJSON));
+
+            document.body.appendChild(menu);
+
+            const closeMenu = (e) => {
+                if (menu.contains(e.target) || e.target === btnExp) return;
+                menu.remove(); _expMenu = null;
+            };
+            setTimeout(() => document.addEventListener('click', closeMenu, { capture: true, once: true }), 80);
+        }
+
+        return {
+            exportCSV: _exportCSV,
+            exportJSON: _exportJSON,
+            importJSON: _importJSON,
+            showExportMenu: _showExpMenu,
+        };
+    }
+
     function showHistoryPanel() {
         let _pinned = GM_getValue(KEY_HIST_PINNED, false);
         let _pinCloseAlertCount = 0;
@@ -8343,132 +10620,20 @@
         let _recordsCache = null;
         function _invalidateRecordsCache() { _recordsCache = null; }
 
-        const _SRCH_HIST_MAX = 30;
-        function _loadSearchHist() {
-            try { return JSON.parse(GM_getValue(KEY_SEARCH_HISTORY, '[]')); } catch (_) { return []; }
-        }
-        function _saveSearchHist(h) { GM_setValue(KEY_SEARCH_HISTORY, JSON.stringify(h)); }
-        function _addSearchHist(text) {
-            if (!text || text.length < 2) return;
-            let h = _loadSearchHist().filter(e => e.text.toLowerCase() !== text.toLowerCase());
-            h.unshift({ text, pinned: false, ts: Date.now() });
-            const pinned   = h.filter(e => e.pinned);
-            const unpinned = h.filter(e => !e.pinned).slice(0, _SRCH_HIST_MAX);
-            _saveSearchHist([...pinned, ...unpinned]);
-        }
-        function _getSortedHist() {
-            const h = _loadSearchHist();
-            return [
-                ...h.filter(e => e.pinned).sort((a, b) => a.ts - b.ts),
-                ...h.filter(e => !e.pinned).sort((a, b) => b.ts - a.ts),
-            ];
-        }
-        const _SPIN_HOLLOW = `<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="1.8" width="6" height="5.6" rx="1"/><line x1="8" y1="7.4" x2="8" y2="10.8"/><path d="M5.7 10.8h4.6l-2.3 3.4z"/></svg>`;
-        const _SPIN_FILL   = `<svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="1.8" width="6" height="5.6" rx="1"/><path d="M8 7.4v3.4" stroke-width="1.8" fill="none"/><path d="M5.7 10.8h4.6l-2.3 3.4z"/></svg>`;
-        function _buildSearchHistRow(item) {
-            const row = document.createElement('div');
-            row.className = 'tm-search-hist-item';
-            row.dataset.histKey = item.text;
-            const pinBtn = document.createElement('button');
-            pinBtn.className = 'tm-search-pin-btn' + (item.pinned ? ' pinned' : '');
-            pinBtn.title = item.pinned ? 'Unpin' : 'Pin to top';
-            pinBtn.innerHTML = item.pinned ? _SPIN_FILL : _SPIN_HOLLOW;
-            pinBtn.addEventListener('click', e => {
-                e.stopPropagation();
-                const h2 = _loadSearchHist();
-                const entry = h2.find(e2 => e2.text === item.text);
-                if (entry) {
-                    entry.pinned = !entry.pinned;
-                    if (entry.pinned) entry.ts = Date.now();
-                    _saveSearchHist(h2);
-                }
-                _renderSearchDrop();
-            });
-            const textEl = document.createElement('span');
-            textEl.className = 'tm-search-hist-text';
-            textEl.textContent = item.text;
-            const delBtn = document.createElement('button');
-            delBtn.className = 'tm-search-del-btn';
-            delBtn.title = 'Remove';
-            delBtn.textContent = '✕';
-            delBtn.addEventListener('click', e => {
-                e.stopPropagation();
-                const remaining = _loadSearchHist().filter(e2 => e2.text !== item.text);
-                _saveSearchHist(remaining);
-                _renderSearchDrop();
-            });
-            row.addEventListener('mousedown', e => {
-                if (pinBtn.contains(e.target) || delBtn.contains(e.target)) return;
-                e.preventDefault();
-                searchInput.value = item.text;
-                query = item.text; render();
-                _hideSearchDrop();
-            });
-            row.appendChild(pinBtn); row.appendChild(textEl); row.appendChild(delBtn);
-            return row;
-        }
-        function _renderSearchDrop() {
-            if (!_searchDrop) return;
-            const hist = _getSortedHist();
-            if (!hist.length) { _hideSearchDrop(); return; }
-
-            const existingMap = new Map();
-            _searchDrop.querySelectorAll('.tm-search-hist-item[data-hist-key]')
-                .forEach(el => existingMap.set(el.dataset.histKey, el));
-
-            const fragment = document.createDocumentFragment();
-            hist.forEach(item => {
-                let row = existingMap.get(item.text);
-                existingMap.delete(item.text);
-                if (!row) {
-                    row = _buildSearchHistRow(item);
-                } else {
-                    const pinBtn = row.querySelector('.tm-search-pin-btn');
-                    if (pinBtn) {
-                        pinBtn.className = 'tm-search-pin-btn' + (item.pinned ? ' pinned' : '');
-                        pinBtn.title     = item.pinned ? 'Unpin' : 'Pin to top';
-                        pinBtn.innerHTML = item.pinned ? _SPIN_FILL : _SPIN_HOLLOW;
-                    }
-                }
-                fragment.appendChild(row);
-            });
-            existingMap.forEach(el => el.remove());
-            const unpinCnt = hist.filter(e => !e.pinned).length;
-            if (unpinCnt > 0) {
-                const footer = document.createElement('div');
-                footer.className = 'tm-search-drop-footer';
-                const clearBtn = document.createElement('button');
-                clearBtn.className = 'tm-search-clear-all';
-                clearBtn.textContent = `Clear history (${unpinCnt})`;
-                clearBtn.addEventListener('mousedown', e => {
-                    e.preventDefault();
-                    _saveSearchHist(_loadSearchHist().filter(e2 => e2.pinned));
-                    _renderSearchDrop();
-                });
-                footer.appendChild(clearBtn);
-                fragment.appendChild(footer);
-            }
-            _searchDrop.appendChild(fragment);
-        }
-        function _showSearchDrop() {
-            if (_searchDropVisible || !_getSortedHist().length) return;
-            _searchDropVisible = true;
-            _searchDrop.classList.remove('closing');
-            _searchDrop.style.display = 'block';
-            requestAnimationFrame(() => _searchDrop.style.transform = '');
-            _renderSearchDrop();
-        }
-        function _hideSearchDrop() {
-            if (!_searchDrop || !_searchDropVisible) return;
-            _searchDropVisible = false;
-            _searchDrop.classList.add('closing');
-            const onEnd = () => {
-                if (_searchDropVisible) return;
-                _searchDrop.classList.remove('closing');
-                _searchDrop.style.display = 'none';
-            };
-            _searchDrop.addEventListener('transitionend', onEnd, { once: true });
-        }
+        const searchHistCtl = _createSearchHistoryController({
+            render,
+            getSearchInput: () => searchInput,
+            getSearchDrop: () => _searchDrop,
+            setQuery: (v) => { query = v; },
+        });
+        const _loadSearchHist      = searchHistCtl.load;
+        const _saveSearchHist      = searchHistCtl.save;
+        const _addSearchHist       = searchHistCtl.add;
+        const _getSortedHist       = searchHistCtl.getSorted;
+        const _buildSearchHistRow  = searchHistCtl.buildRow;
+        const _renderSearchDrop    = searchHistCtl.renderDrop;
+        const _showSearchDrop      = searchHistCtl.show;
+        const _hideSearchDrop      = searchHistCtl.hide;
 
         let histStyleEl = document.getElementById('tm-hist-style');
         if (!histStyleEl) {
@@ -8595,11 +10760,6 @@
                 font-size: 12px; font-weight: 700; letter-spacing: .3px;
                 color: ${dark ? '#e8c988' : '#3d3527'};
                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            }
-            .tm-hist-count-badge {
-                font-size: 10px; padding: 2px 7px; border-radius: 99px;
-                background: ${C.groupHdr}; color: ${C.sub};
-                white-space: nowrap; flex-shrink: 0;
             }
             .tm-hist-icon-btn {
                 width: 26px; height: 26px; border-radius: 6px; border: none;
@@ -9396,9 +11556,6 @@
         titleEl.className = 'tm-hist-title';
         titleEl.appendChild(titleBadge);
 
-        const countBadge = document.createElement('span');
-        countBadge.className = 'tm-hist-count-badge';
-
         const themeToggleBtn = document.createElement('button');
         themeToggleBtn.className = 'tm-hist-icon-btn tm-hist-theme-toggle';
         themeToggleBtn.type = 'button';
@@ -9494,7 +11651,6 @@
         });
 
         titlebar.appendChild(titleEl);
-        titlebar.appendChild(countBadge);
         titlebar.appendChild(themeToggleBtn);
         titlebar.appendChild(btnPin);
         const sortSel = document.createElement('select');
@@ -9576,198 +11732,13 @@
         const groupTabBar = document.createElement('div');
         groupTabBar.id = 'tm-group-tab-bar';
 
-        function buildGroupTabs() {
-            groupTabBar.innerHTML = '';
-            const isTextTab = mediaFilter === 'text';
-            const groups = isTextTab ? getTextGroups() : getGroups();
-            groupTabBar.style.display = 'flex';
-
-            const SVG_LEFT  = `<svg viewBox="0 0 10 10" fill="currentColor"><path d="M6.5 2L3.5 5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>`;
-            const SVG_RIGHT = `<svg viewBox="0 0 10 10" fill="currentColor"><path d="M3.5 2L6.5 5l-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>`;
-
-            const btnAddGroup = document.createElement('button');
-            btnAddGroup.type = 'button';
-            btnAddGroup.title = 'New group';
-            btnAddGroup.style.cssText = `flex-shrink:0;width:26px;height:26px;border-radius:7px;border:none;background:transparent;color:${C.sub};cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s;margin:0 3px 0 2px`;
-            btnAddGroup.innerHTML = '<svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>';
-            btnAddGroup.addEventListener('mouseover', () => { btnAddGroup.style.background = 'rgba(29,155,240,.18)'; btnAddGroup.style.color = '#1d9bf0'; });
-            btnAddGroup.addEventListener('mouseout',  () => { btnAddGroup.style.background = 'transparent'; btnAddGroup.style.color = C.sub; });
-            btnAddGroup.addEventListener('click', e => {
-                e.stopPropagation();
-                StarPipState.pendingIsText = isTextTab;
-                showGroupCreateModal();
-            });
-
-            const btnLeft = document.createElement('button');
-            btnLeft.className = 'tm-gtab-scroll-btn left';
-            btnLeft.innerHTML = SVG_LEFT;
-            btnLeft.title = 'Scroll left';
-            btnLeft.addEventListener('click', (e) => {
-                e.stopPropagation();
-                scrollArea.scrollBy({ left: -120, behavior: 'smooth' });
-            });
-
-            const scrollArea = document.createElement('div');
-            scrollArea.id = 'tm-group-tab-scroll';
-
-            const btnRight = document.createElement('button');
-            btnRight.className = 'tm-gtab-scroll-btn right visible';
-            btnRight.innerHTML = SVG_RIGHT;
-            btnRight.title = 'Scroll right';
-            btnRight.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const maxScroll = scrollArea.scrollWidth - scrollArea.clientWidth;
-                if (scrollArea.scrollLeft >= maxScroll - 2) {
-                    btnRight.classList.remove('tm-end-flash');
-                    void btnRight.offsetWidth;
-                    btnRight.classList.add('tm-end-flash');
-                    btnRight.addEventListener('animationend', () => btnRight.classList.remove('tm-end-flash'), { once: true });
-                    scrollArea.scrollTo({ left: 0, behavior: 'smooth' });
-                } else {
-                    scrollArea.scrollBy({ left: 120, behavior: 'smooth' });
-                }
-            });
-
-            const makePill = (iconHtml, label, value) => {
-                const pill = document.createElement('button');
-                pill.type = 'button';
-                const isActive =
-                    (value === '__all__'       && (activeGroupId === null || activeGroupId === '__all__')) ||
-                    (value === '__ungrouped__' && activeGroupId === '__ungrouped__') ||
-                    (value !== '__all__' && value !== '__ungrouped__' && activeGroupId === value);
-                pill.className = 'tm-gtab-pill' + (isActive ? ' active' : '');
-                const iconSpan = document.createElement('span');
-                iconSpan.innerHTML = iconHtml;
-                iconSpan.style.cssText = 'display:inline-flex;align-items:center;flex-shrink:0';
-                pill.appendChild(iconSpan);
-                if (label) {
-                    const txtSpan = document.createElement('span');
-                    txtSpan.textContent = label;
-                    pill.appendChild(txtSpan);
-                }
-                if (value !== '__ungrouped__' && value !== '__all__' && value !== '__favorites__' && GM_getValue('app_group_unread_' + value, false)) {
-                    const dot = document.createElement('span');
-                    dot.className = 'tm-gtab-dot';
-                    pill.appendChild(dot);
-                }
-                pill.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    activeGroupId = value === '__all__' ? null : value;
-                    if (value !== '__ungrouped__' && value !== '__all__' && value !== '__favorites__') {
-                        GM_deleteValue('app_group_unread_' + value);
-                        pill.querySelector('.tm-gtab-dot')?.remove();
-                    }
-                    scrollArea.querySelectorAll('.tm-gtab-pill').forEach(p => p.classList.remove('active'));
-                    pill.classList.add('active');
-                    pill.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-                    render();
-                });
-
-                if (value !== '__ungrouped__' && value !== '__all__' && value !== '__favorites__') {
-                    pill.addEventListener('contextmenu', e => {
-                        e.preventDefault(); e.stopPropagation();
-                        document.getElementById('tm-pill-ctx')?.remove();
-                        _dialogOpenGlobal = true;
-                        const menu = document.createElement('div');
-                        menu.id = 'tm-pill-ctx';
-                        menu.style.cssText = `
-                            position:fixed;left:${e.clientX}px;top:${e.clientY}px;
-                            background:#1a1f2e;border:0.5px solid rgba(255,255,255,.15);
-                            border-radius:10px;padding:4px;min-width:150px;
-                            z-index:999999;box-shadow:0 8px 32px rgba(0,0,0,.6);
-                            font-size:13px;
-                        `;
-                        const mkItem = (icon, label, color, onClick) => {
-                            const item = document.createElement('button');
-                            item.type = 'button';
-                            item.style.cssText = `display:flex;align-items:center;gap:9px;width:100%;padding:8px 12px;background:transparent;border:none;border-radius:7px;color:${color || 'rgba(255,255,255,.88)'};cursor:pointer;font-size:13px;font-family:inherit;text-align:left;transition:background .1s`;
-                            item.addEventListener('mouseover', () => item.style.background = 'rgba(255,255,255,.08)');
-                            item.addEventListener('mouseout',  () => item.style.background = 'transparent');
-                            const iconEl = document.createElement('span');
-                            iconEl.style.cssText = 'font-size:15px;flex-shrink:0;line-height:1';
-                            iconEl.textContent = icon;
-                            const labelEl = document.createElement('span');
-                            labelEl.textContent = label;
-                            item.appendChild(iconEl); item.appendChild(labelEl);
-                            item.addEventListener('click', () => { menu.remove(); _dialogOpenGlobal = false; onClick(); });
-                            return item;
-                        };
-                        menu.appendChild(mkItem('✏️', 'Rename', null, () => {
-                            _dialogOpenGlobal = true;
-                            const newName = prompt('Rename group:', label);
-                            _dialogOpenGlobal = false;
-                            if (!newName || !newName.trim()) return;
-                            const arr = isTextTab ? getTextGroups() : getGroups();
-                            const idx = arr.findIndex(x => x.id === value);
-                            if (idx > -1) {
-                                arr[idx].name = newName.trim();
-                                isTextTab ? saveTextGroups(arr) : saveGroups(arr);
-                            }
-                            render();
-                        }));
-                        const sep = document.createElement('div');
-                        sep.style.cssText = 'height:0.5px;background:rgba(255,255,255,.1);margin:3px 8px';
-                        menu.appendChild(sep);
-                        menu.appendChild(mkItem('🗑️', 'Delete group', 'rgba(255,100,100,.9)', () => {
-                            _dialogOpenGlobal = true;
-                            const ok = confirm(`Delete group「${label}」? Records will be ungrouped.`);
-                            _dialogOpenGlobal = false;
-                            if (!ok) return;
-                            if (isTextTab) deleteTextGroup(value);
-                            else deleteGroup(value);
-                            if (activeGroupId === value) activeGroupId = null;
-                            render();
-                        }));
-                        document.body.appendChild(menu);
-                        requestAnimationFrame(() => {
-                            const r = menu.getBoundingClientRect();
-                            if (r.right  > window.innerWidth)  menu.style.left = (e.clientX - r.width)  + 'px';
-                            if (r.bottom > window.innerHeight)  menu.style.top  = (e.clientY - r.height) + 'px';
-                        });
-                        const close = ev => {
-                            if (!menu.contains(ev.target)) {
-                                menu.remove();
-                                _dialogOpenGlobal = false;
-                                document.removeEventListener('mousedown', close, true);
-                            }
-                        };
-                        document.addEventListener('mousedown', close, true);
-                    });
-                }
-                return pill;
-            };
-
-            const SVG_ALL = `<svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="8" y="1" width="5" height="5" rx="1"/><rect x="1" y="8" width="5" height="5" rx="1"/><rect x="8" y="8" width="5" height="5" rx="1"/></svg>`;
-            scrollArea.appendChild(makePill(SVG_ALL, 'All', '__all__'));
-
-            const SVG_HEART = `<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" stroke="none"><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91z"/></svg>`;
-            scrollArea.appendChild(makePill(SVG_HEART, '', '__favorites__'));
-
-            groups.forEach(g => {
-                const ic = _resolveGroupIcon(g.icon);
-                const iconHtml = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">${ic.svg.match(/<svg[^>]*>([\s\S]*?)<\/svg>/)?.[1] || ''}</svg>`;
-                scrollArea.appendChild(makePill(iconHtml, g.name, g.id));
-            });
-
-            const SVG_DASH = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="2" y1="6" x2="10" y2="6"/></svg>`;
-            scrollArea.appendChild(makePill(SVG_DASH, 'Ungrouped', '__ungrouped__'));
-
-            groupTabBar.appendChild(btnAddGroup);
-            groupTabBar.appendChild(btnLeft);
-            groupTabBar.appendChild(scrollArea);
-            groupTabBar.appendChild(btnRight);
-
-            const syncArrows = () => {
-                const canLeft = scrollArea.scrollLeft > 2;
-                btnLeft.classList.toggle('visible', canLeft);
-            };
-            scrollArea.addEventListener('scroll', syncArrows, { passive: true });
-            if (window.ResizeObserver) {
-                const ro = new ResizeObserver(syncArrows);
-                ro.observe(scrollArea);
-            }
-            requestAnimationFrame(syncArrows);
-        }
+        const groupTabsBuilder = _createGroupTabsBuilder({
+            groupTabBar, C, render,
+            getMediaFilter: () => mediaFilter,
+            getActiveGroupId: () => activeGroupId,
+            setActiveGroupId: (v) => { activeGroupId = v; },
+        });
+        const buildGroupTabs = groupTabsBuilder.buildGroupTabs;
 
         buildGroupTabs();
         panel.appendChild(groupTabBar);
@@ -9891,7 +11862,7 @@
             };
             records.sort(_sorters[sortMode] || _sorters.newest);
             const filtered = getFiltered(records);
-            countBadge.textContent = `${records.length} entries`;
+            searchInput.placeholder = `${T.hist_search_ph || '🔍  Search…'}  All ${records.length} entries`;
             delSelBtn.textContent = `Delete selected (${selectedIds.size})`;
 
             const _visibleRecs = filtered.filter(r => !collapsedGroups.has(r.yyyymm));
@@ -9958,1347 +11929,50 @@
             btnViewToggle.classList.toggle('active', true);
         }
 
-        function _getTextBmContentColor() {
-            try {
-                const cfg = JSON.parse(GM_getValue(KEY_TEXT_BM_CFG, '{}'));
-                return cfg.textContentColor || '#ffd700';
-            } catch(_) { return '#ffd700'; }
-        }
-
-        function _showTextPreview(rec) {
-            const existing = document.getElementById('tm-text-preview-overlay');
-            if (existing) existing.remove();
-
-            _dialogOpenGlobal = true;
-
-            const _closePreview = () => {
-                overlay.remove();
-                _dialogOpenGlobal = false;
-            };
-
-            const overlay = document.createElement('div');
-            overlay.id = 'tm-text-preview-overlay';
-            overlay.style.cssText = `
-                position:fixed;inset:0;z-index:99999999;
-                background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;
-                backdrop-filter:blur(4px);cursor:pointer;
-            `;
-
-            const card = document.createElement('div');
-            card.style.cssText = `
-                background:#192734;border-radius:14px;padding:24px 28px;
-                max-width:520px;width:calc(100vw - 48px);max-height:80vh;
-                overflow-y:auto;cursor:default;
-                border:1px solid rgba(255,255,255,.12);
-                box-shadow:0 24px 64px rgba(0,0,0,.7);
-            `;
-            card.addEventListener('click', e => e.stopPropagation());
-
-            const authorRow = document.createElement('div');
-            authorRow.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:14px';
-            if (rec.avatarUrl) {
-                const av = document.createElement('img');
-                av.src = rec.avatarUrl; av.alt = ''; av.loading = 'lazy';
-                av.style.cssText = 'width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0';
-                authorRow.appendChild(av);
-            }
-            const authorMeta = document.createElement('div');
-            authorMeta.style.cssText = 'display:flex;flex-direction:column;gap:2px;min-width:0';
-            const dname = document.createElement('div');
-            dname.textContent = rec.displayName || rec.screenName;
-            dname.style.cssText = 'font-size:14px;font-weight:700;color:#e7e9ea;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
-            const sname = document.createElement('div');
-            sname.textContent = '@' + (rec.screenName || '');
-            sname.style.cssText = 'font-size:12px;color:rgba(255,255,255,.45)';
-            authorMeta.appendChild(dname); authorMeta.appendChild(sname);
-            authorRow.appendChild(authorMeta);
-            card.appendChild(authorRow);
-
-            const hr = document.createElement('div');
-            hr.style.cssText = 'border-top:1px solid rgba(255,255,255,.1);margin-bottom:16px';
-            card.appendChild(hr);
-
-            const textEl = document.createElement('div');
-            textEl.textContent = rec.text || '(no text)';
-            textEl.style.cssText = `
-                font-size:18px;line-height:1.7;color:${_getTextBmContentColor()};
-                white-space:pre-wrap;word-break:break-word;margin-bottom:16px;
-            `;
-            card.appendChild(textEl);
-
-            const meta = document.createElement('div');
-            meta.style.cssText = 'display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:4px';
-            if (rec.downloadDate) {
-                const d = document.createElement('span');
-                d.textContent = rec.downloadDate;
-                d.style.cssText = 'font-size:12px;color:rgba(255,255,255,.35)';
-                meta.appendChild(d);
-            }
-            if (rec.tweetUrl) {
-                const link = document.createElement('a');
-                link.href = rec.tweetUrl; link.target = '_blank'; link.rel = 'noopener noreferrer';
-                link.textContent = 'Open tweet ↗';
-                link.style.cssText = 'font-size:12px;color:#1d9bf0;text-decoration:none';
-                link.addEventListener('click', e => e.stopPropagation());
-                meta.appendChild(link);
-            }
-            card.appendChild(meta);
-
-            const closeBtn = document.createElement('button');
-            closeBtn.textContent = '✕';
-            closeBtn.style.cssText = `
-                position:absolute;top:14px;right:14px;
-                background:rgba(255,255,255,.12);border:none;color:rgba(255,255,255,.7);
-                width:28px;height:28px;border-radius:50%;cursor:pointer;
-                font-size:13px;display:flex;align-items:center;justify-content:center;
-                transition:background .12s;
-            `;
-            closeBtn.addEventListener('mouseover', () => closeBtn.style.background = 'rgba(255,255,255,.22)');
-            closeBtn.addEventListener('mouseout',  () => closeBtn.style.background = 'rgba(255,255,255,.12)');
-            closeBtn.addEventListener('click', () => _closePreview());
-            card.style.position = 'relative';
-            card.appendChild(closeBtn);
-
-            overlay.appendChild(card);
-            overlay.addEventListener('click', () => _closePreview());
-            const _onEsc = (e) => { if (e.key === 'Escape') { _closePreview(); document.removeEventListener('keydown', _onEsc); } };
-            document.addEventListener('keydown', _onEsc);
-            document.body.appendChild(overlay);
-        }
-
-        function renderTextAuthorList(records) {
-            if (!records.length) { _renderEmpty(); return; }
-            const frag = document.createDocumentFragment();
-
-            const authorMap = new Map();
-            records.forEach(r => {
-                const key = r.screenName || '';
-                if (!authorMap.has(key)) {
-                    authorMap.set(key, {
-                        recs: [], maxTs: 0,
-                        displayName: r.displayName || key,
-                        avatarUrl: r.avatarUrl || '',
-                        screenName: key,
-                    });
-                }
-                const entry = authorMap.get(key);
-                entry.recs.push(r);
-                if ((r.ts || 0) > entry.maxTs) entry.maxTs = r.ts || 0;
-            });
-
-            const authors = Array.from(authorMap.values())
-                .sort((a, b) => b.maxTs - a.maxTs);
-
-            const SVG_HOME = `<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7L8 2l6 5"/><path d="M4 7v6h3v-3h2v3h3V7"/></svg>`;
-            const SVG_JUMP = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 2h4v4"/><path d="M7 9L14 2"/><path d="M12 10v4H2V4h4"/></svg>`;
-            const SVG_DEL  = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><polyline points="2,4 4,4 14,4"/><path d="M13 4l-.9 9H3.9L3 4"/><path d="M6.5 7v4M9.5 7v4"/><path d="M5.5 4V2.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5V4"/></svg>`;
-            const SVG_HEART_EMPTY = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
-            const SVG_HEART_FULL  = `<svg viewBox="0 0 16 16" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
-            const SVG_CHEV_DOWN   = `<svg viewBox="0 0 10 10" width="10" height="10" fill="currentColor"><path d="M1 3l4 4 4-4z"/></svg>`;
-            const SVG_CHEV_RIGHT  = `<svg viewBox="0 0 10 10" width="10" height="10" fill="currentColor"><path d="M3 1l4 4-4 4z"/></svg>`;
-
-            const textColor = _getTextBmContentColor();
-            let globalItemIdx = 0;
-
-            authors.forEach(({ screenName, displayName, avatarUrl, recs }) => {
-                const isCollapsed = _textAuthorCollapsed.has(screenName);
-
-                const header = document.createElement('div');
-                header.className = 'tm-hist-group-header';
-                header.dataset.authorHandle = screenName;
-                const _hdrBgIdle = dark ? 'rgba(255,255,255,.04)' : 'rgba(15,20,25,.035)';
-                header.style.cssText = `display:flex;align-items:center;gap:8px;padding:8px 10px 8px 8px;cursor:pointer;border-radius:8px;margin:2px 0;background:${_hdrBgIdle};transition:background .12s`;
-                header.addEventListener('mouseover', () => header.style.background = 'rgba(29,155,240,.1)');
-                header.addEventListener('mouseout',  () => header.style.background = _hdrBgIdle);
-
-                if (avatarUrl) {
-                    const av = document.createElement('img');
-                    av.src = avatarUrl; av.alt = ''; av.loading = 'lazy';
-                    av.style.cssText = `width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid ${dark ? 'rgba(255,255,255,.12)' : 'rgba(15,20,25,.14)'}`;
-                    av.decode && av.decode().catch(() => {});
-                    header.appendChild(av);
-                } else {
-                    const avFb = document.createElement('div');
-                    avFb.style.cssText = `width:40px;height:40px;border-radius:50%;background:rgba(29,155,240,.25);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;color:${dark ? 'rgba(255,255,255,.5)' : '#ffffff'};flex-shrink:0`;
-                    avFb.textContent = (displayName || screenName).charAt(0).toUpperCase();
-                    header.appendChild(avFb);
-                }
-
-                const authorInfo = document.createElement('div');
-                authorInfo.style.cssText = 'flex:1;min-width:0';
-                const dname = document.createElement('div');
-                dname.textContent = displayName;
-                dname.style.cssText = `font-size:13px;font-weight:700;color:${C.text};white-space:nowrap;overflow:hidden;text-overflow:ellipsis`;
-                const sname = document.createElement('div');
-                sname.style.cssText = 'display:flex;align-items:center;gap:5px;margin-top:1px';
-                const snameText = document.createElement('span');
-                snameText.textContent = '@' + screenName;
-                snameText.style.cssText = `font-size:11px;color:${dark ? 'rgba(255,255,255,.4)' : 'rgba(15,20,25,.42)'}`;
-                sname.appendChild(snameText);
-                const homeLink = document.createElement('a');
-                homeLink.href = `https://x.com/${screenName}`;
-                homeLink.target = '_blank'; homeLink.rel = 'noopener noreferrer';
-                homeLink.innerHTML = SVG_HOME;
-                const _homeLinkIdle = dark ? 'rgba(255,255,255,.3)' : 'rgba(15,20,25,.32)';
-                homeLink.style.cssText = `display:inline-flex;align-items:center;color:${_homeLinkIdle};transition:color .12s;flex-shrink:0`;
-                homeLink.title = `@${screenName} profile`;
-                homeLink.addEventListener('click', e => e.stopPropagation());
-                homeLink.addEventListener('mouseover', () => homeLink.style.color = '#1d9bf0');
-                homeLink.addEventListener('mouseout',  () => homeLink.style.color = _homeLinkIdle);
-                sname.appendChild(homeLink);
-                authorInfo.appendChild(dname); authorInfo.appendChild(sname);
-                header.appendChild(authorInfo);
-
-                const countBdg = document.createElement('span');
-                countBdg.textContent = `${recs.length}`;
-                countBdg.style.cssText = `font-size:10px;color:${dark ? 'rgba(255,255,255,.4)' : 'rgba(15,20,25,.42)'};background:${dark ? 'rgba(255,255,255,.09)' : 'rgba(15,20,25,.07)'};border-radius:99px;padding:1px 7px;flex-shrink:0`;
-                header.appendChild(countBdg);
-
-                const chev = document.createElement('span');
-                chev.style.cssText = `color:${dark ? 'rgba(255,255,255,.3)' : 'rgba(15,20,25,.32)'};flex-shrink:0;line-height:0`;
-                chev.innerHTML = isCollapsed ? SVG_CHEV_RIGHT : SVG_CHEV_DOWN;
-                header.appendChild(chev);
-
-                header.addEventListener('click', () => {
-                    if (_textAuthorCollapsed.has(screenName)) _textAuthorCollapsed.delete(screenName);
-                    else _textAuthorCollapsed.add(screenName);
-                    render();
-                });
-
-                frag.appendChild(header);
-
-                if (isCollapsed) return;
-
-                const sortedRecs = recs.slice().sort((a, b) => (b.ts || 0) - (a.ts || 0));
-                let _cbShiftDown = false;
-                sortedRecs.forEach(rec => {
-                    const row = document.createElement('div');
-                    row.className = 'tm-hist-row tm-text-author-item' + (selectedIds.has(rec.id) ? ' selected' : '');
-                    row.dataset.id = rec.id;
-                    if (globalItemIdx < 8) row.style.animationDelay = `${globalItemIdx * 30}ms`;
-                    globalItemIdx++;
-                    row.style.paddingLeft = '56px';
-                    row.title = editMode ? '' : 'Click to preview full text';
-
-                    if (editMode) {
-                        if (!rec.favorited) {
-                            const cb = document.createElement('input');
-                            cb.type = 'checkbox';
-                            cb.className = 'tm-hist-cb';
-                            cb.checked = selectedIds.has(rec.id);
-                            cb.addEventListener('mousedown', e => { _cbShiftDown = e.shiftKey; });
-                            cb.addEventListener('change', e => {
-                                e.stopPropagation();
-                                _toggleTextRowSel(rec.id, row, cb);
-                                _cbShiftDown = false;
-                            });
-                            row.appendChild(cb);
-                        } else {
-                            const lock = document.createElement('span');
-                            lock.className = 'tm-hist-cb';
-                            lock.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;opacity:0.35;font-size:10px;';
-                            lock.textContent = '♥';
-                            row.appendChild(lock);
-                        }
-                        row.style.cursor = rec.favorited ? 'default' : 'pointer';
-                    }
-
-                    const textEl = document.createElement('div');
-                    textEl.className = 'tm-hist-text';
-                    textEl.textContent = rec.text || '(no caption)';
-                    textEl.style.cssText = `
-                        color:${textColor};font-size:13px;line-height:1.55;
-                        display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
-                        overflow:hidden;word-break:break-word;flex:1;min-width:0;
-                    `;
-
-                    const dateEl = document.createElement('span');
-                    dateEl.className = 'tm-hist-date';
-                    if (rec.downloadDate) {
-                        const [dy, dm, dd] = rec.downloadDate.split('-');
-                        if (_cachedDateFormat === 'western') {
-                            const MON = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-                            dateEl.textContent = `${parseInt(dd, 10)} ${MON[parseInt(dm, 10)] || dm} ${dy}`;
-                        } else {
-                            dateEl.textContent = `${dy}.${dm}.${dd}`;
-                        }
-                    }
-
-                    const infoLine = document.createElement('div');
-                    infoLine.style.cssText = 'display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0';
-                    if (rec.downloadDate) {
-                        const dateSep = document.createElement('span');
-                        dateSep.style.cssText = `font-size:11px;color:${dark ? 'rgba(255,255,255,.28)' : 'rgba(15,20,25,.4)'};white-space:nowrap;padding-top:1px;flex-shrink:0`;
-                        dateSep.textContent = dateEl.textContent;
-                        infoLine.appendChild(dateSep);
-                    }
-                    infoLine.appendChild(textEl);
-                    row.appendChild(infoLine);
-
-                    const acts = document.createElement('div');
-                    acts.className = 'tm-hist-actions';
-
-                    const jmpBtn = document.createElement('button');
-                    jmpBtn.className = 'tm-hist-act-btn'; jmpBtn.innerHTML = SVG_JUMP;
-                    jmpBtn.title = 'Open tweet';
-                    jmpBtn.addEventListener('click', e => { e.stopPropagation(); window.open(rec.tweetUrl, '_blank'); });
-
-                    const favBtn = document.createElement('button');
-                    const isFav = !!rec.favorited;
-                    favBtn.className = 'tm-hist-act-btn tm-fav-btn' + (isFav ? ' tm-fav-active' : '');
-                    favBtn.innerHTML = isFav ? SVG_HEART_FULL : SVG_HEART_EMPTY;
-                    favBtn.title = isFav ? 'Unfavorite' : 'Favorite';
-                    favBtn.addEventListener('click', e => {
-                        e.stopPropagation();
-                        const updated = _updateRecord(rec.id, r => { r.favorited = !r.favorited; });
-                        if (!updated) return;
-                        const nowFav = updated.favorited;
-                        favBtn.innerHTML = nowFav ? SVG_HEART_FULL : SVG_HEART_EMPTY;
-                        favBtn.title = nowFav ? 'Unfavorite' : 'Favorite';
-                        favBtn.classList.toggle('tm-fav-active', nowFav);
-                        rec.favorited = nowFav;
-                    });
-
-                    const delBtn = document.createElement('button');
-                    delBtn.className = 'tm-hist-act-btn danger'; delBtn.innerHTML = SVG_DEL;
-                    delBtn.title = 'Delete';
-                    delBtn.addEventListener('click', e => { e.stopPropagation(); _deleteOne(rec.id, 0, favBtn); });
-
-                    acts.appendChild(favBtn); acts.appendChild(jmpBtn); acts.appendChild(delBtn);
-                    row.appendChild(acts);
-
-                    row.addEventListener('click', (e) => {
-                        if (e.target.classList.contains('tm-hist-act-btn') ||
-                            e.target.closest('.tm-hist-actions')) return;
-                        if (editMode) {
-                            if (e.target.classList.contains('tm-hist-cb')) return;
-                            if (!rec.favorited) {
-                                const cb = row.querySelector('input[type="checkbox"].tm-hist-cb');
-                                _toggleTextRowSel(rec.id, row, cb);
-                            }
-                            return;
-                        }
-                        _showTextPreview(rec);
-                    });
-
-                    frag.appendChild(row);
-                });
-            });
-
-            body.appendChild(frag);
-
-            if (_textAuthorScrollTarget) {
-                const target = _textAuthorScrollTarget;
-                _textAuthorScrollTarget = null;
-                requestAnimationFrame(() => {
-                    const el = body.querySelector(`[data-author-handle="${CSS.escape(target)}"]`);
-                    if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' });
-                });
-            }
-        }
-
-        function renderTextAuthorThumb(records) {
-            if (!records.length) { _renderEmpty(); return; }
-
-            const authorMap = new Map();
-            records.forEach(r => {
-                const key = r.screenName || '';
-                if (!authorMap.has(key) || (r.ts || 0) > authorMap.get(key).maxTs) {
-                    authorMap.set(key, {
-                        screenName: key,
-                        displayName: r.displayName || key,
-                        avatarUrl:   r.avatarUrl   || '',
-                        maxTs: r.ts || 0,
-                        recCount: 0,
-                    });
-                }
-                authorMap.get(key).recCount++;
-            });
-
-            const authors = Array.from(authorMap.values()).sort((a, b) => {
-                const ap = _textPinnedAuthors.has(a.screenName) ? 0 : 1;
-                const bp = _textPinnedAuthors.has(b.screenName) ? 0 : 1;
-                if (ap !== bp) return ap - bp;
-                return b.maxTs - a.maxTs;
-            });
-
-            const grid = document.createElement('div');
-            grid.id = 'tm-hist-thumb-grid';
-            const frag = document.createDocumentFragment();
-
-            authors.forEach(({ screenName, displayName, avatarUrl, recCount }) => {
-                const isPinned = _textPinnedAuthors.has(screenName);
-
-                const cell = document.createElement('div');
-                cell.className = 'tm-hist-grid-cell tm-text-author-cell';
-                cell.title = `${displayName} @${screenName} — ${recCount} bookmark${recCount > 1 ? 's' : ''}`;
-
-                const inner = document.createElement('div');
-                inner.style.cssText = 'width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;padding:14px 6px 10px;box-sizing:border-box;background:rgba(29,155,240,.08)';
-
-                if (avatarUrl) {
-                    const av = document.createElement('img');
-                    av.src = avatarUrl; av.alt = ''; av.loading = 'lazy';
-                    av.style.cssText = `width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid ${dark ? 'rgba(255,255,255,.18)' : 'rgba(15,20,25,.14)'};flex-shrink:0`;
-                    av.decode && av.decode().catch(() => {});
-                    inner.appendChild(av);
-                } else {
-                    const avFb = document.createElement('div');
-                    avFb.style.cssText = `width:40px;height:40px;border-radius:50%;background:rgba(29,155,240,.3);display:flex;align-items:center;justify-content:center;font-size:18px;color:${dark ? 'rgba(255,255,255,.6)' : '#ffffff'};flex-shrink:0`;
-                    avFb.textContent = (displayName || screenName).charAt(0).toUpperCase();
-                    inner.appendChild(avFb);
-                }
-
-                const nameEl = document.createElement('div');
-                nameEl.style.cssText = `font-size:11px;font-weight:700;color:${C.text};text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;width:100%;padding:0 6px;box-sizing:border-box;line-height:1.3`;
-                nameEl.textContent = displayName;
-
-                const handleEl = document.createElement('div');
-                handleEl.style.cssText = `font-size:10px;color:${dark ? 'rgba(255,255,255,.4)' : 'rgba(15,20,25,.42)'};text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;width:100%;padding:0 6px;box-sizing:border-box;margin-top:-2px`;
-                handleEl.textContent = '@' + screenName;
-
-                const cntEl = document.createElement('div');
-                cntEl.style.cssText = `font-size:9px;color:${dark ? 'rgba(255,255,255,.28)' : 'rgba(15,20,25,.4)'};background:${dark ? 'rgba(255,255,255,.07)' : 'rgba(15,20,25,.06)'};border-radius:99px;padding:1px 6px;margin-top:1px;flex-shrink:0`;
-                cntEl.textContent = `${recCount} post${recCount > 1 ? 's' : ''}`;
-
-                inner.appendChild(nameEl); inner.appendChild(handleEl); inner.appendChild(cntEl);
-                cell.appendChild(inner);
-
-                const pinBtn = document.createElement('button');
-                pinBtn.className = 'tm-text-pin-btn';
-                pinBtn.textContent = '📌';
-                pinBtn.title = isPinned ? 'Unpin (remove from top)' : 'Pin to top';
-                pinBtn.style.opacity = isPinned ? '1' : '0.3';
-                pinBtn.addEventListener('mouseover', () => {
-                    pinBtn.style.opacity = '1';
-                    pinBtn.style.background = 'rgba(0,0,0,.7)';
-                });
-                pinBtn.addEventListener('mouseout', () => {
-                    const stillPinned = _textPinnedAuthors.has(screenName);
-                    pinBtn.style.opacity = stillPinned ? '1' : '0.3';
-                    pinBtn.style.background = 'rgba(0,0,0,.5)';
-                });
-                pinBtn.addEventListener('click', e => {
-                    e.stopPropagation();
-                    const nowPinned = !_textPinnedAuthors.has(screenName);
-                    if (nowPinned) _textPinnedAuthors.add(screenName);
-                    else           _textPinnedAuthors.delete(screenName);
-                    _savePinnedAuthors();
-                    pinBtn.title   = nowPinned ? 'Unpin (remove from top)' : 'Pin to top';
-                    pinBtn.style.opacity = nowPinned ? '1' : '0.3';
-                    render();
-                });
-                cell.appendChild(pinBtn);
-
-                cell.addEventListener('click', (e) => {
-                    if (e.target.closest('button')) return;
-                    _textAuthorScrollTarget = screenName;
-                    viewMode = 'list';
-                    GM_setValue(KEY_HISTORY_VIEW_MODE, 'list');
-                    render();
-                });
-
-                frag.appendChild(cell);
-            });
-
-            grid.appendChild(frag);
-            body.appendChild(grid);
-        }
-
-        function renderList(records) {
-            if (!records.length) { _renderEmpty(); return; }
-
-            const groupCounts = {};
-            records.forEach(r => { groupCounts[r.yyyymm] = (groupCounts[r.yyyymm] || 0) + 1; });
-
-            let lastGroup = null;
-            let _cbShiftDown = false;
-
-            const frag = document.createDocumentFragment();
-
-            records.forEach((rec, idx) => {
-                if (rec.yyyymm !== lastGroup) {
-                    lastGroup = rec.yyyymm;
-                    const isCollapsed = collapsedGroups.has(rec.yyyymm);
-                    const gh = document.createElement('div');
-                    gh.className = 'tm-hist-group-header' + (isCollapsed ? ' tm-collapsed' : '');
-                    gh.dataset.yyyymm = rec.yyyymm;
-
-                    const chevron = document.createElement('span');
-                    chevron.className = 'tm-hist-group-chevron';
-                    chevron.innerHTML = `<svg viewBox="0 0 10 10" width="8" height="8" fill="currentColor"><path d="M1 3l4 4 4-4z"/></svg>`;
-
-                    const label = document.createElement('span');
-                    label.textContent = _fmtGroupLabel(rec.yyyymm);
-
-                    const countEl = document.createElement('span');
-                    countEl.className = 'tm-hist-group-count';
-                    countEl.textContent = `${groupCounts[rec.yyyymm]}`;
-
-                    gh.appendChild(chevron);
-                    gh.appendChild(label);
-                    gh.appendChild(countEl);
-
-                    gh.addEventListener('click', () => {
-                        if (collapsedGroups.has(rec.yyyymm)) collapsedGroups.delete(rec.yyyymm);
-                        else collapsedGroups.add(rec.yyyymm);
-                        render();
-                    });
-                    frag.appendChild(gh);
-                }
-
-                if (collapsedGroups.has(rec.yyyymm)) return;
-
-                const row = document.createElement('div');
-                row.className = 'tm-hist-row' + (selectedIds.has(rec.id) ? ' selected' : '');
-                row.dataset.id = rec.id;
-                row.dataset.idx = idx;
-
-                if (editMode) {
-                    if (!rec.favorited) {
-                        const cb = document.createElement('input');
-                        cb.type = 'checkbox';
-                        cb.className = 'tm-hist-cb';
-                        cb.checked = selectedIds.has(rec.id);
-                        cb.addEventListener('mousedown', e => { _cbShiftDown = e.shiftKey; });
-                        cb.addEventListener('change', e => {
-                            e.stopPropagation();
-                            _handleCheckbox(rec.id, idx, _cbShiftDown);
-                            _cbShiftDown = false;
-                        });
-                        row.appendChild(cb);
-                    } else {
-                        const lock = document.createElement('span');
-                        lock.className = 'tm-hist-cb';
-                        lock.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;opacity:0.35;font-size:10px;';
-                        lock.textContent = '♥';
-                        row.appendChild(lock);
-                    }
-                }
-
-                const thumbWrap = document.createElement('div');
-                thumbWrap.className = 'tm-hist-thumb-wrap';
-                if (rec.thumbUrls && rec.thumbUrls.length > 0) {
-                    const img = document.createElement('img');
-                    img.src = _thumbUrl(rec.thumbUrls[0]);
-                    img.loading = 'lazy';
-                    img.alt = '';
-                    img.decode().catch(() => {});
-                    thumbWrap.appendChild(img);
-                    thumbWrap.classList.add('tm-has-thumb');
-                    thumbWrap.addEventListener('mouseenter', (e) => _showZoom(rec.thumbUrls[0], e));
-                    thumbWrap.addEventListener('mousemove',  (e) => _moveZoom(e));
-                    thumbWrap.addEventListener('mouseleave', _hideZoom);
-                    thumbWrap.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        _hideZoom();
-                        _openHistMediaLightbox(rec, 0, thumbWrap.querySelector('img'));
-                        _injectHistCrossNav(rec);
-                    });
-                } else if (rec.textOnly) {
-                    if (rec.avatarUrl) {
-                        const avImg = document.createElement('img');
-                        avImg.src = rec.avatarUrl;
-                        avImg.loading = 'lazy';
-                        avImg.alt = '';
-                        avImg.style.cssText = 'width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;';
-                        avImg.decode().catch(() => {});
-                        thumbWrap.style.cssText += ';display:flex;align-items:center;justify-content:center;background:rgba(29,155,240,.06);';
-                        thumbWrap.appendChild(avImg);
-                    } else {
-                        const vi = document.createElement('div');
-                        vi.className = 'tm-hist-video-icon';
-                        vi.style.color = 'rgba(29,155,240,.5)';
-                        vi.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg>`;
-                        thumbWrap.appendChild(vi);
-                    }
-                } else {
-                    const vi = document.createElement('div');
-                    vi.className = 'tm-hist-video-icon';
-                    vi.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M15 10l4.55-2.28A1 1 0 0 1 21 8.65v6.7a1 1 0 0 1-1.45.93L15 14"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg>`;
-                    thumbWrap.appendChild(vi);
-                }
-                row.appendChild(thumbWrap);
-
-                const info = document.createElement('div');
-                info.className = 'tm-hist-info';
-
-                const author = document.createElement('div');
-                author.className = 'tm-hist-author';
-                author.textContent = rec.displayName || rec.screenName;
-                const handle = document.createElement('span');
-                handle.className = 'tm-hist-handle';
-                handle.textContent = `@${rec.screenName}`;
-                author.appendChild(handle);
-
-                const textEl = document.createElement('div');
-                textEl.className = 'tm-hist-text';
-                textEl.textContent = rec.text || '(no caption)';
-
-                const dateEl = document.createElement('div');
-                dateEl.className = 'tm-hist-date';
-                if (rec.downloadDate) {
-                    const [dy, dm, dd] = rec.downloadDate.split('-');
-                    if (_cachedDateFormat === 'western') {
-                        const MON = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-                        dateEl.textContent = `${parseInt(dd, 10)} ${MON[parseInt(dm, 10)] || dm} ${dy}`;
-                    } else {
-                        dateEl.textContent = `${dy}.${dm}.${dd}`;
-                    }
-                }
-
-                const urlEl = document.createElement('div');
-                urlEl.className = 'tm-hist-url';
-                if (rec.tweetUrl) {
-                    urlEl.textContent = rec.tweetUrl;
-                    urlEl.title = rec.tweetUrl + '\nClick to navigate to tweet';
-                    urlEl.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                    try {
-                        const path = new URL(rec.tweetUrl).pathname;
-                        history.pushState({ tmNav: true }, '', path);
-                        window.dispatchEvent(new Event('popstate'));
-                    } catch (_) { window.open(rec.tweetUrl, '_blank'); }
-                });
-                }
-
-                info.appendChild(author);
-                info.appendChild(textEl);
-
-                const metaEl = document.createElement('div');
-                metaEl.className = 'tm-hist-meta';
-                if (rec.downloadDate) metaEl.appendChild(dateEl);
-                if (rec.downloadDate && rec.tweetUrl) {
-                    const sep = document.createElement('span');
-                    sep.className = 'tm-hist-meta-sep';
-                    sep.textContent = '·';
-                    metaEl.appendChild(sep);
-                }
-                if (rec.tweetUrl) metaEl.appendChild(urlEl);
-                if (metaEl.hasChildNodes()) info.appendChild(metaEl);
-
-                row.appendChild(info);
-
-                const acts = document.createElement('div');
-                acts.className = 'tm-hist-actions';
-
-                const SVG_JUMP    = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 2h4v4"/><path d="M7 9L14 2"/><path d="M12 10v4H2V4h4"/></svg>`;
-                const SVG_DEL     = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><polyline points="2,4 4,4 14,4"/><path d="M13 4l-.9 9H3.9L3 4"/><path d="M6.5 7v4M9.5 7v4"/><path d="M5.5 4V2.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5V4"/></svg>`;
-                const SVG_COPY    = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="9" height="10" rx="1.5"/><path d="M3 11H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v1"/></svg>`;
-                const SVG_HEART_EMPTY = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
-                const SVG_HEART_FULL  = `<svg viewBox="0 0 16 16" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
-
-                const copyBtn = document.createElement('button');
-                copyBtn.className = 'tm-hist-act-btn tm-copy-btn';
-                copyBtn.innerHTML = SVG_COPY;
-                copyBtn.title = 'Click: Copy tweet URL\nHold: Copy with prefix';
-
-                const _getMediaUrls = () => {
-                    const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
-                        ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
-                    const _toUrl = u => {
-                        try {
-                            const o = new URL(u);
-                            if (o.hostname.includes('twimg.com') || u.includes('.mp4')) return u;
-                            o.hostname = _dom;
-                            return o.toString();
-                        }
-                        catch(_) { return u; }
-                    };
-                    return _toUrl(rec.tweetUrl);
-                };
-
-                let _cpTimer = null;
-
-                copyBtn.addEventListener('mousedown', e => {
-                    if (e.button !== 0) return;
-                    e.stopPropagation();
-                    _cpTimer = setTimeout(() => {
-                        _cpTimer = null;
-                        GM_setClipboard(_buildPrefixedTweetUrl(rec.tweetUrl));
-                        copyBtn.style.color = '#f59e0b';
-                        setTimeout(() => { copyBtn.style.color = ''; }, 900);
-                    }, 500);
-                });
-
-                copyBtn.addEventListener('mouseup', e => {
-                    if (_cpTimer) {
-                        clearTimeout(_cpTimer); _cpTimer = null;
-                        GM_setClipboard(_getMediaUrls());
-                        copyBtn.style.color = '#1d9bf0';
-                        setTimeout(() => { copyBtn.style.color = ''; }, 800);
-                    }
-                });
-
-                copyBtn.addEventListener('mouseleave', () => { if (_cpTimer) { clearTimeout(_cpTimer); _cpTimer = null; } });
-                copyBtn.addEventListener('click', e => e.stopPropagation());
-
-                const jmpBtn = document.createElement('button');
-                jmpBtn.className = 'tm-hist-act-btn';
-                jmpBtn.innerHTML = SVG_JUMP;
-                jmpBtn.title = 'Open tweet';
-                jmpBtn.addEventListener('click', (e) => { e.stopPropagation(); window.open(rec.tweetUrl, '_blank'); });
-
-                const favBtn = document.createElement('button');
-                const isFav = !!rec.favorited;
-                favBtn.className = 'tm-hist-act-btn tm-fav-btn' + (isFav ? ' tm-fav-active' : '');
-                favBtn.innerHTML = isFav ? SVG_HEART_FULL : SVG_HEART_EMPTY;
-                favBtn.title = isFav ? 'Unfavorite' : 'Favorite';
-                if (editMode) {
-                    favBtn.style.opacity = '0.3';
-                    favBtn.style.pointerEvents = 'none';
-                }
-                favBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const updated = _updateRecord(rec.id, r => { r.favorited = !r.favorited; });
-                    if (!updated) return;
-                    const nowFav = updated.favorited;
-                    favBtn.innerHTML = nowFav ? SVG_HEART_FULL : SVG_HEART_EMPTY;
-                    favBtn.title = nowFav ? 'Unfavorite' : 'Favorite';
-                    favBtn.classList.toggle('tm-fav-active', nowFav);
-                    rec.favorited = nowFav;
-                });
-
-                const delBtn = document.createElement('button');
-                delBtn.className = 'tm-hist-act-btn danger';
-                delBtn.innerHTML = SVG_DEL;
-                delBtn.title = 'Delete';
-                delBtn.addEventListener('click', (e) => { e.stopPropagation(); _deleteOne(rec.id, idx, favBtn); });
-
-                const SVG_DLOAD = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 2v8"/><path d="M5 7l3 3 3-3"/><path d="M2 13h12"/></svg>`;
-                const dlBtn = document.createElement('button');
-                dlBtn.className = 'tm-hist-act-btn';
-                dlBtn.innerHTML = SVG_DLOAD;
-                const hasMedia = rec.mediaUrls && rec.mediaUrls.length > 0;
-                dlBtn.title = hasMedia ? `Re-download (${rec.mediaUrls.length} file${rec.mediaUrls.length > 1 ? 's' : ''})` : 'Open tweet to re-download';
-                dlBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (!hasMedia) { window.open(rec.tweetUrl, '_blank'); return; }
-                    const safeDisplay = sanitizeForFilename(rec.displayName || rec.screenName || 'unknown');
-                    const safeScreen  = sanitizeForFilename(rec.screenName  || 'unknown');
-                    const datePart    = rec.tweetDate || rec.downloadDate || 'unknown';
-                    const textPart    = rec.text ? `_${sanitizeForFilename(rec.text, 40)}` : '';
-                    const idPart      = rec.tweetId || rec.id;
-                    rec.mediaUrls.forEach((url, i) => {
-                        let ext = 'jpg';
-                        if (url.includes('.mp4')) {
-                            ext = 'mp4';
-                        } else {
-                            try {
-                                const fmtParam = new URL(url).searchParams.get('format');
-                                ext = fmtParam || url.match(/\.(\w{3,4})(?:\?|$)/)?.[1] || 'jpg';
-                            } catch (_) {}
-                        }
-                        const fname = buildCustomFilename(
-                            { screenName: safeScreen, displayName: safeDisplay, date: datePart, id: idPart, index: i + 1, ext },
-                            () => `[twitter] ${safeDisplay}(@${safeScreen})_${datePart}${textPart}_${idPart}_${i + 1}.${ext}`
-                        );
-                        setTimeout(() => forceDownloadBlob(url, fname), i * 600);
-                    });
-                });
-
-                acts.appendChild(copyBtn);
-                acts.appendChild(favBtn);
-                acts.appendChild(jmpBtn);
-                if (!rec.textOnly) acts.appendChild(dlBtn);
-                acts.appendChild(delBtn);
-                row.appendChild(acts);
-
-                if (editMode && !rec.favorited) {
-                    row.style.cursor = 'pointer';
-                    row.addEventListener('click', (e) => {
-                        if (e.target.classList.contains('tm-hist-cb')) return;
-                        _handleCheckbox(rec.id, idx, e.shiftKey);
-                    });
-                }
-
-                frag.appendChild(row);
-            });
-            body.appendChild(frag);
-        }
-
-        function renderThumb(records) {
-            if (!records.length) { _renderEmpty(); return; }
-            const grid = document.createElement('div');
-            grid.id = 'tm-hist-thumb-grid';
-
-            const frag = document.createDocumentFragment();
-
-            records.forEach((rec, idx) => {
-                const cell = document.createElement('div');
-                cell.className = 'tm-hist-grid-cell';
-                cell.title = `${rec.displayName} @${rec.screenName}`;
-
-                if (rec.thumbUrls && rec.thumbUrls.length > 0) {
-                    const img = document.createElement('img');
-                    img.src = _thumbUrl(rec.thumbUrls[0]);
-                    img.loading = 'lazy';
-                    img.alt = '';
-                    img.decode().catch(() => {});
-                    cell.appendChild(img);
-                } else if (rec.textOnly) {
-                    const tc = document.createElement('div');
-                    tc.style.cssText = 'width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;padding:10px;box-sizing:border-box;background:rgba(29,155,240,.08)';
-                    if (rec.avatarUrl) {
-                        const avImg = document.createElement('img');
-                        avImg.src = rec.avatarUrl;
-                        avImg.loading = 'lazy';
-                        avImg.alt = '';
-                        avImg.style.cssText = 'width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;';
-                        avImg.decode().catch(() => {});
-                        tc.appendChild(avImg);
-                    } else {
-                        const tcIcon = document.createElement('div');
-                        tcIcon.innerHTML = `<svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="rgba(29,155,240,.6)" stroke-width="1.6" stroke-linecap="round"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="9" x2="17" y2="9"/><line x1="3" y1="13" x2="12" y2="13"/></svg>`;
-                        tc.appendChild(tcIcon);
-                    }
-                    const tcText = document.createElement('div');
-                    tcText.style.cssText = `font-size:10px;color:${dark ? 'rgba(255,255,255,.5)' : 'rgba(15,20,25,.5)'};text-align:center;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;word-break:break-all`;
-                    tcText.textContent = rec.text || '';
-                    tc.appendChild(tcText);
-                    cell.appendChild(tc);
-                } else {
-                    const ni = document.createElement('div');
-                    ni.className = 'tm-hist-grid-nothumb';
-                    ni.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M15 10l4.55-2.28A1 1 0 0 1 21 8.65v6.7a1 1 0 0 1-1.45.93L15 14"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg>`;
-                    cell.appendChild(ni);
-                }
-
-                const overlay = document.createElement('div');
-                overlay.className = 'tm-hist-grid-overlay';
-                const govAuthor = document.createElement('div');
-                govAuthor.className = 'gov-author';
-                govAuthor.textContent = rec.displayName || rec.screenName;
-                const govText = document.createElement('div');
-                govText.className = 'gov-text';
-                govText.textContent = rec.text || '';
-                overlay.appendChild(govAuthor);
-                overlay.appendChild(govText);
-                cell.appendChild(overlay);
-
-                const SVG_COPY_SM = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="9" height="10" rx="1.5"/><path d="M3 11H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v1"/></svg>`;
-                const gridCopyBtn = document.createElement('button');
-                gridCopyBtn.className = 'tm-grid-copy-btn';
-                gridCopyBtn.innerHTML = SVG_COPY_SM;
-                gridCopyBtn.title = 'Click: Copy tweet URL\nHold: Copy with prefix';
-
-                const _gcGetUrls = () => {
-                    const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
-                        ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
-                    const _toUrl = u => {
-                        try {
-                            const o = new URL(u);
-                            if (o.hostname.includes('twimg.com') || u.includes('.mp4')) return u;
-                            o.hostname = _dom;
-                            return o.toString();
-                        }
-                        catch(_) { return u; }
-                    };
-                    return _toUrl(rec.tweetUrl);
-                };
-
-                let _gcTimer = null;
-                let _gcPressing = false;
-                gridCopyBtn.addEventListener('mousedown', e => {
-                    if (e.button !== 0) return;
-                    e.stopPropagation();
-                    _gcPressing = true;
-                    _gcTimer = setTimeout(() => {
-                        _gcTimer = null;
-                        _gcPressing = false;
-                        GM_setClipboard(_buildPrefixedTweetUrl(rec.tweetUrl));
-                        gridCopyBtn.style.background = 'rgba(245,158,11,0.9)';
-                        setTimeout(() => { gridCopyBtn.style.background = ''; }, 800);
-                    }, 500);
-                });
-                gridCopyBtn.addEventListener('mouseup', e => {
-                    _gcPressing = false;
-                    if (_gcTimer) {
-                        clearTimeout(_gcTimer); _gcTimer = null;
-                        GM_setClipboard(_gcGetUrls());
-                        gridCopyBtn.style.background = 'rgba(29,155,240,0.9)';
-                        setTimeout(() => { gridCopyBtn.style.background = ''; }, 700);
-                    }
-                });
-                gridCopyBtn.addEventListener('mouseleave', () => { if (_gcTimer && !_gcPressing) { clearTimeout(_gcTimer); _gcTimer = null; } });
-                gridCopyBtn.addEventListener('click', e => e.stopPropagation());
-                cell.appendChild(gridCopyBtn);
-
-                const SVG_DL_SM = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 2v8"/><path d="M5 7l3 3 3-3"/><path d="M2 13h12"/></svg>`;
-                const gridDlBtn = document.createElement('button');
-                gridDlBtn.className = 'tm-grid-dl-btn';
-                gridDlBtn.innerHTML = SVG_DL_SM;
-                const _gcHasMedia = rec.mediaUrls && rec.mediaUrls.length > 0;
-                gridDlBtn.title = _gcHasMedia
-                    ? `Re-download (${rec.mediaUrls.length} file${rec.mediaUrls.length > 1 ? 's' : ''})`
-                    : 'Open tweet to re-download';
-                gridDlBtn.addEventListener('click', e => {
-                    e.stopPropagation();
-                    if (!_gcHasMedia) { window.open(rec.tweetUrl, '_blank'); return; }
-                    const safeDisplay = sanitizeForFilename(rec.displayName || rec.screenName || 'unknown');
-                    const safeScreen  = sanitizeForFilename(rec.screenName  || 'unknown');
-                    const datePart    = rec.tweetDate || rec.downloadDate || 'unknown';
-                    const textPart    = rec.text ? `_${sanitizeForFilename(rec.text, 40)}` : '';
-                    const idPart      = rec.tweetId || rec.id;
-                    rec.mediaUrls.forEach((url, i) => {
-                        let ext = 'jpg';
-                        if (url.includes('.mp4')) {
-                            ext = 'mp4';
-                        } else {
-                            try {
-                                const fmtParam = new URL(url).searchParams.get('format');
-                                ext = fmtParam || url.match(/\.(\w{3,4})(?:\?|$)/)?.[1] || 'jpg';
-                            } catch (_) {}
-                        }
-                        const fname = buildCustomFilename(
-                            { screenName: safeScreen, displayName: safeDisplay, date: datePart, id: idPart, index: i + 1, ext },
-                            () => `[twitter] ${safeDisplay}(@${safeScreen})_${datePart}${textPart}_${idPart}_${i + 1}.${ext}`
-                        );
-                        setTimeout(() => forceDownloadBlob(url, fname), i * 600);
-                    });
-                });
-                if (!rec.textOnly) cell.appendChild(gridDlBtn);
-
-                const SVG_GOTO_SM = `<svg viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10 L10 4"/><path d="M6.5 4h3.5v3.5"/></svg>`;
-                const gridGotoBtn = document.createElement('button');
-                gridGotoBtn.className = 'tm-grid-goto-btn';
-                gridGotoBtn.innerHTML = SVG_GOTO_SM;
-                gridGotoBtn.title = 'Go to tweet';
-                gridGotoBtn.addEventListener('click', e => {
-                    e.stopPropagation();
-                    if (_isTwitterDomain) {
-                        try {
-                            const path = new URL(rec.tweetUrl).pathname;
-                            history.pushState({ tmNav: true }, '', path);
-                            window.dispatchEvent(new Event('popstate'));
-                        } catch (_) { window.open(rec.tweetUrl, '_blank'); }
-                    } else {
-                        window.open(rec.tweetUrl, '_blank');
-                    }
-                });
-                cell.appendChild(gridGotoBtn);
-
-                const _GFB_HEART_EMPTY = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
-                const _GFB_HEART_FULL  = `<svg viewBox="0 0 16 16" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
-                const gridFavBtn = document.createElement('button');
-                gridFavBtn.className = 'tm-grid-fav-btn' + (rec.favorited ? ' tm-fav-active' : '');
-                gridFavBtn.innerHTML = rec.favorited ? _GFB_HEART_FULL : _GFB_HEART_EMPTY;
-                gridFavBtn.title = rec.favorited ? 'Unfavorite' : 'Favorite';
-                gridFavBtn.setAttribute('aria-label', rec.favorited ? 'Unfavorite' : 'Favorite');
-                gridFavBtn.addEventListener('click', e => {
-                    e.stopPropagation();
-                    const updated = _updateRecord(rec.id, r => { r.favorited = !r.favorited; });
-                    if (!updated) return;
-                    const nowFav = updated.favorited;
-                    gridFavBtn.innerHTML = nowFav ? _GFB_HEART_FULL : _GFB_HEART_EMPTY;
-                    gridFavBtn.title = nowFav ? 'Unfavorite' : 'Favorite';
-                    gridFavBtn.setAttribute('aria-label', nowFav ? 'Unfavorite' : 'Favorite');
-                    gridFavBtn.classList.toggle('tm-fav-active', nowFav);
-                    if (editMode) cell.classList.toggle('tm-grid-fav-lock', nowFav);
-                    rec.favorited = nowFav;
-                });
-                cell.appendChild(gridFavBtn);
-
-                if (editMode) {
-                    if (rec.favorited) {
-                        cell.classList.add('tm-grid-fav-lock');
-                        cell.style.cursor = 'default';
-                    } else {
-                        if (selectedIds.has(rec.id)) cell.classList.add('selected');
-                        cell.style.cursor = 'pointer';
-                    }
-                }
-
-                cell.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (editMode) {
-                        if (rec.favorited) return;
-                        _handleCheckbox(rec.id, idx, e.shiftKey);
-                    } else {
-                        _openHistMediaLightbox(rec, 0, cell.querySelector('img'));
-                        _injectHistCrossNav(rec);
-                    }
-                });
-
-                cell.addEventListener('contextmenu', e => {
-                    e.preventDefault(); e.stopPropagation();
-                    document.getElementById('tm-thumb-ctx')?.remove();
-                    _dialogOpenGlobal = true;
-                    const menu = document.createElement('div');
-                    menu.id = 'tm-thumb-ctx';
-                    menu.style.cssText = `
-                        position:fixed;left:${e.clientX}px;top:${e.clientY}px;
-                        background:#1a1f2e;border:0.5px solid rgba(255,255,255,.15);
-                        border-radius:10px;padding:4px;min-width:160px;
-                        z-index:999999;box-shadow:0 8px 32px rgba(0,0,0,.6);
-                        font-size:13px;
-                    `;
-                    const mkItem = (svgOrEmoji, label, onClick, danger = false) => {
-                        const item = document.createElement('button');
-                        item.type = 'button';
-                        item.style.cssText = `display:flex;align-items:center;gap:9px;width:100%;padding:7px 12px;background:transparent;border:none;border-radius:7px;color:${danger ? 'rgba(255,100,100,.9)' : 'rgba(255,255,255,.88)'};cursor:pointer;font-size:13px;font-family:inherit;text-align:left;transition:background .1s`;
-                        item.addEventListener('mouseover', () => item.style.background = danger ? 'rgba(255,80,80,.1)' : 'rgba(255,255,255,.08)');
-                        item.addEventListener('mouseout',  () => item.style.background = 'transparent');
-                        const iconEl = document.createElement('span');
-                        iconEl.style.cssText = 'width:16px;height:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:inherit;opacity:0.8';
-                        if (svgOrEmoji.trim().startsWith('<svg')) {
-                            iconEl.innerHTML = svgOrEmoji;
-                            iconEl.querySelector('svg')?.setAttribute('width', '14');
-                            iconEl.querySelector('svg')?.setAttribute('height', '14');
-                        } else {
-                            iconEl.style.fontSize = '14px';
-                            iconEl.textContent = svgOrEmoji;
-                        }
-                        const labelEl = document.createElement('span');
-                        labelEl.textContent = label;
-                        item.appendChild(iconEl); item.appendChild(labelEl);
-                        item.addEventListener('click', () => { menu.remove(); _dialogOpenGlobal = false; onClick(); });
-                        return item;
-                    };
-
-                    const CTX_FAV_ON  = `<svg viewBox="0 0 16 16" fill="currentColor"  stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
-                    const CTX_FAV_OFF = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
-                    const CTX_COPY    = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="9" height="10" rx="1.5"/><path d="M3 11H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v1"/></svg>`;
-                    const CTX_OPEN    = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 2h4v4"/><path d="M7 9L14 2"/><path d="M12 10v4H2V4h4"/></svg>`;
-                    const CTX_DEL     = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><polyline points="2,4 4,4 14,4"/><path d="M13 4l-.9 9H3.9L3 4"/><path d="M6.5 7v4M9.5 7v4"/><path d="M5.5 4V2.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5V4"/></svg>`;
-
-                    menu.appendChild(mkItem(CTX_COPY, 'Copy media URL(s)', () => {
-                        const _dom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false)
-                            ? GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com') : 'x.com';
-                        const _toUrl = u => {
-                            try {
-                                const o = new URL(u);
-                                if (o.hostname.includes('twimg.com') || u.includes('.mp4')) return u;
-                                o.hostname = _dom;
-                                return o.toString();
-                            }
-                            catch(_) { return u; }
-                        };
-                        const urls = (rec.mediaUrls || []).length
-                            ? rec.mediaUrls.map(_toUrl).join('\n')
-                            : _toUrl(rec.tweetUrl);
-                        GM_setClipboard(urls);
-                    }));
-                    const CTX_PREFIX = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="10" height="8" rx="1.2"/><path d="M11 6h2a2 2 0 0 1 0 4h-2"/></svg>`;
-                    menu.appendChild(mkItem(CTX_PREFIX, 'Copy with prefix', () => {
-                        GM_setClipboard(_buildPrefixedTweetUrl(rec.tweetUrl));
-                    }));
-                    const isFav = !!rec.favorited;
-                    menu.appendChild(mkItem(isFav ? CTX_FAV_ON : CTX_FAV_OFF, isFav ? 'Unfavorite' : 'Favorite', () => {
-                        const updated = _updateRecord(rec.id, r => { r.favorited = !r.favorited; });
-                        if (!updated) return;
-                        rec.favorited = updated.favorited;
-                        render();
-                    }));
-                    menu.appendChild(mkItem(CTX_OPEN, 'Open in new tab', () => {
-                        window.open(rec.tweetUrl, '_blank');
-                    }));
-                    const CTX_VIEW = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="1" y="3" width="14" height="10" rx="1.5"/><circle cx="5.5" cy="7.5" r="1.5"/><path d="M9 10l2-2.5 2.5 2.5"/></svg>`;
-                    menu.appendChild(mkItem(CTX_VIEW, 'View media', () => {
-                        _openHistMediaLightbox(rec, 0, null);
-                        _injectHistCrossNav(rec);
-                    }));
-                    const CTX_DLOAD = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 2v8"/><path d="M5 7l3 3 3-3"/><path d="M2 13h12"/></svg>`;
-                    const hasMedia = rec.mediaUrls && rec.mediaUrls.length > 0;
-                    menu.appendChild(mkItem(CTX_DLOAD, hasMedia ? 'Re-download' : 'Open tweet to re-download', () => {
-                        if (!hasMedia) { window.open(rec.tweetUrl, '_blank'); return; }
-                        const safeDisplay = sanitizeForFilename(rec.displayName || rec.screenName || 'unknown');
-                        const safeScreen  = sanitizeForFilename(rec.screenName  || 'unknown');
-                        const datePart    = rec.tweetDate || rec.downloadDate || 'unknown';
-                        const textPart    = rec.text ? `_${sanitizeForFilename(rec.text, 40)}` : '';
-                        const idPart      = rec.tweetId || rec.id;
-                        rec.mediaUrls.forEach((url, i) => {
-                            let ext = 'jpg';
-                            if (url.includes('.mp4')) {
-                                ext = 'mp4';
-                            } else {
-                                try {
-                                    const fmtParam = new URL(url).searchParams.get('format');
-                                    ext = fmtParam || url.match(/\.(\w{3,4})(?:\?|$)/)?.[1] || 'jpg';
-                                } catch (_) {}
-                            }
-                            const fname = buildCustomFilename(
-                                { screenName: safeScreen, displayName: safeDisplay, date: datePart, id: idPart, index: i + 1, ext },
-                                () => `[twitter] ${safeDisplay}(@${safeScreen})_${datePart}${textPart}_${idPart}_${i + 1}.${ext}`
-                            );
-                            setTimeout(() => forceDownloadBlob(url, fname), i * 600);
-                        });
-                    }));
-                    const sep = document.createElement('div');
-                    sep.style.cssText = 'height:0.5px;background:rgba(255,255,255,.1);margin:3px 8px';
-                    menu.appendChild(sep);
-                    menu.appendChild(mkItem(CTX_DEL, 'Delete', () => {
-                        _deleteOne(rec.id, records.indexOf(rec), cell);
-                    }, true));
-
-                    document.body.appendChild(menu);
-                    requestAnimationFrame(() => {
-                        const r = menu.getBoundingClientRect();
-                        if (r.right  > window.innerWidth)  menu.style.left = (e.clientX - r.width)  + 'px';
-                        if (r.bottom > window.innerHeight)  menu.style.top  = (e.clientY - r.height) + 'px';
-                    });
-                    const close = ev => {
-                        if (!menu.contains(ev.target)) {
-                            menu.remove();
-                            _dialogOpenGlobal = false;
-                            document.removeEventListener('mousedown', close, true);
-                        }
-                    };
-                    document.addEventListener('mousedown', close, true);
-                });
-                frag.appendChild(cell);
-            });
-
-            grid.appendChild(frag);
-            body.appendChild(grid);
-        }
-
-        function _renderEmpty() {
-            const em = document.createElement('div');
-            em.className = 'tm-hist-empty';
-            em.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
-            const msg = document.createElement('div');
-            msg.textContent = query ? 'No results matching search.' : 'No download history yet.\nRight-click 🎞️ to download & record.';
-            msg.style.whiteSpace = 'pre-line';
-            em.appendChild(msg);
-            body.appendChild(em);
-        }
-
-        function _toggleTextRowSel(id, row, cb) {
-            const allRecs = getFiltered(getRecords());
-            const target = allRecs.find(r => r.id === id);
-            if (target && target.favorited) return;
-            if (selectedIds.has(id)) {
-                selectedIds.delete(id);
-                row.classList.remove('selected');
-                if (cb) cb.checked = false;
-            } else {
-                selectedIds.add(id);
-                row.classList.add('selected');
-                if (cb) cb.checked = true;
-            }
-            delSelBtn.textContent = `Delete selected (${selectedIds.size})`;
-        }
-
-        function _handleCheckbox(id, idx, shiftKey) {
-            const allRecords = getFiltered(getRecords());
-            const target = allRecords.find(r => r.id === id);
-            if (target && target.favorited) return;
-            if (shiftKey && anchorIdx >= 0) {
-                const lo = Math.min(anchorIdx, idx);
-                const hi = Math.max(anchorIdx, idx);
-                for (let i = lo; i <= hi; i++) {
-                    if (allRecords[i] && !allRecords[i].favorited) selectedIds.add(allRecords[i].id);
-                }
-            } else {
-                if (selectedIds.has(id)) selectedIds.delete(id);
-                else { selectedIds.add(id); anchorIdx = idx; }
-            }
-            render();
-        }
-
-        function _deleteOne(id, idx, hintEl = null) {
-            let records = getRecords();
-            const record = records.find(r => r.id === id);
-            if (!record) return;
-            if (record.favorited) {
-                const favBtn = hintEl?.classList?.contains('tm-grid-fav-btn') ? hintEl
-                    : hintEl?.classList?.contains('tm-hist-act-btn') ? hintEl
-                    : hintEl?.querySelector?.('.tm-grid-fav-btn')
-                    ?? null;
-                if (favBtn) {
-                    favBtn.classList.remove('tm-fav-shake', 'tm-grid-fav-shake');
-                    void favBtn.offsetWidth;
-                    const shakeClass = favBtn.classList.contains('tm-grid-fav-btn')
-                        ? 'tm-grid-fav-shake' : 'tm-fav-shake';
-                    favBtn.classList.add(shakeClass);
-                    favBtn.addEventListener('animationend', () => {
-                        favBtn.classList.remove(shakeClass);
-                    }, { once: true });
-                }
-                return;
-            }
-            const deleted = _deleteRecordById(id);
-            if (!deleted) return;
-            _downloadedIds.delete(deleted.record.tweetId);
-
-            if (_historyUndoTimer) clearTimeout(_historyUndoTimer);
-            _historyUndoBuffer = { record: deleted.record, index: idx };
-            _invalidateRecordsCache();
-            render();
-
-            const ut = document.createElement('div');
-            ut.style.cssText = `
-                position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
-                background:rgba(15,20,25,0.92); color:#fff; padding:8px 16px;
-                border-radius:99px; font-size:12px; font-family:system-ui;
-                display:flex; align-items:center; gap:10px;
-                z-index:9999999; box-shadow:0 4px 16px rgba(0,0,0,0.3);
-                animation:tm-toast-rise 5s forwards;
-            `;
-            ut.id = 'tm-hist-undo-toast';
-            const msg = document.createElement('span');
-            msg.textContent = 'Record deleted';
-            const undoBtn = document.createElement('button');
-            undoBtn.textContent = 'Undo';
-            undoBtn.style.cssText = `background:none;border:none;color:#1d9bf0;cursor:pointer;font-weight:700;font-size:12px;padding:0;`;
-            undoBtn.addEventListener('click', () => {
-                if (_historyUndoBuffer) {
-                    _insertRecordUndo(_historyUndoBuffer.record);
-                    _downloadedIds.add(_historyUndoBuffer.record.tweetId);
-                    _historyUndoBuffer = null;
-                    ut.remove();
-                    clearTimeout(_historyUndoTimer);
-                    _invalidateRecordsCache();
-                    render();
-                }
-            });
-            ut.appendChild(msg);
-            ut.appendChild(undoBtn);
-            document.getElementById('tm-hist-undo-toast')?.remove();
-            document.body.appendChild(ut);
-            _historyUndoTimer = setTimeout(() => { ut.remove(); _historyUndoBuffer = null; }, 5000);
-        }
-
-        function _thumbUrl(url) {
-            try {
-                if (url.includes('pbs.twimg.com') && url.includes('/media/')) {
-                    const u = new URL(url);
-                    u.searchParams.set('name', 'small');
-                    return u.toString();
-                }
-            } catch (_) {}
-            return url;
-        }
-
-        function _showZoom(url, e) {
-            let z = document.getElementById('tm-hist-zoom');
-            if (!z) { z = document.createElement('div'); z.id = 'tm-hist-zoom'; document.body.appendChild(z); }
-            z.innerHTML = '';
-            const img = document.createElement('img');
-            img.src = _thumbUrl(url).replace('name=small', 'name=medium');
-            img.alt = '';
-            z.appendChild(img);
-            _moveZoom(e);
-        }
-        let _zoomRafId = null;
-        function _moveZoom(e) {
-            if (_zoomRafId) return;
-            const cx = e.clientX, cy = e.clientY;
-            _zoomRafId = requestAnimationFrame(() => {
-                _zoomRafId = null;
-                const z = document.getElementById('tm-hist-zoom');
-                if (!z) return;
-                const w = 200, h = 200, margin = 14;
-                let left = cx - w - margin;
-                let top  = cy - h / 2;
-                if (left < 4) left = cx + margin;
-                if (top < 4)  top  = 4;
-                if (top + h > window.innerHeight - 4) top = window.innerHeight - h - 4;
-                z.style.cssText = `position:fixed;z-index:9999999;width:${w}px;height:${h}px;left:${left}px;top:${top}px;border-radius:8px;overflow:hidden;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.2);`;
-            });
-        }
-        function _hideZoom() {
-            if (_zoomRafId) { cancelAnimationFrame(_zoomRafId); _zoomRafId = null; }
-            document.getElementById('tm-hist-zoom')?.remove();
-        }
-
-        function _getCrossNavNeighbor(recId, dir) {
-            if (_navRecords.length < 2) return null;
-            const i = _navRecords.findIndex(r => r.id === recId);
-            if (i === -1) return null;
-            const n = _navRecords.length;
-            return _navRecords[(i + dir + n) % n];
-        }
-
-        function _removeCrossNavButtons() {
-            document.getElementById('tm-hcn-prev')?.remove();
-            document.getElementById('tm-hcn-next')?.remove();
-            if (_crossKeyHandlerRef) {
-                document.removeEventListener('keydown', _crossKeyHandlerRef);
-                _crossKeyHandlerRef = null;
-            }
-        }
-
-        const _HCN_MODAL_IDS = ['tm-image-lightbox', 'tm-floating-video-modal', 'tm-thumb-lb-backdrop'];
-
-        function _injectHistCrossNav(rec) {
-            _removeCrossNavButtons();
-            if (_navRecords.length < 2) return;
-            let tries = 0;
-            const poll = () => {
-                const modal = _HCN_MODAL_IDS.map(id => document.getElementById(id)).find(Boolean);
-                if (modal) { _buildCrossNavButtons(rec, modal); return; }
-                if (++tries < 20) setTimeout(poll, 50);
-            };
-            poll();
-        }
-
-        function _buildCrossNavButtons(rec, modal) {
-            if (document.getElementById('tm-hcn-prev')) return;
-
-            modal.querySelectorAll('.tm-nav-fade-btn').forEach(btn => {
-                if (btn.style.left  === '20px') btn.style.left  = '76px';
-                if (btn.style.right === '20px') btn.style.right = '76px';
-            });
-
-            const BTN_BASE = `
-                position: fixed; top: 50%; transform: translateY(-50%);
-                background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
-                color: white; border: none;
-                width: 40px; height: 40px; border-radius: 50%;
-                cursor: pointer; display: flex; align-items: center; justify-content: center;
-                transition: background 0.2s; z-index: 10000020;
-            `;
-            const SVG_DPREV = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18,18 10,12 18,6"/><polyline points="11,18 3,12 11,6"/></svg>`;
-            const SVG_DNEXT = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,18 14,12 6,6"/><polyline points="13,18 21,12 13,6"/></svg>`;
-
-            const _go = (dir) => {
-                const neighbor = _getCrossNavNeighbor(rec.id, dir);
-                if (!neighbor) return;
-                _removeCrossNavButtons();
-                document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
-                setTimeout(() => {
-                    _openHistMediaLightbox(neighbor, 0, null);
-                    _injectHistCrossNav(neighbor);
-                }, 340);
-            };
-
-            const prevBtn = document.createElement('button');
-            prevBtn.id = 'tm-hcn-prev';
-            prevBtn.title = 'Previous record in history ([)';
-            prevBtn.setAttribute('aria-label', 'Previous record in history');
-            prevBtn.innerHTML = SVG_DPREV;
-            prevBtn.style.cssText = BTN_BASE + 'left: 20px;';
-            prevBtn.onmouseenter = () => prevBtn.style.background = 'rgba(255,255,255,0.25)';
-            prevBtn.onmouseleave = () => prevBtn.style.background = 'rgba(0,0,0,0.55)';
-            prevBtn.onclick = (e) => { e.stopPropagation(); _go(-1); };
-
-            const nextBtn = document.createElement('button');
-            nextBtn.id = 'tm-hcn-next';
-            nextBtn.title = 'Next record in history (])';
-            nextBtn.setAttribute('aria-label', 'Next record in history');
-            nextBtn.innerHTML = SVG_DNEXT;
-            nextBtn.style.cssText = BTN_BASE + 'right: 20px;';
-            nextBtn.onmouseenter = () => nextBtn.style.background = 'rgba(255,255,255,0.25)';
-            nextBtn.onmouseleave = () => nextBtn.style.background = 'rgba(0,0,0,0.55)';
-            nextBtn.onclick = (e) => { e.stopPropagation(); _go(1); };
-
-            document.body.appendChild(prevBtn);
-            document.body.appendChild(nextBtn);
-
-            _crossKeyHandlerRef = (e) => {
-                if (e.key === '[') { e.preventDefault(); _go(-1); }
-                if (e.key === ']') { e.preventDefault(); _go(1); }
-            };
-            document.addEventListener('keydown', _crossKeyHandlerRef);
-
-            const _watchClose = new MutationObserver(() => {
-                const stillOpen = _HCN_MODAL_IDS.some(id => document.getElementById(id));
-                if (!stillOpen) { _removeCrossNavButtons(); _watchClose.disconnect(); }
-            });
-            _watchClose.observe(document.body, { childList: true });
-        }
+        const textRenderer = _createTextRenderer({
+            dark, C, selectedIds, body, render,
+            _textPinnedAuthors, _savePinnedAuthors, _textAuthorCollapsed,
+            getEditMode: () => editMode,
+            getRenderEmpty: () => _renderEmpty,
+            getToggleTextRowSel: () => _toggleTextRowSel,
+            getDeleteOne: () => _deleteOne,
+            getScrollTarget: () => _textAuthorScrollTarget,
+            setScrollTarget: (v) => { _textAuthorScrollTarget = v; },
+            setViewMode: (v) => { viewMode = v; },
+        });
+        const _getTextBmContentColor = textRenderer.getTextBmContentColor;
+        const _showTextPreview       = textRenderer.showTextPreview;
+        const renderTextAuthorList   = textRenderer.renderAuthorList;
+        const renderTextAuthorThumb  = textRenderer.renderAuthorThumb;
+
+        const crossNavCtl = _createCrossNavController({
+            _openHistMediaLightbox,
+            getNavRecords: () => _navRecords,
+        });
+        const _getCrossNavNeighbor    = crossNavCtl.getNeighbor;
+        const _removeCrossNavButtons  = crossNavCtl.removeCrossNavButtons;
+        const _injectHistCrossNav     = crossNavCtl.injectCrossNav;
+        const _buildCrossNavButtons   = crossNavCtl.buildCrossNavButtons;
+
+        const mediaRenderer = _createMediaRenderer({
+            body, selectedIds, collapsedGroups, dark, delSelBtn,
+            getFiltered, getRecords, _invalidateRecordsCache, _fmtGroupLabel,
+            render, _openHistMediaLightbox, _injectHistCrossNav,
+            getEditMode: () => editMode,
+            getQuery: () => query,
+            getAnchorIdx: () => anchorIdx,
+            setAnchorIdx: (v) => { anchorIdx = v; },
+        });
+        const renderList         = mediaRenderer.renderList;
+        const renderThumb        = mediaRenderer.renderThumb;
+        const _renderEmpty       = mediaRenderer.renderEmpty;
+        const _handleCheckbox    = mediaRenderer.handleCheckbox;
+        const _toggleTextRowSel  = mediaRenderer.toggleTextRowSel;
+        const _deleteOne         = mediaRenderer.deleteOne;
+        const _thumbUrl          = mediaRenderer.thumbUrl;
+        const _showZoom          = mediaRenderer.showZoom;
+        const _hideZoom          = mediaRenderer.hideZoom;
+        const _moveZoom          = mediaRenderer.moveZoom;
 
         function _openHistMediaLightbox(rec, startIdx, originEl) {
             const media = rec.mediaUrls && rec.mediaUrls.length > 0 ? rec.mediaUrls : null;
@@ -11380,7 +12054,6 @@
 
             let idx = Math.max(0, Math.min(startIdx, allUrls.length - 1));
 
-            const originRect = originEl ? originEl.getBoundingClientRect() : null;
             const vpW = window.innerWidth, vpH = window.innerHeight;
 
             function _calcOrigin(rect) {
@@ -11492,47 +12165,11 @@
             });
         }
 
-        function _exportCSV() {
-            const csvCell = v => {
-                const s = String(v == null ? '' : v);
-                return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-            };
-            const records = getRecords();
-            const groupNameMap = new Map(
-                [...getGroups(), ...getTextGroups()].map(g => [g.id, g.name])
-            );
-            const header  = 'tweetId,tweetUrl,date,screenName,displayName,text,mediaUrls,groupId,groupName,favorited\n';
-            const rows    = records.map(r => [
-                r.tweetId,
-                r.tweetUrl,
-                r.tweetDate,
-                r.screenName,
-                csvCell(r.displayName),
-                csvCell(r.tweetText),
-                csvCell((r.mediaUrls || []).join(' ')),
-                r.groupId || '',
-                csvCell(r.groupId ? (groupNameMap.get(r.groupId) || '') : ''),
-                r.favorited ? '1' : '0',
-            ].join(',')).join('\n');
-            _download('history.csv', header + rows, 'text/csv');
-        }
-        function _exportJSON() {
-            const payload = {
-                __tm_export_version: 1,
-                records: getRecords(),
-                groups: getGroups(),
-                textGroups: getTextGroups(),
-            };
-            _download('history.json', JSON.stringify(payload, null, 2), 'application/json');
-        }
-        function _download(filename, content, type) {
-            const blob = new Blob([content], { type });
-            const url  = URL.createObjectURL(blob);
-            const a    = document.createElement('a');
-            a.href = url; a.download = filename;
-            document.body.appendChild(a); a.click(); document.body.removeChild(a);
-            setTimeout(() => URL.revokeObjectURL(url), 5000);
-        }
+        const importExportCtl = _createImportExportController({ getRecords, btnExp, render });
+        const _exportCSV    = importExportCtl.exportCSV;
+        const _exportJSON   = importExportCtl.exportJSON;
+        const _importJSON   = importExportCtl.importJSON;
+        const _showExpMenu  = importExportCtl.showExportMenu;
 
         function _mkIconBtn(svg, title) {
             const b = document.createElement('button');
@@ -11623,132 +12260,6 @@
             footer.classList.add('hidden'); btnEdit.classList.remove('active');
             render();
         });
-
-        function _importJSON() {
-            const input = document.createElement('input');
-            input.type   = 'file';
-            input.accept = '.json,application/json';
-            input.style.display = 'none';
-            document.body.appendChild(input);
-
-            input.addEventListener('change', () => {
-                const file = input.files?.[0];
-                if (!file) { input.remove(); return; }
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const parsed = JSON.parse(e.target.result);
-
-                        let imported, importedGroups, importedTextGroups;
-                        if (Array.isArray(parsed)) {
-                            imported = parsed;
-                            importedGroups = importedTextGroups = [];
-                        } else if (parsed && Array.isArray(parsed.records)) {
-                            imported           = parsed.records;
-                            importedGroups     = Array.isArray(parsed.groups) ? parsed.groups : [];
-                            importedTextGroups = Array.isArray(parsed.textGroups) ? parsed.textGroups : [];
-                        } else {
-                            throw new Error('Not a valid history export');
-                        }
-
-                        const groupAddCount = _mergeImportedGroups(importedGroups, getGroups, saveGroups)
-                            + _mergeImportedGroups(importedTextGroups, getTextGroups, saveTextGroups);
-
-                        const addCount = _mergeImportedRecords(imported);
-                        imported.forEach(r => { if (r.tweetId) _downloadedIds.add(r.tweetId); });
-                        showToast(groupAddCount > 0
-                            ? `✅ Imported ${addCount} record(s), ${groupAddCount} group(s)`
-                            : `✅ Imported ${addCount} new record(s)`);
-                        render();
-                    } catch (err) {
-                        showToast(`❌ Import failed: ${err.message}`);
-                    } finally {
-                        input.remove();
-                    }
-                };
-                reader.readAsText(file);
-            });
-
-            input.click();
-        }
-
-        let _expMenu = null;
-
-        function _showExpMenu() {
-            const existing = document.getElementById('tm-exp-menu');
-            if (existing) { existing.remove(); _expMenu = null; return; }
-
-            const menu = document.createElement('div');
-            menu.id = 'tm-exp-menu';
-            _expMenu = menu;
-
-            const btnRect = btnExp.getBoundingClientRect();
-            const menuWidth = 152;
-            const menuLeft  = Math.max(4, btnRect.right - menuWidth);
-            menu.style.cssText = `
-                position:fixed;
-                left:${menuLeft}px;
-                top:${btnRect.bottom + 6}px;
-                background:rgba(22,32,43,.97);
-                border:1px solid rgba(255,255,255,.12);
-                border-radius:10px;
-                padding:4px;
-                z-index:999999;
-                min-width:${menuWidth}px;
-                box-shadow:0 6px 20px rgba(0,0,0,.5);
-                animation:tm-exp-menu-in .15s cubic-bezier(.34,1.56,.64,1);
-            `;
-
-            if (!document.getElementById('tm-exp-menu-style')) {
-                const s = document.createElement('style');
-                s.id = 'tm-exp-menu-style';
-                s.textContent = `@keyframes tm-exp-menu-in{from{opacity:0;transform:scale(.88) translateY(-4px)}to{opacity:1;transform:scale(1) translateY(0)}}`;
-                document.head.appendChild(s);
-            }
-
-            const mkItem = (icon, label, onClick) => {
-                const item = document.createElement('button');
-                item.type = 'button';
-                item.style.cssText = `
-                    display:flex;align-items:center;gap:8px;
-                    width:100%;padding:7px 10px;border:none;
-                    background:transparent;border-radius:7px;
-                    color:rgba(255,255,255,.8);font-size:12px;
-                    cursor:pointer;font-family:inherit;text-align:left;
-                    transition:background .1s;white-space:nowrap;
-                `;
-                item.innerHTML = `<span style="opacity:.65;display:flex;align-items:center">${icon}</span><span>${label}</span>`;
-                item.addEventListener('mouseover', () => item.style.background = 'rgba(255,255,255,.09)');
-                item.addEventListener('mouseout',  () => item.style.background = 'transparent');
-                item.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    menu.remove(); _expMenu = null;
-                    document.removeEventListener('click', closeMenu, true);
-                    onClick();
-                });
-                return item;
-            };
-
-            const SVG_CSV  = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="2" y="1" width="12" height="14" rx="1.5"/><line x1="5" y1="5" x2="11" y2="5"/><line x1="5" y1="8" x2="11" y2="8"/><line x1="5" y1="11" x2="8" y2="11"/></svg>`;
-            const SVG_JSON = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 2C3.5 2 3 3 3 4v2c0 1-.5 1.5-1 2 .5.5 1 1 1 2v2c0 1 .5 2 2 2"/><path d="M11 2c1.5 0 2 1 2 2v2c0 1 .5 1.5 1 2-.5.5-1 1-1 2v2c0 1-.5 2-2 2"/></svg>`;
-            const SVG_IMP  = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 10V2M5 7l3 3 3-3"/><path d="M2 12h12"/></svg>`;
-
-            const divider = document.createElement('div');
-            divider.style.cssText = 'height:1px;background:rgba(255,255,255,.08);margin:3px 4px';
-
-            menu.appendChild(mkItem(SVG_CSV,  'Export CSV',  _exportCSV));
-            menu.appendChild(mkItem(SVG_JSON, 'Export JSON', _exportJSON));
-            menu.appendChild(divider);
-            menu.appendChild(mkItem(SVG_IMP,  'Import JSON', _importJSON));
-
-            document.body.appendChild(menu);
-
-            const closeMenu = (e) => {
-                if (menu.contains(e.target) || e.target === btnExp) return;
-                menu.remove(); _expMenu = null;
-            };
-            setTimeout(() => document.addEventListener('click', closeMenu, { capture: true, once: true }), 80);
-        }
 
         btnExp.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -11873,300 +12384,21 @@
             _savePos();
         }, _acSignal);
 
-        function _savePos() {
-            const r = panel.getBoundingClientRect();
-            const inDockedPeek = DockState.side && DockState.peeked;
-            const remember = GM_getValue(KEY_DOCK_REMEMBER_POS, false);
-            let pos = { x: r.left, y: r.top, w: r.width, h: r.height };
-            if (inDockedPeek && !remember) {
-                try {
-                    const old = JSON.parse(GM_getValue(KEY_HISTORY_PANEL_POS, 'null'));
-                    if (old) { pos.x = old.x; pos.y = old.y; }
-                } catch (_) {}
-            }
-            GM_setValue(KEY_HISTORY_PANEL_POS, JSON.stringify(pos));
-            if (inDockedPeek) {
-                if (remember) {
-                    DockState.snapshot = { left: r.left, top: r.top, width: r.width, height: r.height };
-                } else if (DockState.snapshot) {
-                    DockState.snapshot.width  = r.width;
-                    DockState.snapshot.height = r.height;
-                }
-            }
-        }
+        const dockCtl = _createDockController({
+            panel, render,
+            getPinned: () => _pinned,
+        });
+        const _savePos          = dockCtl.savePos;
 
         panel.addEventListener('click', e => e.stopPropagation());
 
-        function _dockTabGeometry() {
-            const snap = DockState.snapshot;
-            if (!snap) {
-                const r = panel.getBoundingClientRect();
-                const h   = Math.min(r.height * 0.55, 200);
-                const top = r.top + (r.height - h) / 2;
-                return { h, top };
-            }
-            const h   = Math.min(snap.height * 0.55, 200);
-            const top = snap.top + (snap.height - h) / 2;
-            return { h, top };
-        }
-
-        function _buildDockTab(side) {
-            const style = GM_getValue(KEY_DOCK_STYLE, 'ruler');
-            const { h, top } = _dockTabGeometry();
-
-            const triggerKey  = side === 'left' ? KEY_DOCK_TRIGGER_L : KEY_DOCK_TRIGGER_R;
-            const triggerDist = Math.max(6, parseInt(GM_getValue(triggerKey, '80'), 10) || 80);
-
-            const tab = document.createElement('div');
-            tab.id = 'tm-hist-dock-tab';
-            tab.className = 'style-' + style + ' side-' + side;
-            tab.style.cssText = [
-                'top:'    + top + 'px',
-                'height:' + h   + 'px',
-                side === 'left' ? 'left:0' : 'right:0',
-            ].join(';');
-            if (style === 'dots') {
-                for (let i = 0; i < 3; i++) {
-                    const d = document.createElement('span');
-                    d.className = 'tm-dock-dot';
-                    tab.appendChild(d);
-                }
-            }
-
-            const hotzone = document.createElement('div');
-            hotzone.className = 'tm-dock-hotzone';
-            hotzone.style.cssText = [
-                'position:absolute',
-                'top:0',
-                'height:100%',
-                'width:' + triggerDist + 'px',
-                side === 'left' ? 'left:0' : 'right:0',
-                'cursor:pointer',
-                'z-index:1',
-            ].join(';');
-
-            const _onHotEnter = () => {
-                clearTimeout(DockState.hoverTimer);
-                const delay = parseInt(GM_getValue(KEY_DOCK_HOVER_DELAY, '500'), 10) || 500;
-                DockState.hoverTimer = setTimeout(() => _peekOut(), delay);
-            };
-            const _onHotLeave = () => {
-                clearTimeout(DockState.hoverTimer);
-                DockState.hoverTimer = null;
-            };
-
-            hotzone.addEventListener('mouseenter', _onHotEnter);
-            hotzone.addEventListener('mouseleave', _onHotLeave);
-            tab.addEventListener('mouseenter', _onHotEnter);
-            tab.addEventListener('mouseleave', _onHotLeave);
-
-            let _tabHoldTimer   = null;
-            let _tabHoldRAF     = null;
-            let _tabHoldElapsed = 0;
-            const TAB_HOLD_MS   = 2000;
-
-            const _tabTick = () => {
-                _tabHoldElapsed += 16;
-                const pct = Math.min(_tabHoldElapsed / TAB_HOLD_MS, 1);
-                tab.style.opacity = (0.4 + pct * 0.6).toFixed(2);
-                if (pct < 1) _tabHoldRAF = requestAnimationFrame(_tabTick);
-            };
-
-            const _cancelTabHold = () => {
-                if (_tabHoldTimer) { clearTimeout(_tabHoldTimer); _tabHoldTimer = null; }
-                if (_tabHoldRAF)   { cancelAnimationFrame(_tabHoldRAF); _tabHoldRAF = null; }
-                _tabHoldElapsed = 0;
-                tab.style.opacity = '';
-            };
-
-            tab.addEventListener('mousedown', (e) => {
-                if (e.button !== 0) return;
-                e.stopPropagation();
-                _tabHoldElapsed = 0;
-                _tabHoldTimer = setTimeout(() => {
-                    cancelAnimationFrame(_tabHoldRAF);
-                    _tabHoldRAF  = null;
-                    _tabHoldTimer = null;
-                    tab.style.opacity = '';
-                    _forceResetDock();
-                }, TAB_HOLD_MS);
-                _tabHoldRAF = requestAnimationFrame(_tabTick);
-            });
-            tab.addEventListener('mouseup',    _cancelTabHold);
-            tab.addEventListener('mouseleave',  _cancelTabHold);
-
-            tab.appendChild(hotzone);
-            return tab;
-        }
-
-        function _dock(side) {
-            if (DockState.side) return;
-            DockState.peeked = false;
-
-            const r   = panel.getBoundingClientRect();
-            const vpW = window.innerWidth;
-
-            DockState.snapshot = { left: r.left, top: r.top, width: r.width, height: r.height };
-            DockState.side = side;
-
-            GM_setValue(KEY_DOCK_PERSISTED, side);
-
-            const PEEK = 6;
-            const OFFSET_LEFT  =  15;
-            const OFFSET_RIGHT = -15;
-
-            const peekLeft = side === 'left'
-                ? OFFSET_LEFT
-                : (vpW - r.width + OFFSET_RIGHT);
-            panel.style.left = peekLeft + 'px';
-
-            panel.style.transform = `translateX(${r.left - peekLeft}px)`;
-            panel.offsetWidth;
-
-            panel.classList.add('tm-animating');
-            panel.addEventListener('transitionend', function _rm(e) {
-                if (e.propertyName !== 'transform') return;
-                panel.classList.remove('tm-animating');
-                panel.removeEventListener('transitionend', _rm);
-            });
-
-            const offX = side === 'left'
-                ? -(OFFSET_LEFT  + r.width - PEEK)
-                :  (r.width      - PEEK - OFFSET_RIGHT);
-            panel.style.transform = `translateX(${offX}px)`;
-            panel.classList.add('tm-docked');
-
-            if (DockState.tabEl) DockState.tabEl.remove();
-            DockState.tabEl = _buildDockTab(side);
-            document.body.appendChild(DockState.tabEl);
-        }
-
-        function _peekOut() {
-            if (!DockState.side || DockState.peeked) return;
-            DockState.peeked = true;
-
-            clearTimeout(DockState.retractTimer);
-            DockState.retractTimer = null;
-
-            const snap = DockState.snapshot;
-            const vpW  = window.innerWidth;
-            const vpH  = window.innerHeight;
-
-            if (snap) {
-                const safeTop = Math.max(0, Math.min(snap.top, vpH - snap.height - 10));
-                panel.style.top = safeTop + 'px';
-            }
-
-            panel.classList.add('tm-animating');
-            panel.addEventListener('transitionend', function _rm(e) {
-                if (e.propertyName !== 'transform') return;
-                panel.classList.remove('tm-animating');
-                panel.removeEventListener('transitionend', _rm);
-            });
-
-            panel.style.transform = 'translateX(0)';
-            panel.classList.remove('tm-docked');
-
-            if (DockState.tabEl) DockState.tabEl.style.pointerEvents = 'none';
-
-            let bridge = document.getElementById('tm-hover-bridge');
-            if (!bridge) {
-                bridge = document.createElement('div');
-                bridge.id = 'tm-hover-bridge';
-                bridge.style.cssText = 'position:absolute; top:0; bottom:0; width:15px; background:transparent; z-index:-1;';
-                panel.appendChild(bridge);
-            }
-            if (DockState.side === 'left') {
-                bridge.style.left = '-10px';
-                bridge.style.right = '';
-            } else {
-                bridge.style.right = '-10px';
-                bridge.style.left = '';
-            }
-
-            const body = document.getElementById('tm-hist-body');
-            if (body && !body.hasChildNodes()) render();
-        }
-
-        function _retract() {
-            if (!DockState.side || !DockState.peeked) return;
-            if (_pinned) return;
-            DockState.peeked = false;
-
-            const PEEK         = 6;
-            const OFFSET_LEFT  =  15;
-            const OFFSET_RIGHT = -15;
-            const pw = panel.offsetWidth;
-            const offX = DockState.side === 'left'
-                ? -(OFFSET_LEFT  + pw - PEEK)
-                :  (pw           - PEEK - OFFSET_RIGHT);
-
-            panel.classList.add('tm-animating');
-            panel.addEventListener('transitionend', function _rm(e) {
-                if (e.propertyName !== 'transform') return;
-                panel.classList.remove('tm-animating');
-                panel.removeEventListener('transitionend', _rm);
-            });
-
-            panel.style.transform = `translateX(${offX}px)`;
-            panel.classList.add('tm-docked');
-
-            if (DockState.tabEl) DockState.tabEl.style.pointerEvents = '';
-        }
-
-        function _exitDockMode() {
-            clearTimeout(DockState.hoverTimer);
-            clearTimeout(DockState.retractTimer);
-            DockState.hoverTimer   = null;
-            DockState.retractTimer = null;
-
-            const snap = DockState.snapshot;
-            if (snap) {
-                const safeLeft = Math.max(0, Math.min(snap.left, window.innerWidth  - snap.width));
-                const safeTop  = Math.max(0, Math.min(snap.top,  window.innerHeight - 60));
-                panel.style.transition = 'none';
-                panel.style.left = safeLeft + 'px';
-                panel.style.top  = safeTop  + 'px';
-                panel.style.transform = '';
-                panel.offsetWidth;
-                panel.style.transition = '';
-            }
-            panel.classList.remove('tm-docked');
-            DockState.side     = null;
-            DockState.peeked   = false;
-            DockState.snapshot = null;
-
-            GM_setValue(KEY_DOCK_PERSISTED, '');
-
-            if (DockState.tabEl) {
-                DockState.tabEl.remove();
-                DockState.tabEl = null;
-            }
-        }
-
-        function _forceResetDock() {
-            clearTimeout(DockState.hoverTimer);
-            clearTimeout(DockState.retractTimer);
-            DockState.hoverTimer   = null;
-            DockState.retractTimer = null;
-            DockState.side         = null;
-            DockState.peeked       = false;
-            DockState.snapshot     = null;
-            if (DockState.tabEl) { DockState.tabEl.remove(); DockState.tabEl = null; }
-            GM_setValue(KEY_DOCK_PERSISTED, '');
-
-            panel.classList.remove('tm-docked');
-            const pw = panel.offsetWidth  || 390;
-            const ph = panel.offsetHeight || 540;
-            panel.style.transition = 'none';
-            panel.style.left = Math.round((window.innerWidth  - pw) / 2) + 'px';
-            panel.style.top  = Math.round((window.innerHeight - ph) / 4) + 'px';
-            panel.style.transform = '';
-            panel.offsetWidth;
-            panel.style.transition = '';
-            render();
-            showToast('🔓 Dock reset — panel restored');
-        }
+        const _dockTabGeometry = dockCtl.dockTabGeometry;
+        const _buildDockTab    = dockCtl.buildDockTab;
+        const _dock            = dockCtl.dock;
+        const _peekOut         = dockCtl.peekOut;
+        const _retract         = dockCtl.retract;
+        const _exitDockMode    = dockCtl.exitDockMode;
+        const _forceResetDock  = dockCtl.forceResetDock;
 
         dockTriggerL.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -14199,13 +14431,15 @@
 
     function buildCustomFilename(vars, fallbackFn) {
         if (!_cachedCustomFilenameEnabled || !_cachedCustomFilenameTemplate) return fallbackFn();
+        const safeExt = sanitizeForFilename(vars.ext);
         let name = _cachedCustomFilenameTemplate
             .replace(/\{screenName\}/g,  vars.screenName)
             .replace(/\{displayName\}/g, vars.displayName)
             .replace(/\{date\}/g,        vars.date)
             .replace(/\{id\}/g,          vars.id)
             .replace(/\{index\}/g,       String(vars.index))
-            .replace(/\{ext\}/g,         vars.ext);
+            .replace(/\{ext\}/g,         safeExt)
+            .replace(/\{text\}/g,        vars.text || '');
         name = name.replace(/[\\/]/g, '_');
         return name || fallbackFn();
     }
@@ -14706,80 +14940,12 @@
         mclick:    T.cma_slot_mclick     || 'Middle Click',
         rclick:    T.cma_slot_rclick     || 'Right Click',
     };
-    function insertCopyButton(article) {
-        if (!article.querySelector('time')) {
-            article.querySelector(`.${BUTTON_CLASS}`)?.remove();
-            article.querySelector('.custom-copy-icon')?.remove();
-            return;
-        }
-        {
-            const _existingBtn  = article.querySelector(`.${BUTTON_CLASS}`);
-            const _existingIcon = article.querySelector('.custom-copy-icon');
-            if (_existingBtn) {
-                const _needRebind =
-                    (_cachedClickMode === 'menu'    && !_existingBtn._menuAC)  ||
-                    (_cachedClickMode === 'classic' && !!_existingBtn._menuAC);
-                if (!_needRebind) return;
-                _existingBtn.remove();
-                _existingIcon?.remove();
-            }
-        }
-        const actions = Array.from(article.querySelectorAll('[role="group"]')).pop();
-        if (!actions) return;
-
-        if (!document.getElementById('tm-icon-anim-style')) {
-            const s = document.createElement('style');
-            s.id = 'tm-icon-anim-style';
-            s.textContent = `
-                @keyframes tm-pop-bounce {
-                    0%   { transform: scale(0.5); opacity: 0; }
-                    60%  { transform: scale(1.15); opacity: 1; }
-                    100% { transform: scale(1); opacity: 1; }
-                }
-                @keyframes tm-pop-bounce-text {
-                    0%   { transform: translateY(-50%) scale(0.5); opacity: 0; }
-                    60%  { transform: translateY(-50%) scale(1.1); opacity: 1; }
-                    100% { transform: translateY(-50%) scale(1); opacity: 1; }
-                }
-                .tm-anim-pop {
-                    animation: tm-pop-bounce 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
-                }
-                .tm-anim-pop-text {
-                    position: absolute;
-                    right: 4px;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    transform-origin: right center;
-                    white-space: nowrap;
-                    font-weight: 700;
-                    font-size: 13px;
-                    font-family: system-ui, -apple-system, sans-serif;
-                    background: rgba(128, 128, 128, 0.2);
-                    backdrop-filter: blur(4px);
-                    padding: 5px 12px;
-                    border-radius: 9999px;
-                    color: currentColor;
-                    z-index: 9999;
-                    pointer-events: none;
-                    animation: tm-pop-bounce-text 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
-                }
-            `;
-            document.head.appendChild(s);
-        }
-
+    function _createMediaActionController(article, btn) {
         const SVG_FILM = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="16" height="12" rx="2"/><line x1="2" y1="7" x2="18" y2="7"/><line x1="2" y1="13" x2="18" y2="13"/><line x1="6" y1="4" x2="6" y2="7"/><line x1="10" y1="4" x2="10" y2="7"/><line x1="14" y1="4" x2="14" y2="7"/><line x1="6" y1="13" x2="6" y2="16"/><line x1="10" y1="13" x2="10" y2="16"/><line x1="14" y1="13" x2="14" y2="16"/></svg>`;
         const SVG_CHECK_SM = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`;
         const SVG_PREFIX_COPY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
         const SVG_DL = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M6 9l4 4 4-4"/><line x1="3" y1="17" x2="17" y2="17"/></svg>`;
         const COLOR_DL_OK = '#00ba7c';
-
-        const btn = document.createElement('button');
-        btn.className = BUTTON_CLASS;
-        const _btnTooltipText = _cachedClickMode === 'menu' ? T.btn_tooltip_menu : T.btn_tooltip;
-        btn.title = _btnTooltipText;
-        btn.setAttribute('aria-label', _btnTooltipText || 'Media: copy URL / download');
-        btn.setAttribute('role', 'button');
-        btn.style.position = 'relative';
 
         const setMediaIcon = (state, extra, silentText, actionType = 'copy') => {
             const fbStyle = _cachedFeedbackStyle;
@@ -14866,11 +15032,6 @@
             }
         };
 
-        setMediaIcon('default');
-
-        const _clickMode = _cachedClickMode;
-
-        if (_clickMode === 'menu') {
             const _doDownloadAll = async () => {
                 const urls = await extractMediaUrls(article);
                 if (!urls.length) { setMediaIcon('msg', T.msg_no_media, 'No Media'); setTimeout(() => setMediaIcon('default'), 1500); return; }
@@ -14888,9 +15049,10 @@
                     else { const parts = url.split('/').pop().split('?')[0].split('.'); if (parts.length > 1) ext = '.' + parts.pop(); }
                     const safeDisplay = sanitizeForFilename(info.displayName);
                     const safeScreen  = sanitizeForFilename(info.screenName);
-                    const textPart    = info.text ? `_${info.text}` : '';
+                    const textPart    = info.text ? `_${sanitizeForFilename(info.text, 40)}` : '';
+                    const safeTextForToken = sanitizeForFilename(info.text || '', CUSTOM_FN_TEXT_MAXLEN);
                     const filename    = buildCustomFilename(
-                        { screenName: safeScreen, displayName: safeDisplay, date: info.date, id: info.id, index, ext: ext.replace(/^\./, '') },
+                        { screenName: safeScreen, displayName: safeDisplay, date: info.date, id: info.id, index, ext: ext.replace(/^\./, ''), text: safeTextForToken },
                         () => `[twitter] ${safeDisplay}(@${safeScreen})_${info.date}${textPart}_${info.id}_${index}${ext}`
                     );
                     const fileOffset  = (index - 1) / total;
@@ -14978,13 +15140,6 @@
                 },
                 ];
             };
-
-            { const _acC = _bindMenuClick(btn, _getMediaItems);
-              const _acH = _bindMenuHover(btn, _getMediaItems);
-              btn._menuAC = { abort() { _acC.abort(); _acH.abort(); } }; }
-            btn.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); });
-
-        } else {
 
             const _getCustomMediaActions = () => {
                 try {
@@ -15139,11 +15294,12 @@
                          if (parts.length > 1) ext = '.' + parts.pop();
                     }
 
-                    const textPart = info.text ? `_${info.text}` : "";
+                    const textPart = info.text ? `_${sanitizeForFilename(info.text, 40)}` : "";
+                    const safeTextForToken = sanitizeForFilename(info.text || '', CUSTOM_FN_TEXT_MAXLEN);
                     const safeDisplay = sanitizeForFilename(info.displayName);
                     const safeScreen = sanitizeForFilename(info.screenName);
                     const filename = buildCustomFilename(
-                        { screenName: safeScreen, displayName: safeDisplay, date: info.date, id: info.id, index, ext: ext.replace(/^\./, '') },
+                        { screenName: safeScreen, displayName: safeDisplay, date: info.date, id: info.id, index, ext: ext.replace(/^\./, ''), text: safeTextForToken },
                         () => `[twitter] ${safeDisplay}(@${safeScreen})_${info.date}${textPart}_${info.id}_${index}${ext}`
                     );
 
@@ -15178,63 +15334,21 @@
                 setTimeout(() => setMediaIcon('default'), 2000);
             };
 
-            const _MEDIA_ACTION_REGISTRY = {
-                copy:         _mediaActionCopy,
-                copy_prefix:  _mediaActionCopyPrefix,
-                preview:      _mediaActionPreview,
-                download_all: _mediaActionDownloadAll,
-            };
+        return {
+            setIcon: setMediaIcon,
+            getItems: _getMediaItems,
+            getCustomActions: _getCustomMediaActions,
+            copy: _mediaActionCopy,
+            copyPrefix: _mediaActionCopyPrefix,
+            preview: _mediaActionPreview,
+            downloadAll: _mediaActionDownloadAll,
+        };
+    }
 
-            let timer = null;
-            let longFired = false;
-            let _pressing = false;
-            btn.addEventListener('mousedown', async (e) => {
-                e.preventDefault(); e.stopPropagation();
-                const map = _getCustomMediaActions();
-
-                if (e.button === 0) {
-                    longFired = false;
-                    _pressing = true;
-                    timer = setTimeout(async () => {
-                        longFired = true;
-                        _pressing = false;
-                        timer = null;
-                        await (_MEDIA_ACTION_REGISTRY[map.longpress] || _mediaActionCopyPrefix)();
-                    }, 400);
-
-                } else if (e.button === 1) {
-                    await (_MEDIA_ACTION_REGISTRY[map.mclick] || _mediaActionPreview)();
-                }
-            });
-
-            btn.addEventListener('mouseup', async (e) => {
-                if (e.button !== 0) return;
-                if (timer) {
-                    clearTimeout(timer); timer = null;
-                    _pressing = false;
-                    if (longFired) return;
-                    const map = _getCustomMediaActions();
-                    await (_MEDIA_ACTION_REGISTRY[map.click] || _mediaActionCopy)();
-                }
-            });
-            btn.addEventListener('mouseleave', () => { if (timer && !_pressing) { clearTimeout(timer); timer = null; } });
-            btn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
-
-            btn.addEventListener('contextmenu', async (e) => {
-                e.preventDefault(); e.stopPropagation();
-                const map = _getCustomMediaActions();
-                await (_MEDIA_ACTION_REGISTRY[map.rclick] || _mediaActionDownloadAll)();
-            });
-        }
-
-        const LINK_BTN_CLASS = 'custom-copy-icon';
-        if (!article.querySelector(`.${LINK_BTN_CLASS}`)) {
-            const icon = document.createElement('div');
-            icon.className = LINK_BTN_CLASS;
-            icon.style.position = 'relative';
-
+    function _createLinkActionController(article, icon) {
             const SVG_LINK = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12a4 4 0 0 0 5.66 0l2-2a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M12 8a4 4 0 0 0-5.66 0l-2 2a4 4 0 0 0 5.66 5.66l1-1"/></svg>`;
             const SVG_CHECK = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`;
+            const SVG_PREFIX_COPY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
 
             const setLinkIcon = (state, extra, silentText, actionType = 'copy') => {
                 const fbStyle = GM_getValue(KEY_FEEDBACK_STYLE, 'toast');
@@ -15381,7 +15495,6 @@
                 none:               _linkActionNone,
             };
 
-            if (_cachedClickMode === 'menu') {
                 const _getLinkItems = () => [
                     {
                         itemClass: 'tm-menu-item--copied',
@@ -15402,17 +15515,188 @@
                         action: _linkActionSaveTextBookmark,
                     },
                 ];
-                { const _acC = _bindMenuClick(icon, _getLinkItems);
-                  const _acH = _bindMenuHover(icon, _getLinkItems);
-                  icon._menuAC = { abort() { _acC.abort(); _acH.abort(); } }; }
-                icon.addEventListener('contextmenu', async (e) => { e.preventDefault(); e.stopPropagation(); await _doSaveLinkTextBookmark(); });
-            } else {
 
                 const _getCustomLinkActions = () => {
                     try {
                         return { ...DEFAULT_LINK_ACTIONS, ...JSON.parse(GM_getValue(KEY_CUSTOM_LINK_ACTIONS, '{}')) };
                     } catch (_) { return { ...DEFAULT_LINK_ACTIONS }; }
                 };
+
+        return {
+            setIcon: setLinkIcon,
+            saveTextBookmark: _doSaveLinkTextBookmark,
+            targetUrl: _linkTargetUrl,
+            copyUrl: _linkActionCopyUrl,
+            copyPrefixUrl: _linkActionCopyPrefixUrl,
+            actionNone: _linkActionNone,
+            registry: _LINK_ACTION_REGISTRY,
+            getItems: _getLinkItems,
+            getCustomActions: _getCustomLinkActions,
+        };
+    }
+
+    function insertCopyButton(article) {
+        if (!article.querySelector('time')) {
+            article.querySelector(`.${BUTTON_CLASS}`)?.remove();
+            article.querySelector('.custom-copy-icon')?.remove();
+            return;
+        }
+        {
+            const _existingBtn  = article.querySelector(`.${BUTTON_CLASS}`);
+            const _existingIcon = article.querySelector('.custom-copy-icon');
+            if (_existingBtn) {
+                const _needRebind =
+                    (_cachedClickMode === 'menu'    && !_existingBtn._menuAC)  ||
+                    (_cachedClickMode === 'classic' && !!_existingBtn._menuAC);
+                if (!_needRebind) return;
+                _existingBtn.remove();
+                _existingIcon?.remove();
+            }
+        }
+        const actions = Array.from(article.querySelectorAll('[role="group"]')).pop();
+        if (!actions) return;
+
+        if (!document.getElementById('tm-icon-anim-style')) {
+            const s = document.createElement('style');
+            s.id = 'tm-icon-anim-style';
+            s.textContent = `
+                @keyframes tm-pop-bounce {
+                    0%   { transform: scale(0.5); opacity: 0; }
+                    60%  { transform: scale(1.15); opacity: 1; }
+                    100% { transform: scale(1); opacity: 1; }
+                }
+                @keyframes tm-pop-bounce-text {
+                    0%   { transform: translateY(-50%) scale(0.5); opacity: 0; }
+                    60%  { transform: translateY(-50%) scale(1.1); opacity: 1; }
+                    100% { transform: translateY(-50%) scale(1); opacity: 1; }
+                }
+                .tm-anim-pop {
+                    animation: tm-pop-bounce 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+                }
+                .tm-anim-pop-text {
+                    position: absolute;
+                    right: 4px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    transform-origin: right center;
+                    white-space: nowrap;
+                    font-weight: 700;
+                    font-size: 13px;
+                    font-family: system-ui, -apple-system, sans-serif;
+                    background: rgba(128, 128, 128, 0.2);
+                    backdrop-filter: blur(4px);
+                    padding: 5px 12px;
+                    border-radius: 9999px;
+                    color: currentColor;
+                    z-index: 9999;
+                    pointer-events: none;
+                    animation: tm-pop-bounce-text 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+                }
+            `;
+            document.head.appendChild(s);
+        }
+
+        const btn = document.createElement('button');
+        btn.className = BUTTON_CLASS;
+        const _btnTooltipText = _cachedClickMode === 'menu' ? T.btn_tooltip_menu : T.btn_tooltip;
+        btn.title = _btnTooltipText;
+        btn.setAttribute('aria-label', _btnTooltipText || 'Media: copy URL / download');
+        btn.setAttribute('role', 'button');
+        btn.style.position = 'relative';
+
+        const mediaCtl = _createMediaActionController(article, btn);
+        const setMediaIcon = mediaCtl.setIcon;
+
+        setMediaIcon('default');
+
+        const _clickMode = _cachedClickMode;
+
+        if (_clickMode === 'menu') {
+            const _getMediaItems = mediaCtl.getItems;
+
+            { const _acC = _bindMenuClick(btn, _getMediaItems);
+              const _acH = _bindMenuHover(btn, _getMediaItems);
+              btn._menuAC = { abort() { _acC.abort(); _acH.abort(); } }; }
+            btn.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); });
+
+        } else {
+
+            const _getCustomMediaActions = mediaCtl.getCustomActions;
+            const _mediaActionCopy = mediaCtl.copy;
+            const _mediaActionCopyPrefix = mediaCtl.copyPrefix;
+            const _mediaActionPreview = mediaCtl.preview;
+            const _mediaActionDownloadAll = mediaCtl.downloadAll;
+
+            const _MEDIA_ACTION_REGISTRY = {
+                copy:         _mediaActionCopy,
+                copy_prefix:  _mediaActionCopyPrefix,
+                preview:      _mediaActionPreview,
+                download_all: _mediaActionDownloadAll,
+            };
+
+            let timer = null;
+            let longFired = false;
+            let _pressing = false;
+            btn.addEventListener('mousedown', async (e) => {
+                e.preventDefault(); e.stopPropagation();
+                const map = _getCustomMediaActions();
+
+                if (e.button === 0) {
+                    longFired = false;
+                    _pressing = true;
+                    timer = setTimeout(async () => {
+                        longFired = true;
+                        _pressing = false;
+                        timer = null;
+                        await (_MEDIA_ACTION_REGISTRY[map.longpress] || _mediaActionCopyPrefix)();
+                    }, 400);
+
+                } else if (e.button === 1) {
+                    await (_MEDIA_ACTION_REGISTRY[map.mclick] || _mediaActionPreview)();
+                }
+            });
+
+            btn.addEventListener('mouseup', async (e) => {
+                if (e.button !== 0) return;
+                if (timer) {
+                    clearTimeout(timer); timer = null;
+                    _pressing = false;
+                    if (longFired) return;
+                    const map = _getCustomMediaActions();
+                    await (_MEDIA_ACTION_REGISTRY[map.click] || _mediaActionCopy)();
+                }
+            });
+            btn.addEventListener('mouseleave', () => { if (timer && !_pressing) { clearTimeout(timer); timer = null; } });
+            btn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
+
+            btn.addEventListener('contextmenu', async (e) => {
+                e.preventDefault(); e.stopPropagation();
+                const map = _getCustomMediaActions();
+                await (_MEDIA_ACTION_REGISTRY[map.rclick] || _mediaActionDownloadAll)();
+            });
+        }
+
+        const LINK_BTN_CLASS = 'custom-copy-icon';
+        if (!article.querySelector(`.${LINK_BTN_CLASS}`)) {
+            const icon = document.createElement('div');
+            icon.className = LINK_BTN_CLASS;
+            icon.style.position = 'relative';
+
+            const linkCtl = _createLinkActionController(article, icon);
+            const _doSaveLinkTextBookmark = linkCtl.saveTextBookmark;
+            const _linkActionSaveTextBookmark = linkCtl.saveTextBookmark;
+            const _linkActionNone = linkCtl.actionNone;
+            const _LINK_ACTION_REGISTRY = linkCtl.registry;
+
+            if (_cachedClickMode === 'menu') {
+                const _getLinkItems = linkCtl.getItems;
+                { const _acC = _bindMenuClick(icon, _getLinkItems);
+                  const _acH = _bindMenuHover(icon, _getLinkItems);
+                  icon._menuAC = { abort() { _acC.abort(); _acH.abort(); } }; }
+                icon.addEventListener('contextmenu', async (e) => { e.preventDefault(); e.stopPropagation(); await _doSaveLinkTextBookmark(); });
+            } else {
+
+                const _getCustomLinkActions = linkCtl.getCustomActions;
 
                 icon.addEventListener('mouseenter', () => {
                     const map = _getCustomLinkActions();
@@ -15643,6 +15927,7 @@
                 const dateStr = apiData.date ? formatDate(apiData.date) : '';
                 const safeDisplay = apiData.displayName ? sanitizeForFilename(apiData.displayName) : safeScreen;
                 const textPart = apiData.text ? `_${sanitizeForFilename(apiData.text)}` : '';
+                const safeTextForToken = sanitizeForFilename(apiData.text || '', CUSTOM_FN_TEXT_MAXLEN);
                 const urls = mediaType === 'video' && apiData.videos.length ? apiData.videos : apiData.images;
                 let idx = 1;
                 for (const url of urls) {
@@ -15652,7 +15937,7 @@
                     else { const parts = url.split('/').pop().split('?')[0].split('.'); if (parts.length > 1) ext = '.' + parts.pop(); }
                     const filename = hasRichMeta
                         ? buildCustomFilename(
-                            { screenName: safeScreen, displayName: safeDisplay, date: dateStr, id: tweetId, index: idx, ext: ext.replace(/^\./, '') },
+                            { screenName: safeScreen, displayName: safeDisplay, date: dateStr, id: tweetId, index: idx, ext: ext.replace(/^\./, ''), text: safeTextForToken },
                             () => `[twitter] ${safeDisplay}(@${safeScreen})_${dateStr}${textPart}_${tweetId}_${idx}${ext}`
                           )
                         : `[twitter] ${safeScreen}_${tweetId}_${idx}${ext}`;
@@ -15699,10 +15984,12 @@
     const AVATAR_BATCH_SIZE = 16;
     let _avatarBatchQueue = [];
     let _avatarBatchRunning = false;
+    const _avatarBatchQueued = new WeakSet();
     function _processAvatarBatch() {
         let n = 0;
         while (n < AVATAR_BATCH_SIZE && _avatarBatchQueue.length > 0) {
             const avatarWrap = _avatarBatchQueue.shift();
+            _avatarBatchQueued.delete(avatarWrap);
             n++;
             if (_processedAvatars.has(avatarWrap) || !avatarWrap.isConnected) continue;
 
@@ -15748,8 +16035,9 @@
         if (!enabled) return;
 
         document.querySelectorAll('article [data-testid="Tweet-User-Avatar"]').forEach(avatarWrap => {
-            if (!_processedAvatars.has(avatarWrap) && !_avatarBatchQueue.includes(avatarWrap)) {
+            if (!_processedAvatars.has(avatarWrap) && !_avatarBatchQueued.has(avatarWrap)) {
                 _avatarBatchQueue.push(avatarWrap);
+                _avatarBatchQueued.add(avatarWrap);
             }
         });
 
@@ -15759,7 +16047,7 @@
         }
     }
 
-    function scanAndInsert() {
+    scanAndInsert = function () {
         _cachedClickMode       = GM_getValue(KEY_CLICK_MODE, 'classic');
         _cachedFeedbackStyle   = GM_getValue(KEY_FEEDBACK_STYLE, 'toast');
         _cachedClickModeCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
@@ -15837,7 +16125,7 @@
             if (typeof requestIdleCallback !== 'undefined') {
                 requestIdleCallback(scanAndInsert, { timeout: ms * 2 });
             } else {
-                scanAndInsert();
+                setTimeout(scanAndInsert, 0);
             }
         }, ms);
     };
