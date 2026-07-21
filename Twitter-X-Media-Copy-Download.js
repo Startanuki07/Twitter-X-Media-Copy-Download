@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      v2.9.14.24
+// @version      3.0.0.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -270,6 +270,7 @@
     const KEY_GROUP_PANEL_CFG   = 'app_group_panel_cfg';
     const KEY_TEXT_BM_CFG       = 'app_text_bm_cfg';
     const KEY_GEAR_VISIBLE      = 'app_gear_visible';
+    const KEY_GEAR_DISPLAY_MODE = 'app_gear_display_mode';
     const KEY_GEAR_CORNER       = 'app_gear_corner';
     const KEY_HIST_CLEANUP_NOTIFIED = 'app_hist_cleanup_notified';
     const KEY_CLICK_MODE        = 'app_click_mode';
@@ -284,6 +285,10 @@
     const KEY_GRID_MEDIA_BTN    = 'app_grid_media_btn';
     const KEY_AVATAR_MEDIA_BTN  = 'app_avatar_media_btn';
     const KEY_APP_THEME         = 'app_theme';
+    const KEY_THEME_SYNC        = 'app_theme_sync';
+    const KEY_APP_THEME_HISTORY = 'app_theme_history';
+    const KEY_CUSTOM_THEME_ENABLED = 'app_custom_theme_enabled';
+    const KEY_CUSTOM_THEME_COLORS  = 'app_custom_theme_colors';
 
     const KEY_TF_CSS_SIMPLIFY = 'app_tf_css_simplify';
     const KEY_TF_FEED_PRUNE   = 'app_tf_feed_prune';
@@ -318,6 +323,8 @@
         'grid_media_btn',
         'avatar_media_btn',
         'custom_filename_toggle',
+        'sp_theme_sync',
+        'corner_buttons_modes',
     ];
 
     const DOMAIN_LIST = [
@@ -338,6 +345,7 @@
             menu_prefix: '⚙️ Set Custom Prefix (Discord)',
             menu_lang: '🌐 Change Language',
             menu_help: '📖 Help / Manual',
+            menu_corner_btns: '👁 Corner Buttons',
             prompt_prefix: 'Enter custom prefix (e.g., [text]):',
             prompt_lang: 'Select language (enter number):\n1. English\n2. 繁體中文\n3. 简体中文\n4. 日本語\n5. 한국어\n6. Español\n7. Português (BR)\n8. Français\n9. Русский\n10. ✏️ Custom Language',
             prompt_domain: 'Select domain (Enter Number):\n',
@@ -388,6 +396,16 @@
             toast_date_fmt: '📅 Date Format → ',
             toast_lang_pending: '🌐 Language change will apply after reload.',
             confirm_lang_reload: 'Language changed to {lang}.\nReload page now to apply?',
+            corner_modal_subtitle: 'Choose which corner buttons to show.',
+            corner_opt_all: 'Show Both',
+            corner_opt_all_desc: 'Show the download history and settings buttons together',
+            corner_opt_gear: 'Settings Only',
+            corner_opt_gear_desc: 'Show only the ⚙️ settings button',
+            corner_opt_hist: 'History Only',
+            corner_opt_hist_desc: 'Show only the 📋 download history button',
+            corner_opt_none: 'Hide Both',
+            corner_opt_none_desc: 'Hide both corner buttons (use the userscript menu to reopen)',
+            toast_corner_applied: '👁 Corner Buttons → {mode}',
             menu_date_format: '📅 Date Format',
             status_date_asian: 'Asian (YYYY.MM.DD)',
             status_date_western: 'Western (DD.MM.YYYY)',
@@ -527,6 +545,8 @@
             sp_grp_fan_mask_radius:    'Backdrop Size',
             sp_dock_remember_pos:      'Remember Edge Position',
             sp_dock_remember_pos_desc: 'Remembers panel Y position after dragging while peeked',
+            sp_theme_sync:             'Sync Panel Themes',
+            sp_theme_sync_desc:        'When off, Settings and History panels remember separate dark/light choices',
             sp_dock_reset_pos:         'Reset Panel Position',
             sp_dock_reset_pos_desc:    'Restore panel to default coordinates (dock side kept)',
         },
@@ -537,6 +557,7 @@
             menu_prefix: '⚙️ 設定 Discord 前綴文字',
             menu_lang: '🌐 切換語言 (Change Language)',
             menu_help: '📖 使用說明書',
+            menu_corner_btns: '👁 角落按鈕',
             prompt_prefix: '請輸入自定義前綴（例如 [text]）：',
             prompt_lang: '請輸入數字選擇語言：\n1. English\n2. 繁體中文\n3. 简体中文\n4. 日本語\n5. 한국어\n6. Español\n7. Português (BR)\n8. Français\n9. Русский\n10. ✏️ Custom Language',
             prompt_domain: '請輸入數字選擇域名：\n',
@@ -571,6 +592,16 @@
             toast_date_fmt: '📅 日期格式 → ',
             toast_lang_pending: '🌐 語言已變更，重新載入後生效。',
             confirm_lang_reload: '語言已切換為 {lang}。\n立即重新載入頁面以套用？',
+            corner_modal_subtitle: '選擇要顯示哪些角落按鈕。',
+            corner_opt_all: '全部顯示',
+            corner_opt_all_desc: '同時顯示下載紀錄與設定按鈕',
+            corner_opt_gear: '只顯示齒輪',
+            corner_opt_gear_desc: '只顯示 ⚙️ 設定按鈕',
+            corner_opt_hist: '只顯示下載紀錄',
+            corner_opt_hist_desc: '只顯示 📋 下載紀錄按鈕',
+            corner_opt_none: '全部隱藏',
+            corner_opt_none_desc: '隱藏兩顆角落按鈕（可從腳本選單重新開啟）',
+            toast_corner_applied: '👁 角落按鈕 → {mode}',
             menu_date_format: '📅 日期格式',
             status_date_asian: '亞洲慣用 (YYYY.MM.DD)',
             status_date_western: '歐美慣用 (DD.MM.YYYY)',
@@ -707,6 +738,8 @@
             sp_grp_fan_mask_radius:    '遮罩半徑',
             sp_dock_remember_pos:      '記住邊緣位置',
             sp_dock_remember_pos_desc: '拖曳彈出面板後記住其 Y 軸位置',
+            sp_theme_sync:             '同步面板主題',
+            sp_theme_sync_desc:        '關閉後，設定面板與下載歷史面板可各自記住不同的深色/淺色選擇',
             sp_dock_reset_pos:         '重置面板位置',
             sp_dock_reset_pos_desc:    '還原面板至預設座標（停靠側不變）',
         },
@@ -717,6 +750,7 @@
             menu_prefix: '⚙️ 设置 Discord 前缀文字',
             menu_lang: '🌐 切换语言 (Change Language)',
             menu_help: '📖 使用说明书',
+            menu_corner_btns: '👁 角落按钮',
             prompt_prefix: '请输入自定义前缀（例如 [text]）：',
             prompt_lang: '请输入数字选择语言：\n1. English\n2. 繁體中文\n3. 简体中文\n4. 日本語\n5. 한국어\n6. Español\n7. Português (BR)\n8. Français\n9. Русский\n10. ✏️ Custom Language',
             prompt_domain: '请输入数字选择域名：\n',
@@ -751,6 +785,16 @@
             toast_date_fmt: '📅 日期格式 → ',
             toast_lang_pending: '🌐 语言已变更，重新载入后生效。',
             confirm_lang_reload: '语言已切换为 {lang}。\n立即重新载入页面以应用？',
+            corner_modal_subtitle: '选择要显示哪些角落按钮。',
+            corner_opt_all: '全部显示',
+            corner_opt_all_desc: '同时显示下载记录与设置按钮',
+            corner_opt_gear: '只显示齿轮',
+            corner_opt_gear_desc: '只显示 ⚙️ 设置按钮',
+            corner_opt_hist: '只显示下载记录',
+            corner_opt_hist_desc: '只显示 📋 下载记录按钮',
+            corner_opt_none: '全部隐藏',
+            corner_opt_none_desc: '隐藏两颗角落按钮（可从脚本菜单重新打开）',
+            toast_corner_applied: '👁 角落按钮 → {mode}',
             menu_date_format: '📅 日期格式',
             status_date_asian: '亚洲惯用 (YYYY.MM.DD)',
             status_date_western: '欧美惯用 (DD.MM.YYYY)',
@@ -887,6 +931,8 @@
             sp_grp_fan_mask_radius:    '遮罩半径',
             sp_dock_remember_pos:      '记住边缘位置',
             sp_dock_remember_pos_desc: '拖动弹出面板后记住其 Y 轴位置',
+            sp_theme_sync:             '同步面板主题',
+            sp_theme_sync_desc:        '关闭后，设置面板与下载历史面板可各自记住不同的深色/浅色选择',
             sp_dock_reset_pos:         '重置面板位置',
             sp_dock_reset_pos_desc:    '还原面板至默认坐标（停靠侧不变）',
         },
@@ -897,6 +943,7 @@
             menu_prefix: '⚙️ プレフィックス設定 (Discord)',
             menu_lang: '🌐 言語変更 (Change Language)',
             menu_help: '📖 ヘルプ / 説明書',
+            menu_corner_btns: '👁 コーナーボタン',
             prompt_prefix: 'カスタムプレフィックスを入力（例: [text]）：',
             prompt_lang: '番号を入力して言語を選択：\n1. English\n2. 繁體中文\n3. 简体中文\n4. 日本語\n5. 한국어\n6. Español\n7. Português (BR)\n8. Français\n9. Русский\n10. ✏️ Custom Language',
             prompt_domain: 'ドメインの番号を入力：\n',
@@ -931,6 +978,16 @@
             toast_date_fmt: '📅 日付フォーマット → ',
             toast_lang_pending: '🌐 言語を変更しました。再読み込み後に反映されます。',
             confirm_lang_reload: '言語を {lang} に変更しました。\n今すぐページを再読み込みしますか？',
+            corner_modal_subtitle: '表示するコーナーボタンを選択してください。',
+            corner_opt_all: '両方表示',
+            corner_opt_all_desc: 'ダウンロード履歴と設定ボタンを両方表示',
+            corner_opt_gear: '設定のみ',
+            corner_opt_gear_desc: '⚙️ 設定ボタンのみ表示',
+            corner_opt_hist: '履歴のみ',
+            corner_opt_hist_desc: '📋 ダウンロード履歴ボタンのみ表示',
+            corner_opt_none: '両方非表示',
+            corner_opt_none_desc: '両方のコーナーボタンを非表示（ユーザースクリプトメニューから再表示可能）',
+            toast_corner_applied: '👁 コーナーボタン → {mode}',
             menu_date_format: '📅 日付フォーマット',
             status_date_asian: 'アジア式 (YYYY.MM.DD)',
             status_date_western: '欧米式 (DD.MM.YYYY)',
@@ -1067,6 +1124,8 @@
             sp_grp_fan_mask_radius:    'マスクのサイズ',
             sp_dock_remember_pos:      '端の位置を記憶',
             sp_dock_remember_pos_desc: 'ドラッグ後のパネルのY座標を記憶します',
+            sp_theme_sync:             'パネルのテーマを同期',
+            sp_theme_sync_desc:        'オフにすると、設定パネルとダウンロード履歴パネルが別々にダーク/ライトを記憶します',
             sp_dock_reset_pos:         'パネル位置をリセット',
             sp_dock_reset_pos_desc:    'パネルを初期座標に戻します（ドック側は維持）',
         },
@@ -1077,6 +1136,7 @@
             menu_prefix: '⚙️ 접두사 설정 (Discord)',
             menu_lang: '🌐 언어 변경 (Change Language)',
             menu_help: '📖 도움말 / 설명서',
+            menu_corner_btns: '👁 코너 버튼',
             prompt_prefix: '사용자 지정 접두사 입력 (예: [text]):',
             prompt_lang: '숫자를 입력하여 언어 선택:\n1. English\n2. 繁體中文\n3. 简体中文\n4. 日本語\n5. 한국어\n6. Español\n7. Português (BR)\n8. Français\n9. Русский\n10. ✏️ Custom Language',
             prompt_domain: '도메인 번호를 선택하세요:\n',
@@ -1111,6 +1171,16 @@
             toast_date_fmt: '📅 날짜 형식 → ',
             toast_lang_pending: '🌐 언어가 변경되었습니다. 새로고침 후 적용됩니다.',
             confirm_lang_reload: '언어가 {lang}(으)로 변경되었습니다.\n지금 페이지를 새로고침하시겠습니까?',
+            corner_modal_subtitle: '표시할 코너 버튼을 선택하세요.',
+            corner_opt_all: '모두 표시',
+            corner_opt_all_desc: '다운로드 기록과 설정 버튼을 함께 표시',
+            corner_opt_gear: '설정만',
+            corner_opt_gear_desc: '⚙️ 설정 버튼만 표시',
+            corner_opt_hist: '기록만',
+            corner_opt_hist_desc: '📋 다운로드 기록 버튼만 표시',
+            corner_opt_none: '모두 숨기기',
+            corner_opt_none_desc: '두 코너 버튼을 모두 숨김 (유저스크립트 메뉴에서 다시 열 수 있음)',
+            toast_corner_applied: '👁 코너 버튼 → {mode}',
             menu_date_format: '📅 날짜 형식',
             status_date_asian: '아시아식 (YYYY.MM.DD)',
             status_date_western: '서양식 (DD.MM.YYYY)',
@@ -1247,6 +1317,8 @@
             sp_grp_fan_mask_radius:    '마스크 크기',
             sp_dock_remember_pos:      '가장자리 위치 기억',
             sp_dock_remember_pos_desc: '끌어서 이동한 패널의 Y 위치를 기억합니다',
+            sp_theme_sync:             '패널 테마 동기화',
+            sp_theme_sync_desc:        '끄면 설정 패널과 다운로드 기록 패널이 각각 다른 다크/라이트 상태를 기억합니다',
             sp_dock_reset_pos:         '패널 위치 재설정',
             sp_dock_reset_pos_desc:    '패널을 기본 좌표로 복원합니다 (도크 방향은 유지)',
         },
@@ -1257,6 +1329,7 @@
             menu_prefix: '⚙️ Configurar prefijo personalizado (Discord)',
             menu_lang: '🌐 Cambiar idioma (Change Language)',
             menu_help: '📖 Ayuda / Manual',
+            menu_corner_btns: '👁 Botones de esquina',
             prompt_prefix: 'Ingrese el prefijo personalizado (ej. [texto]):',
             prompt_lang: 'Ingrese un número para seleccionar el idioma:\n1. English\n2. 繁體中文\n3. 简体中文\n4. 日本語\n5. 한국어\n6. Español\n7. Português (BR)\n8. Français\n9. Русский\n10. ✏️ Custom Language',
             prompt_domain: 'Seleccione el número del dominio:\n',
@@ -1291,6 +1364,16 @@
             toast_date_fmt: '📅 Formato de fecha → ',
             toast_lang_pending: '🌐 Idioma cambiado. Se aplicará al recargar.',
             confirm_lang_reload: 'Idioma cambiado a {lang}.\n¿Recargar la página ahora?',
+            corner_modal_subtitle: 'Elige qué botones de esquina mostrar.',
+            corner_opt_all: 'Mostrar ambos',
+            corner_opt_all_desc: 'Mostrar el historial de descargas y el botón de ajustes juntos',
+            corner_opt_gear: 'Solo ajustes',
+            corner_opt_gear_desc: 'Mostrar solo el botón de ajustes ⚙️',
+            corner_opt_hist: 'Solo historial',
+            corner_opt_hist_desc: 'Mostrar solo el botón de historial de descargas 📋',
+            corner_opt_none: 'Ocultar ambos',
+            corner_opt_none_desc: 'Ocultar ambos botones de esquina (reábrelos desde el menú del userscript)',
+            toast_corner_applied: '👁 Botones de esquina → {mode}',
             menu_date_format: '📅 Formato de fecha',
             status_date_asian: 'Asiático (YYYY.MM.DD)',
             status_date_western: 'Occidental (DD.MM.YYYY)',
@@ -1427,6 +1510,8 @@
             sp_grp_fan_mask_radius:    'Tamaño de fondo',
             sp_dock_remember_pos:      'Recordar posición en el borde',
             sp_dock_remember_pos_desc: 'Recuerda la posición Y del panel tras arrastrarlo',
+            sp_theme_sync:             'Sincronizar temas de paneles',
+            sp_theme_sync_desc:        'Si está desactivado, el panel de ajustes y el de historial recordarán temas claro/oscuro independientes',
             sp_dock_reset_pos:         'Restablecer posición del panel',
             sp_dock_reset_pos_desc:    'Restaura el panel a las coordenadas predeterminadas (mantiene el lado de anclaje)',
         },
@@ -1437,6 +1522,7 @@
             menu_prefix: '⚙️ Configurar prefixo personalizado (Discord)',
             menu_lang: '🌐 Mudar idioma (Change Language)',
             menu_help: '📖 Ajuda / Manual',
+            menu_corner_btns: '👁 Botões de canto',
             prompt_prefix: 'Digite o prefixo personalizado (ex. [texto]):',
             prompt_lang: 'Digite um número para selecionar o idioma:\n1. English\n2. 繁體中文\n3. 简体中文\n4. 日本語\n5. 한국어\n6. Español\n7. Português (BR)\n8. Français\n9. Русский\n10. ✏️ Custom Language',
             prompt_domain: 'Selecione o número do domínio:\n',
@@ -1471,6 +1557,16 @@
             toast_date_fmt: '📅 Formato de data → ',
             toast_lang_pending: '🌐 Idioma alterado. Será aplicado ao recarregar.',
             confirm_lang_reload: 'Idioma alterado para {lang}.\nRecarregar a página agora?',
+            corner_modal_subtitle: 'Escolha quais botões de canto exibir.',
+            corner_opt_all: 'Mostrar ambos',
+            corner_opt_all_desc: 'Mostrar o histórico de downloads e o botão de configurações juntos',
+            corner_opt_gear: 'Somente configurações',
+            corner_opt_gear_desc: 'Mostrar somente o botão de configurações ⚙️',
+            corner_opt_hist: 'Somente histórico',
+            corner_opt_hist_desc: 'Mostrar somente o botão de histórico de downloads 📋',
+            corner_opt_none: 'Ocultar ambos',
+            corner_opt_none_desc: 'Ocultar os dois botões de canto (reabra pelo menu do userscript)',
+            toast_corner_applied: '👁 Botões de canto → {mode}',
             menu_date_format: '📅 Formato de data',
             status_date_asian: 'Asiático (YYYY.MM.DD)',
             status_date_western: 'Ocidental (DD.MM.YYYY)',
@@ -1607,6 +1703,8 @@
             sp_grp_fan_mask_radius:    'Tamanho do fundo',
             sp_dock_remember_pos:      'Lembrar posição na borda',
             sp_dock_remember_pos_desc: 'Lembra a posição Y do painel após arrastá-lo',
+            sp_theme_sync:             'Sincronizar temas dos painéis',
+            sp_theme_sync_desc:        'Quando desativado, os painéis de Configurações e Histórico lembram temas claro/escuro separados',
             sp_dock_reset_pos:         'Redefinir posição do painel',
             sp_dock_reset_pos_desc:    'Restaura o painel para as coordenadas padrão (lado de ancoragem mantido)',
         },
@@ -1617,6 +1715,7 @@
             menu_prefix: '⚙️ Configurer le préfixe personnalisé (Discord)',
             menu_lang: '🌐 Changer de langue (Change Language)',
             menu_help: '📖 Aide / Manuel',
+            menu_corner_btns: '👁 Boutons de coin',
             prompt_prefix: 'Entrez le préfixe personnalisé (ex. [texte]) :',
             prompt_lang: 'Entrez un numéro pour sélectionner la langue :\n1. English\n2. 繁體中文\n3. 简体中文\n4. 日本語\n5. 한국어\n6. Español\n7. Português (BR)\n8. Français\n9. Русский\n10. ✏️ Custom Language',
             prompt_domain: 'Sélectionnez le numéro du domaine :\n',
@@ -1651,6 +1750,16 @@
             toast_date_fmt: '📅 Format de date → ',
             toast_lang_pending: '🌐 Langue modifiée. Sera appliqué au rechargement.',
             confirm_lang_reload: 'Langue changée en {lang}.\nRecharger la page maintenant ?',
+            corner_modal_subtitle: 'Choisissez les boutons de coin à afficher.',
+            corner_opt_all: 'Afficher les deux',
+            corner_opt_all_desc: 'Afficher l\'historique des téléchargements et le bouton des paramètres ensemble',
+            corner_opt_gear: 'Paramètres uniquement',
+            corner_opt_gear_desc: 'Afficher uniquement le bouton des paramètres ⚙️',
+            corner_opt_hist: 'Historique uniquement',
+            corner_opt_hist_desc: 'Afficher uniquement le bouton de l\'historique des téléchargements 📋',
+            corner_opt_none: 'Masquer les deux',
+            corner_opt_none_desc: 'Masquer les deux boutons de coin (rouvrir depuis le menu du userscript)',
+            toast_corner_applied: '👁 Boutons de coin → {mode}',
             menu_date_format: '📅 Format de date',
             status_date_asian: 'Asiatique (YYYY.MM.DD)',
             status_date_western: 'Occidental (DD.MM.YYYY)',
@@ -1787,6 +1896,8 @@
             sp_grp_fan_mask_radius:    'Taille du fond',
             sp_dock_remember_pos:      'Mémoriser la position au bord',
             sp_dock_remember_pos_desc: 'Mémorise la position Y du panneau après un glisser-déposer',
+            sp_theme_sync:             'Synchroniser les thèmes des panneaux',
+            sp_theme_sync_desc:        'Si désactivé, les panneaux Paramètres et Historique mémorisent des thèmes clair/sombre distincts',
             sp_dock_reset_pos:         'Réinitialiser la position du panneau',
             sp_dock_reset_pos_desc:    "Restaure le panneau aux coordonnées par défaut (côté d'ancrage conservé)",
         },
@@ -1797,6 +1908,7 @@
             menu_prefix: '⚙️ Настроить префикс (Discord)',
             menu_lang: '🌐 Изменить язык (Change Language)',
             menu_help: '📖 Справка / Руководство',
+            menu_corner_btns: '👁 Угловые кнопки',
             prompt_prefix: 'Введите префикс (например [текст]):',
             prompt_lang: 'Введите номер для выбора языка:\n1. English\n2. 繁體中文\n3. 简体中文\n4. 日本語\n5. 한국어\n6. Español\n7. Português (BR)\n8. Français\n9. Русский\n10. ✏️ Custom Language',
             prompt_domain: 'Выберите номер домена:\n',
@@ -1831,6 +1943,16 @@
             toast_date_fmt: '📅 Формат даты → ',
             toast_lang_pending: '🌐 Язык изменён. Применится после перезагрузки.',
             confirm_lang_reload: 'Язык изменён на {lang}.\nПерезагрузить страницу сейчас?',
+            corner_modal_subtitle: 'Выберите, какие угловые кнопки показывать.',
+            corner_opt_all: 'Показать обе',
+            corner_opt_all_desc: 'Показать историю загрузок и кнопку настроек вместе',
+            corner_opt_gear: 'Только настройки',
+            corner_opt_gear_desc: 'Показать только кнопку настроек ⚙️',
+            corner_opt_hist: 'Только история',
+            corner_opt_hist_desc: 'Показать только кнопку истории загрузок 📋',
+            corner_opt_none: 'Скрыть обе',
+            corner_opt_none_desc: 'Скрыть обе угловые кнопки (снова открыть можно из меню userscript)',
+            toast_corner_applied: '👁 Угловые кнопки → {mode}',
             menu_date_format: '📅 Формат даты',
             status_date_asian: 'Азиатский (YYYY.MM.DD)',
             status_date_western: 'Западный (DD.MM.YYYY)',
@@ -1967,6 +2089,8 @@
             sp_grp_fan_mask_radius:    'Размер фона',
             sp_dock_remember_pos:      'Запоминать позицию у края',
             sp_dock_remember_pos_desc: 'Запоминает Y-позицию панели после перетаскивания',
+            sp_theme_sync:             'Синхронизировать темы панелей',
+            sp_theme_sync_desc:        'Если выключено, панели настроек и истории будут запоминать разные темы (светлая/тёмная) отдельно',
             sp_dock_reset_pos:         'Сбросить позицию панели',
             sp_dock_reset_pos_desc:    'Восстанавливает панель в исходные координаты (сторона стыковки сохраняется)',
         }
@@ -2117,18 +2241,21 @@
         const curT = TR[curLang] || TR['en'];
 
         const dark = _isDarkTheme();
+        const presetKey = _getActiveThemePresetKey();
+        const _t = _getActiveThemeColors(presetKey, 'settings');
+        const _ex = _getActiveThemeExtras(presetKey, 'settings');
         const C = dark ? {
             overlay: 'rgba(0,0,0,0.82)',
-            panel:   '#16202b',
-            text:    '#e7e9ea',
-            border:  '#2f3336',
-            sub:     '#8b98a5',
+            panel:   _t.bg,
+            text:    _t.text,
+            border:  _ex.borderB,
+            sub:     _t.sub,
         } : {
             overlay: 'rgba(0,0,0,0.7)',
-            panel:   '#ffffff',
-            text:    '#333333',
-            border:  '#eeeeee',
-            sub:     '#536471',
+            panel:   _t.bg,
+            text:    _t.text,
+            border:  _ex.borderB,
+            sub:     _t.sub,
         };
 
         const modal = document.createElement('div');
@@ -2184,12 +2311,15 @@
         if (old) old.remove();
 
         const dark = _isDarkTheme();
+        const presetKey = _getActiveThemePresetKey();
+        const _t = _getActiveThemeColors(presetKey, 'settings');
+        const _ex = _getActiveThemeExtras(presetKey, 'settings');
         const C = dark ? {
             overlay:     'rgba(0,0,0,0.82)',
-            panel:       '#16202b',
-            text:        '#e7e9ea',
-            sub:         '#8b98a5',
-            border:      '#2f3336',
+            panel:       _t.bg,
+            text:        _t.text,
+            sub:         _t.sub,
+            border:      _ex.borderB,
             rowBg:       '#1e2732',
             rowHover:    '#2d3741',
             activeBg:    '#1e3a4f',
@@ -2201,12 +2331,12 @@
             customHover: '#332c10',
         } : {
             overlay:     'rgba(0,0,0,0.72)',
-            panel:       '#ffffff',
-            text:        '#0f1419',
-            sub:         '#536471',
-            border:      '#eff3f4',
-            rowBg:       '#ffffff',
-            rowHover:    '#f7f9f9',
+            panel:       _t.bg,
+            text:        _t.text,
+            sub:         _t.sub,
+            border:      _ex.borderB,
+            rowBg:       _t.bg,
+            rowHover:    _ex.rowHover,
             activeBg:    '#e8f5fe',
             activeBorder:'#1d9bf0',
             activeText:  '#1d9bf0',
@@ -2333,6 +2463,112 @@
         document.body.appendChild(modal);
     }
 
+    function showCornerButtonsModal() {
+        const old = document.getElementById('tm-corner-btns-modal');
+        if (old) old.remove();
+
+        const dark = _isDarkTheme();
+        const presetKey = _getActiveThemePresetKey();
+        const _t = _getActiveThemeColors(presetKey, 'settings');
+        const _ex = _getActiveThemeExtras(presetKey, 'settings');
+        const C = dark ? {
+            overlay: 'rgba(0,0,0,0.82)', panel: _t.bg, text: _t.text, sub: _t.sub, border: _ex.borderB,
+            rowBg: '#1e2732', rowHover: '#2d3741',
+            activeBg: '#1e3a4f', activeBorder: '#1d9bf0', activeText: '#1d9bf0',
+        } : {
+            overlay: 'rgba(0,0,0,0.72)', panel: _t.bg, text: _t.text, sub: _t.sub, border: _ex.borderB,
+            rowBg: _t.bg, rowHover: _ex.rowHover,
+            activeBg: '#e8f5fe', activeBorder: '#1d9bf0', activeText: '#1d9bf0',
+        };
+
+        const MODE_MAP = [
+            { mode: 'all',  label: T.corner_opt_all,  desc: T.corner_opt_all_desc },
+            { mode: 'gear', label: T.corner_opt_gear, desc: T.corner_opt_gear_desc },
+            { mode: 'hist', label: T.corner_opt_hist, desc: T.corner_opt_hist_desc },
+            { mode: 'none', label: T.corner_opt_none, desc: T.corner_opt_none_desc },
+        ];
+        const currentMode = _getGearDisplayMode();
+
+        const modal = document.createElement('div');
+        modal.id = 'tm-corner-btns-modal';
+        modal.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: ${C.overlay}; z-index: 999999;
+            display: flex; align-items: center; justify-content: center;
+            font-family: system-ui, -apple-system, sans-serif;
+        `;
+
+        const panel = document.createElement('div');
+        panel.style.cssText = `
+            background: ${C.panel}; color: ${C.text}; padding: 24px 20px 20px;
+            border-radius: 16px; width: 92%; max-width: 420px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.35); position: relative;
+        `;
+
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
+        closeBtn.style.cssText = `
+            position: absolute; top: 12px; right: 14px; border: none; background: none;
+            width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: ${C.sub}; border-radius: 5px;
+        `;
+        closeBtn.onclick = () => modal.remove();
+        modal.onclick = e => { if (e.target === modal) modal.remove(); };
+
+        const title = document.createElement('h3');
+        title.textContent = '👁 ' + T.menu_corner_btns.replace(/^👁\s*/, '');
+        title.style.cssText = `margin: 0 0 4px; font-size: 1rem; color: ${C.text}; padding-right: 24px;`;
+
+        const subtitle = document.createElement('p');
+        subtitle.textContent = T.corner_modal_subtitle;
+        subtitle.style.cssText = `margin: 0 0 16px; font-size: 12px; color: ${C.sub};`;
+
+        const list = document.createElement('div');
+        list.style.cssText = 'display: flex; flex-direction: column; gap: 6px;';
+
+        const applyMode = (mode) => {
+            modal.remove();
+            _setGearDisplayMode(mode);
+            _applyGearDisplayMode();
+            showToast(T.toast_corner_applied.replace('{mode}', MODE_MAP.find(m => m.mode === mode).label));
+            registerMenus();
+        };
+
+        MODE_MAP.forEach(({ mode, label, desc }) => {
+            const isActive = (mode === currentMode);
+            const btn = document.createElement('button');
+            btn.style.cssText = `
+                width: 100%; padding: 9px 14px; border-radius: 12px; text-align: left;
+                border: 2px solid ${isActive ? C.activeBorder : C.border};
+                background: ${isActive ? C.activeBg : C.rowBg};
+                cursor: pointer; transition: border-color 0.15s, background 0.15s;
+            `;
+            const lbl = document.createElement('div');
+            lbl.textContent = (isActive ? '★ ' : '') + label;
+            lbl.style.cssText = `font-size: 14px; font-weight: ${isActive ? '700' : '400'}; color: ${isActive ? C.activeText : C.text};`;
+            const sub = document.createElement('div');
+            sub.textContent = desc;
+            sub.style.cssText = `font-size: 11px; color: ${C.sub}; margin-top: 2px;`;
+            btn.appendChild(lbl);
+            btn.appendChild(sub);
+            btn.onmouseenter = () => {
+                if (!isActive) { btn.style.borderColor = C.sub; btn.style.background = C.rowHover; }
+            };
+            btn.onmouseleave = () => {
+                if (!isActive) { btn.style.borderColor = C.border; btn.style.background = C.rowBg; }
+            };
+            btn.onclick = () => applyMode(mode);
+            list.appendChild(btn);
+        });
+
+        panel.appendChild(closeBtn);
+        panel.appendChild(title);
+        panel.appendChild(subtitle);
+        panel.appendChild(list);
+        modal.appendChild(panel);
+        document.body.appendChild(modal);
+    }
+
     const CUSTOM_LANG_HOW_TO = [
         "English:       Export → translate the values → Import",
         "Deutsch:       Exportieren → Werte übersetzen → Importieren",
@@ -2386,41 +2622,44 @@
         if (old) old.remove();
 
         const dark = _isDarkTheme();
+        const presetKey = _getActiveThemePresetKey();
+        const _t = _getActiveThemeColors(presetKey, 'settings');
+        const _ex = _getActiveThemeExtras(presetKey, 'settings');
         const C = dark ? {
             overlay:      'rgba(0,0,0,0.82)',
-            panel:        '#16202b',
-            text:         '#e7e9ea',
-            sub:          '#8b98a5',
-            border:       '#2f3336',
-            guideBg:      '#1e2732',
-            guideText:    '#8b98a5',
+            panel:        _t.bg,
+            text:         _t.text,
+            sub:          _t.sub,
+            border:       _ex.borderB,
+            guideBg:      _ex.header,
+            guideText:    _t.sub,
             exportBorder: '#1d9bf0',
             exportText:   '#1d9bf0',
-            exportBg:     '#16202b',
+            exportBg:     _t.bg,
             exportHover:  '#1e2f3f',
             importBg:     '#1d9bf0',
             importHover:  '#1a8cd8',
             clearBorder:  '#e0245e',
             clearText:    '#e0245e',
-            clearBg:      '#16202b',
+            clearBg:      _t.bg,
             clearHover:   '#2a1520',
         } : {
             overlay:      'rgba(0,0,0,0.75)',
-            panel:        '#ffffff',
-            text:         '#0f1419',
-            sub:          '#536471',
-            border:       '#eff3f4',
-            guideBg:      '#f7f9f9',
-            guideText:    '#536471',
+            panel:        _t.bg,
+            text:         _t.text,
+            sub:          _t.sub,
+            border:       _ex.borderB,
+            guideBg:      _ex.header,
+            guideText:    _t.sub,
             exportBorder: '#1d9bf0',
             exportText:   '#1d9bf0',
-            exportBg:     '#ffffff',
+            exportBg:     _t.bg,
             exportHover:  '#e8f5fe',
             importBg:     '#1d9bf0',
             importHover:  '#1a8cd8',
             clearBorder:  '#e0245e',
             clearText:    '#e0245e',
-            clearBg:      '#ffffff',
+            clearBg:      _t.bg,
             clearHover:   '#fdf0f2',
         };
 
@@ -2623,6 +2862,31 @@
         return false;
     }
 
+    function _getGearDisplayMode() {
+        const stored = GM_getValue(KEY_GEAR_DISPLAY_MODE, null);
+        if (stored === 'all' || stored === 'gear' || stored === 'hist' || stored === 'none') return stored;
+        const legacyVisible = GM_getValue(KEY_GEAR_VISIBLE, true);
+        const migrated = legacyVisible ? 'all' : 'none';
+        GM_setValue(KEY_GEAR_DISPLAY_MODE, migrated);
+        return migrated;
+    }
+    function _setGearDisplayMode(mode) {
+        if (!['all', 'gear', 'hist', 'none'].includes(mode)) return;
+        GM_setValue(KEY_GEAR_DISPLAY_MODE, mode);
+    }
+    
+    function _applyGearDisplayMode() {
+        const wrapper = document.getElementById('tm-settings-wrapper');
+        if (!wrapper) return;
+        const mode = _getGearDisplayMode();
+        wrapper.style.display = mode === 'none' ? 'none' : '';
+        if (mode === 'gear' || mode === 'hist') {
+            wrapper.setAttribute('data-solo', mode);
+        } else {
+            wrapper.removeAttribute('data-solo');
+        }
+    }
+
     let menuIds = [];
     function registerMenus() {
         menuIds.forEach(id => GM_unregisterMenuCommand(id));
@@ -2687,33 +2951,488 @@
             showHistoryPanel();
         }));
 
-        const gearVisible = GM_getValue(KEY_GEAR_VISIBLE, true);
-        const gearStatusText = gearVisible ? 'Visible' : 'Hidden';
-        menuIds.push(GM_registerMenuCommand(`👁 Corner Buttons [${gearStatusText}]`, () => {
-            const next = !GM_getValue(KEY_GEAR_VISIBLE, true);
-            GM_setValue(KEY_GEAR_VISIBLE, next);
-            const wrapper = document.getElementById('tm-settings-wrapper');
-            if (wrapper) wrapper.style.display = next ? '' : 'none';
-            showToast(next ? '👁 Corner buttons: Visible' : '👁 Corner buttons: Hidden');
-            registerMenus();
+        const _gearModeLabels = { all: T.corner_opt_all, gear: T.corner_opt_gear, hist: T.corner_opt_hist, none: T.corner_opt_none };
+        const gearModeText = _gearModeLabels[_getGearDisplayMode()] || _gearModeLabels.all;
+        menuIds.push(GM_registerMenuCommand(`${T.menu_corner_btns} [${gearModeText}]`, () => {
+            showCornerButtonsModal();
         }));
     }
     registerMenus();
 
     const _isTwitterDomain = ['twitter.com', 'x.com'].includes(location.hostname);
 
-    function _isDarkTheme() {
-        const stored = GM_getValue(KEY_APP_THEME, null);
-        if (stored === 'dark' || stored === 'light') return stored === 'dark';
-        const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        GM_setValue(KEY_APP_THEME, sysDark ? 'dark' : 'light');
-        return sysDark;
+    const THEME_PRESETS = {
+        deep:  { bg: '#16202b', text: '#e7e9ea', sub: '#8b98a5' },
+        white: { bg: '#ffffff', text: '#0f1419', sub: '#536471' },
+        milk:  { bg: '#fbf8f2', text: '#2b2620', sub: '#7a6f5c' },
+    };
+
+    const THEME_PRESET_EXTRAS = {
+        deep: {
+            header: '#1e2732', borderA: '#2f3336', borderB: '#2f3336',
+            rowHover: '#1e2732', inputBg: '#1e2732', groupHdr: '#2f3336',
+            thumbBg: '#1e2732', guideBg: '#1e2732', scrollbar: '#2f3336',
+        },
+        white: {
+            header: '#f7f9f9', borderA: '#d8dcdf', borderB: '#eff3f4',
+            rowHover: '#f7f9f9', inputBg: '#f7f9f9', groupHdr: '#f7f9f9',
+            thumbBg: '#f7f9f9', guideBg: '#f7f9f9', scrollbar: '#eff3f4',
+        },
+        milk: {
+            header: '#f3ede0', borderA: '#e2d9c4', borderB: '#ece4d4',
+            rowHover: '#f3ede0', inputBg: '#f3ede0', groupHdr: '#f3ede0',
+            thumbBg: '#f3ede0', guideBg: '#f3ede0', scrollbar: '#ece4d4',
+        },
+    };
+
+    function _isDarkTheme(scope = 'settings') {
+        return _getActiveThemePresetKey(scope) === 'deep';
     }
 
-    function _toggleAppTheme() {
-        const next = _isDarkTheme() ? 'light' : 'dark';
-        GM_setValue(KEY_APP_THEME, next);
-        return next === 'dark';
+    function _getActiveThemePresetKey(scope = 'settings') {
+        const useHistoryKey = scope === 'history' && GM_getValue(KEY_THEME_SYNC, true) === false;
+        const key = useHistoryKey ? KEY_APP_THEME_HISTORY : KEY_APP_THEME;
+        const stored = GM_getValue(key, null);
+        if (stored === 'dark') { GM_setValue(key, 'deep'); return 'deep'; }
+        if (stored === 'light') { GM_setValue(key, 'milk'); return 'milk'; }
+        if (stored && THEME_PRESETS[stored]) return stored;
+        if (useHistoryKey) {
+            const globalStored = GM_getValue(KEY_APP_THEME, null);
+            if (globalStored === 'dark') return 'deep';
+            if (globalStored === 'light') return 'milk';
+            if (globalStored && THEME_PRESETS[globalStored]) return globalStored;
+        }
+        const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const initial = sysDark ? 'deep' : 'white';
+        GM_setValue(KEY_APP_THEME, initial);
+        return initial;
+    }
+
+    function _toggleAppTheme(scope = 'settings') {
+        GM_setValue(KEY_CUSTOM_THEME_ENABLED, false);
+        const useHistoryKey = scope === 'history' && GM_getValue(KEY_THEME_SYNC, true) === false;
+        const key = useHistoryKey ? KEY_APP_THEME_HISTORY : KEY_APP_THEME;
+        const next = _isDarkTheme(scope) ? 'white' : 'deep';
+        GM_setValue(key, next);
+        return next === 'deep';
+    }
+
+    function _setActiveThemePreset(presetKey, scope = 'settings') {
+        if (!THEME_PRESETS[presetKey]) return;
+        GM_setValue(KEY_CUSTOM_THEME_ENABLED, false);
+        const useHistoryKey = scope === 'history' && GM_getValue(KEY_THEME_SYNC, true) === false;
+        const key = useHistoryKey ? KEY_APP_THEME_HISTORY : KEY_APP_THEME;
+        GM_setValue(key, presetKey);
+    }
+
+    function _getActiveThemeColors(presetKey, scope = 'settings') {
+        if (GM_getValue(KEY_CUSTOM_THEME_ENABLED, false)) {
+            const c = _getCustomThemeColors(scope);
+            if (c) return { bg: c.bg, text: c.text, sub: c.sub };
+        }
+        return { ...(THEME_PRESETS[presetKey] || THEME_PRESETS.white) };
+    }
+
+    function _getCustomThemeColors(scope = 'settings') {
+        const useHistorySlot = scope === 'history' && GM_getValue(KEY_THEME_SYNC, true) === false;
+        const slot = useHistorySlot ? 'history' : 'settings';
+        try {
+            const all = JSON.parse(GM_getValue(KEY_CUSTOM_THEME_COLORS, '{}'));
+            const c = all && all[slot];
+            if (c && c.bg && c.text && c.sub && c.header && c.border) return c;
+        } catch (_) {  }
+        return null;
+    }
+
+    function _deriveCustomThemeExtras(header, border) {
+        return {
+            header, borderA: border, borderB: border,
+            rowHover: header, inputBg: header, groupHdr: header,
+            thumbBg: header, guideBg: header, scrollbar: border,
+        };
+    }
+
+    function _getActiveThemeExtras(presetKey, scope = 'settings') {
+        if (GM_getValue(KEY_CUSTOM_THEME_ENABLED, false)) {
+            const c = _getCustomThemeColors(scope);
+            if (c) return _deriveCustomThemeExtras(c.header, c.border);
+        }
+        return { ...(THEME_PRESET_EXTRAS[presetKey] || THEME_PRESET_EXTRAS.white) };
+    }
+
+    function _buildThemePickerFlyout(scope, onSelect) {
+        const wrap = document.createElement('span');
+        wrap.className = 'tm-theme-picker-wrap';
+
+        const flyout = document.createElement('span');
+        flyout.className = 'tm-theme-picker-flyout';
+
+        const customBtn = document.createElement('button');
+        customBtn.type = 'button';
+        customBtn.className = 'tm-theme-picker-custom-btn' + (GM_getValue(KEY_CUSTOM_THEME_ENABLED, false) ? ' tm-active' : '');
+        customBtn.title = T.tp_title || 'Custom Theme';
+        customBtn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.4-.3-.4-.5-.8-.5-1.4 0-1.1.9-2 2-2h2.3a3.7 3.7 0 0 0 3.7-3.7C21 6.5 17 2 12 2z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="16.5" cy="10.5" r="1"/></svg>`;
+        customBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            showThemePaletteModal(scope);
+            flyout.classList.remove('tm-force-open');
+        });
+        flyout.appendChild(customBtn);
+
+        wrap.appendChild(flyout);
+
+        wrap.addEventListener('mouseenter', () => {
+            if (wrap._tmCloseTimer) { clearTimeout(wrap._tmCloseTimer); wrap._tmCloseTimer = null; }
+            flyout.classList.add('tm-force-open');
+        });
+        wrap.addEventListener('mouseleave', () => {
+            wrap._tmCloseTimer = setTimeout(() => {
+                flyout.classList.remove('tm-force-open');
+                wrap._tmCloseTimer = null;
+            }, 200);
+        });
+
+        return wrap;
+    }
+
+    function _setCustomThemeColorField(scope, field, hexValue) {
+        let all;
+        try { all = JSON.parse(GM_getValue(KEY_CUSTOM_THEME_COLORS, '{}')); } catch (_) { all = {}; }
+        if (!all || typeof all !== 'object') all = {};
+        const slot = scope === 'history' ? 'history' : 'settings';
+        if (!all[slot] || typeof all[slot] !== 'object') all[slot] = {};
+        all[slot][field] = hexValue;
+        GM_setValue(KEY_CUSTOM_THEME_COLORS, JSON.stringify(all));
+    }
+
+    function _refreshOpenPanelsForCustomTheme() {
+        createSettingsPanel();
+        const hp = document.getElementById('tm-hist-panel');
+        if (hp) {
+            if (typeof hp._tmCleanup === 'function') hp._tmCleanup();
+            hp.remove();
+            showHistoryPanel();
+        }
+    }
+
+    function _buildColorSwatchRow(label, initialHex, C, onChange) {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex; align-items:center; justify-content:space-between; padding:8px 0; gap:10px;';
+
+        const lbl = document.createElement('span');
+        lbl.textContent = label;
+        lbl.style.cssText = `font-size:13px; color:${C.text};`;
+        row.appendChild(lbl);
+
+        const swatchWrap = document.createElement('span');
+        swatchWrap.style.cssText = 'position:relative; display:inline-flex; align-items:center; gap:8px;';
+
+        const swatch = document.createElement('span');
+        swatch.style.cssText = `
+            display:inline-block; width:26px; height:26px; border-radius:6px;
+            border:2px solid rgba(128,128,128,0.35); background:${initialHex};
+            box-shadow:0 1px 3px rgba(0,0,0,0.25); transition: opacity 0.12s ease;
+        `;
+
+        const hexLabel = document.createElement('span');
+        hexLabel.textContent = initialHex;
+        hexLabel.style.cssText = `font-size:11px; font-family:monospace; color:${C.sub}; min-width:56px; transition: opacity 0.12s ease;`;
+
+        const input = document.createElement('input');
+        input.type = 'color';
+        input.value = initialHex;
+        input.style.cssText = 'position:absolute; inset:0; width:26px; height:26px; opacity:0; cursor:pointer; border:none; padding:0;';
+        input.addEventListener('input', () => {
+            swatch.style.background = input.value;
+            hexLabel.textContent = input.value;
+            onChange(input.value);
+        });
+
+        swatchWrap.appendChild(swatch);
+        swatchWrap.appendChild(input);
+        swatchWrap.appendChild(hexLabel);
+        row.appendChild(swatchWrap);
+
+        return {
+            row,
+            setDisabled(disabled) {
+                input.disabled = disabled;
+                input.style.cursor = disabled ? 'default' : 'pointer';
+                swatch.style.opacity = disabled ? '0.45' : '1';
+                hexLabel.style.opacity = disabled ? '0.45' : '1';
+            },
+        };
+    }
+
+    const QUICK_CUSTOM_PRESETS = {
+        milk:   { label: 'Milk',   bg: THEME_PRESETS.milk.bg, text: THEME_PRESETS.milk.text, sub: THEME_PRESETS.milk.sub, header: THEME_PRESET_EXTRAS.milk.header, border: THEME_PRESET_EXTRAS.milk.borderA },
+        slate:  { label: 'Slate',  bg: '#eef1f5', text: '#1e293b', sub: '#64748b', header: '#e2e8f0', border: '#cbd5e1' },
+        sepia:  { label: 'Sepia',  bg: '#f4ecd8', text: '#4b3621', sub: '#8a7355', header: '#ebe0c7', border: '#d8c7a1' },
+        frost:  { label: 'Frost',  bg: '#2b3442', text: '#e8edf3', sub: '#98a7ba', header: '#232b37', border: '#3d4a5c' },
+        forest: { label: 'Forest', bg: '#232d27', text: '#e3ede4', sub: '#8faa95', header: '#1c241f', border: '#384a3d' },
+        ember:  { label: 'Ember',  bg: '#211611', text: '#f7e4d3', sub: '#c99568', header: '#3a2416', border: '#c2703a' },
+        gold:   { label: 'Gold',   bg: '#1a1608', text: '#f5edd0', sub: '#ab9552', header: '#2d260f', border: '#e8c547' },
+        cyber:  { label: 'Cyber',  bg: '#0d0b16', text: '#e2e8ff', sub: '#8886b3', header: '#191325', border: '#8b5cf6' },
+        volt:   { label: 'Volt',   bg: '#0e0e10', text: '#ececec', sub: '#8a8a90', header: '#1c1c1f', border: '#ef4444' },
+    };
+
+    function _applyQuickPreset(scope, presetKey) {
+        const preset = QUICK_CUSTOM_PRESETS[presetKey];
+        if (!preset) return;
+        let all;
+        try { all = JSON.parse(GM_getValue(KEY_CUSTOM_THEME_COLORS, '{}')); } catch (_) { all = {}; }
+        if (!all || typeof all !== 'object') all = {};
+        const slot = scope === 'history' ? 'history' : 'settings';
+        all[slot] = { bg: preset.bg, text: preset.text, sub: preset.sub, header: preset.header, border: preset.border };
+        GM_setValue(KEY_CUSTOM_THEME_COLORS, JSON.stringify(all));
+        GM_setValue(KEY_CUSTOM_THEME_ENABLED, true);
+    }
+
+    function showThemePaletteModal(scope = 'settings') {
+        const old = document.getElementById('tm-theme-palette-modal');
+        if (old) old.remove();
+
+        const dark = _isDarkTheme();
+        const presetKey = _getActiveThemePresetKey();
+        const _t = _getActiveThemeColors(presetKey, 'settings');
+        const _ex = _getActiveThemeExtras(presetKey, 'settings');
+        const C = dark
+            ? { overlay: 'rgba(0,0,0,0.82)', panel: _t.bg, text: _t.text, sub: _t.sub, border: _ex.borderB }
+            : { overlay: 'rgba(0,0,0,0.7)',  panel: _t.bg, text: _t.text, sub: _t.sub, border: _ex.borderB };
+
+        let _settingsForcedOpen = false;
+        let _historyForcedOpen = false;
+        function _isHistVisible() {
+            const hp = document.getElementById('tm-hist-panel');
+            if (!hp) return false;
+            if (!DockState.side) return true;
+            return !!DockState.peeked;
+        }
+        function _syncPreviewPanel(tab) {
+            if (tab === 'settings') {
+                const w = document.getElementById('tm-settings-wrapper');
+                if (w) {
+                    if (w.getAttribute('data-open') !== 'true') {
+                        w.setAttribute('data-open', 'true');
+                        _settingsForcedOpen = true;
+                    }
+                } else {
+                    createSettingsPanel();
+                    const w2 = document.getElementById('tm-settings-wrapper');
+                    if (w2) w2.setAttribute('data-open', 'true');
+                    _settingsForcedOpen = true;
+                }
+                if (_historyForcedOpen) {
+                    const hp = document.getElementById('tm-hist-panel');
+                    if (hp && !GM_getValue(KEY_HIST_PINNED, false)) {
+                        if (DockState.side) hp.dispatchEvent(new CustomEvent('tm-hist-force-retract'));
+                        else showHistoryPanel();
+                    }
+                    _historyForcedOpen = false;
+                }
+            } else {
+                if (!_isHistVisible()) {
+                    const hp = document.getElementById('tm-hist-panel');
+                    if (hp && DockState.side) {
+                        hp.dispatchEvent(new CustomEvent('tm-hist-force-peek'));
+                    } else {
+                        showHistoryPanel();
+                    }
+                    _historyForcedOpen = true;
+                }
+                if (_settingsForcedOpen) {
+                    const w = document.getElementById('tm-settings-wrapper');
+                    if (w) w.setAttribute('data-open', 'false');
+                    _settingsForcedOpen = false;
+                }
+            }
+        }
+
+        const FIELDS = [
+            ['bg',     T.tp_field_bg     || 'Background'],
+            ['text',   T.tp_field_text   || 'Text'],
+            ['sub',    T.tp_field_sub    || 'Subtext'],
+            ['header', T.tp_field_header || 'Header'],
+            ['border', T.tp_field_border || 'Border'],
+        ];
+
+        function _readTabColors(tabScope) {
+            const c = _getCustomThemeColors(tabScope);
+            if (c) return c;
+            const base = THEME_PRESETS.milk;
+            const ex = THEME_PRESET_EXTRAS.milk;
+            return { bg: base.bg, text: base.text, sub: base.sub, header: ex.header, border: ex.borderA };
+        }
+
+        let activeTab = scope === 'history' ? 'history' : 'settings';
+
+        const modal = document.createElement('div');
+        modal.id = 'tm-theme-palette-modal';
+        modal.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: ${C.overlay}; z-index: 100000;
+            display: flex; align-items: center; justify-content: center;
+        `;
+
+        const content = document.createElement('div');
+        content.style.cssText = `
+            background: ${C.panel}; color: ${C.text}; padding: 22px; border-radius: 12px;
+            width: 90%; max-width: 380px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            font-family: sans-serif; position: relative; max-height: 85vh; overflow-y: auto;
+        `;
+
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
+        closeBtn.setAttribute('aria-label', 'Close');
+        closeBtn.style.cssText = `
+            position: absolute; top: 10px; right: 12px; border: none; background: none;
+            width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: ${C.sub}; border-radius: 5px;
+        `;
+        function _closePalette() {
+            if (_settingsForcedOpen) {
+                const w = document.getElementById('tm-settings-wrapper');
+                if (w) w.setAttribute('data-open', 'false');
+            }
+            if (_historyForcedOpen) {
+                const hp = document.getElementById('tm-hist-panel');
+                if (hp && !GM_getValue(KEY_HIST_PINNED, false)) {
+                    if (DockState.side) hp.dispatchEvent(new CustomEvent('tm-hist-force-retract'));
+                    else showHistoryPanel();
+                }
+            }
+            modal.remove();
+        }
+        closeBtn.onclick = _closePalette;
+        modal.onclick = (e) => { if (e.target === modal) _closePalette(); };
+
+        const title = document.createElement('h2');
+        title.textContent = T.tp_title || 'Custom Theme';
+        title.style.cssText = `margin: 0 0 14px; border-bottom: 2px solid ${C.border}; padding-bottom: 10px; font-size: 1.1rem; color: ${C.text};`;
+
+        function _buildToggleRow(labelText, checked, onChange) {
+            const r = document.createElement('label');
+            r.style.cssText = 'display:flex; align-items:center; justify-content:space-between; padding:6px 0; cursor:pointer; font-size:13px;';
+            const s = document.createElement('span');
+            s.textContent = labelText;
+            s.style.color = C.text;
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.checked = checked;
+            cb.style.cssText = 'width:16px; height:16px; cursor:pointer;';
+            cb.addEventListener('change', () => onChange(cb.checked));
+            r.appendChild(s);
+            r.appendChild(cb);
+            return { row: r, input: cb };
+        }
+
+        const togglesWrap = document.createElement('div');
+        togglesWrap.style.cssText = `border-bottom: 1px solid ${C.border}; padding-bottom: 4px; margin-bottom: 6px;`;
+        const enableToggleObj = _buildToggleRow(
+            T.tp_enable || 'Enable custom theme',
+            GM_getValue(KEY_CUSTOM_THEME_ENABLED, false),
+            (checked) => { GM_setValue(KEY_CUSTOM_THEME_ENABLED, checked); _refreshOpenPanelsForCustomTheme(); }
+        );
+        const enableHint = document.createElement('p');
+        enableHint.textContent = T.tp_enable_hint
+            || 'Applies your custom colors below, overriding the current preset. Leave unchecked to keep editing without affecting your theme.';
+        enableHint.style.cssText = `font-size:11px; color:${C.sub}; margin: 2px 0 6px; line-height:1.4;`;
+        const syncToggleObj = _buildToggleRow(
+            T.tp_sync || 'Sync Settings \u2194 History',
+            GM_getValue(KEY_THEME_SYNC, true),
+            (checked) => { GM_setValue(KEY_THEME_SYNC, checked); _renderFields(); _refreshOpenPanelsForCustomTheme(); }
+        );
+        togglesWrap.appendChild(enableToggleObj.row);
+        togglesWrap.appendChild(enableHint);
+        togglesWrap.appendChild(syncToggleObj.row);
+
+        const tabBar = document.createElement('div');
+        tabBar.style.cssText = 'display:flex; gap:6px; margin: 10px 0 8px;';
+        const _tabBtnStyle = (active) => `flex:1; padding:6px 0; border-radius:6px; border:1px solid ${C.border};
+            cursor:pointer; font-size:12px; background:${active ? '#1d9bf0' : 'transparent'}; color:${active ? '#fff' : C.text};`;
+        const settingsTabBtn = document.createElement('button');
+        settingsTabBtn.type = 'button';
+        settingsTabBtn.textContent = T.tp_tab_settings || 'Settings';
+        const historyTabBtn = document.createElement('button');
+        historyTabBtn.type = 'button';
+        historyTabBtn.textContent = T.tp_tab_history || 'History';
+        tabBar.appendChild(settingsTabBtn);
+        tabBar.appendChild(historyTabBtn);
+
+        const quickPicksLabel = document.createElement('div');
+        quickPicksLabel.textContent = T.tp_quick_label || 'Quick presets';
+        quickPicksLabel.style.cssText = `font-size:11px; color:${C.sub}; margin: 2px 0 6px;`;
+        const quickPicksWrap = document.createElement('div');
+        quickPicksWrap.style.cssText = 'display:flex; gap:8px; margin-bottom: 4px; flex-wrap: wrap;';
+        const _quickBtns = [];
+        Object.keys(QUICK_CUSTOM_PRESETS).forEach(pk => {
+            const preset = QUICK_CUSTOM_PRESETS[pk];
+            const qBtn = document.createElement('button');
+            qBtn.type = 'button';
+            qBtn.title = preset.label;
+            qBtn.style.cssText = `
+                width: 26px; height: 26px; border-radius: 50%; cursor: pointer; padding: 0;
+                border: 4px solid ${preset.border}; background: ${preset.bg};
+                box-shadow: 0 1px 3px rgba(0,0,0,0.2); flex-shrink: 0; transition: transform 0.12s ease, opacity 0.12s ease;
+            `;
+            qBtn.addEventListener('mouseenter', () => { if (!qBtn.disabled) qBtn.style.transform = 'scale(1.15)'; });
+            qBtn.addEventListener('mouseleave', () => { qBtn.style.transform = 'scale(1)'; });
+            qBtn.addEventListener('click', () => {
+                _applyQuickPreset(activeTab, pk);
+                enableToggleObj.input.checked = true;
+                _renderFields();
+                _refreshOpenPanelsForCustomTheme();
+            });
+            quickPicksWrap.appendChild(qBtn);
+            _quickBtns.push(qBtn);
+        });
+
+        const fieldsWrap = document.createElement('div');
+        const lockNote = document.createElement('p');
+        lockNote.textContent = T.tp_lock_note || 'Synced with Settings — turn off sync above to edit independently.';
+        lockNote.style.cssText = `font-size:11px; color:${C.sub}; margin: 8px 0 0; display:none;`;
+
+        let _rows = [];
+        function _renderFields() {
+            fieldsWrap.innerHTML = '';
+            _rows = [];
+            const colors = _readTabColors(activeTab);
+            FIELDS.forEach(([field, label]) => {
+                const swatchRow = _buildColorSwatchRow(label, colors[field] || '#888888', C, (hex) => {
+                    _setCustomThemeColorField(activeTab, field, hex);
+                    _refreshOpenPanelsForCustomTheme();
+                });
+                fieldsWrap.appendChild(swatchRow.row);
+                _rows.push(swatchRow);
+            });
+            settingsTabBtn.style.cssText = _tabBtnStyle(activeTab === 'settings');
+            historyTabBtn.style.cssText = _tabBtnStyle(activeTab === 'history');
+            const locked = activeTab === 'history' && GM_getValue(KEY_THEME_SYNC, true) === true;
+            _rows.forEach(r => r.setDisabled(locked));
+            _quickBtns.forEach(b => {
+                b.disabled = locked;
+                b.style.opacity = locked ? '0.4' : '1';
+                b.style.cursor = locked ? 'default' : 'pointer';
+            });
+            lockNote.style.display = locked ? 'block' : 'none';
+            _syncPreviewPanel(activeTab);
+        }
+
+        settingsTabBtn.onclick = () => { activeTab = 'settings'; _renderFields(); };
+        historyTabBtn.onclick  = () => { activeTab = 'history';  _renderFields(); };
+
+        _renderFields();
+
+        content.appendChild(closeBtn);
+        content.appendChild(title);
+        content.appendChild(togglesWrap);
+        content.appendChild(tabBar);
+        content.appendChild(quickPicksLabel);
+        content.appendChild(quickPicksWrap);
+        content.appendChild(fieldsWrap);
+        content.appendChild(lockNote);
+        modal.appendChild(content);
+        document.body.appendChild(modal);
     }
 
     let _lcRcResizeHandler = null;
@@ -2841,10 +3560,7 @@
 
     function _initSettingsPanel() {
         const _applyGearVisibility = () => {
-            const wrapper = document.getElementById('tm-settings-wrapper');
-            if (wrapper && !GM_getValue(KEY_GEAR_VISIBLE, true)) {
-                wrapper.style.display = 'none';
-            }
+            _applyGearDisplayMode();
         };
         const _doInit = () => {
             if (GM_getValue(KEY_CLICK_MODE, null) === null &&
@@ -2959,11 +3675,11 @@
         `;
         document.head.appendChild(obStyle);
 
-        const dark     = _isDarkTheme();
-        const cardBg   = dark ? '#16202b' : '#ffffff';
-        const cardText = dark ? '#e7e9ea' : '#0f1419';
-        const cardSub  = dark ? '#8b98a5' : '#536471';
-        const arrowClr = dark ? '#16202b' : '#ffffff';
+        const _obT     = _getActiveThemeColors(_getActiveThemePresetKey());
+        const cardBg   = _obT.bg;
+        const cardText = _obT.text;
+        const cardSub  = _obT.sub;
+        const arrowClr = _obT.bg;
         const cardW    = 280;
 
         let _overlay, _ring, _card;
@@ -3252,15 +3968,18 @@
         if (old) old.remove();
 
         const dark = _isDarkTheme();
+        const presetKey = _getActiveThemePresetKey();
+        const _t = _getActiveThemeColors(presetKey, 'settings');
+        const _ex = _getActiveThemeExtras(presetKey, 'settings');
         const C = dark ? {
-            overlay: 'rgba(0,0,0,0.82)', panel: '#16202b', text: '#e7e9ea',
-            sub: '#8b98a5', border: '#2f3336', rowBg: '#1e2732',
+            overlay: 'rgba(0,0,0,0.82)', panel: _t.bg, text: _t.text,
+            sub: _t.sub, border: _ex.borderA, rowBg: '#1e2732',
             rowHover: '#2d3741', activeBg: '#1e3a4f',
             activeBorder: '#1d9bf0', activeText: '#1d9bf0',
         } : {
-            overlay: 'rgba(0,0,0,0.72)', panel: '#ffffff', text: '#0f1419',
-            sub: '#536471', border: '#d8dcdf', rowBg: '#ffffff',
-            rowHover: '#f7f9f9', activeBg: '#e8f5fe',
+            overlay: 'rgba(0,0,0,0.72)', panel: _t.bg, text: _t.text,
+            sub: _t.sub, border: _ex.borderA, rowBg: _t.bg,
+            rowHover: _ex.header, activeBg: '#e8f5fe',
             activeBorder: '#1d9bf0', activeText: '#1d9bf0',
         };
 
@@ -3352,32 +4071,35 @@
         _spClickAC = new AbortController();
 
         const dark = _isDarkTheme();
+        const presetKey = _getActiveThemePresetKey();
+        const _t = _getActiveThemeColors(presetKey, 'settings');
+        const _ex = _getActiveThemeExtras(presetKey, 'settings');
         const C = dark ? {
-            panel:     '#16202b',
-            header:    '#1e2732',
-            text:      '#e7e9ea',
-            sub:       '#8b98a5',
-            border:    '#2f3336',
-            rowHover:  '#1e2732',
-            inputBg:   '#1e2732',
+            panel:     _t.bg,
+            header:    _ex.header,
+            text:      _t.text,
+            sub:       _t.sub,
+            border:    _ex.borderA,
+            rowHover:  _ex.header,
+            inputBg:   _ex.header,
             badge:     '#1d9bf0',
-            gearFg:    '#e7e9ea',
+            gearFg:    _t.text,
             gearBg:    'rgba(255,255,255,0.08)',
             sliderTrackDisabled: 'rgba(255,255,255,.2)',
-            valMuted:  '#8b98a5',
+            valMuted:  _t.sub,
         } : {
-            panel:     '#ffffff',
-            header:    '#f7f9f9',
-            text:      '#0f1419',
-            sub:       '#536471',
-            border:    '#d8dcdf',
-            rowHover:  '#f7f9f9',
-            inputBg:   '#f7f9f9',
+            panel:     _t.bg,
+            header:    _ex.header,
+            text:      _t.text,
+            sub:       _t.sub,
+            border:    _ex.borderA,
+            rowHover:  _ex.header,
+            inputBg:   _ex.header,
             badge:     '#1d9bf0',
-            gearFg:    '#536471',
+            gearFg:    _t.sub,
             gearBg:    'rgba(0,0,0,0.06)',
             sliderTrackDisabled: 'rgba(15,20,25,.15)',
-            valMuted:  '#536471',
+            valMuted:  _t.sub,
         };
 
         const panelStyle = document.createElement('style');
@@ -3496,6 +4218,24 @@
                 transform: rotate(90deg);
             }
 
+            #tm-settings-wrapper[data-solo="gear"] #tm-history-btn,
+            #tm-settings-wrapper[data-solo="hist"] #tm-settings-gear-btn {
+                display: none;
+            }
+            #tm-settings-wrapper[data-solo="gear"] #tm-settings-gear-btn {
+                right: auto; left: 50%;
+                transform: translateX(-50%) scale(1);
+                opacity: 1;
+            }
+            #tm-settings-wrapper[data-solo="gear"][data-open="true"] #tm-settings-gear-btn {
+                transform: translateX(-50%) scale(1.15);
+            }
+            #tm-settings-wrapper[data-solo="hist"] #tm-history-btn {
+                right: auto; left: 50%;
+                transform: translateX(-50%) scale(1.15);
+                opacity: 1;
+            }
+
             #tm-settings-panel {
                 position: absolute; top: calc(100% - 21px); right: 4px;
                 width: 300px; background: ${C.panel};
@@ -3540,6 +4280,40 @@
             .tm-sp-theme-toggle:hover { transform: scale(1.08); }
             .tm-sp-theme-toggle:active { transform: scale(0.94); }
             .tm-sp-theme-toggle svg { width: 15px; height: 15px; display: block; }
+            
+            .tm-theme-picker-wrap { position: relative; display: inline-flex; flex-shrink: 0; }
+            .tm-theme-picker-flyout {
+                position: absolute; top: 50%; right: calc(100% + 6px);
+                transform: translateY(-50%) translateX(6px); transform-origin: right center;
+                display: flex; align-items: center; gap: 6px;
+                opacity: 0; pointer-events: none;
+                transition: opacity 0.15s ease, transform 0.15s ease;
+                z-index: 5;
+            }
+            
+            .tm-theme-picker-wrap:hover .tm-theme-picker-flyout,
+            .tm-theme-picker-flyout.tm-force-open {
+                opacity: 1; pointer-events: auto; transform: translateY(-50%) translateX(0);
+            }
+            .tm-theme-picker-swatch {
+                flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%;
+                border: 2px solid rgba(128,128,128,0.35); cursor: pointer; padding: 0;
+                transition: transform 0.12s ease, border-color 0.12s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+            }
+            .tm-theme-picker-swatch:hover { transform: scale(1.15); }
+            .tm-theme-picker-swatch:active { transform: scale(0.92); }
+            .tm-theme-picker-swatch.tm-active { border-color: #1d9bf0; }
+            .tm-theme-picker-custom-btn {
+                
+                flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+                border: 2px dashed rgba(128,128,128,0.5); cursor: pointer; padding: 0;
+                display: flex; align-items: center; justify-content: center;
+                background: transparent; color: rgba(128,128,128,0.9);
+                transition: transform 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+            }
+            .tm-theme-picker-custom-btn:hover { transform: scale(1.15); border-color: #1d9bf0; color: #1d9bf0; }
+            .tm-theme-picker-custom-btn:active { transform: scale(0.92); }
+            .tm-theme-picker-custom-btn.tm-active { border-color: #1d9bf0; border-style: solid; color: #1d9bf0; }
             
             .tm-sp-collapseall-toggle {
                 flex-shrink: 0; display: flex; align-items: center; justify-content: center;
@@ -4045,9 +4819,9 @@
                 animation: tm-float-new-pulse 1.8s ease-in-out infinite;
                 pointer-events: none; z-index: 5;
             }
-            
+
             .tm-gear-notify-dot {
-                position: absolute; top: 1px; right: 1px;
+                position: absolute; top: 5px; right: 5px;
                 width: 7px; height: 7px; border-radius: 50%;
                 background: #ff6b35;
                 border: 1.5px solid var(--tm-gear-dot-border, #16202b);
@@ -4473,7 +5247,8 @@
         if (_hasUnseenFeature) {
             const dot = document.createElement('span');
             dot.className = 'tm-gear-notify-dot';
-            dot.style.setProperty('--tm-gear-dot-border', dark ? '#16202b' : '#f7f9f9');
+            const _dotBorderMap = { deep: '#16202b', white: '#f7f9f9', milk: '#f3ede0' };
+            dot.style.setProperty('--tm-gear-dot-border', _dotBorderMap[_getActiveThemePresetKey()] || '#f7f9f9');
             gearBtn.appendChild(dot);
         }
 
@@ -4540,10 +5315,16 @@
                 createSettingsPanel();
             });
 
+            const themePickerWrap = _buildThemePickerFlyout('settings', presetKey => {
+                _setActiveThemePreset(presetKey, 'settings');
+                createSettingsPanel();
+            });
+            themePickerWrap.appendChild(themeToggleBtn);
+
             const collapseAllBtn = document.createElement('button');
             collapseAllBtn.type = 'button';
             collapseAllBtn.className = 'tm-sp-collapseall-toggle';
-            header.appendChild(themeToggleBtn);
+            header.appendChild(themePickerWrap);
             header.appendChild(collapseAllBtn);
             panel.appendChild(header);
 
@@ -4744,7 +5525,7 @@
             const makeDockStylePickerRow = (label, options, currentVal, onSelect, featureId = null, defaultVal = undefined, svgW = 28, svgH = 52) => {
                 const _optBgIdle  = dark ? 'rgba(255,255,255,0.04)' : 'rgba(15,20,25,0.04)';
                 const _optOutIdle = dark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(15,20,25,0.12)';
-                const _optFgIdle  = dark ? 'rgba(255,255,255,0.55)' : '#536471';
+                const _optFgIdle  = dark ? 'rgba(255,255,255,0.55)' : '#7a6f5c';
 
                 const wrap = document.createElement('div');
                 wrap.className = 'tm-sp-picker-wrap';
@@ -5607,11 +6388,11 @@
 
             const grpGroups = makeGroup(T.sp_grp_group || '⭐  Groups', true);
 
-            const _grpSub    = dark ? 'rgba(255,255,255,.7)'  : '#536471';
+            const _grpSub    = dark ? 'rgba(255,255,255,.7)'  : '#7a6f5c';
             const _grpDiv    = dark ? 'rgba(255,255,255,.06)' : 'rgba(15,20,25,.08)';
             const _grpBtnBg  = dark ? 'rgba(255,255,255,.06)' : 'rgba(15,20,25,.05)';
             const _grpBtnBgH = dark ? 'rgba(255,255,255,.12)' : 'rgba(15,20,25,.09)';
-            const _grpBtnFg  = dark ? 'rgba(255,255,255,.75)' : '#0f1419';
+            const _grpBtnFg  = dark ? 'rgba(255,255,255,.75)' : '#2b2620';
             const _grpBtnBd  = dark ? 'rgba(255,255,255,.15)' : 'rgba(15,20,25,.18)';
             const _grpBtnBdH = dark ? 'rgba(255,255,255,.3)'  : 'rgba(15,20,25,.32)';
             const _grpSelRing = dark ? 'rgba(255,255,255,.8)' : 'rgba(15,20,25,.65)';
@@ -6459,11 +7240,13 @@
             const ALL_SETTING_KEYS = [
                 KEY_PREFIX_TEXT, KEY_LANG, KEY_LINK_DOMAIN_CLICK, KEY_CLICK_MODE_CUSTOM,
                 KEY_DATE_FORMAT, KEY_CUSTOM_LANG, KEY_VIDEO_VOLUME, KEY_VIDEO_SPEED,
-                KEY_FEEDBACK_STYLE, KEY_CLICK_MODE, KEY_GEAR_VISIBLE, KEY_GEAR_CORNER,
+                KEY_FEEDBACK_STYLE, KEY_CLICK_MODE, KEY_GEAR_DISPLAY_MODE, KEY_GEAR_CORNER,
                 KEY_DOCK_STYLE, KEY_DOCK_HOVER_DELAY, KEY_DOCK_TRIGGER_L, KEY_DOCK_TRIGGER_R,
                 KEY_DOCK_PERSISTED, KEY_DOCK_REMEMBER_POS, KEY_GROUP_ON_DOWNLOAD, KEY_SCAN_INTERVAL,
                 KEY_CUSTOM_MEDIA_ACTIONS, KEY_CUSTOM_LINK_ACTIONS, KEY_GROUP_PANEL_CFG,
                 KEY_TF_CSS_SIMPLIFY, KEY_TF_FEED_PRUNE, KEY_GRID_MEDIA_BTN,
+                KEY_AVATAR_MEDIA_BTN, KEY_CUSTOM_FILENAME_ENABLED, KEY_CUSTOM_FILENAME_TEMPLATE,
+                KEY_GROUP_POPUP_STYLE, KEY_TEXT_BM_CFG,
             ];
             function _exportSettings() {
                 const snap = {};
@@ -6536,7 +7319,7 @@
                     KEY_DATE_FORMAT, KEY_FEEDBACK_STYLE,
                     KEY_DOCK_STYLE, KEY_DOCK_HOVER_DELAY,
                     KEY_DOCK_TRIGGER_L, KEY_DOCK_TRIGGER_R, KEY_DOCK_PERSISTED,
-                    KEY_GEAR_CORNER, KEY_GEAR_VISIBLE,
+                    KEY_GEAR_CORNER, KEY_GEAR_DISPLAY_MODE,
                     KEY_GROUP_ON_DOWNLOAD, KEY_GROUP_PANEL_CFG,
                     KEY_SP_GROUP_OPEN, KEY_SEEN_FEATURES,
                     KEY_HISTORY_VIEW_MODE,
@@ -6866,8 +7649,8 @@
                 });
             }
 
-            const SVG_CHEVRONS_OUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8l5-5 5 5"/><path d="M7 16l5 5 5-5"/></svg>'; 
-            const SVG_CHEVRONS_IN  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l5-5 5 5"/><path d="M7 14l5 5 5-5"/></svg>'; 
+            const SVG_CHEVRONS_OUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8l5-5 5 5"/><path d="M7 16l5 5 5-5"/></svg>';
+            const SVG_CHEVRONS_IN  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l5-5 5 5"/><path d="M7 14l5 5 5-5"/></svg>';
 
             const _isAllGroupsOpen = () => _spGroupRegistry.every(gr => !gr.body.classList.contains('collapsed'));
 
@@ -6925,6 +7708,7 @@
             if (e.target.closest('#tm-group-mgr-overlay'))    return;
             if (e.target.closest('.tm-sp-picker'))            return;
             if (e.target.closest('#tm-cfn-menu-el'))          return;
+            if (e.target.closest('#tm-theme-palette-modal'))  return;
             wrapper.setAttribute('data-open', 'false');
         }, { signal: _spClickAC.signal });
 
@@ -10379,7 +11163,7 @@
                 r.tweetDate,
                 r.screenName,
                 csvCell(r.displayName),
-                csvCell(r.tweetText),
+                csvCell(r.text),
                 csvCell((r.mediaUrls || []).join(' ')),
                 r.groupId || '',
                 csvCell(r.groupId ? (groupNameMap.get(r.groupId) || '') : ''),
@@ -10556,19 +11340,22 @@
             return;
         }
 
-        const dark = _isDarkTheme();
+        const dark = _isDarkTheme('history');
+        const presetKey = _getActiveThemePresetKey('history');
+        const _t = _getActiveThemeColors(presetKey, 'history');
+        const _ex = _getActiveThemeExtras(presetKey, 'history');
         const C = dark ? {
-            bg: '#16202b', header: '#1e2732', text: '#e7e9ea', sub: '#8b98a5',
-            border: '#2f3336', rowHover: '#1e2732', inputBg: '#1e2732',
-            groupHdr: '#2f3336', groupTxt: '#8b98a5',
-            thumbBg: '#1e2732', danger: '#e0245e', dangerHover: '#c01e4e',
-            badgeNew: '#1d9bf0', scrollbar: '#2f3336',
+            bg: _t.bg, header: _ex.header, text: _t.text, sub: _t.sub,
+            border: _ex.borderA, rowHover: _ex.header, inputBg: _ex.header,
+            groupHdr: _ex.header, groupTxt: _t.sub,
+            thumbBg: _ex.header, danger: '#e0245e', dangerHover: '#c01e4e',
+            badgeNew: '#1d9bf0', scrollbar: _ex.borderB,
         } : {
-            bg: '#ffffff', header: '#f7f9f9', text: '#0f1419', sub: '#536471',
-            border: '#d8dcdf', rowHover: '#f7f9f9', inputBg: '#f7f9f9',
-            groupHdr: '#f7f9f9', groupTxt: '#536471',
-            thumbBg: '#f7f9f9', danger: '#e0245e', dangerHover: '#c01e4e',
-            badgeNew: '#1d9bf0', scrollbar: '#eff3f4',
+            bg: _t.bg, header: _ex.header, text: _t.text, sub: _t.sub,
+            border: _ex.borderA, rowHover: _ex.header, inputBg: _ex.header,
+            groupHdr: _ex.header, groupTxt: _t.sub,
+            thumbBg: _ex.header, danger: '#e0245e', dangerHover: '#c01e4e',
+            badgeNew: '#1d9bf0', scrollbar: _ex.borderB,
         };
 
         let pos = {
@@ -10775,6 +11562,39 @@
             .tm-hist-theme-toggle:hover { transform: scale(1.08); }
             .tm-hist-theme-toggle:active { transform: scale(0.92); }
             .tm-hist-theme-toggle svg { width: 14px; height: 14px; }
+            
+            .tm-theme-picker-wrap { position: relative; display: inline-flex; flex-shrink: 0; }
+            .tm-theme-picker-flyout {
+                position: absolute; top: 50%; right: calc(100% + 6px);
+                transform: translateY(-50%) translateX(6px); transform-origin: right center;
+                display: flex; align-items: center; gap: 6px;
+                opacity: 0; pointer-events: none;
+                transition: opacity 0.15s ease, transform 0.15s ease;
+                z-index: 5;
+            }
+            
+            .tm-theme-picker-wrap:hover .tm-theme-picker-flyout,
+            .tm-theme-picker-flyout.tm-force-open {
+                opacity: 1; pointer-events: auto; transform: translateY(-50%) translateX(0);
+            }
+            .tm-theme-picker-swatch {
+                flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%;
+                border: 2px solid rgba(128,128,128,0.35); cursor: pointer; padding: 0;
+                transition: transform 0.12s ease, border-color 0.12s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+            }
+            .tm-theme-picker-swatch:hover { transform: scale(1.15); }
+            .tm-theme-picker-swatch:active { transform: scale(0.92); }
+            .tm-theme-picker-swatch.tm-active { border-color: #1d9bf0; }
+            .tm-theme-picker-custom-btn {
+                flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+                border: 2px dashed rgba(128,128,128,0.5); cursor: pointer; padding: 0;
+                display: flex; align-items: center; justify-content: center;
+                background: transparent; color: rgba(128,128,128,0.9);
+                transition: transform 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+            }
+            .tm-theme-picker-custom-btn:hover { transform: scale(1.15); border-color: #1d9bf0; color: #1d9bf0; }
+            .tm-theme-picker-custom-btn:active { transform: scale(0.92); }
+            .tm-theme-picker-custom-btn.tm-active { border-color: #1d9bf0; border-style: solid; color: #1d9bf0; }
             .tm-hist-searchbar {
                 
                 flex: 1; min-width: 120px;
@@ -10850,6 +11670,12 @@
                 scrollbar-width: thin; scrollbar-color: ${C.scrollbar} transparent;
                 
                 contain: layout style paint;
+            }
+            
+            #tm-hist-body::-webkit-scrollbar { width: 6px; }
+            #tm-hist-body::-webkit-scrollbar-track { background: transparent; }
+            #tm-hist-body::-webkit-scrollbar-thumb {
+                background: ${C.scrollbar}; border-radius: 3px;
             }
             .tm-hist-group-header {
                 position: sticky; top: 0; z-index: 2;
@@ -11563,9 +12389,9 @@
         themeToggleBtn.innerHTML = dark
             ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
             : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
-        themeToggleBtn.addEventListener('click', e => {
-            e.stopPropagation();
-            _toggleAppTheme();
+
+        function _applyHistoryThemeWithFade(applyFn) {
+            applyFn();
             const FADE_MS = 160;
             panel.classList.add('tm-hist-theme-fade');
             panel.style.opacity = '0';
@@ -11591,7 +12417,17 @@
                     });
                 }
             }, FADE_MS);
+        }
+
+        themeToggleBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            _applyHistoryThemeWithFade(() => _toggleAppTheme('history'));
         });
+
+        const themePickerWrap = _buildThemePickerFlyout('history', presetKey => {
+            _applyHistoryThemeWithFade(() => _setActiveThemePreset(presetKey, 'history'));
+        });
+        themePickerWrap.appendChild(themeToggleBtn);
 
         const SVG_LIST  = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg>`;
         const SVG_GRID  = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>`;
@@ -11651,7 +12487,7 @@
         });
 
         titlebar.appendChild(titleEl);
-        titlebar.appendChild(themeToggleBtn);
+        titlebar.appendChild(themePickerWrap);
         titlebar.appendChild(btnPin);
         const sortSel = document.createElement('select');
         sortSel.id = 'tm-hist-sort';
@@ -12312,6 +13148,13 @@
             else _peekOut();
         });
 
+        panel.addEventListener('tm-hist-force-peek', () => {
+            if (DockState.side && !DockState.peeked) _peekOut();
+        });
+        panel.addEventListener('tm-hist-force-retract', () => {
+            if (DockState.side && DockState.peeked) _retract();
+        });
+
         panel.addEventListener('tm-hist-reset-pos', () => {
             const defX = Math.max(8, Math.min(Math.round(window.innerWidth * 0.55 - 195), window.innerWidth - 398));
             const defY = 60, defW = 390, defH = 540;
@@ -12692,9 +13535,9 @@
         const dark = window.matchMedia('(prefers-color-scheme: dark)').matches
                   || document.documentElement.style.colorScheme === 'dark'
                   || document.documentElement.getAttribute('data-color-scheme') === 'dark';
-        const bg     = dark ? '#1e2732' : '#ffffff';
+        const bg     = dark ? '#1e2732' : '#fbf8f2';
         const border = dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)';
-        const text   = dark ? 'rgba(255,255,255,0.92)' : '#0f1419';
+        const text   = dark ? 'rgba(255,255,255,0.92)' : '#2b2620';
         const hover  = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
         const shadow = dark ? '0 4px 20px rgba(0,0,0,0.6)' : '0 4px 20px rgba(0,0,0,0.16)';
 
