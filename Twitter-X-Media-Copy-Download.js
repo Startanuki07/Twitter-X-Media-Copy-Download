@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.0.0.0
+// @version      3.0.1.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -3563,9 +3563,13 @@
             _applyGearDisplayMode();
         };
         const _doInit = () => {
-            if (GM_getValue(KEY_CLICK_MODE, null) === null &&
-                !GM_getValue(KEY_ONBOARDING_DONE, false)) {
+            const _isFreshInstall = GM_getValue(KEY_CLICK_MODE, null) === null &&
+                !GM_getValue(KEY_ONBOARDING_DONE, false);
+            if (_isFreshInstall) {
                 GM_setValue(KEY_CLICK_MODE, 'menu');
+                GM_setValue(KEY_GROUP_ON_DOWNLOAD, true);
+                GM_setValue(KEY_GROUP_POPUP_STYLE, 'list');
+                GM_setValue(KEY_DOCK_STYLE, 'arrow');
             }
             createSettingsPanel();
             _applyGearVisibility();
@@ -6435,7 +6439,7 @@
                     showToast((T.sp_grp_popup_style || 'Popup Style') + ' → ' + (val === 'list' ? (T.sp_grp_popup_style_list || 'List') : (T.sp_grp_popup_style_fan || 'Fan')));
                     _syncGroupChildrenDisabled();
                 },
-                'sp_group_popup_style', 'fan',
+                'sp_group_popup_style', 'list',
                 36, 36
             );
             grpGroups.append(popupStyleRow);
@@ -7169,7 +7173,7 @@
                         }
                     }
                 }
-            }, 'sp_dock_picker', 'ruler'));
+            }, 'sp_dock_picker', 'arrow'));
 
             grpHist.append(makeSliderRow(
                 T.sp_grp_hover_delay || 'Hover Delay', dockHoverDelay, 100, 3000, 50, 'ms',
