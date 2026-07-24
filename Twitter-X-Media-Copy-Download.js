@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.0.1.2
+// @version      3.0.3.1
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -278,6 +278,8 @@
     const DEFAULT_MEDIA_ACTIONS  = { click: 'copy', longpress: 'copy_prefix', mclick: 'preview', rclick: 'download_all' };
     const KEY_CUSTOM_LINK_ACTIONS = 'app_custom_link_actions';
     const DEFAULT_LINK_ACTIONS    = { click: 'copy_url', longpress: 'copy_prefix_url', mclick: 'none', rclick: 'save_text_bookmark' };
+    const KEY_MEDIA_ICON_STYLE  = 'app_media_icon_style';
+    const KEY_LINK_ICON_STYLE   = 'app_link_icon_style';
     const KEY_SEARCH_HISTORY    = 'app_search_hist';
     const KEY_VIDEO_SPEED       = 'app_video_speed';
     const KEY_CUSTOM_BEARER     = 'app_custom_bearer';
@@ -325,6 +327,8 @@
         'custom_filename_toggle',
         'sp_theme_sync',
         'corner_buttons_modes',
+        'sp_media_icon_style',
+        'sp_link_icon_style',
     ];
 
     const DOMAIN_LIST = [
@@ -483,6 +487,18 @@
             cma_slot_rclick:          'Right Click',
             cma_section_media:        '🎞️ Media Button',
             cma_section_link:         '🔗 Link Button',
+            sp_media_icon_style: 'Icon Style',
+            sp_media_icon_classic: 'Classic',
+            sp_media_icon_play: 'Play',
+            sp_link_icon_style: 'Icon Style',
+            sp_link_icon_classic: 'Classic',
+            sp_link_icon_rounded: 'Rounded',
+            sp_link_icon_download: 'Download',
+            sp_media_icon_copy: 'Copy',
+            sp_link_icon_style_short: 'Link icon',
+            sp_media_icon_style_short: 'Media icon',
+            sp_link_icon_copy: 'Copy',
+            sp_media_icon_download: 'Download',
             cma_action_copy:          'Copy Media URLs',
             cma_action_copy_prefix:   'Copy with Prefix',
             cma_action_preview:       'Preview',
@@ -692,6 +708,18 @@
             cma_slot_rclick:          '右鍵',
             cma_section_media:        '🎞️ 媒體按鈕',
             cma_section_link:         '🔗 連結按鈕',
+            sp_media_icon_style: '圖示樣式',
+            sp_media_icon_classic: '經典',
+            sp_media_icon_play: '播放',
+            sp_link_icon_style: '圖示樣式',
+            sp_link_icon_classic: '經典',
+            sp_link_icon_rounded: '圓潤',
+            sp_link_icon_download: '下載',
+            sp_media_icon_copy: '複製',
+            sp_link_icon_style_short: '連結圖示',
+            sp_media_icon_style_short: '媒體圖示',
+            sp_link_icon_copy: '複製',
+            sp_media_icon_download: '下載',
             cma_action_copy:          '複製媒體網址',
             cma_action_copy_prefix:   '複製含前綴網址',
             cma_action_preview:       '預覽',
@@ -898,6 +926,18 @@
             cma_slot_rclick:          '右键',
             cma_section_media:        '🎞️ 媒体按钮',
             cma_section_link:         '🔗 链接按钮',
+            sp_media_icon_style: '图标样式',
+            sp_media_icon_classic: '经典',
+            sp_media_icon_play: '播放',
+            sp_link_icon_style: '图标样式',
+            sp_link_icon_classic: '经典',
+            sp_link_icon_rounded: '圆润',
+            sp_link_icon_download: '下载',
+            sp_media_icon_copy: '复制',
+            sp_link_icon_style_short: '链接图标',
+            sp_media_icon_style_short: '媒体图标',
+            sp_link_icon_copy: '复制',
+            sp_media_icon_download: '下载',
             cma_action_copy:          '复制媒体网址',
             cma_action_copy_prefix:   '复制含前缀网址',
             cma_action_preview:       '预览',
@@ -1104,6 +1144,18 @@
             cma_slot_rclick:          '右クリック',
             cma_section_media:        '🎞️ メディアボタン',
             cma_section_link:         '🔗 リンクボタン',
+            sp_media_icon_style: 'アイコンスタイル',
+            sp_media_icon_classic: 'クラシック',
+            sp_media_icon_play: 'プレイ',
+            sp_link_icon_style: 'アイコンスタイル',
+            sp_link_icon_classic: 'クラシック',
+            sp_link_icon_rounded: 'ラウンド',
+            sp_link_icon_download: 'ダウンロード',
+            sp_media_icon_copy: 'コピー',
+            sp_link_icon_style_short: 'リンクアイコン',
+            sp_media_icon_style_short: 'メディアアイコン',
+            sp_link_icon_copy: 'コピー',
+            sp_media_icon_download: 'ダウンロード',
             cma_action_copy:          'メディアURLをコピー',
             cma_action_copy_prefix:   '接頭辞付きでコピー',
             cma_action_preview:       'プレビュー',
@@ -1310,6 +1362,18 @@
             cma_slot_rclick:          '우클릭',
             cma_section_media:        '🎞️ 미디어 버튼',
             cma_section_link:         '🔗 링크 버튼',
+            sp_media_icon_style: '아이콘 스타일',
+            sp_media_icon_classic: '클래식',
+            sp_media_icon_play: '재생',
+            sp_link_icon_style: '아이콘 스타일',
+            sp_link_icon_classic: '클래식',
+            sp_link_icon_rounded: '라운드',
+            sp_link_icon_download: '다운로드',
+            sp_media_icon_copy: '복사',
+            sp_link_icon_style_short: '링크 아이콘',
+            sp_media_icon_style_short: '미디어 아이콘',
+            sp_link_icon_copy: '복사',
+            sp_media_icon_download: '다운로드',
             cma_action_copy:          '미디어 URL 복사',
             cma_action_copy_prefix:   '접두사와 함께 복사',
             cma_action_preview:       '미리보기',
@@ -1516,6 +1580,18 @@
             cma_slot_rclick:          'Clic derecho',
             cma_section_media:        '🎞️ Botón de medios',
             cma_section_link:         '🔗 Botón de enlace',
+            sp_media_icon_style: 'Estilo de icono',
+            sp_media_icon_classic: 'Clásico',
+            sp_media_icon_play: 'Reproducir',
+            sp_link_icon_style: 'Estilo de icono',
+            sp_link_icon_classic: 'Clásico',
+            sp_link_icon_rounded: 'Redondeado',
+            sp_link_icon_download: 'Descargar',
+            sp_media_icon_copy: 'Copiar',
+            sp_link_icon_style_short: 'Icono de enlace',
+            sp_media_icon_style_short: 'Icono de medios',
+            sp_link_icon_copy: 'Copiar',
+            sp_media_icon_download: 'Descargar',
             cma_action_copy:          'Copiar URLs de medios',
             cma_action_copy_prefix:   'Copiar con prefijo',
             cma_action_preview:       'Vista previa',
@@ -1722,6 +1798,18 @@
             cma_slot_rclick:          'Clique direito',
             cma_section_media:        '🎞️ Botão de mídia',
             cma_section_link:         '🔗 Botão de link',
+            sp_media_icon_style: 'Estilo do ícone',
+            sp_media_icon_classic: 'Clássico',
+            sp_media_icon_play: 'Reproduzir',
+            sp_link_icon_style: 'Estilo do ícone',
+            sp_link_icon_classic: 'Clássico',
+            sp_link_icon_rounded: 'Arredondado',
+            sp_link_icon_download: 'Baixar',
+            sp_media_icon_copy: 'Copiar',
+            sp_link_icon_style_short: 'Ícone de link',
+            sp_media_icon_style_short: 'Ícone de mídia',
+            sp_link_icon_copy: 'Copiar',
+            sp_media_icon_download: 'Baixar',
             cma_action_copy:          'Copiar URLs de mídia',
             cma_action_copy_prefix:   'Copiar com prefixo',
             cma_action_preview:       'Pré-visualizar',
@@ -1928,6 +2016,18 @@
             cma_slot_rclick:          'Clic droit',
             cma_section_media:        '🎞️ Bouton média',
             cma_section_link:         '🔗 Bouton lien',
+            sp_media_icon_style: 'Style d\'icône',
+            sp_media_icon_classic: 'Classique',
+            sp_media_icon_play: 'Lecture',
+            sp_link_icon_style: 'Style d\'icône',
+            sp_link_icon_classic: 'Classique',
+            sp_link_icon_rounded: 'Arrondi',
+            sp_link_icon_download: 'Télécharger',
+            sp_media_icon_copy: 'Copier',
+            sp_link_icon_style_short: 'Icône de lien',
+            sp_media_icon_style_short: 'Icône média',
+            sp_link_icon_copy: 'Copier',
+            sp_media_icon_download: 'Télécharger',
             cma_action_copy:          'Copier les URL des médias',
             cma_action_copy_prefix:   'Copier avec préfixe',
             cma_action_preview:       'Aperçu',
@@ -2134,6 +2234,18 @@
             cma_slot_rclick:          'Правый клик',
             cma_section_media:        '🎞️ Кнопка медиа',
             cma_section_link:         '🔗 Кнопка ссылки',
+            sp_media_icon_style: 'Стиль иконки',
+            sp_media_icon_classic: 'Классика',
+            sp_media_icon_play: 'Плей',
+            sp_link_icon_style: 'Стиль иконки',
+            sp_link_icon_classic: 'Классика',
+            sp_link_icon_rounded: 'Скруглённый',
+            sp_link_icon_download: 'Скачать',
+            sp_media_icon_copy: 'Копия',
+            sp_link_icon_style_short: 'Значок ссылки',
+            sp_media_icon_style_short: 'Значок медиа',
+            sp_link_icon_copy: 'Копия',
+            sp_media_icon_download: 'Скачать',
             cma_action_copy:          'Скопировать URL медиа',
             cma_action_copy_prefix:   'Скопировать с префиксом',
             cma_action_preview:       'Предпросмотр',
@@ -5737,6 +5849,68 @@
                 return wrap;
             };
 
+            const makeIconStyleRow = (label, options, currentVal, onSelect, featureId = null) => {
+                const wrap = document.createElement('div');
+                wrap.style.cssText = 'padding: 8px 16px 10px;';
+
+                const lbl = document.createElement('div');
+                lbl.className = 'tm-sp-label';
+                lbl.style.cssText = 'font-size: 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;';
+                lbl.textContent = label;
+                if (featureId && isFeatureNew(featureId)) {
+                    const badge = document.createElement('span');
+                    badge.className = 'tm-sp-new-badge';
+                    badge.textContent = 'NEW';
+                    lbl.appendChild(badge);
+                }
+                wrap.appendChild(lbl);
+
+                const row = document.createElement('div');
+                row.style.cssText = 'display: flex; gap: 6px;';
+
+                const _optBgIdle  = dark ? 'rgba(255,255,255,0.04)' : 'rgba(15,20,25,0.04)';
+                const _optOutIdle = dark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(15,20,25,0.12)';
+                const _optFgIdle  = dark ? 'rgba(255,255,255,0.55)' : '#7a6f5c';
+
+                options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    const isActive = opt.value === currentVal;
+                    btn.style.cssText = `
+                        flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+                        padding: 6px 4px; border-radius: 8px; border: none; cursor: pointer; min-width: 0;
+                        background: ${isActive ? 'rgba(29,155,240,0.12)' : _optBgIdle};
+                        outline: ${isActive ? '1.5px solid rgba(29,155,240,0.5)' : _optOutIdle};
+                        transition: background 0.15s, outline 0.15s;
+                    `;
+
+                    const tmpDiv = document.createElement('div');
+                    tmpDiv.innerHTML = opt.svg;
+                    const svgEl = tmpDiv.querySelector('svg');
+                    if (svgEl) {
+                        svgEl.setAttribute('width', '18');
+                        svgEl.setAttribute('height', '18');
+                        svgEl.style.color = isActive ? '#1d9bf0' : _optFgIdle;
+                        btn.appendChild(svgEl);
+                    }
+
+                    const nameLbl = document.createElement('span');
+                    nameLbl.textContent = opt.label;
+                    nameLbl.style.cssText = `font-size: 10px; color: ${isActive ? '#1d9bf0' : _optFgIdle}; font-weight: ${isActive ? '600' : '400'};`;
+                    btn.appendChild(nameLbl);
+
+                    btn.addEventListener('click', e => {
+                        e.stopPropagation();
+                        if (featureId) markFeatureSeen(featureId);
+                        onSelect(opt.value);
+                    });
+                    row.appendChild(btn);
+                });
+
+                wrap.appendChild(row);
+                return wrap;
+            };
+
             const makeFeedbackPickerRow = (label, options, currentVal, onSelect, featureId = null, defaultVal = undefined) => {
                 const wrap = document.createElement('div');
                 wrap.style.cssText = `border-bottom: 1px solid ${C.border};`;
@@ -6239,6 +6413,48 @@
                     if (_cmaCollapseTimer) { clearTimeout(_cmaCollapseTimer); _cmaCollapseTimer = null; }
                 });
             })();
+
+            const linkIconOpts = [
+                { value: 'classic', label: T.sp_link_icon_classic || 'Classic',
+                  svg: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12a4 4 0 0 0 5.66 0l2-2a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M12 8a4 4 0 0 0-5.66 0l-2 2a4 4 0 0 0 5.66 5.66l1-1"/></svg>` },
+                { value: 'rounded', label: T.sp_link_icon_rounded || 'Rounded',
+                  svg: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 13.5L7.2 15.3a2.8 2.8 0 0 1-4-4L5 9.5"/><path d="M11 6.5l1.8-1.8a2.8 2.8 0 0 1 4 4L15 10.5"/></svg>` },
+                { value: 'copy', label: T.sp_link_icon_copy || 'Copy',
+                  svg: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M4 13V5a2 2 0 0 1 2-2h8"/></svg>` },
+            ];
+            grpMedia.append(makeIconStyleRow(
+                T.sp_link_icon_style_short || 'Link icon',
+                linkIconOpts,
+                GM_getValue(KEY_LINK_ICON_STYLE, 'classic'),
+                (next) => {
+                    GM_setValue(KEY_LINK_ICON_STYLE, next);
+                    const label = linkIconOpts.find(o => o.value === next)?.label ?? next;
+                    showToast((T.sp_link_icon_style || 'Icon Style') + ' → ' + label);
+                    buildContent();
+                },
+                'sp_link_icon_style'
+            ));
+
+            const mediaIconOpts = [
+                { value: 'classic', label: T.sp_media_icon_classic || 'Classic',
+                  svg: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="16" height="12" rx="2"/><line x1="2" y1="7" x2="18" y2="7"/><line x1="2" y1="13" x2="18" y2="13"/><line x1="6" y1="4" x2="6" y2="7"/><line x1="10" y1="4" x2="10" y2="7"/><line x1="14" y1="4" x2="14" y2="7"/><line x1="6" y1="13" x2="6" y2="16"/><line x1="10" y1="13" x2="10" y2="16"/><line x1="14" y1="13" x2="14" y2="16"/></svg>` },
+                { value: 'play', label: T.sp_media_icon_play || 'Play',
+                  svg: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="14" height="14" rx="2.5"/><path d="M8 7.3v5.4l4.6-2.7z" fill="currentColor" stroke="none"/></svg>` },
+                { value: 'download', label: T.sp_media_icon_download || 'Download',
+                  svg: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v9M6.5 9L10 12.5 13.5 9"/><path d="M4 15.5h12"/></svg>` },
+            ];
+            grpMedia.append(makeIconStyleRow(
+                T.sp_media_icon_style_short || 'Media icon',
+                mediaIconOpts,
+                GM_getValue(KEY_MEDIA_ICON_STYLE, 'classic'),
+                (next) => {
+                    GM_setValue(KEY_MEDIA_ICON_STYLE, next);
+                    const label = mediaIconOpts.find(o => o.value === next)?.label ?? next;
+                    showToast((T.sp_media_icon_style || 'Icon Style') + ' → ' + label);
+                    buildContent();
+                },
+                'sp_media_icon_style'
+            ));
 
             const fbOpts = [
                 { value: 'toast',  label: T.status_feedback_toast  || 'Toast' },
@@ -15897,10 +16113,14 @@
     };
     function _createMediaActionController(article, btn) {
         const SVG_FILM = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="16" height="12" rx="2"/><line x1="2" y1="7" x2="18" y2="7"/><line x1="2" y1="13" x2="18" y2="13"/><line x1="6" y1="4" x2="6" y2="7"/><line x1="10" y1="4" x2="10" y2="7"/><line x1="14" y1="4" x2="14" y2="7"/><line x1="6" y1="13" x2="6" y2="16"/><line x1="10" y1="13" x2="10" y2="16"/><line x1="14" y1="13" x2="14" y2="16"/></svg>`;
+        const SVG_FILM_PLAY = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="14" height="14" rx="2.5"/><path d="M8 7.3v5.4l4.6-2.7z" fill="currentColor" stroke="none"/></svg>`;
+        const SVG_FILM_DOWNLOAD = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v9M6.5 9L10 12.5 13.5 9"/><path d="M4 15.5h12"/></svg>`;
         const SVG_CHECK_SM = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`;
         const SVG_PREFIX_COPY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
         const SVG_DL = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M6 9l4 4 4-4"/><line x1="3" y1="17" x2="17" y2="17"/></svg>`;
         const COLOR_DL_OK = '#00ba7c';
+        const _MEDIA_ICON_MAP = { classic: SVG_FILM, play: SVG_FILM_PLAY, download: SVG_FILM_DOWNLOAD };
+        const _mediaIconSvg = _MEDIA_ICON_MAP[GM_getValue(KEY_MEDIA_ICON_STYLE, 'classic')] || SVG_FILM;
 
         const setMediaIcon = (state, extra, silentText, actionType = 'copy') => {
             const fbStyle = _cachedFeedbackStyle;
@@ -15935,7 +16155,7 @@
             const getFeedbackText = () => silentText || extra;
 
             if (state === 'default') {
-                btn.innerHTML = SVG_FILM;
+                btn.innerHTML = _mediaIconSvg;
             } else if (state === 'dl') {
                 btn.innerHTML = SVG_DL;
             } else if (state === 'ok') {
@@ -15967,16 +16187,16 @@
                 }
             } else if (state === 'warn') {
                 if (fbStyle === 'icon') {
-                    setIconMode(SVG_FILM, '#ff8c00');
+                    setIconMode(_mediaIconSvg, '#ff8c00');
                 } else {
-                    btn.innerHTML = SVG_FILM;
+                    btn.innerHTML = _mediaIconSvg;
                     showActionToast(btn, extra, 'warn');
                 }
             } else {
                 if (fbStyle === 'icon') {
-                    setIconMode(SVG_FILM, state === 'error' ? '#e0245e' : null);
+                    setIconMode(_mediaIconSvg, state === 'error' ? '#e0245e' : null);
                 } else {
-                    btn.innerHTML = SVG_FILM;
+                    btn.innerHTML = _mediaIconSvg;
                     if (extra) showActionToast(btn, extra, state === 'error' ? 'error' : 'ok');
                 }
             }
@@ -16302,8 +16522,12 @@
 
     function _createLinkActionController(article, icon) {
             const SVG_LINK = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12a4 4 0 0 0 5.66 0l2-2a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M12 8a4 4 0 0 0-5.66 0l-2 2a4 4 0 0 0 5.66 5.66l1-1"/></svg>`;
+            const SVG_LINK_ROUNDED = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 13.5L7.2 15.3a2.8 2.8 0 0 1-4-4L5 9.5"/><path d="M11 6.5l1.8-1.8a2.8 2.8 0 0 1 4 4L15 10.5"/></svg>`;
+            const SVG_LINK_COPY = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M4 13V5a2 2 0 0 1 2-2h8"/></svg>`;
             const SVG_CHECK = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`;
             const SVG_PREFIX_COPY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+            const _LINK_ICON_MAP = { classic: SVG_LINK, rounded: SVG_LINK_ROUNDED, copy: SVG_LINK_COPY };
+            const _linkIconSvg = _LINK_ICON_MAP[GM_getValue(KEY_LINK_ICON_STYLE, 'classic')] || SVG_LINK;
 
             const setLinkIcon = (state, extra, silentText, actionType = 'copy') => {
                 const fbStyle = GM_getValue(KEY_FEEDBACK_STYLE, 'toast');
@@ -16352,7 +16576,7 @@
                         showActionToast(icon, extra || T.msg_copied, 'ok');
                     }
                 } else {
-                    icon.innerHTML = SVG_LINK;
+                    icon.innerHTML = _linkIconSvg;
                 }
             };
             setLinkIcon('default');
