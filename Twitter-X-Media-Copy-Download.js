@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.0.3.1
+// @version      3.0.3.3
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -4462,7 +4462,7 @@
 
             #tm-settings-panel {
                 position: absolute; top: calc(100% - 21px); right: 4px;
-                width: 300px; background: ${C.panel};
+                width: 310px; background: ${C.panel};
                 border-radius: 14px;
                 box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.10);
                 border: 1px solid ${C.border};
@@ -4556,11 +4556,17 @@
                 text-transform: uppercase; color: ${C.sub};
                 background: ${C.header};
                 border-bottom: 1px solid ${C.border};
-                border-top: 1px solid ${C.border};
                 user-select: none;
-                opacity: 0.7;
+                opacity: 1;
             }
-            .tm-sp-group-header:first-of-type { border-top: none; }
+            
+            .tm-sp-group-card {
+                border: 1px solid ${C.border};
+                border-radius: 10px;
+                overflow: hidden;
+                margin: 8px 8px;
+            }
+            .tm-sp-group-card:last-of-type { margin-bottom: 4px; }
             .tm-sp-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; gap: 8px; border-bottom: 1px solid ${C.border}; cursor: pointer; transition: background 0.1s; }
             .tm-sp-row:last-child { border-bottom: none; }
             .tm-sp-row:hover { background: ${C.rowHover}; }
@@ -5657,9 +5663,12 @@
                     if (_lcRcResizeHandler) requestAnimationFrame(_lcRcResizeHandler);
                 });
 
-                panel.appendChild(g);
-                panel.appendChild(body);
-                _spGroupRegistry.push({ header: g, body, chevron, label });
+                const card = document.createElement('div');
+                card.className = 'tm-sp-group-card';
+                card.appendChild(g);
+                card.appendChild(body);
+                panel.appendChild(card);
+                _spGroupRegistry.push({ header: g, body, chevron, label, card });
                 return {
                     body,
                     append: (el) => body.appendChild(el),
@@ -7174,8 +7183,7 @@
             });
 
             if (isFeatureNew('sp_corner_position')) {
-                const grpCornerHeader = panel.querySelector('.tm-sp-group-header:last-of-type') ||
-                    panel.querySelectorAll('.tm-sp-group-header')[panel.querySelectorAll('.tm-sp-group-header').length - 1];
+                const grpCornerHeader = _spGroupRegistry[_spGroupRegistry.length - 1]?.header || null;
                 if (grpCornerHeader) {
                     const newBadge = document.createElement('span');
                     newBadge.className = 'tm-sp-new-badge';
