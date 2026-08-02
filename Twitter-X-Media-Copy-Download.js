@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.0.3.3
+// @version      3.0.3.8
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -13794,17 +13794,16 @@
             background: transparent;
             border: none;
             font-size: 11px;
-            min-width: 36px;
-            width: 36px;
-            height: 36px;
-            padding: 8px;
             box-sizing: border-box;
             opacity: 0.75;
             cursor: pointer;
             margin-left: 4px;
             transition: opacity 0.2s, filter 0.2s, color 0.15s;
             color: #536471;
-            flex-shrink: 0;
+        }
+        
+        .custom-copy-icon {
+            margin-left: auto;
         }
         @media (prefers-color-scheme: dark) {
             .${BUTTON_CLASS}, .custom-copy-icon { color: #71767b; }
@@ -16743,6 +16742,8 @@
         const actions = Array.from(article.querySelectorAll('[role="group"]')).pop();
         if (!actions) return;
 
+        const _cloneSrc = actions.children[actions.children.length - 1];
+
         if (!document.getElementById('tm-icon-anim-style')) {
             const s = document.createElement('style');
             s.id = 'tm-icon-anim-style';
@@ -16783,8 +16784,12 @@
             document.head.appendChild(s);
         }
 
-        const btn = document.createElement('button');
-        btn.className = BUTTON_CLASS;
+        const btn = _cloneSrc.cloneNode(true);
+        btn.classList.add(BUTTON_CLASS);
+        btn.removeAttribute('data-testid');
+        btn.removeAttribute('id');
+        btn.querySelectorAll('[data-testid], [id]').forEach(_el => { _el.removeAttribute('data-testid'); _el.removeAttribute('id'); });
+        btn.querySelectorAll('button, [role="button"]').forEach(_el => _el.removeAttribute('disabled'));
         const _btnTooltipText = _cachedClickMode === 'menu' ? T.btn_tooltip_menu : T.btn_tooltip;
         btn.title = _btnTooltipText;
         btn.setAttribute('aria-label', _btnTooltipText || 'Media: copy URL / download');
@@ -16865,8 +16870,12 @@
 
         const LINK_BTN_CLASS = 'custom-copy-icon';
         if (!article.querySelector(`.${LINK_BTN_CLASS}`)) {
-            const icon = document.createElement('div');
-            icon.className = LINK_BTN_CLASS;
+            const icon = _cloneSrc.cloneNode(true);
+            icon.classList.add(LINK_BTN_CLASS);
+            icon.removeAttribute('data-testid');
+            icon.removeAttribute('id');
+            icon.querySelectorAll('[data-testid], [id]').forEach(_el => { _el.removeAttribute('data-testid'); _el.removeAttribute('id'); });
+            icon.querySelectorAll('button, [role="button"]').forEach(_el => _el.removeAttribute('disabled'));
             icon.style.position = 'relative';
 
             const linkCtl = _createLinkActionController(article, icon);
@@ -16939,6 +16948,8 @@
                 });
 
             }
+
+            actions.style.setProperty('flex-wrap', 'nowrap', 'important');
 
             actions.appendChild(btn);
             actions.insertBefore(icon, btn);
