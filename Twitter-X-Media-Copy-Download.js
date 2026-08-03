@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.0.3.8
+// @version      3.0.3.12
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -8144,17 +8144,17 @@
         return null;
     }
 
-    function _applyHistoryBadge(btn) {
+    function _applyHistoryBadge(btn, skipAnim = false) {
         if (!btn || btn.querySelector('.tm-media-dl-dot')) return;
         const badge = document.createElement('span');
         badge.className = 'tm-media-dl-dot';
         badge.style.cssText = `
-            position: absolute; top: 6px; right: 6px;
+            position: absolute; top: -3px; right: -3px;
             width: 8px; height: 8px; border-radius: 50%;
             padding: 0; margin: 0; box-sizing: border-box;
             background: #00ba7c; pointer-events: none;
             box-shadow: 0 0 0 2px rgba(0,0,0,0.65);
-            animation: tm-pop-bounce 0.35s cubic-bezier(0.175,0.885,0.32,1.275) both;
+            ${skipAnim ? '' : 'animation: tm-pop-bounce 0.35s cubic-bezier(0.175,0.885,0.32,1.275) both;'}
             z-index: 10;
         `;
         btn.appendChild(badge);
@@ -8162,6 +8162,7 @@
     function _removeHistoryBadge(btn) {
         if (!btn) return;
         btn.querySelector('.tm-media-dl-dot')?.remove();
+        btn.removeAttribute('data-tm-badge-shown');
     }
 
     window.addEventListener('scroll', e => {
@@ -15922,29 +15923,35 @@
             }
 
             let result = { videos: [], images: [] };
+            let quotedResult = { videos: [], images: [] };
 
-            const walk = (obj) => {
+            const walk = (obj, inQuote = false) => {
                 if (!obj || typeof obj !== 'object') return;
+                const target = inQuote ? quotedResult : result;
 
                 if (obj.extended_entities?.media) {
                     obj.extended_entities.media.forEach(m => {
                         if (m.type === 'photo') {
-                            result.images.push(m.media_url_https + '?name=orig');
+                            target.images.push(m.media_url_https + '?name=orig');
                         } else if (m.type === 'video' || m.type === 'animated_gif') {
                             let mp4s = m.video_info?.variants?.filter(v => v.content_type === 'video/mp4') || [];
                             if (mp4s.length) {
                                 let best = mp4s.sort((a,b)=>(b.bitrate||0)-(a.bitrate||0))[0];
-                                result.videos.push(best.url.split('?')[0]);
+                                target.videos.push(best.url.split('?')[0]);
                             }
                         }
                     });
                 }
 
-                ['tweet', 'quoted_status_result', 'retweeted_status_result', 'result', 'legacy'].forEach(k => {
-                    if (obj[k]) walk(obj[k]);
+                ['tweet', 'retweeted_status_result', 'result', 'legacy'].forEach(k => {
+                    if (obj[k]) walk(obj[k], inQuote);
                 });
+                if (obj.quoted_status_result) walk(obj.quoted_status_result, true);
             };
             walk(core);
+            if (!result.images.length && !result.videos.length) {
+                result = quotedResult;
+            }
 
             try {
                 const legacy = core.legacy || core.tweet?.legacy || null;
@@ -15984,7 +15991,10 @@
             }
         }
 
-        let result = Array.from(article.querySelectorAll('video'))
+        const _quotedVideoEls = new Set(article.querySelectorAll('[data-testid="tweet"] video'));
+        const _allVideoEls = Array.from(article.querySelectorAll('video'));
+        const _ownVideoEls = _allVideoEls.filter(v => !_quotedVideoEls.has(v));
+        let result = (_ownVideoEls.length ? _ownVideoEls : _allVideoEls)
             .map(v => v.src || v.querySelector('source')?.src)
             .filter(src => src && src.includes('mp4') && !src.startsWith('blob:'))
             .map(src => src.split('?')[0]);
@@ -16027,17 +16037,17 @@
         }
 
         if (!apiSuccess) {
-            Array.from(article.querySelectorAll('img[src*="twimg.com"]'))
+            const _quotedImgSrcs = new Set(
+                Array.from(article.querySelectorAll('[data-testid="tweet"] img[src*="pbs.twimg.com"]')).map(img => img.src)
+            );
+            const _allImgSrcs = Array.from(article.querySelectorAll('img[src*="twimg.com"]'))
                 .map(img => img.src)
-                .filter(src => src.includes('pbs.twimg.com') && !src.includes('profile_images') && !src.includes('/emoji/') && !src.includes('twemoji'))
-                .forEach(addImageUrl);
+                .filter(src => src.includes('pbs.twimg.com') && !src.includes('profile_images') && !src.includes('/emoji/') && !src.includes('twemoji'));
+            const _ownImgSrcs = _allImgSrcs.filter(src => !_quotedImgSrcs.has(src));
+            (_ownImgSrcs.length ? _ownImgSrcs : _allImgSrcs).forEach(addImageUrl);
 
             const videos = await extractVideoUrl(article);
             videos.forEach(v => uniqueMedias.set(v, v));
-
-            article.querySelectorAll('[data-testid="tweet"] img[src*="pbs.twimg.com"]').forEach(img => {
-                if (!img.src.includes('profile_images') && !img.src.includes('/emoji/')) addImageUrl(img.src);
-            });
         }
 
         return Array.from(uniqueMedias.values());
@@ -16210,7 +16220,9 @@
 
             const tweetId = _getTweetIdFromArticle(article);
             if (tweetId && _downloadedIds.has(tweetId)) {
-                _applyHistoryBadge(btn);
+                const _alreadyShown = btn.getAttribute('data-tm-badge-shown') === tweetId;
+                _applyHistoryBadge(btn, _alreadyShown);
+                if (!_alreadyShown) btn.setAttribute('data-tm-badge-shown', tweetId);
             }
         };
 
@@ -16742,7 +16754,9 @@
         const actions = Array.from(article.querySelectorAll('[role="group"]')).pop();
         if (!actions) return;
 
-        const _cloneSrc = actions.children[actions.children.length - 1];
+        const _cloneSrc = Array.from(actions.children).reverse().find(_el => _el.hasAttribute('data-testid'))
+            || Array.from(actions.children).reverse().find(_el => !_el.classList.contains(BUTTON_CLASS) && !_el.classList.contains('custom-copy-icon') && !_el.classList.contains('mtga-btn'))
+            || actions.children[actions.children.length - 1];
 
         if (!document.getElementById('tm-icon-anim-style')) {
             const s = document.createElement('style');
