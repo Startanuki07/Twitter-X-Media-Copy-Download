@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.0.3.12
+// @version      3.0.4.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -11172,6 +11172,7 @@
 
     function _createGroupTabsBuilder(deps) {
         const { groupTabBar, C, render, getMediaFilter, getActiveGroupId, setActiveGroupId } = deps;
+        let _gtabExpanded = false;
 
         function buildGroupTabs() {
             groupTabBar.innerHTML = '';
@@ -11212,19 +11213,10 @@
             const btnRight = document.createElement('button');
             btnRight.className = 'tm-gtab-scroll-btn right visible';
             btnRight.innerHTML = SVG_RIGHT;
-            btnRight.title = 'Scroll right';
+            btnRight.title = 'Show all groups';
             btnRight.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const maxScroll = scrollArea.scrollWidth - scrollArea.clientWidth;
-                if (scrollArea.scrollLeft >= maxScroll - 2) {
-                    btnRight.classList.remove('tm-end-flash');
-                    void btnRight.offsetWidth;
-                    btnRight.classList.add('tm-end-flash');
-                    btnRight.addEventListener('animationend', () => btnRight.classList.remove('tm-end-flash'), { once: true });
-                    scrollArea.scrollTo({ left: 0, behavior: 'smooth' });
-                } else {
-                    scrollArea.scrollBy({ left: 120, behavior: 'smooth' });
-                }
+                toggleExpandState();
             });
 
             const makePill = (iconHtml, label, value) => {
@@ -11358,13 +11350,63 @@
 
             const syncArrows = () => {
                 const canLeft = scrollArea.scrollLeft > 2;
-                btnLeft.classList.toggle('visible', canLeft);
+                btnLeft.classList.toggle('visible', canLeft && !_gtabExpanded);
             };
             scrollArea.addEventListener('scroll', syncArrows, { passive: true });
             if (window.ResizeObserver) {
                 const ro = new ResizeObserver(syncArrows);
                 ro.observe(scrollArea);
             }
+
+            const applyExpandStateInstant = (expanded) => {
+                groupTabBar.classList.toggle('tm-gtab-expanded', expanded);
+                scrollArea.classList.toggle('tm-gtab-expanded', expanded);
+                btnRight.classList.toggle('tm-gtab-expanded', expanded);
+                btnRight.title = expanded ? 'Collapse groups' : 'Show all groups';
+                syncArrows();
+            };
+
+            let _gtabAnimating = false;
+            const toggleExpandState = () => {
+                if (_gtabAnimating) return;
+                const expanded = !_gtabExpanded;
+                _gtabExpanded = expanded;
+                btnRight.classList.toggle('tm-gtab-expanded', expanded);
+                btnRight.title = expanded ? 'Collapse groups' : 'Show all groups';
+                syncArrows();
+
+                const startHeight = scrollArea.getBoundingClientRect().height;
+                scrollArea.style.overflow = 'hidden';
+                _gtabAnimating = true;
+
+                if (expanded) {
+                    groupTabBar.classList.add('tm-gtab-expanded');
+                    scrollArea.classList.add('tm-gtab-expanded');
+                    const endHeight = Math.min(scrollArea.scrollHeight, 120);
+                    scrollArea.animate(
+                        [{ height: startHeight + 'px' }, { height: endHeight + 'px' }],
+                        { duration: 200, easing: 'ease' }
+                    ).onfinish = () => {
+                        scrollArea.style.overflow = '';
+                        scrollArea.style.height = '';
+                        _gtabAnimating = false;
+                    };
+                } else {
+                    scrollArea.animate(
+                        [{ height: startHeight + 'px' }, { height: '36px' }],
+                        { duration: 200, easing: 'ease' }
+                    ).onfinish = () => {
+                        groupTabBar.classList.remove('tm-gtab-expanded');
+                        scrollArea.classList.remove('tm-gtab-expanded');
+                        scrollArea.style.overflow = '';
+                        scrollArea.style.height = '';
+                        syncArrows();
+                        _gtabAnimating = false;
+                    };
+                }
+            };
+            applyExpandStateInstant(_gtabExpanded);
+
             requestAnimationFrame(syncArrows);
         }
 
@@ -12586,14 +12628,24 @@
                 flex-shrink: 0; overflow: hidden;
                 background: ${C.header};
             }
+            
+            #tm-group-tab-bar.tm-gtab-expanded { align-items: flex-start; }
             #tm-group-tab-scroll {
                 display: flex; align-items: center; gap: 4px;
                 padding: 5px 8px;
                 overflow-x: auto; overflow-y: hidden;
                 scrollbar-width: none; flex: 1; min-width: 0;
                 scroll-behavior: smooth;
+                max-height: 36px;
             }
             #tm-group-tab-scroll::-webkit-scrollbar { display: none; }
+            
+            #tm-group-tab-scroll.tm-gtab-expanded {
+                flex-wrap: wrap;
+                overflow-x: hidden; overflow-y: auto;
+                max-height: 120px;
+                align-content: flex-start;
+            }
             .tm-gtab-pill {
                 display: inline-flex; align-items: center; gap: 4px;
                 padding: 3px 9px 3px 7px;
@@ -12625,17 +12677,10 @@
                 cursor: pointer; display: none;
                 align-items: center; justify-content: center;
                 color: ${C.sub}; padding: 0;
-                transition: background .1s, color .1s;
+                transition: background .1s, color .1s, transform .2s ease;
                 z-index: 2;
             }
             .tm-gtab-scroll-btn:hover { background: ${C.rowHover}; color: ${C.text}; }
-            
-            @keyframes tm-gtab-btn-flash {
-                0%   { color: #fff;        background: ${C.badgeNew}55; transform: scale(1.18); }
-                40%  { color: ${C.badgeNew}; background: ${C.badgeNew}33; transform: scale(1.1); }
-                100% { color: ${C.sub};    background: transparent;     transform: scale(1); }
-            }
-            .tm-gtab-scroll-btn.tm-end-flash { animation: tm-gtab-btn-flash 0.65s cubic-bezier(.34,1.56,.64,1) forwards; }
             .tm-gtab-scroll-btn.visible { display: flex; }
             .tm-gtab-scroll-btn svg { width: 10px; height: 10px; pointer-events: none; }
             .tm-gtab-scroll-btn.left {
@@ -12643,6 +12688,10 @@
             }
             .tm-gtab-scroll-btn.right {
                 border-left: 1px solid ${C.border};
+            }
+            
+            #tm-group-tab-bar.tm-gtab-expanded .tm-gtab-scroll-btn.right {
+                height: 26px; transform: rotate(90deg);
             }
             
             .tm-gtab-dot {
@@ -14703,7 +14752,10 @@
                 if (m) { tweetId = m[1]; break; }
             }
 
-            const items = [];
+            const _quotedImgs = new Set(article.querySelectorAll('[data-testid="tweet"] img[src*="pbs.twimg.com/media"]'));
+            const _quotedVideos = new Set(article.querySelectorAll('[data-testid="tweet"] video[poster]'));
+            const ownItems = [];
+            const quotedItems = [];
             const seenUrls = new Set();
 
             article.querySelectorAll('img[src*="pbs.twimg.com/media"]').forEach(img => {
@@ -14719,7 +14771,7 @@
                 } catch(_) {}
                 if (seenUrls.has(full)) return;
                 seenUrls.add(full);
-                items.push({ type: 'image', thumb, url: full });
+                (_quotedImgs.has(img) ? quotedItems : ownItems).push({ type: 'image', thumb, url: full });
             });
 
             article.querySelectorAll('video[poster]').forEach(vid => {
@@ -14746,8 +14798,10 @@
                     }
                 }
 
-                items.push({ type: 'video', thumb: poster, url: mp4 });
+                (_quotedVideos.has(vid) ? quotedItems : ownItems).push({ type: 'video', thumb: poster, url: mp4 });
             });
+
+            const items = ownItems.length ? ownItems : quotedItems;
 
             if (!items.length) return;
 
@@ -16757,6 +16811,7 @@
         const _cloneSrc = Array.from(actions.children).reverse().find(_el => _el.hasAttribute('data-testid'))
             || Array.from(actions.children).reverse().find(_el => !_el.classList.contains(BUTTON_CLASS) && !_el.classList.contains('custom-copy-icon') && !_el.classList.contains('mtga-btn'))
             || actions.children[actions.children.length - 1];
+        if (!_cloneSrc) return;
 
         if (!document.getElementById('tm-icon-anim-style')) {
             const s = document.createElement('style');
