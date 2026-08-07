@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.0.4.0
+// @version      3.0.4.4
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -9300,6 +9300,13 @@
         }
         rebuildList();
 
+        const _closeModal = () => {
+            overlay.classList.remove('tm-show');
+            setTimeout(() => overlay.remove(), 220);
+            const existPanel = document.getElementById('tm-hist-panel');
+            if (existPanel) existPanel.dispatchEvent(new CustomEvent('tm-hist-refresh'));
+        };
+
         const doneBtn = document.createElement('button');
         doneBtn.type = 'button';
         doneBtn.style.cssText = `
@@ -9312,10 +9319,7 @@
         doneBtn.textContent = 'Done';
         doneBtn.addEventListener('mouseover', () => doneBtn.style.background = '#1a8cd8');
         doneBtn.addEventListener('mouseout',  () => doneBtn.style.background = '#1d9bf0');
-        doneBtn.addEventListener('click', () => {
-            overlay.classList.remove('tm-show');
-            setTimeout(() => overlay.remove(), 220);
-        });
+        doneBtn.addEventListener('click', _closeModal);
 
         box.appendChild(titleRow);
         box.appendChild(list);
@@ -9324,7 +9328,7 @@
         document.body.appendChild(overlay);
 
         overlay.addEventListener('click', e => {
-            if (e.target === overlay) { overlay.classList.remove('tm-show'); setTimeout(() => overlay.remove(), 220); }
+            if (e.target === overlay) _closeModal();
         });
 
         requestAnimationFrame(() => overlay.classList.add('tm-show'));
@@ -11219,7 +11223,70 @@
                 toggleExpandState();
             });
 
-            const makePill = (iconHtml, label, value) => {
+            const _commitReorder = () => {
+                const orderedIds = Array.from(scrollArea.querySelectorAll('.tm-gtab-pill[data-reorderable="1"]'))
+                    .map(p => p.dataset.groupId);
+                const currentGroups = isTextTab ? getTextGroups() : getGroups();
+                const byId = new Map(currentGroups.map(g => [g.id, g]));
+                const reordered = orderedIds.map(id => byId.get(id)).filter(Boolean);
+                if (reordered.length !== currentGroups.length) {
+                    const reorderedSet = new Set(reordered.map(g => g.id));
+                    currentGroups.forEach(g => { if (!reorderedSet.has(g.id)) reordered.push(g); });
+                }
+                if (isTextTab) saveTextGroups(reordered); else saveGroups(reordered);
+                buildGroupTabs();
+            };
+
+            const initDragHandle = (handle, pill) => {
+                handle.addEventListener('click', e => e.stopPropagation());
+                handle.addEventListener('pointerdown', (e) => {
+                    if (e.button !== 0) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const pointerId = e.pointerId;
+
+                    const rect = pill.getBoundingClientRect();
+                    const offsetX = e.clientX - rect.left;
+                    const offsetY = e.clientY - rect.top;
+                    const ghost = pill.cloneNode(true);
+                    ghost.classList.add('tm-gtab-ghost');
+                    ghost.style.width  = rect.width + 'px';
+                    ghost.style.height = rect.height + 'px';
+                    ghost.style.left   = rect.left + 'px';
+                    ghost.style.top    = rect.top + 'px';
+                    document.body.appendChild(ghost);
+                    document.body.classList.add('tm-gtab-drag-active');
+
+                    pill.classList.add('tm-gtab-dragging');
+
+                    const onMove = (ev) => {
+                        if (ev.pointerId !== pointerId) return;
+                        ghost.style.left = (ev.clientX - offsetX) + 'px';
+                        ghost.style.top  = (ev.clientY - offsetY) + 'px';
+                        const el = document.elementFromPoint(ev.clientX, ev.clientY);
+                        const targetPill = el?.closest('.tm-gtab-pill[data-reorderable="1"]');
+                        if (targetPill && targetPill !== pill) {
+                            const trect = targetPill.getBoundingClientRect();
+                            const before = ev.clientX < trect.left + trect.width / 2;
+                            targetPill.parentNode.insertBefore(pill, before ? targetPill : targetPill.nextSibling);
+                        }
+                    };
+                    const onUp = (ev) => {
+                        if (ev.pointerId !== pointerId) return;
+                        document.removeEventListener('pointermove', onMove);
+                        document.removeEventListener('pointerup', onUp);
+                        document.removeEventListener('pointercancel', onUp);
+                        ghost.remove();
+                        document.body.classList.remove('tm-gtab-drag-active');
+                        _commitReorder();
+                    };
+                    document.addEventListener('pointermove', onMove);
+                    document.addEventListener('pointerup', onUp);
+                    document.addEventListener('pointercancel', onUp);
+                });
+            };
+
+            const makePill = (iconHtml, label, value, reorderable = false) => {
                 const pill = document.createElement('button');
                 pill.type = 'button';
                 const isActive =
@@ -11227,6 +11294,16 @@
                     (value === '__ungrouped__' && activeGroupId === '__ungrouped__') ||
                     (value !== '__all__' && value !== '__ungrouped__' && activeGroupId === value);
                 pill.className = 'tm-gtab-pill' + (isActive ? ' active' : '');
+                if (reorderable) {
+                    pill.dataset.groupId = value;
+                    pill.setAttribute('data-reorderable', '1');
+                    const handle = document.createElement('span');
+                    handle.className = 'tm-gtab-drag-handle';
+                    handle.innerHTML = SVG_GRIP;
+                    handle.title = 'Drag to reorder';
+                    pill.appendChild(handle);
+                    initDragHandle(handle, pill);
+                }
                 const iconSpan = document.createElement('span');
                 iconSpan.innerHTML = iconHtml;
                 iconSpan.style.cssText = 'display:inline-flex;align-items:center;flex-shrink:0';
@@ -11328,6 +11405,8 @@
                 return pill;
             };
 
+            const SVG_GRIP = `<svg viewBox="0 0 10 16" width="8" height="12" fill="currentColor"><circle cx="2" cy="2" r="1.3"/><circle cx="8" cy="2" r="1.3"/><circle cx="2" cy="8" r="1.3"/><circle cx="8" cy="8" r="1.3"/><circle cx="2" cy="14" r="1.3"/><circle cx="8" cy="14" r="1.3"/></svg>`;
+
             const SVG_ALL = `<svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="8" y="1" width="5" height="5" rx="1"/><rect x="1" y="8" width="5" height="5" rx="1"/><rect x="8" y="8" width="5" height="5" rx="1"/></svg>`;
             scrollArea.appendChild(makePill(SVG_ALL, 'All', '__all__'));
 
@@ -11337,7 +11416,7 @@
             groups.forEach(g => {
                 const ic = _resolveGroupIcon(g.icon);
                 const iconHtml = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">${ic.svg.match(/<svg[^>]*>([\s\S]*?)<\/svg>/)?.[1] || ''}</svg>`;
-                scrollArea.appendChild(makePill(iconHtml, g.name, g.id));
+                scrollArea.appendChild(makePill(iconHtml, g.name, g.id, true));
             });
 
             const SVG_DASH = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="2" y1="6" x2="10" y2="6"/></svg>`;
@@ -12655,7 +12734,7 @@
                 cursor: pointer; flex-shrink: 0;
                 background: transparent;
                 font-family: inherit; line-height: 1.4;
-                transition: background .12s, border-color .12s, color .12s;
+                transition: background .12s, border-color .12s, color .12s, opacity .12s;
             }
             .tm-gtab-pill:hover {
                 background: ${C.rowHover};
@@ -12692,6 +12771,35 @@
             
             #tm-group-tab-bar.tm-gtab-expanded .tm-gtab-scroll-btn.right {
                 height: 26px; transform: rotate(90deg);
+            }
+            
+            .tm-gtab-drag-handle {
+                display: none;
+                align-items: center; justify-content: center;
+                width: 14px; flex-shrink: 0;
+                cursor: grab; touch-action: none;
+                color: ${C.sub}; opacity: .55;
+            }
+            .tm-gtab-drag-handle:hover { opacity: 1; }
+            #tm-group-tab-scroll.tm-gtab-expanded .tm-gtab-drag-handle { display: inline-flex; }
+            
+            .tm-gtab-pill.tm-gtab-dragging {
+                opacity: .35;
+                user-select: none;
+            }
+            
+            .tm-gtab-ghost {
+                position: fixed;
+                pointer-events: none;
+                z-index: 999999;
+                opacity: 1;
+                transform: scale(1.06);
+                box-shadow: 0 6px 18px rgba(0,0,0,.5);
+                transition: none;
+            }
+            
+            body.tm-gtab-drag-active, body.tm-gtab-drag-active * {
+                cursor: grabbing !important;
             }
             
             .tm-gtab-dot {
