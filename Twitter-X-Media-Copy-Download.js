@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.0.4.4
+// @version      3.0.4.6
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -7860,7 +7860,7 @@
                 showToast('🔑 Custom Bearer Token cleared.');
             };
             bearerRow.append(bearerTitleRow, bearerPopover, bearerTa);
-            grpAdv.append(bearerRow);
+            if (_isTwitterDomain) grpAdv.append(bearerRow);
 
             grpAdv.append(makeSliderRow(
                 `🔗🎞️ ${T.sp_scan_interval || 'Scan Interval'}`, parseInt(GM_getValue(KEY_SCAN_INTERVAL, '1500'), 10) || 1500,
@@ -10711,7 +10711,7 @@
     function _createTextRenderer(deps) {
         const {
             dark, C, selectedIds, body, render,
-            _textPinnedAuthors, _savePinnedAuthors, _textAuthorCollapsed,
+            _textPinnedAuthors, _savePinnedAuthors, _textAuthorCollapsed, _textAuthorAutoCollapsedApplied,
             getEditMode, getRenderEmpty, getToggleTextRowSel, getDeleteOne,
             getScrollTarget, setScrollTarget, setViewMode,
         } = deps;
@@ -10860,7 +10860,15 @@
             const textColor = _getTextBmContentColor();
             let globalItemIdx = 0;
 
+            const _TEXT_AUTOCOLLAPSE_THRESHOLD = 30;
+
             authors.forEach(({ screenName, displayName, avatarUrl, recs }) => {
+                if (!_textAuthorAutoCollapsedApplied.has(screenName)) {
+                    _textAuthorAutoCollapsedApplied.add(screenName);
+                    if (recs.length > _TEXT_AUTOCOLLAPSE_THRESHOLD) {
+                        _textAuthorCollapsed.add(screenName);
+                    }
+                }
                 const isCollapsed = _textAuthorCollapsed.has(screenName);
 
                 const header = document.createElement('div');
@@ -11844,6 +11852,7 @@
         let _navRecords        = [];
         let _crossKeyHandlerRef = null;
         const _textAuthorCollapsed = new Set();
+        const _textAuthorAutoCollapsedApplied = new Set();
         let _textAuthorScrollTarget = null;
         const _loadTbmCfg = () => { try { return JSON.parse(GM_getValue(KEY_TEXT_BM_CFG, '{}')); } catch(_) { return {}; } };
         const _textPinnedAuthors = new Set((_loadTbmCfg().pinnedAuthors) || []);
@@ -13261,7 +13270,7 @@
 
         const textRenderer = _createTextRenderer({
             dark, C, selectedIds, body, render,
-            _textPinnedAuthors, _savePinnedAuthors, _textAuthorCollapsed,
+            _textPinnedAuthors, _savePinnedAuthors, _textAuthorCollapsed, _textAuthorAutoCollapsedApplied,
             getEditMode: () => editMode,
             getRenderEmpty: () => _renderEmpty,
             getToggleTextRowSel: () => _toggleTextRowSel,
@@ -16028,6 +16037,8 @@
     async function fetchTweetMediaFromAPI(statusId) {
         const _cacheHit = _apiVideoCache.get(statusId);
         if (_cacheHit && (Date.now() - _cacheHit.ts < _API_CACHE_TTL)) return { videos: _cacheHit.urls, images: [] };
+
+        if (!_isTwitterDomain) return null;
 
         if (_circuitIsOpen()) return null;
 
