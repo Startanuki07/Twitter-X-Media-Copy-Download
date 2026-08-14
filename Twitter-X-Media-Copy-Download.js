@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.0.4.6
+// @version      3.0.4.7
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -70,6 +70,10 @@
     let _syncCh = null;
     let _startScanInterval = null;
     let scanAndInsert = null;
+    let _gridBtnFeedback = null;
+    let insertGridMediaButtons = null;
+    let _processAvatarBatch = null;
+    let insertAvatarMediaButtons = null;
     let _tfRegistry = null;
     const _GROUP_LIST_TRIGGER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="6" r="1.4" fill="currentColor" stroke="none"/><line x1="9" y1="6" x2="21" y2="6"/><circle cx="4" cy="12" r="1.4" fill="currentColor" stroke="none"/><line x1="9" y1="12" x2="21" y2="12"/><circle cx="4" cy="18" r="1.4" fill="currentColor" stroke="none"/><line x1="9" y1="18" x2="21" y2="18"/></svg>';
     const StarPipState = {
@@ -17209,7 +17213,7 @@
     const SVG_GRID_DL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
     const SVG_GRID_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,12 9,17 20,6"/></svg>`;
 
-    function _gridBtnFeedback(btn, originalSvg) {
+    _gridBtnFeedback = function (btn, originalSvg) {
         btn.innerHTML = SVG_GRID_CHECK;
         btn.classList.add('tm-grid-btn-ok');
         setTimeout(() => {
@@ -17218,7 +17222,7 @@
         }, 700);
     }
 
-    function insertGridMediaButtons() {
+    insertGridMediaButtons = function () {
         if (!GM_getValue(KEY_GRID_MEDIA_BTN, true)) return;
 
         document.querySelectorAll('li[id^="verticalGridItem-"]').forEach(li => {
@@ -17371,7 +17375,7 @@
     let _avatarBatchQueue = [];
     let _avatarBatchRunning = false;
     const _avatarBatchQueued = new WeakSet();
-    function _processAvatarBatch() {
+    _processAvatarBatch = function () {
         let n = 0;
         while (n < AVATAR_BATCH_SIZE && _avatarBatchQueue.length > 0) {
             const avatarWrap = _avatarBatchQueue.shift();
@@ -17417,7 +17421,7 @@
         }
     }
 
-    function insertAvatarMediaButtons(enabled) {
+    insertAvatarMediaButtons = function (enabled) {
         if (!enabled) return;
 
         document.querySelectorAll('article [data-testid="Tweet-User-Avatar"]').forEach(avatarWrap => {
