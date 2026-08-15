@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.0.4.7
+// @version      3.0.5.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -28,15 +28,15 @@
 // @connect      x.com
 // @connect      twimg.com
 // @run-at       document-idle
-// @description      One-click media copy & download on every tweet, with download history.
-// @description:zh-TW 在每則推文一鍵複製連結與下載媒體，附下載紀錄。
-// @description:zh-CN 在每条推文一键复制链接与下载媒体，附下载记录。
-// @description:ja    ツイートごとにURLコピーとメディアダウンロードをワンクリックで。ダウンロード履歴付き。
-// @description:ko    모든 트윗에서 원클릭으로 URL 복사 및 미디어 다운로드. 다운로드 기록 포함.
-// @description:es    Copia enlaces y descarga medios en un clic por tweet, con historial de descargas.
-// @description:pt-BR Copie links e baixe mídias com um clique em cada tweet, com histórico de downloads.
-// @description:fr    Copiez des liens et téléchargez des médias en un clic par tweet, avec historique.
-// @description:ru    Копирование ссылок и скачивание медиа в один клик на каждом твите. С историей загрузок.
+// @description      Adds one-click copy & download buttons to tweet media and links. Provides a download history panel with text bookmarks, custom groups, drag-to-reorder, cross-item lightbox navigation, custom filename templates, avatar /media shortcuts, and dark/light/custom theme options. Additional advanced options are available in the settings panel.
+// @description:zh-TW 為推文的媒體與連結新增一鍵複製分享連結與下載媒體按鈕。提供下載歷史面板，包含文字書籤、自訂群組、拖曳排序、跨項目燈箱瀏覽、自訂檔名樣板、頭像 /media 捷徑，以及深色／淺色／自訂主題選項。部分進階功能未列出，可於設定面板開啟使用。
+// @description:zh-CN 为推文的媒体与链接新增一键复制分享链接与下载媒体按钮。提供下载历史面板，包含文字书签、自定义分组、拖拽排序、跨项目灯箱浏览、自定义文件名模板、头像 /media 快捷入口，以及深色／浅色／自定义主题选项。部分进阶功能未列出，可于设置面板开启使用。
+// @description:ja    ツイートのメディアとリンクにワンクリックでコピー＆ダウンロードボタンを追加。テキストブックマーク、カスタムグループ、ドラッグ&ドロップでの並べ替え、複数アイテムのライトボックス表示、カスタムファイル名テンプレート、アバターの /media ショートカット、ダーク／ライト／カスタムテーマなどを備えたダウンロード履歴パネルを提供。詳細設定は設定パネルから利用可能。
+// @description:ko    트윗의 미디어와 링크에 원클릭 복사 및 다운로드 버튼을 추가합니다. 텍스트 북마크, 사용자 지정 그룹, 드래그 앤 드롭 정렬, 다중 항목 라이트박스 탐색, 사용자 지정 파일명 템플릿, 아바타 /media 바로가기, 다크/라이트/사용자 지정 테마를 포함한 다운로드 기록 패널을 제공합니다. 추가 고급 옵션은 설정 패널에서 이용할 수 있습니다.
+// @description:es    Añade botones de copia y descarga con un clic para medios y enlaces de tweets. Incluye un panel de historial de descargas con marcadores de texto, grupos personalizados, reordenación por arrastre, navegación en lightbox entre elementos, plantillas de nombre de archivo personalizadas, accesos directos a /media desde el avatar y opciones de tema oscuro/claro/personalizado. Hay opciones avanzadas adicionales disponibles en el panel de configuración.
+// @description:pt-BR Adiciona botões de copiar e baixar com um clique para mídias e links de tweets. Inclui um painel de histórico de downloads com marcadores de texto, grupos personalizados, reordenação por arrastar, navegação em lightbox entre itens, modelos de nome de arquivo personalizados, atalhos de avatar para /media e opções de tema escuro/claro/personalizado. Opções avançadas adicionais estão disponíveis no painel de configurações.
+// @description:fr    Ajoute des boutons de copie et de téléchargement en un clic pour les médias et liens des tweets. Propose un panneau d'historique des téléchargements avec signets texte, groupes personnalisés, réorganisation par glisser-déposer, navigation en visionneuse entre éléments, modèles de nom de fichier personnalisés, raccourcis /media depuis l'avatar, et options de thème sombre/clair/personnalisé. Des options avancées supplémentaires sont disponibles dans le panneau de paramètres.
+// @description:ru    Добавляет кнопки копирования и скачивания в один клик для медиа и ссылок твитов. Панель истории с текстовыми закладками, группами, сортировкой перетаскиванием, лайтбоксом между элементами, именами файлов по шаблону, ярлыками /media из аватара, тёмной/светлой/пользовательской темой. Больше опций в настройках.
 // ==/UserScript==
 
 (function () {
