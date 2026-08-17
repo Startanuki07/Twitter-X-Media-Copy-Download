@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.0.5.0
+// @version      3.1.0.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -27,17 +27,60 @@
 // @connect      twitter.com
 // @connect      x.com
 // @connect      twimg.com
-// @run-at       document-idle
-// @description      Adds one-click copy & download buttons to tweet media and links. Provides a download history panel with text bookmarks, custom groups, drag-to-reorder, cross-item lightbox navigation, custom filename templates, avatar /media shortcuts, and dark/light/custom theme options. Additional advanced options are available in the settings panel.
-// @description:zh-TW 為推文的媒體與連結新增一鍵複製分享連結與下載媒體按鈕。提供下載歷史面板，包含文字書籤、自訂群組、拖曳排序、跨項目燈箱瀏覽、自訂檔名樣板、頭像 /media 捷徑，以及深色／淺色／自訂主題選項。部分進階功能未列出，可於設定面板開啟使用。
-// @description:zh-CN 为推文的媒体与链接新增一键复制分享链接与下载媒体按钮。提供下载历史面板，包含文字书签、自定义分组、拖拽排序、跨项目灯箱浏览、自定义文件名模板、头像 /media 快捷入口，以及深色／浅色／自定义主题选项。部分进阶功能未列出，可于设置面板开启使用。
-// @description:ja    ツイートのメディアとリンクにワンクリックでコピー＆ダウンロードボタンを追加。テキストブックマーク、カスタムグループ、ドラッグ&ドロップでの並べ替え、複数アイテムのライトボックス表示、カスタムファイル名テンプレート、アバターの /media ショートカット、ダーク／ライト／カスタムテーマなどを備えたダウンロード履歴パネルを提供。詳細設定は設定パネルから利用可能。
-// @description:ko    트윗의 미디어와 링크에 원클릭 복사 및 다운로드 버튼을 추가합니다. 텍스트 북마크, 사용자 지정 그룹, 드래그 앤 드롭 정렬, 다중 항목 라이트박스 탐색, 사용자 지정 파일명 템플릿, 아바타 /media 바로가기, 다크/라이트/사용자 지정 테마를 포함한 다운로드 기록 패널을 제공합니다. 추가 고급 옵션은 설정 패널에서 이용할 수 있습니다.
-// @description:es    Añade botones de copia y descarga con un clic para medios y enlaces de tweets. Incluye un panel de historial de descargas con marcadores de texto, grupos personalizados, reordenación por arrastre, navegación en lightbox entre elementos, plantillas de nombre de archivo personalizadas, accesos directos a /media desde el avatar y opciones de tema oscuro/claro/personalizado. Hay opciones avanzadas adicionales disponibles en el panel de configuración.
-// @description:pt-BR Adiciona botões de copiar e baixar com um clique para mídias e links de tweets. Inclui um painel de histórico de downloads com marcadores de texto, grupos personalizados, reordenação por arrastar, navegação em lightbox entre itens, modelos de nome de arquivo personalizados, atalhos de avatar para /media e opções de tema escuro/claro/personalizado. Opções avançadas adicionais estão disponíveis no painel de configurações.
-// @description:fr    Ajoute des boutons de copie et de téléchargement en un clic pour les médias et liens des tweets. Propose un panneau d'historique des téléchargements avec signets texte, groupes personnalisés, réorganisation par glisser-déposer, navigation en visionneuse entre éléments, modèles de nom de fichier personnalisés, raccourcis /media depuis l'avatar, et options de thème sombre/clair/personnalisé. Des options avancées supplémentaires sont disponibles dans le panneau de paramètres.
-// @description:ru    Добавляет кнопки копирования и скачивания в один клик для медиа и ссылок твитов. Панель истории с текстовыми закладками, группами, сортировкой перетаскиванием, лайтбоксом между элементами, именами файлов по шаблону, ярлыками /media из аватара, тёмной/светлой/пользовательской темой. Больше опций в настройках.
+// @run-at       document-start
+// @description      Adds one-click copy/download buttons for tweet media & links, and can restore legacy media grid. Includes a download history panel with text bookmarks, custom groups, drag-to-reorder, cross-item lightbox, custom filename templates, avatar /media shortcuts, and dark/light/custom themes. More options in settings.
+// @description:zh-TW 為推文的媒體與連結新增一鍵複製分享連結與下載媒體按鈕，並可還原個人頁面的舊版媒體網格版面。提供下載歷史面板，包含文字書籤、自訂群組、拖曳排序、跨項目燈箱瀏覽、自訂檔名樣板、頭像 /media 捷徑，以及深色／淺色／自訂主題選項。部分進階功能未列出，可於設定面板開啟使用。
+// @description:zh-CN 为推文的媒体与链接新增一键复制分享链接与下载媒体按钮，并可还原个人页面的旧版媒体网格版面。提供下载历史面板，包含文字书签、自定义分组、拖拽排序、跨项目灯箱浏览、自定义文件名模板、头像 /media 快捷入口，以及深色／浅色／自定义主题选项。部分进阶功能未列出，可于设置面板开启使用。
+// @description:ja    ツイートのメディアとリンクにワンクリックでコピー＆ダウンロードボタンを追加し、プロフィールページの旧メディアグリッドレイアウトも復元可能。テキストブックマーク、カスタムグループ、ドラッグ&ドロップでの並べ替え、複数アイテムのライトボックス表示、カスタムファイル名テンプレート、アバターの /media ショートカット、ダーク／ライト／カスタムテーマなどを備えたダウンロード履歴パネルを提供。詳細設定は設定パネルから利用可能。
+// @description:ko    트윗의 미디어와 링크에 원클릭 복사 및 다운로드 버튼을 추가하고, 프로필 페이지의 레거시 미디어 그리드 레이아웃도 복원할 수 있습니다. 텍스트 북마크, 사용자 지정 그룹, 드래그 앤 드롭 정렬, 다중 항목 라이트박스 탐색, 사용자 지정 파일명 템플릿, 아바타 /media 바로가기, 다크/라이트/사용자 지정 테마를 포함한 다운로드 기록 패널을 제공합니다. 추가 고급 옵션은 설정 패널에서 이용할 수 있습니다.
+// @description:es    Añade botones de copia y descarga con un clic para medios y enlaces de tweets, y puede restaurar el diseño clásico de la cuadrícula de medios del perfil. Incluye un panel de historial de descargas con marcadores de texto, grupos personalizados, reordenación por arrastre, navegación en lightbox entre elementos, plantillas de nombre de archivo personalizadas, accesos directos a /media desde el avatar y opciones de tema oscuro/claro/personalizado. Hay opciones avanzadas adicionales disponibles en el panel de configuración.
+// @description:pt-BR Adiciona botões de copiar e baixar com um clique para mídias e links de tweets, e pode restaurar o layout clássico da grade de mídia do perfil. Inclui um painel de histórico de downloads com marcadores de texto, grupos personalizados, reordenação por arrastar, navegação em lightbox entre itens, modelos de nome de arquivo personalizados, atalhos de avatar para /media e opções de tema escuro/claro/personalizado. Opções avançadas adicionais estão disponíveis no painel de configurações.
+// @description:fr    Ajoute des boutons de copie et de téléchargement en un clic pour les médias et liens des tweets, et peut restaurer l'ancienne mise en page de la grille de médias du profil. Propose un panneau d'historique des téléchargements avec signets texte, groupes personnalisés, réorganisation par glisser-déposer, navigation en visionneuse entre éléments, modèles de nom de fichier personnalisés, raccourcis /media depuis l'avatar, et options de thème sombre/clair/personnalisé. Des options avancées supplémentaires sont disponibles dans le panneau de paramètres.
+// @description:ru    Добавляет кнопки копирования и скачивания в один клик для медиа и ссылок твитов, а также может восстановить старую сетку медиа в профиле. Панель истории с текстовыми закладками, группами, сортировкой перетаскиванием, лайтбоксом между элементами, именами файлов по шаблону, ярлыками /media из аватара, тёмной/светлой/пользовательской темой. Больше опций в настройках.
 // ==/UserScript==
+
+(() => {
+    "use strict";
+    try {
+        if (typeof GM_getValue !== "function") return;
+        if (!GM_getValue('app_legacy_media_grid', false)) return;
+
+        const PROFILE_REDESIGN_FLAG = "responsive_web_profile_redesign_enabled";
+        const MEDIA_CAROUSEL_FLAG   = "rweb_media_carousel_enabled";
+
+        function _turnOffGridFlags(config) {
+            if (!config) return;
+            [PROFILE_REDESIGN_FLAG, MEDIA_CAROUSEL_FLAG].forEach((name) => {
+                const flag = config[name];
+                if (flag && typeof flag === "object") flag.value = false;
+            });
+        }
+
+        function disableMediaRedesign(state) {
+            const fs = state && state.featureSwitch;
+            if (!fs) return state;
+            _turnOffGridFlags(fs.defaultConfig);
+            _turnOffGridFlags(fs.user && fs.user.config);
+            return state;
+        }
+
+        const _pageWindow = (typeof unsafeWindow !== 'undefined' && unsafeWindow) ? unsafeWindow : window;
+
+        const _stateDescriptor = Object.getOwnPropertyDescriptor(_pageWindow, '__INITIAL_STATE__');
+        let _gridState;
+        if (_stateDescriptor && 'value' in _stateDescriptor) {
+            _gridState = disableMediaRedesign(_stateDescriptor.value);
+        }
+
+        Object.defineProperty(_pageWindow, '__INITIAL_STATE__', {
+            configurable: true,
+            enumerable: true,
+            get() { return _gridState; },
+            set(value) { _gridState = disableMediaRedesign(value); }
+        });
+    } catch {
+    }
+})();
 
 (function () {
     'use strict';
@@ -298,6 +341,7 @@
 
     const KEY_TF_CSS_SIMPLIFY = 'app_tf_css_simplify';
     const KEY_TF_FEED_PRUNE   = 'app_tf_feed_prune';
+    const KEY_LEGACY_MEDIA_GRID = 'app_legacy_media_grid';
     const KEY_HISTORY_PREFIX    = 'app_history_m_';
     const KEY_HISTORY_INDEX     = 'app_history_index';
 
@@ -333,6 +377,7 @@
         'corner_buttons_modes',
         'sp_media_icon_style',
         'sp_link_icon_style',
+        'legacy_media_grid',
     ];
 
     const DOMAIN_LIST = [
@@ -523,6 +568,10 @@
             sp_restore_btn:         'Choose file…',
             sp_reset_defaults:      '🔄 Reset to defaults',
             sp_reset_confirm:       'Reset all settings to defaults?\n\nThis will clear: copy format, feedback style, dock style, trigger distances, group panel appearance, corner position, button visibility, and list/thumb view mode.\n\nDownload history and groups will NOT be affected.',
+            sp_legacy_grid_label:   '🖼 Legacy Media Grid',
+            sp_legacy_grid_desc:    'Restore the old profile media grid layout. Requires a page reload to apply.',
+            confirm_legacy_grid_reload: 'Legacy Media Grid {state}.\nReload page now to apply?',
+            toast_legacy_grid_pending: 'Change saved. Reload the page to apply.',
             sp_bearer_title:        '🔑 Custom Bearer Token',
             sp_bearer_detect:       'Auto-detect',
             sp_bearer_detecting:    'Detecting…',
@@ -743,6 +792,10 @@
             sp_restore_btn:         '選擇檔案…',
             sp_reset_defaults:      '🔄 重設為預設值',
             sp_reset_confirm:       '確定要將所有設定重設為預設值嗎？\n\n將清除：複製格式、提示風格、停靠樣式、觸發距離、群組面板外觀、按鈕位置與顯示開關、列表/縮圖檢視模式。\n\n下載履歷與群組不受影響。',
+            sp_legacy_grid_label:   '🖼 舊版媒體網格',
+            sp_legacy_grid_desc:    '還原個人頁面舊版媒體網格排版，切換後需重新整理頁面生效。',
+            confirm_legacy_grid_reload: '舊版媒體網格已{state}。\n立即重新載入頁面以套用？',
+            toast_legacy_grid_pending: '設定已儲存，重新整理頁面後生效。',
             sp_bearer_title:        '🔑 自訂 Bearer Token',
             sp_bearer_detect:       '自動偵測',
             sp_bearer_detecting:    '偵測中…',
@@ -4183,8 +4236,15 @@
         };
     })();
 
-    if (GM_getValue(KEY_TF_FEED_PRUNE, false))   _tf.feedPrune.enable();
-    if (GM_getValue(KEY_TF_CSS_SIMPLIFY, false)) _tf.cssSimplify.enable();
+    const _restoreTfState = () => {
+        if (GM_getValue(KEY_TF_FEED_PRUNE, false))   _tf.feedPrune.enable();
+        if (GM_getValue(KEY_TF_CSS_SIMPLIFY, false)) _tf.cssSimplify.enable();
+    };
+    if (document.head) {
+        _restoreTfState();
+    } else {
+        document.addEventListener('DOMContentLoaded', _restoreTfState, { once: true });
+    }
 
     _tfRegistry = _tf;
 
@@ -7587,6 +7647,7 @@
                 KEY_TF_CSS_SIMPLIFY, KEY_TF_FEED_PRUNE, KEY_GRID_MEDIA_BTN,
                 KEY_AVATAR_MEDIA_BTN, KEY_CUSTOM_FILENAME_ENABLED, KEY_CUSTOM_FILENAME_TEMPLATE,
                 KEY_GROUP_POPUP_STYLE, KEY_TEXT_BM_CFG,
+                KEY_LEGACY_MEDIA_GRID,
             ];
             function _exportSettings() {
                 const snap = {};
@@ -7987,6 +8048,63 @@
                 _tfItems.forEach(([label, desc, key, tfKey, featureId]) => {
                     tfGroupBody.appendChild(_makeTfToggleRow(label, desc, key, tfKey, featureId));
                 });
+
+                const _makeLegacyGridRow = () => {
+                    const row = document.createElement('div');
+                    row.className = 'tm-tf-row';
+
+                    const left = document.createElement('div');
+                    left.className = 'tm-tf-row-left';
+                    const nameEl = document.createElement('span');
+                    nameEl.className = 'tm-tf-row-name';
+                    nameEl.textContent = T.sp_legacy_grid_label || '🖼 Legacy Media Grid';
+                    const descEl = document.createElement('span');
+                    descEl.className = 'tm-tf-row-desc';
+                    descEl.textContent = T.sp_legacy_grid_desc || 'Restore the old profile media grid layout. Requires a page reload to apply.';
+                    left.appendChild(nameEl);
+                    left.appendChild(descEl);
+                    row.appendChild(left);
+
+                    if (isFeatureNew('legacy_media_grid')) {
+                        const badge = document.createElement('span');
+                        badge.className = 'tm-sp-new-badge';
+                        badge.textContent = 'NEW';
+                        row.appendChild(badge);
+                    }
+
+                    const right = document.createElement('div');
+                    right.className = 'tm-tf-row-right';
+                    const valEl = document.createElement('span');
+                    const updateVal = () => {
+                        const on = GM_getValue(KEY_LEGACY_MEDIA_GRID, false);
+                        valEl.className = on ? 'tm-tf-val-on' : 'tm-tf-val-off';
+                        valEl.textContent = on ? (T.status_on || 'On') : (T.status_off || 'Off');
+                    };
+                    updateVal();
+                    const arrow = document.createElement('span');
+                    arrow.className = 'tm-tf-arrow';
+                    arrow.textContent = '›';
+                    right.appendChild(valEl);
+                    right.appendChild(arrow);
+                    row.appendChild(right);
+
+                    row.addEventListener('click', () => {
+                        markFeatureSeen('legacy_media_grid');
+                        const next = !GM_getValue(KEY_LEGACY_MEDIA_GRID, false);
+                        GM_setValue(KEY_LEGACY_MEDIA_GRID, next);
+                        updateVal();
+                        const stateText = next ? (T.status_on || 'On') : (T.status_off || 'Off');
+                        const confirmMsg = (T.confirm_legacy_grid_reload || 'Legacy Media Grid {state}.\nReload page now to apply?')
+                            .replace('{state}', stateText);
+                        if (confirm(confirmMsg)) {
+                            location.reload();
+                        } else {
+                            showToast(T.toast_legacy_grid_pending || 'Change saved. Reload the page to apply.');
+                        }
+                    });
+                    return row;
+                };
+                tfGroupBody.appendChild(_makeLegacyGridRow());
             }
 
             const SVG_CHEVRONS_OUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8l5-5 5 5"/><path d="M7 16l5 5 5-5"/></svg>';
@@ -13993,7 +14111,10 @@
             filter: drop-shadow(0 0 4px rgba(29,155,240,0.4));
         }
     `;
-    document.head.appendChild(style);
+    const _appendHeadStyles = () => {
+        document.head.appendChild(style);
+        document.head.appendChild(_toastStyle);
+    };
 
     const _toastStyle = document.createElement('style');
     _toastStyle.textContent = `
@@ -14025,7 +14146,12 @@
         .tm-dl-ring.indeterminate .tm-fg {
             animation: tm-spin 0.85s linear infinite; }
     `;
-    document.head.appendChild(_toastStyle);
+
+    if (document.head) {
+        _appendHeadStyles();
+    } else {
+        document.addEventListener('DOMContentLoaded', _appendHeadStyles, { once: true });
+    }
 
     let _activeMenuCloseFn = null;
 
@@ -17205,7 +17331,12 @@
             .${GRID_BTN_CLASS}.tm-grid-btn-dl     { bottom: 6px; right: 6px; }
             .${GRID_BTN_CLASS} svg { width: 14px; height: 14px; pointer-events: none; }
         `;
-        document.head.appendChild(_gridStyle);
+        const _appendGridStyle = () => document.head.appendChild(_gridStyle);
+        if (document.head) {
+            _appendGridStyle();
+        } else {
+            document.addEventListener('DOMContentLoaded', _appendGridStyle, { once: true });
+        }
     }
 
     const SVG_GRID_COPY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
@@ -17366,7 +17497,12 @@
             [data-testid="Tweet-User-Avatar"]:hover .${AVATAR_BTN_CLASS} { opacity: 0.85; pointer-events: auto; }
             .${AVATAR_BTN_CLASS} svg { width: 11px; height: 11px; pointer-events: none; }
         `;
-        document.head.appendChild(_avatarStyle);
+        const _appendAvatarStyle = () => document.head.appendChild(_avatarStyle);
+        if (document.head) {
+            _appendAvatarStyle();
+        } else {
+            document.addEventListener('DOMContentLoaded', _appendAvatarStyle, { once: true });
+        }
     }
 
     const SVG_AVATAR_STACK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,2 2,7 12,12 22,7"/><polyline points="2,12 12,17 22,12"/><polyline points="2,17 12,22 22,17"/></svg>`;
@@ -17502,7 +17638,14 @@
         }
     });
 
-    observer.observe(document.body, { childList: true, subtree: true, attributes: false, characterData: false });
+    const _startObserving = () => {
+        observer.observe(document.body, { childList: true, subtree: true, attributes: false, characterData: false });
+    };
+    if (document.body) {
+        _startObserving();
+    } else {
+        document.addEventListener('DOMContentLoaded', _startObserving, { once: true });
+    }
 
     let _scanIntervalId = null;
     _startScanInterval = function () {
