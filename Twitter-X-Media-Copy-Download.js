@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.1.0.7
+// @version      3.1.1.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -28,15 +28,15 @@
 // @connect      x.com
 // @connect      twimg.com
 // @run-at       document-start
-// @description      Adds one-click copy & download buttons to tweet media and links. Provides a download history panel with text bookmarks, custom groups, drag-to-reorder, cross-item lightbox navigation, custom filename templates, avatar /media shortcuts, and dark/light/custom theme options. Additional advanced options are available in the settings panel.
-// @description:zh-TW 為推文的媒體與連結新增一鍵複製分享連結與下載媒體按鈕。提供下載歷史面板，包含文字書籤、自訂群組、拖曳排序、跨項目燈箱瀏覽、自訂檔名樣板、頭像 /media 捷徑，以及深色／淺色／自訂主題選項。部分進階功能未列出，可於設定面板開啟使用。
-// @description:zh-CN 为推文的媒体与链接新增一键复制分享链接与下载媒体按钮。提供下载历史面板，包含文字书签、自定义分组、拖拽排序、跨项目灯箱浏览、自定义文件名模板、头像 /media 快捷入口，以及深色／浅色／自定义主题选项。部分进阶功能未列出，可于设置面板开启使用。
-// @description:ja    ツイートのメディアとリンクにワンクリックでコピー＆ダウンロードボタンを追加。テキストブックマーク、カスタムグループ、ドラッグ&ドロップでの並べ替え、複数アイテムのライトボックス表示、カスタムファイル名テンプレート、アバターの /media ショートカット、ダーク／ライト／カスタムテーマなどを備えたダウンロード履歴パネルを提供。詳細設定は設定パネルから利用可能。
-// @description:ko    트윗의 미디어와 링크에 원클릭 복사 및 다운로드 버튼을 추가합니다. 텍스트 북마크, 사용자 지정 그룹, 드래그 앤 드롭 정렬, 다중 항목 라이트박스 탐색, 사용자 지정 파일명 템플릿, 아바타 /media 바로가기, 다크/라이트/사용자 지정 테마를 포함한 다운로드 기록 패널을 제공합니다. 추가 고급 옵션은 설정 패널에서 이용할 수 있습니다.
-// @description:es    Añade botones de copia y descarga con un clic para medios y enlaces de tweets. Incluye un panel de historial de descargas con marcadores de texto, grupos personalizados, reordenación por arrastre, navegación en lightbox entre elementos, plantillas de nombre de archivo personalizadas, accesos directos a /media desde el avatar y opciones de tema oscuro/claro/personalizado. Hay opciones avanzadas adicionales disponibles en el panel de configuración.
-// @description:pt-BR Adiciona botões de copiar e baixar com um clique para mídias e links de tweets. Inclui um painel de histórico de downloads com marcadores de texto, grupos personalizados, reordenação por arrastar, navegação em lightbox entre itens, modelos de nome de arquivo personalizados, atalhos de avatar para /media e opções de tema escuro/claro/personalizado. Opções avançadas adicionais estão disponíveis no painel de configurações.
-// @description:fr    Ajoute des boutons de copie et de téléchargement en un clic pour les médias et liens des tweets. Propose un panneau d'historique des téléchargements avec signets texte, groupes personnalisés, réorganisation par glisser-déposer, navigation en visionneuse entre éléments, modèles de nom de fichier personnalisés, raccourcis /media depuis l'avatar, et options de thème sombre/clair/personnalisé. Des options avancées supplémentaires sont disponibles dans le panneau de paramètres.
-// @description:ru    Добавляет кнопки копирования и скачивания в один клик для медиа и ссылок твитов. Панель истории с текстовыми закладками, группами, сортировкой перетаскиванием, лайтбоксом между элементами, именами файлов по шаблону, ярлыками /media из аватара, тёмной/светлой/пользовательской темой. Больше опций в настройках.
+// @description      Adds one-click copy/download buttons for tweet media & links, and can restore legacy media grid. Includes a download history panel with text bookmarks, custom groups, drag-to-reorder, cross-item lightbox, custom filename templates, avatar /media shortcuts, and dark/light/custom themes. More options in settings.
+// @description:zh-TW 為推文的媒體與連結新增一鍵複製分享連結與下載媒體按鈕，並可還原個人頁面的舊版媒體網格版面。提供下載歷史面板，包含文字書籤、自訂群組、拖曳排序、跨項目燈箱瀏覽、自訂檔名樣板、頭像 /media 捷徑，以及深色／淺色／自訂主題選項。部分進階功能未列出，可於設定面板開啟使用。
+// @description:zh-CN 为推文的媒体与链接新增一键复制分享链接与下载媒体按钮，并可还原个人页面的旧版媒体网格版面。提供下载历史面板，包含文字书签、自定义分组、拖拽排序、跨项目灯箱浏览、自定义文件名模板、头像 /media 快捷入口，以及深色／浅色／自定义主题选项。部分进阶功能未列出，可于设置面板开启使用。
+// @description:ja    ツイートのメディアとリンクにワンクリックでコピー＆ダウンロードボタンを追加し、プロフィールページの旧メディアグリッドレイアウトも復元可能。テキストブックマーク、カスタムグループ、ドラッグ&ドロップでの並べ替え、複数アイテムのライトボックス表示、カスタムファイル名テンプレート、アバターの /media ショートカット、ダーク／ライト／カスタムテーマなどを備えたダウンロード履歴パネルを提供。詳細設定は設定パネルから利用可能。
+// @description:ko    트윗의 미디어와 링크에 원클릭 복사 및 다운로드 버튼을 추가하고, 프로필 페이지의 레거시 미디어 그리드 레이아웃도 복원할 수 있습니다. 텍스트 북마크, 사용자 지정 그룹, 드래그 앤 드롭 정렬, 다중 항목 라이트박스 탐색, 사용자 지정 파일명 템플릿, 아바타 /media 바로가기, 다크/라이트/사용자 지정 테마를 포함한 다운로드 기록 패널을 제공합니다. 추가 고급 옵션은 설정 패널에서 이용할 수 있습니다.
+// @description:es    Añade botones de copia y descarga con un clic para medios y enlaces de tweets, y permite restaurar la cuadrícula de medios clásica del perfil. Incluye panel de historial con marcadores de texto, grupos personalizados, reordenación por arrastre, lightbox entre elementos, plantillas de nombre de archivo, accesos directos /media desde el avatar y temas oscuro/claro/personalizado.
+// @description:pt-BR Adiciona botões de copiar e baixar com um clique para mídias e links de tweets, e permite restaurar a grade de mídia clássica do perfil. Inclui painel de histórico com marcadores de texto, grupos personalizados, reordenação por arrastar, lightbox entre itens, modelos de nome de arquivo, atalhos /media pelo avatar e temas escuro/claro/personalizado.
+// @description:fr    Ajoute des boutons de copie et de téléchargement en un clic pour les médias et liens des tweets, et permet de restaurer l'ancienne grille de médias du profil. Inclut un panneau d'historique avec signets texte, groupes personnalisés, réorganisation par glisser-déposer, visionneuse entre éléments, modèles de nom de fichier, raccourcis /media depuis l'avatar et thèmes sombre/clair/personnalisé.
+// @description:ru    Добавляет кнопки копирования и скачивания в один клик для медиа и ссылок твитов, а также может восстановить старую сетку медиа в профиле. Панель истории с текстовыми закладками, группами, сортировкой перетаскиванием, лайтбоксом между элементами, именами файлов по шаблону, ярлыками /media из аватара, тёмной/светлой/пользовательской темой. Больше опций в настройках.
 // ==/UserScript==
 
 (() => {
@@ -408,11 +408,13 @@
             btn_tooltip_menu: 'Click: Open Action Menu\n(Copy / Copy with Prefix / Preview / Download All)',
             sp_grid_media_btn_label: 'Media Grid Buttons',
             sp_grid_media_btn_desc: 'Show copy/preview/download buttons on /media page thumbnails',
-            grid_btn_copy_tip: 'Copy tweet link',
+            grid_btn_copy_tip: 'Copy media link (long-press to copy with prefix, or menu if multiple)',
             grid_btn_preview_tip: 'Preview in lightbox',
-            grid_btn_download_tip: 'Download media',
+            grid_btn_download_tip: 'Download media (long-press for menu)',
             toast_grid_media_copied: 'Link copied!',
             toast_grid_media_saved: 'Media saved!',
+            grid_menu_item_image: 'Image {n}',
+            grid_menu_item_video: 'Video {n}',
             avatar_media_btn_tip: 'Go to /media page',
             sp_avatar_media_btn_label: 'Avatar Media Shortcut',
             sp_avatar_media_btn_desc: 'Show a subtle badge on timeline avatars to open that user\'s /media page',
@@ -649,11 +651,13 @@
             btn_tooltip_menu: '點擊：開啟操作選單\n（複製 / 帶前綴複製 / 預覽 / 全部下載）',
             sp_grid_media_btn_label: '媒體 Grid 按鈕',
             sp_grid_media_btn_desc: '在 /media 頁面縮圖顯示複製/預覽/下載按鈕',
-            grid_btn_copy_tip: '複製推文連結',
+            grid_btn_copy_tip: '複製媒體連結（長按複製前綴連結，多張則顯示選單）',
             grid_btn_preview_tip: '燈箱預覽',
-            grid_btn_download_tip: '下載媒體',
+            grid_btn_download_tip: '下載媒體（長按顯示選單）',
             toast_grid_media_copied: '連結已複製！',
             toast_grid_media_saved: '媒體已儲存！',
+            grid_menu_item_image: '圖片 {n}',
+            grid_menu_item_video: '影片 {n}',
             avatar_media_btn_tip: '前往 /media 頁面',
             sp_avatar_media_btn_label: '頭像媒體捷徑',
             sp_avatar_media_btn_desc: '在 timeline 頭像旁顯示低調徽章，點擊直達該使用者的 /media 頁面',
@@ -871,11 +875,13 @@
             btn_tooltip_menu: '点击：打开操作菜单\n（复制 / 带前缀复制 / 预览 / 全部下载）',
             sp_grid_media_btn_label: '媒体 Grid 按钮',
             sp_grid_media_btn_desc: '在 /media 页面缩图显示复制/预览/下载按钮',
-            grid_btn_copy_tip: '复制推文链接',
+            grid_btn_copy_tip: '复制媒体链接（长按复制前缀链接，多张则显示菜单）',
             grid_btn_preview_tip: '灯箱预览',
-            grid_btn_download_tip: '下载媒体',
+            grid_btn_download_tip: '下载媒体（长按显示菜单）',
             toast_grid_media_copied: '链接已复制！',
             toast_grid_media_saved: '媒体已保存！',
+            grid_menu_item_image: '图片 {n}',
+            grid_menu_item_video: '视频 {n}',
             avatar_media_btn_tip: '前往 /media 页面',
             sp_avatar_media_btn_label: '头像媒体快捷方式',
             sp_avatar_media_btn_desc: '在 timeline 头像旁显示低调徽章，点击直达该用户的 /media 页面',
@@ -1093,11 +1099,13 @@
             btn_tooltip_menu: 'クリック：アクションメニューを開く\n（コピー / プレフィックス付きコピー / プレビュー / 一括ダウンロード）',
             sp_grid_media_btn_label: 'メディア Grid ボタン',
             sp_grid_media_btn_desc: '/media ページのサムネイルにコピー/プレビュー/ダウンロードボタンを表示',
-            grid_btn_copy_tip: 'ツイートリンクをコピー',
+            grid_btn_copy_tip: 'メディアリンクをコピー（長押しでプレフィックス付きコピー、複数の場合はメニュー表示）',
             grid_btn_preview_tip: 'ライトボックスでプレビュー',
-            grid_btn_download_tip: 'メディアをダウンロード',
+            grid_btn_download_tip: 'メディアをダウンロード（長押しでメニュー表示）',
             toast_grid_media_copied: 'リンクをコピーしました！',
             toast_grid_media_saved: 'メディアを保存しました！',
+            grid_menu_item_image: '画像 {n}',
+            grid_menu_item_video: '動画 {n}',
             avatar_media_btn_tip: '/media ページへ移動',
             sp_avatar_media_btn_label: 'アバターメディアショートカット',
             sp_avatar_media_btn_desc: 'タイムラインのアバター横に控えめなバッジを表示し、そのユーザーの /media ページへ移動',
@@ -1315,11 +1323,13 @@
             btn_tooltip_menu: '클릭: 작업 메뉴 열기\n(복사 / 접두사 포함 복사 / 미리보기 / 전체 다운로드)',
             sp_grid_media_btn_label: '미디어 Grid 버튼',
             sp_grid_media_btn_desc: '/media 페이지 썸네일에 복사/미리보기/다운로드 버튼 표시',
-            grid_btn_copy_tip: '트윗 링크 복사',
+            grid_btn_copy_tip: '미디어 링크 복사 (길게 누르면 접두사 포함 복사, 여러 개면 메뉴 표시)',
             grid_btn_preview_tip: '라이트박스로 미리보기',
-            grid_btn_download_tip: '미디어 다운로드',
+            grid_btn_download_tip: '미디어 다운로드 (길게 누르면 메뉴 표시)',
             toast_grid_media_copied: '링크가 복사되었습니다!',
             toast_grid_media_saved: '미디어가 저장되었습니다!',
+            grid_menu_item_image: '이미지 {n}',
+            grid_menu_item_video: '동영상 {n}',
             avatar_media_btn_tip: '/media 페이지로 이동',
             sp_avatar_media_btn_label: '아바타 미디어 바로가기',
             sp_avatar_media_btn_desc: '타임라인 아바타 옆에 은은한 배지를 표시하여 해당 사용자의 /media 페이지로 이동',
@@ -1537,11 +1547,13 @@
             btn_tooltip_menu: 'Clic: Abrir menú de acciones\n(Copiar / Copiar con prefijo / Vista previa / Descargar todo)',
             sp_grid_media_btn_label: 'Botones de Grid de Medios',
             sp_grid_media_btn_desc: 'Mostrar botones de copiar/vista previa/descargar en miniaturas de /media',
-            grid_btn_copy_tip: 'Copiar enlace del tweet',
+            grid_btn_copy_tip: 'Copiar enlace del medio (mantén pulsado para copiar con prefijo, o el menú si hay varios)',
             grid_btn_preview_tip: 'Vista previa en galería',
-            grid_btn_download_tip: 'Descargar medio',
+            grid_btn_download_tip: 'Descargar medio (mantén pulsado para el menú)',
             toast_grid_media_copied: '¡Enlace copiado!',
             toast_grid_media_saved: '¡Medio guardado!',
+            grid_menu_item_image: 'Imagen {n}',
+            grid_menu_item_video: 'Video {n}',
             avatar_media_btn_tip: 'Ir a la página /media',
             sp_avatar_media_btn_label: 'Atajo de Medios del Avatar',
             sp_avatar_media_btn_desc: 'Mostrar una insignia sutil junto a los avatares para abrir la página /media de ese usuario',
@@ -1759,11 +1771,13 @@
             btn_tooltip_menu: 'Clique: Abrir menu de ações\n(Copiar / Copiar com prefixo / Visualizar / Baixar tudo)',
             sp_grid_media_btn_label: 'Botões de Grid de Mídia',
             sp_grid_media_btn_desc: 'Mostrar botões de copiar/visualizar/baixar nas miniaturas de /media',
-            grid_btn_copy_tip: 'Copiar link do tweet',
+            grid_btn_copy_tip: 'Copiar link da mídia (pressione e segure para copiar com prefixo, ou o menu se houver vários)',
             grid_btn_preview_tip: 'Visualizar na galeria',
-            grid_btn_download_tip: 'Baixar mídia',
+            grid_btn_download_tip: 'Baixar mídia (pressione e segure para o menu)',
             toast_grid_media_copied: 'Link copiado!',
             toast_grid_media_saved: 'Mídia salva!',
+            grid_menu_item_image: 'Imagem {n}',
+            grid_menu_item_video: 'Vídeo {n}',
             avatar_media_btn_tip: 'Ir para a página /media',
             sp_avatar_media_btn_label: 'Atalho de Mídia do Avatar',
             sp_avatar_media_btn_desc: 'Mostrar um selo discreto ao lado dos avatares para abrir a página /media desse usuário',
@@ -1981,11 +1995,13 @@
             btn_tooltip_menu: 'Clic : Ouvrir le menu d\u2019actions\n(Copier / Copier avec préfixe / Aperçu / Tout télécharger)',
             sp_grid_media_btn_label: 'Boutons Grid Média',
             sp_grid_media_btn_desc: 'Afficher les boutons copier/aperçu/télécharger sur les vignettes de /media',
-            grid_btn_copy_tip: 'Copier le lien du tweet',
-            grid_btn_preview_tip: 'Aperçu dans la galerie',
-            grid_btn_download_tip: 'Télécharger le média',
-            toast_grid_media_copied: 'Lien copié\u00a0!',
-            toast_grid_media_saved: 'Média enregistré\u00a0!',
+            grid_btn_copy_tip: 'Copier le lien du m\u00e9dia (appui long pour copier avec pr\u00e9fixe, ou le menu si plusieurs)',
+            grid_btn_preview_tip: 'Aper\u00e7u dans la galerie',
+            grid_btn_download_tip: 'T\u00e9l\u00e9charger le m\u00e9dia (appui long pour le menu)',
+            toast_grid_media_copied: 'Lien copi\u00e9\u00a0!',
+            toast_grid_media_saved: 'M\u00e9dia enregistr\u00e9\u00a0!',
+            grid_menu_item_image: 'Image {n}',
+            grid_menu_item_video: 'Vid\u00e9o {n}',
             avatar_media_btn_tip: 'Aller \u00e0 la page /media',
             sp_avatar_media_btn_label: 'Raccourci M\u00e9dia de l\u2019Avatar',
             sp_avatar_media_btn_desc: 'Afficher un badge discret pr\u00e8s des avatars pour ouvrir la page /media de cet utilisateur',
@@ -2203,11 +2219,13 @@
             btn_tooltip_menu: 'Клик: Открыть меню действий\n(Копировать / Копировать с префиксом / Просмотр / Скачать всё)',
             sp_grid_media_btn_label: 'Кнопки сетки медиа',
             sp_grid_media_btn_desc: 'Показывать кнопки копирования/просмотра/скачивания на миниатюрах /media',
-            grid_btn_copy_tip: 'Копировать ссылку на твит',
+            grid_btn_copy_tip: 'Копировать ссылку на медиа (долгое нажатие — копия с префиксом, или меню при нескольких)',
             grid_btn_preview_tip: 'Просмотр в галерее',
-            grid_btn_download_tip: 'Скачать медиа',
+            grid_btn_download_tip: 'Скачать медиа (долгое нажатие — меню)',
             toast_grid_media_copied: 'Ссылка скопирована!',
             toast_grid_media_saved: 'Медиа сохранено!',
+            grid_menu_item_image: 'Изображение {n}',
+            grid_menu_item_video: 'Видео {n}',
             avatar_media_btn_tip: 'Перейти на страницу /media',
             sp_avatar_media_btn_label: 'Ярлык медиа аватара',
             sp_avatar_media_btn_desc: 'Показывать скромный значок рядом с аватарами для перехода на страницу /media этого пользователя',
@@ -6515,6 +6533,22 @@
                 });
             })();
 
+            const scanIntervalOpts = [500, 1000, 1500, 2500, 5000].map(ms => ({
+                value: String(ms),
+                label: `${ms}ms`,
+            }));
+            const scanIntervalRow = makePickerRow(
+                `🔗🎞️ ${T.sp_scan_interval || 'Scan Interval'}`,
+                scanIntervalOpts,
+                String(parseInt(GM_getValue(KEY_SCAN_INTERVAL, '1500'), 10) || 1500),
+                (newVal) => {
+                    GM_setValue(KEY_SCAN_INTERVAL, newVal);
+                    if (_startScanInterval) _startScanInterval();
+                },
+                null, '1500'
+            );
+            grpMedia.append(scanIntervalRow);
+
             const linkIconOpts = [
                 { value: 'classic', label: T.sp_link_icon_classic || 'Classic',
                   svg: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12a4 4 0 0 0 5.66 0l2-2a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M12 8a4 4 0 0 0-5.66 0l-2 2a4 4 0 0 0 5.66 5.66l1-1"/></svg>` },
@@ -7676,6 +7710,9 @@
                 KEY_AVATAR_MEDIA_BTN, KEY_CUSTOM_FILENAME_ENABLED, KEY_CUSTOM_FILENAME_TEMPLATE,
                 KEY_GROUP_POPUP_STYLE, KEY_TEXT_BM_CFG,
                 KEY_LEGACY_MEDIA_GRID,
+                KEY_APP_THEME, KEY_APP_THEME_HISTORY, KEY_THEME_SYNC,
+                KEY_CUSTOM_THEME_ENABLED, KEY_CUSTOM_THEME_COLORS,
+                KEY_LINK_ICON_STYLE, KEY_MEDIA_ICON_STYLE, KEY_SP_GROUP_OPEN,
             ];
             function _exportSettings() {
                 const snap = {};
@@ -7991,16 +8028,6 @@
                 grpAdv.append(bearerGroupHeader);
                 grpAdv.append(bearerGroupBody);
             }
-
-            grpAdv.append(makeSliderRow(
-                `🔗🎞️ ${T.sp_scan_interval || 'Scan Interval'}`, parseInt(GM_getValue(KEY_SCAN_INTERVAL, '1500'), 10) || 1500,
-                500, 5000, 100, 'ms', null,
-                (n) => {
-                    GM_setValue(KEY_SCAN_INTERVAL, String(n));
-                    if (_startScanInterval) _startScanInterval();
-                },
-                null, 1500
-            ));
 
             if (_tfRegistry) {
                 const SVG_CHEVRON_TF = `<svg viewBox="0 0 10 10" width="9" height="9" fill="currentColor"><path d="M1 3l4 4 4-4z"/></svg>`;
@@ -14370,7 +14397,8 @@
             const _dividerCount  = items.length - _realItemCount;
             const mH = menu.offsetHeight || _realItemCount * 40 + _dividerCount * 9 + 16;
             const GAP = 6;
-            let left = r.left + r.width / 2 - mW / 2;
+            let left = r.right - mW;
+            if (left < 8) left = r.left;
             left = Math.max(8, Math.min(left, window.innerWidth - mW - 8));
             let top = r.top - mH - GAP;
             if (top < 8) top = r.bottom + GAP;
@@ -17391,9 +17419,10 @@
             }
             .${GRID_BTN_CLASS}:hover { background: rgba(29,155,240,0.85); transform: scale(1.08); }
             .${GRID_BTN_CLASS}.tm-grid-btn-ok { background: rgba(0,186,124,0.9) !important; }
-            .${GRID_BTN_CLASS}.tm-grid-btn-copy   { top: 6px;    left: 6px; }
-            .${GRID_BTN_CLASS}.tm-grid-btn-preview{ top: 6px;    right: 6px; }
-            .${GRID_BTN_CLASS}.tm-grid-btn-dl     { bottom: 6px; right: 6px; }
+            
+            .${GRID_BTN_CLASS}.tm-grid-btn-copy   { top: 6px;  right: 6px; }
+            .${GRID_BTN_CLASS}.tm-grid-btn-dl     { top: 36px; right: 6px; }
+            .${GRID_BTN_CLASS}.tm-grid-btn-preview{ top: 66px; right: 6px; }
             .${GRID_BTN_CLASS} svg { width: 14px; height: 14px; pointer-events: none; }
         `;
         const _appendGridStyle = () => document.head.appendChild(_gridStyle);
@@ -17443,34 +17472,90 @@
             const layer = document.createElement('div');
             layer.className = 'tm-grid-btn-layer';
 
+            const _gridMediaUrls = (apiData) => apiData.videos.length ? apiData.videos : apiData.images;
+
+            const _gridFilename = (apiData, url, idx) => {
+                let ext = '.jpg';
+                if (url.includes('.mp4')) ext = '.mp4';
+                else if (url.includes('format=png')) ext = '.png';
+                else { const parts = url.split('/').pop().split('?')[0].split('.'); if (parts.length > 1) ext = '.' + parts.pop(); }
+                const safeScreen = sanitizeForFilename(screenName);
+                const hasRichMeta = !!(apiData.date || apiData.displayName);
+                if (!hasRichMeta) return `[twitter] ${safeScreen}_${tweetId}_${idx}${ext}`;
+                const dateStr = apiData.date ? formatDate(apiData.date) : '';
+                const safeDisplay = apiData.displayName ? sanitizeForFilename(apiData.displayName) : safeScreen;
+                const textPart = apiData.text ? `_${sanitizeForFilename(apiData.text)}` : '';
+                const safeTextForToken = sanitizeForFilename(apiData.text || '', CUSTOM_FN_TEXT_MAXLEN);
+                return buildCustomFilename(
+                    { screenName: safeScreen, displayName: safeDisplay, date: dateStr, id: tweetId, index: idx, ext: ext.replace(/^\./, ''), text: safeTextForToken },
+                    () => `[twitter] ${safeDisplay}(@${safeScreen})_${dateStr}${textPart}_${tweetId}_${idx}${ext}`
+                );
+            };
+
+            const _gridDownloadOne = async (apiData, url, idx) => {
+                try { await forceDownloadBlob(url, _gridFilename(apiData, url, idx)); } catch (_) {}
+            };
+
+            const _buildGridCopyMenuItems = (apiData, urls, withPrefix) => urls.map((url, i) => ({
+                icon: SVG_GRID_COPY,
+                label: (url.includes('.mp4') ? (T.grid_menu_item_video || 'Video {n}') : (T.grid_menu_item_image || 'Image {n}')).replace('{n}', i + 1),
+                itemClass: 'tm-menu-item--copied',
+                action: () => {
+                    GM_setClipboard(withPrefix ? _buildPrefixedTweetUrl(url) : url);
+                    _gridBtnFeedback(copyBtn, SVG_GRID_COPY);
+                    showToast(withPrefix ? (T.msg_prefix_copied || 'Prefix Copied') : (T.toast_grid_media_copied || 'Link copied!'));
+                },
+            }));
+
             const copyBtn = document.createElement('button');
             copyBtn.type = 'button';
             copyBtn.className = `${GRID_BTN_CLASS} tm-grid-btn-copy`;
-            copyBtn.title = T.grid_btn_copy_tip || 'Copy tweet link';
+            copyBtn.title = T.grid_btn_copy_tip || 'Copy media link (long-press for menu)';
             copyBtn.innerHTML = SVG_GRID_COPY;
             let _copyLTimer = null;
-            const _gridTweetUrl = () => `https://${location.hostname}/${screenName}/status/${tweetId}`;
+            let _copyPressing = false;
             copyBtn.addEventListener('mousedown', (e) => {
                 if (e.button !== 0) return;
                 e.preventDefault(); e.stopPropagation();
-                _copyLTimer = setTimeout(() => {
+                _copyPressing = true;
+                _copyLTimer = setTimeout(async () => {
                     _copyLTimer = null;
-                    GM_setClipboard(_buildPrefixedTweetUrl(_gridTweetUrl()));
-                    _gridBtnFeedback(copyBtn, SVG_GRID_COPY);
-                    showToast(T.msg_prefix_copied || 'Prefix Copied');
+                    _copyPressing = false;
+                    const apiData = await fetchTweetMediaFromAPI(tweetId);
+                    if (!apiData) { showToast(T.msg_no_media || 'No media found'); return; }
+                    const urls = _gridMediaUrls(apiData);
+                    if (!urls.length) { showToast(T.msg_no_media || 'No media found'); return; }
+                    if (urls.length === 1) {
+                        GM_setClipboard(_buildPrefixedTweetUrl(urls[0]));
+                        _gridBtnFeedback(copyBtn, SVG_GRID_COPY);
+                        showToast(T.msg_prefix_copied || 'Prefix Copied');
+                    } else {
+                        _showActionMenu(copyBtn, _buildGridCopyMenuItems(apiData, urls, true));
+                    }
                 }, 500);
             });
-            copyBtn.addEventListener('mouseup', (e) => {
+            copyBtn.addEventListener('mouseup', async (e) => {
                 if (e.button !== 0) return;
                 if (_copyLTimer) {
                     clearTimeout(_copyLTimer);
                     _copyLTimer = null;
-                    GM_setClipboard(_convertTweetUrlDomain(_gridTweetUrl()));
-                    _gridBtnFeedback(copyBtn, SVG_GRID_COPY);
-                    showToast(T.toast_grid_media_copied || 'Link copied!');
+                    _copyPressing = false;
+                    const apiData = await fetchTweetMediaFromAPI(tweetId);
+                    if (!apiData) { showToast(T.msg_no_media || 'No media found'); return; }
+                    const urls = _gridMediaUrls(apiData);
+                    if (!urls.length) { showToast(T.msg_no_media || 'No media found'); return; }
+                    if (urls.length === 1) {
+                        GM_setClipboard(urls[0]);
+                        _gridBtnFeedback(copyBtn, SVG_GRID_COPY);
+                        showToast(T.toast_grid_media_copied || 'Link copied!');
+                    } else {
+                        GM_setClipboard(urls[0]);
+                        _gridBtnFeedback(copyBtn, SVG_GRID_COPY);
+                        showToast(T.toast_grid_media_copied || 'Link copied!');
+                    }
                 }
             });
-            copyBtn.addEventListener('mouseleave', () => { if (_copyLTimer) { clearTimeout(_copyLTimer); _copyLTimer = null; } });
+            copyBtn.addEventListener('mouseleave', () => { if (_copyLTimer && !_copyPressing) { clearTimeout(_copyLTimer); _copyLTimer = null; } });
             copyBtn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
 
             const previewBtn = document.createElement('button');
@@ -17497,43 +17582,89 @@
             const dlBtn = document.createElement('button');
             dlBtn.type = 'button';
             dlBtn.className = `${GRID_BTN_CLASS} tm-grid-btn-dl`;
-            dlBtn.title = T.grid_btn_download_tip || 'Download media';
+            dlBtn.title = T.grid_btn_download_tip || 'Download media (long-press for menu)';
             dlBtn.innerHTML = SVG_GRID_DL;
-            dlBtn.addEventListener('click', async (e) => {
+            let _dlLTimer = null;
+            let _dlPressing = false;
+            const _dlSpinnerSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" stroke-dasharray="42" stroke-dashoffset="14"/></svg>';
+            const _dlBuildMenuItems = (apiData, urls) => [
+                {
+                    icon: SVG_GRID_DL,
+                    label: T.cma_action_download_all || 'Download All',
+                    itemClass: 'tm-menu-item--downloaded',
+                    action: async () => {
+                        let idx = 1;
+                        for (const url of urls) { await _gridDownloadOne(apiData, url, idx); idx++; }
+                        _gridBtnFeedback(dlBtn, SVG_GRID_DL);
+                        showToast(T.toast_grid_media_saved || 'Media saved!');
+                    },
+                },
+                'divider',
+                ...urls.map((url, i) => ({
+                    icon: SVG_GRID_DL,
+                    label: (url.includes('.mp4') ? (T.grid_menu_item_video || 'Video {n}') : (T.grid_menu_item_image || 'Image {n}')).replace('{n}', i + 1),
+                    itemClass: 'tm-menu-item--downloaded',
+                    action: async () => {
+                        await _gridDownloadOne(apiData, url, i + 1);
+                        _gridBtnFeedback(dlBtn, SVG_GRID_DL);
+                        showToast(T.toast_grid_media_saved || 'Media saved!');
+                    },
+                })),
+            ];
+            dlBtn.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return;
                 e.preventDefault(); e.stopPropagation();
-                dlBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" stroke-dasharray="42" stroke-dashoffset="14"/></svg>';
-                const apiData = await fetchTweetMediaFromAPI(tweetId);
-                if (!apiData || (!apiData.videos.length && !apiData.images.length)) {
+                _dlPressing = true;
+                _dlLTimer = setTimeout(async () => {
+                    _dlLTimer = null;
+                    _dlPressing = false;
+                    dlBtn.innerHTML = _dlSpinnerSvg;
+                    const apiData = await fetchTweetMediaFromAPI(tweetId);
                     dlBtn.innerHTML = SVG_GRID_DL;
-                    showToast(T.msg_no_media || 'No media found');
-                    return;
-                }
-                const safeScreen = sanitizeForFilename(screenName);
-                const hasRichMeta = !!(apiData.date || apiData.displayName);
-                const dateStr = apiData.date ? formatDate(apiData.date) : '';
-                const safeDisplay = apiData.displayName ? sanitizeForFilename(apiData.displayName) : safeScreen;
-                const textPart = apiData.text ? `_${sanitizeForFilename(apiData.text)}` : '';
-                const safeTextForToken = sanitizeForFilename(apiData.text || '', CUSTOM_FN_TEXT_MAXLEN);
-                const urls = mediaType === 'video' && apiData.videos.length ? apiData.videos : apiData.images;
-                let idx = 1;
-                for (const url of urls) {
-                    let ext = '.jpg';
-                    if (url.includes('.mp4')) ext = '.mp4';
-                    else if (url.includes('format=png')) ext = '.png';
-                    else { const parts = url.split('/').pop().split('?')[0].split('.'); if (parts.length > 1) ext = '.' + parts.pop(); }
-                    const filename = hasRichMeta
-                        ? buildCustomFilename(
-                            { screenName: safeScreen, displayName: safeDisplay, date: dateStr, id: tweetId, index: idx, ext: ext.replace(/^\./, ''), text: safeTextForToken },
-                            () => `[twitter] ${safeDisplay}(@${safeScreen})_${dateStr}${textPart}_${tweetId}_${idx}${ext}`
-                          )
-                        : `[twitter] ${safeScreen}_${tweetId}_${idx}${ext}`;
-                    try { await forceDownloadBlob(url, filename); } catch (_) {}
-                    idx++;
-                }
-                dlBtn.innerHTML = SVG_GRID_DL;
-                _gridBtnFeedback(dlBtn, SVG_GRID_DL);
-                showToast(T.toast_grid_media_saved || 'Media saved!');
+                    if (!apiData || (!apiData.videos.length && !apiData.images.length)) {
+                        showToast(T.msg_no_media || 'No media found');
+                        return;
+                    }
+                    const urls = _gridMediaUrls(apiData);
+                    if (!urls.length) { showToast(T.msg_no_media || 'No media found'); return; }
+                    if (urls.length === 1) {
+                        await _gridDownloadOne(apiData, urls[0], 1);
+                        _gridBtnFeedback(dlBtn, SVG_GRID_DL);
+                        showToast(T.toast_grid_media_saved || 'Media saved!');
+                    } else {
+                        _showActionMenu(dlBtn, _dlBuildMenuItems(apiData, urls));
+                    }
+                }, 500);
             });
+            dlBtn.addEventListener('mouseup', async (e) => {
+                if (e.button !== 0) return;
+                if (_dlLTimer) {
+                    clearTimeout(_dlLTimer);
+                    _dlLTimer = null;
+                    _dlPressing = false;
+                    dlBtn.innerHTML = _dlSpinnerSvg;
+                    const apiData = await fetchTweetMediaFromAPI(tweetId);
+                    dlBtn.innerHTML = SVG_GRID_DL;
+                    if (!apiData || (!apiData.videos.length && !apiData.images.length)) {
+                        showToast(T.msg_no_media || 'No media found');
+                        return;
+                    }
+                    const urls = _gridMediaUrls(apiData);
+                    if (!urls.length) { showToast(T.msg_no_media || 'No media found'); return; }
+                    if (urls.length === 1) {
+                        await _gridDownloadOne(apiData, urls[0], 1);
+                        _gridBtnFeedback(dlBtn, SVG_GRID_DL);
+                        showToast(T.toast_grid_media_saved || 'Media saved!');
+                    } else {
+                        let idx = 1;
+                        for (const url of urls) { await _gridDownloadOne(apiData, url, idx); idx++; }
+                        _gridBtnFeedback(dlBtn, SVG_GRID_DL);
+                        showToast(T.toast_grid_media_saved || 'Media saved!');
+                    }
+                }
+            });
+            dlBtn.addEventListener('mouseleave', () => { if (_dlLTimer && !_dlPressing) { clearTimeout(_dlLTimer); _dlLTimer = null; } });
+            dlBtn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
 
             layer.append(copyBtn, previewBtn, dlBtn);
             posHost.appendChild(layer);
