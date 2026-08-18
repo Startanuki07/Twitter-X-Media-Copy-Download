@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.1.0.0
+// @version      3.1.0.7
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -28,15 +28,15 @@
 // @connect      x.com
 // @connect      twimg.com
 // @run-at       document-start
-// @description      Adds one-click copy/download buttons for tweet media & links, and can restore legacy media grid. Includes a download history panel with text bookmarks, custom groups, drag-to-reorder, cross-item lightbox, custom filename templates, avatar /media shortcuts, and dark/light/custom themes. More options in settings.
-// @description:zh-TW 為推文的媒體與連結新增一鍵複製分享連結與下載媒體按鈕，並可還原個人頁面的舊版媒體網格版面。提供下載歷史面板，包含文字書籤、自訂群組、拖曳排序、跨項目燈箱瀏覽、自訂檔名樣板、頭像 /media 捷徑，以及深色／淺色／自訂主題選項。部分進階功能未列出，可於設定面板開啟使用。
-// @description:zh-CN 为推文的媒体与链接新增一键复制分享链接与下载媒体按钮，并可还原个人页面的旧版媒体网格版面。提供下载历史面板，包含文字书签、自定义分组、拖拽排序、跨项目灯箱浏览、自定义文件名模板、头像 /media 快捷入口，以及深色／浅色／自定义主题选项。部分进阶功能未列出，可于设置面板开启使用。
-// @description:ja    ツイートのメディアとリンクにワンクリックでコピー＆ダウンロードボタンを追加し、プロフィールページの旧メディアグリッドレイアウトも復元可能。テキストブックマーク、カスタムグループ、ドラッグ&ドロップでの並べ替え、複数アイテムのライトボックス表示、カスタムファイル名テンプレート、アバターの /media ショートカット、ダーク／ライト／カスタムテーマなどを備えたダウンロード履歴パネルを提供。詳細設定は設定パネルから利用可能。
-// @description:ko    트윗의 미디어와 링크에 원클릭 복사 및 다운로드 버튼을 추가하고, 프로필 페이지의 레거시 미디어 그리드 레이아웃도 복원할 수 있습니다. 텍스트 북마크, 사용자 지정 그룹, 드래그 앤 드롭 정렬, 다중 항목 라이트박스 탐색, 사용자 지정 파일명 템플릿, 아바타 /media 바로가기, 다크/라이트/사용자 지정 테마를 포함한 다운로드 기록 패널을 제공합니다. 추가 고급 옵션은 설정 패널에서 이용할 수 있습니다.
-// @description:es    Añade botones de copia y descarga con un clic para medios y enlaces de tweets, y puede restaurar el diseño clásico de la cuadrícula de medios del perfil. Incluye un panel de historial de descargas con marcadores de texto, grupos personalizados, reordenación por arrastre, navegación en lightbox entre elementos, plantillas de nombre de archivo personalizadas, accesos directos a /media desde el avatar y opciones de tema oscuro/claro/personalizado. Hay opciones avanzadas adicionales disponibles en el panel de configuración.
-// @description:pt-BR Adiciona botões de copiar e baixar com um clique para mídias e links de tweets, e pode restaurar o layout clássico da grade de mídia do perfil. Inclui um painel de histórico de downloads com marcadores de texto, grupos personalizados, reordenação por arrastar, navegação em lightbox entre itens, modelos de nome de arquivo personalizados, atalhos de avatar para /media e opções de tema escuro/claro/personalizado. Opções avançadas adicionais estão disponíveis no painel de configurações.
-// @description:fr    Ajoute des boutons de copie et de téléchargement en un clic pour les médias et liens des tweets, et peut restaurer l'ancienne mise en page de la grille de médias du profil. Propose un panneau d'historique des téléchargements avec signets texte, groupes personnalisés, réorganisation par glisser-déposer, navigation en visionneuse entre éléments, modèles de nom de fichier personnalisés, raccourcis /media depuis l'avatar, et options de thème sombre/clair/personnalisé. Des options avancées supplémentaires sont disponibles dans le panneau de paramètres.
-// @description:ru    Добавляет кнопки копирования и скачивания в один клик для медиа и ссылок твитов, а также может восстановить старую сетку медиа в профиле. Панель истории с текстовыми закладками, группами, сортировкой перетаскиванием, лайтбоксом между элементами, именами файлов по шаблону, ярлыками /media из аватара, тёмной/светлой/пользовательской темой. Больше опций в настройках.
+// @description      Adds one-click copy & download buttons to tweet media and links. Provides a download history panel with text bookmarks, custom groups, drag-to-reorder, cross-item lightbox navigation, custom filename templates, avatar /media shortcuts, and dark/light/custom theme options. Additional advanced options are available in the settings panel.
+// @description:zh-TW 為推文的媒體與連結新增一鍵複製分享連結與下載媒體按鈕。提供下載歷史面板，包含文字書籤、自訂群組、拖曳排序、跨項目燈箱瀏覽、自訂檔名樣板、頭像 /media 捷徑，以及深色／淺色／自訂主題選項。部分進階功能未列出，可於設定面板開啟使用。
+// @description:zh-CN 为推文的媒体与链接新增一键复制分享链接与下载媒体按钮。提供下载历史面板，包含文字书签、自定义分组、拖拽排序、跨项目灯箱浏览、自定义文件名模板、头像 /media 快捷入口，以及深色／浅色／自定义主题选项。部分进阶功能未列出，可于设置面板开启使用。
+// @description:ja    ツイートのメディアとリンクにワンクリックでコピー＆ダウンロードボタンを追加。テキストブックマーク、カスタムグループ、ドラッグ&ドロップでの並べ替え、複数アイテムのライトボックス表示、カスタムファイル名テンプレート、アバターの /media ショートカット、ダーク／ライト／カスタムテーマなどを備えたダウンロード履歴パネルを提供。詳細設定は設定パネルから利用可能。
+// @description:ko    트윗의 미디어와 링크에 원클릭 복사 및 다운로드 버튼을 추가합니다. 텍스트 북마크, 사용자 지정 그룹, 드래그 앤 드롭 정렬, 다중 항목 라이트박스 탐색, 사용자 지정 파일명 템플릿, 아바타 /media 바로가기, 다크/라이트/사용자 지정 테마를 포함한 다운로드 기록 패널을 제공합니다. 추가 고급 옵션은 설정 패널에서 이용할 수 있습니다.
+// @description:es    Añade botones de copia y descarga con un clic para medios y enlaces de tweets. Incluye un panel de historial de descargas con marcadores de texto, grupos personalizados, reordenación por arrastre, navegación en lightbox entre elementos, plantillas de nombre de archivo personalizadas, accesos directos a /media desde el avatar y opciones de tema oscuro/claro/personalizado. Hay opciones avanzadas adicionales disponibles en el panel de configuración.
+// @description:pt-BR Adiciona botões de copiar e baixar com um clique para mídias e links de tweets. Inclui um painel de histórico de downloads com marcadores de texto, grupos personalizados, reordenação por arrastar, navegação em lightbox entre itens, modelos de nome de arquivo personalizados, atalhos de avatar para /media e opções de tema escuro/claro/personalizado. Opções avançadas adicionais estão disponíveis no painel de configurações.
+// @description:fr    Ajoute des boutons de copie et de téléchargement en un clic pour les médias et liens des tweets. Propose un panneau d'historique des téléchargements avec signets texte, groupes personnalisés, réorganisation par glisser-déposer, navigation en visionneuse entre éléments, modèles de nom de fichier personnalisés, raccourcis /media depuis l'avatar, et options de thème sombre/clair/personnalisé. Des options avancées supplémentaires sont disponibles dans le panneau de paramètres.
+// @description:ru    Добавляет кнопки копирования и скачивания в один клик для медиа и ссылок твитов. Панель истории с текстовыми закладками, группами, сортировкой перетаскиванием, лайтбоксом между элементами, именами файлов по шаблону, ярлыками /media из аватара, тёмной/светлой/пользовательской темой. Больше опций в настройках.
 // ==/UserScript==
 
 (() => {
@@ -568,7 +568,7 @@
             sp_restore_btn:         'Choose file…',
             sp_reset_defaults:      '🔄 Reset to defaults',
             sp_reset_confirm:       'Reset all settings to defaults?\n\nThis will clear: copy format, feedback style, dock style, trigger distances, group panel appearance, corner position, button visibility, and list/thumb view mode.\n\nDownload history and groups will NOT be affected.',
-            sp_legacy_grid_label:   '🖼 Legacy Media Grid',
+            sp_legacy_grid_label:   'Legacy Media Grid',
             sp_legacy_grid_desc:    'Restore the old profile media grid layout. Requires a page reload to apply.',
             confirm_legacy_grid_reload: 'Legacy Media Grid {state}.\nReload page now to apply?',
             toast_legacy_grid_pending: 'Change saved. Reload the page to apply.',
@@ -792,7 +792,7 @@
             sp_restore_btn:         '選擇檔案…',
             sp_reset_defaults:      '🔄 重設為預設值',
             sp_reset_confirm:       '確定要將所有設定重設為預設值嗎？\n\n將清除：複製格式、提示風格、停靠樣式、觸發距離、群組面板外觀、按鈕位置與顯示開關、列表/縮圖檢視模式。\n\n下載履歷與群組不受影響。',
-            sp_legacy_grid_label:   '🖼 舊版媒體網格',
+            sp_legacy_grid_label:   '舊版媒體網格',
             sp_legacy_grid_desc:    '還原個人頁面舊版媒體網格排版，切換後需重新整理頁面生效。',
             confirm_legacy_grid_reload: '舊版媒體網格已{state}。\n立即重新載入頁面以套用？',
             toast_legacy_grid_pending: '設定已儲存，重新整理頁面後生效。',
@@ -1014,6 +1014,10 @@
             sp_restore_btn:         '选择文件…',
             sp_reset_defaults:      '🔄 重置为默认值',
             sp_reset_confirm:       '确定要将所有设置重置为默认值吗？\n\n将清除：复制格式、提示风格、停靠样式、触发距离、分组面板外观、按钮位置与显示开关、列表/缩略图视图模式。\n\n下载历史与分组不受影响。',
+            sp_legacy_grid_label:   '旧版媒体网格',
+            sp_legacy_grid_desc:    '还原个人主页的旧版媒体网格布局。需要刷新页面才能生效。',
+            confirm_legacy_grid_reload: '旧版媒体网格已{state}。\n是否立即刷新页面以生效？',
+            toast_legacy_grid_pending: '更改已保存。刷新页面后生效。',
             sp_bearer_title:        '🔑 自定义 Bearer Token',
             sp_bearer_detect:       '自动检测',
             sp_bearer_detecting:    '检测中…',
@@ -1232,6 +1236,10 @@
             sp_restore_btn:         'ファイルを選択…',
             sp_reset_defaults:      '🔄 デフォルトに戻す',
             sp_reset_confirm:       'すべての設定をデフォルトに戻しますか？\n\nリセット対象：コピー形式、通知スタイル、ドックスタイル、トリガー距離、グループパネル外観、ボタン位置・表示、リスト/サムネイルモード。\n\nダウンロード履歴とグループは影響を受けません。',
+            sp_legacy_grid_label:   '旧メディアグリッド',
+            sp_legacy_grid_desc:    'プロフィールページの旧メディアグリッドレイアウトを復元します。適用にはページの再読み込みが必要です。',
+            confirm_legacy_grid_reload: '旧メディアグリッドを{state}しました。\n今すぐページを再読み込みして適用しますか？',
+            toast_legacy_grid_pending: '変更を保存しました。ページを再読み込みすると適用されます。',
             sp_bearer_title:        '🔑 カスタム Bearer Token',
             sp_bearer_detect:       '自動検出',
             sp_bearer_detecting:    '検出中…',
@@ -1450,6 +1458,10 @@
             sp_restore_btn:         '파일 선택…',
             sp_reset_defaults:      '🔄 기본값으로 재설정',
             sp_reset_confirm:       '모든 설정을 기본값으로 재설정하시겠습니까?\n\n초기화 항목: 복사 형식, 알림 스타일, 도크 스타일, 트리거 거리, 그룹 패널, 버튼 위치/표시, 목록/썸네일 모드.\n\n다운로드 기록과 그룹은 영향받지 않습니다.',
+            sp_legacy_grid_label:   '레거시 미디어 그리드',
+            sp_legacy_grid_desc:    '프로필 페이지의 레거시 미디어 그리드 레이아웃을 복원합니다. 적용하려면 페이지를 새로고침해야 합니다.',
+            confirm_legacy_grid_reload: '레거시 미디어 그리드가 {state}되었습니다.\n지금 페이지를 새로고침하여 적용하시겠습니까?',
+            toast_legacy_grid_pending: '변경 사항이 저장되었습니다. 페이지를 새로고침하면 적용됩니다.',
             sp_bearer_title:        '🔑 커스텀 Bearer Token',
             sp_bearer_detect:       '자동 감지',
             sp_bearer_detecting:    '감지 중…',
@@ -1668,6 +1680,10 @@
             sp_restore_btn:         'Elegir archivo…',
             sp_reset_defaults:      '🔄 Restablecer valores',
             sp_reset_confirm:       '¿Restablecer toda la configuración?\n\nSe borrará: formato de copia, estilo de notificación, estilo de dock, distancias, apariencia del panel, posición de botones y modo lista/miniaturas.\n\nEl historial y los grupos no se verán afectados.',
+            sp_legacy_grid_label:   'Cuadrícula de medios clásica',
+            sp_legacy_grid_desc:    'Restaura el diseño clásico de la cuadrícula de medios del perfil. Requiere recargar la página para aplicarse.',
+            confirm_legacy_grid_reload: 'Cuadrícula de medios clásica {state}.\n¿Recargar la página ahora para aplicar los cambios?',
+            toast_legacy_grid_pending: 'Cambio guardado. Recarga la página para aplicarlo.',
             sp_bearer_title:        '🔑 Bearer Token personalizado',
             sp_bearer_detect:       'Detección automática',
             sp_bearer_detecting:    'Detectando…',
@@ -1886,6 +1902,10 @@
             sp_restore_btn:         'Escolher arquivo…',
             sp_reset_defaults:      '🔄 Restaurar padrões',
             sp_reset_confirm:       'Restaurar todas as configurações para o padrão?\n\nSerá apagado: formato de cópia, estilo de notificação, estilo de dock, distâncias, aparência do painel, posição dos botões e modo lista/miniaturas.\n\nO histórico de downloads e os grupos não serão afetados.',
+            sp_legacy_grid_label:   'Grade de mídia clássica',
+            sp_legacy_grid_desc:    'Restaura o layout clássico da grade de mídia do perfil. É necessário recarregar a página para aplicar.',
+            confirm_legacy_grid_reload: 'Grade de mídia clássica {state}.\nRecarregar a página agora para aplicar?',
+            toast_legacy_grid_pending: 'Alteração salva. Recarregue a página para aplicar.',
             sp_bearer_title:        '🔑 Bearer Token personalizado',
             sp_bearer_detect:       'Detecção automática',
             sp_bearer_detecting:    'Detectando…',
@@ -2104,6 +2124,10 @@
             sp_restore_btn:         'Choisir un fichier…',
             sp_reset_defaults:      '🔄 Réinitialiser les paramètres',
             sp_reset_confirm:       'Réinitialiser tous les paramètres aux valeurs par défaut ?\n\nCeci effacera : format de copie, style de notification, style de dock, distances, apparence du panneau, position des boutons et mode liste/vignettes.\n\nL\'historique et les groupes ne seront pas affectés.',
+            sp_legacy_grid_label:   'Grille média classique',
+            sp_legacy_grid_desc:    'Restaure l\'ancienne mise en page de la grille de médias du profil. Nécessite un rechargement de la page pour s\'appliquer.',
+            confirm_legacy_grid_reload: 'Grille média classique {state}.\nRecharger la page maintenant pour appliquer ?',
+            toast_legacy_grid_pending: 'Modification enregistrée. Rechargez la page pour l\'appliquer.',
             sp_bearer_title:        '🔑 Bearer Token personnalisé',
             sp_bearer_detect:       'Détection automatique',
             sp_bearer_detecting:    'Détection…',
@@ -2322,6 +2346,10 @@
             sp_restore_btn:         'Выбрать файл…',
             sp_reset_defaults:      '🔄 Сбросить настройки',
             sp_reset_confirm:       'Сбросить все настройки до значений по умолчанию?\n\nБудет очищено: формат копирования, стиль уведомлений, стиль панели, расстояния активации, внешний вид, положение кнопок и режим список/миниатюры.\n\nИстория загрузок и группы не затронуты.',
+            sp_legacy_grid_label:   'Классическая сетка медиа',
+            sp_legacy_grid_desc:    'Восстанавливает старую сетку медиа в профиле. Для применения требуется перезагрузка страницы.',
+            confirm_legacy_grid_reload: 'Классическая сетка медиа {state}.\nПерезагрузить страницу сейчас, чтобы применить?',
+            toast_legacy_grid_pending: 'Изменение сохранено. Перезагрузите страницу, чтобы применить.',
             sp_bearer_title:        '🔑 Пользовательский Bearer Token',
             sp_bearer_detect:       'Автоопределение',
             sp_bearer_detecting:    'Определение…',
@@ -7733,15 +7761,48 @@
             resetRow.style.opacity = '0.7';
             grpAdv.append(resetRow);
 
+            const bearerGroupTitle = T.sp_bearer_title || '🔑 Custom Bearer Token';
+            const bearerGroupHeader = document.createElement('div');
+            bearerGroupHeader.className = 'tm-tf-group-header';
+            const bearerGroupLabel = document.createElement('span');
+            bearerGroupLabel.textContent = bearerGroupTitle;
+            bearerGroupHeader.appendChild(bearerGroupLabel);
+            const bearerGroupChevron = document.createElement('span');
+            bearerGroupChevron.className = 'tm-tf-group-header-chevron';
+            bearerGroupChevron.innerHTML = `<svg viewBox="0 0 10 10" width="9" height="9" fill="currentColor"><path d="M1 3l4 4 4-4z"/></svg>`;
+            bearerGroupHeader.appendChild(bearerGroupChevron);
+
+            const bearerGroupBody = document.createElement('div');
+            bearerGroupBody.className = 'tm-tf-group-body';
+
+            let bearerGroupOpen = false;
+            try {
+                const saved = JSON.parse(GM_getValue(KEY_SP_GROUP_OPEN, '{}'));
+                if (bearerGroupTitle in saved) bearerGroupOpen = saved[bearerGroupTitle];
+            } catch (_) {}
+            if (!bearerGroupOpen) {
+                bearerGroupBody.classList.add('collapsed');
+                bearerGroupChevron.style.transform = 'rotate(-90deg)';
+            } else {
+                bearerGroupChevron.style.transform = 'rotate(0deg)';
+            }
+            bearerGroupHeader.addEventListener('click', () => {
+                const isCollapsed = bearerGroupBody.classList.toggle('collapsed');
+                bearerGroupChevron.style.transform = isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
+                try {
+                    const saved = JSON.parse(GM_getValue(KEY_SP_GROUP_OPEN, '{}'));
+                    saved[bearerGroupTitle] = !isCollapsed;
+                    GM_setValue(KEY_SP_GROUP_OPEN, JSON.stringify(saved));
+                } catch (_) {}
+                if (_lcRcResizeHandler) requestAnimationFrame(_lcRcResizeHandler);
+            });
+
             const bearerRow = document.createElement('div');
-            bearerRow.style.cssText = `padding:8px 14px;font:13px system-ui;color:${C.text};border-top:1px solid ${C.border};`;
+            bearerRow.style.cssText = `padding:8px 14px;font:13px system-ui;color:${C.text};`;
             const bearerTitleRow = document.createElement('div');
             bearerTitleRow.style.cssText = 'margin-bottom:5px;';
             const bearerLabelRow = document.createElement('div');
-            bearerLabelRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:4px;';
-            const bearerLabel = document.createElement('span');
-            bearerLabel.textContent = T.sp_bearer_title || '🔑 Custom Bearer Token';
-            bearerLabel.style.flex = '1';
+            bearerLabelRow.style.cssText = 'display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-bottom:4px;';
             const bearerHelpBtn = document.createElement('button');
             bearerHelpBtn.title = 'What is this?';
             bearerHelpBtn.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -7750,7 +7811,7 @@
                 <circle cx="8" cy="10.75" r="0.8" fill="currentColor"/>
             </svg>`;
             bearerHelpBtn.style.cssText = `flex-shrink:0;background:none;border:none;padding:2px;cursor:pointer;color:${C.sub};display:flex;align-items:center;border-radius:50%;transition:color 0.12s;`;
-            bearerLabelRow.append(bearerLabel, bearerHelpBtn);
+            bearerLabelRow.append(bearerHelpBtn);
             const bearerBtnRow = document.createElement('div');
             bearerBtnRow.style.cssText = 'display:flex;align-items:center;gap:4px;';
             bearerHelpBtn.onmouseenter = () => bearerHelpBtn.style.color = C.text;
@@ -7925,7 +7986,11 @@
                 showToast('🔑 Custom Bearer Token cleared.');
             };
             bearerRow.append(bearerTitleRow, bearerPopover, bearerTa);
-            if (_isTwitterDomain) grpAdv.append(bearerRow);
+            bearerGroupBody.appendChild(bearerRow);
+            if (_isTwitterDomain) {
+                grpAdv.append(bearerGroupHeader);
+                grpAdv.append(bearerGroupBody);
+            }
 
             grpAdv.append(makeSliderRow(
                 `🔗🎞️ ${T.sp_scan_interval || 'Scan Interval'}`, parseInt(GM_getValue(KEY_SCAN_INTERVAL, '1500'), 10) || 1500,
@@ -8057,7 +8122,7 @@
                     left.className = 'tm-tf-row-left';
                     const nameEl = document.createElement('span');
                     nameEl.className = 'tm-tf-row-name';
-                    nameEl.textContent = T.sp_legacy_grid_label || '🖼 Legacy Media Grid';
+                    nameEl.textContent = T.sp_legacy_grid_label || 'Legacy Media Grid';
                     const descEl = document.createElement('span');
                     descEl.className = 'tm-tf-row-desc';
                     descEl.textContent = T.sp_legacy_grid_desc || 'Restore the old profile media grid layout. Requires a page reload to apply.';
@@ -17583,7 +17648,13 @@
                 || null;
             const _sameContent = _fingerprint !== null && article.dataset.tmV === _fingerprint;
 
-            if (_processedArticles.has(article) && _sameContent && article.querySelector(`.${BUTTON_CLASS}`)) {
+            const _existingBtnForModeCheck = article.querySelector(`.${BUTTON_CLASS}`);
+            const _modeStale = _existingBtnForModeCheck && (
+                (_cachedClickMode === 'menu'    && !_existingBtnForModeCheck._menuAC) ||
+                (_cachedClickMode === 'classic' && !!_existingBtnForModeCheck._menuAC)
+            );
+
+            if (_processedArticles.has(article) && _sameContent && _existingBtnForModeCheck && !_modeStale) {
                 return;
             }
 
