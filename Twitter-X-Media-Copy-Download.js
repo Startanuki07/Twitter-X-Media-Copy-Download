@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.1.1.0
+// @version      3.1.1.1
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -419,7 +419,7 @@
             sp_avatar_media_btn_label: 'Avatar Media Shortcut',
             sp_avatar_media_btn_desc: 'Show a subtle badge on timeline avatars to open that user\'s /media page',
             sp_custom_filename_label: 'Custom Filename',
-            cfn_input_tip: 'Available tokens: {screenName} {displayName} {date} {id} {index} {ext} {text}\nNote: {ext} does not include the dot — write .{ext} if you need one. {text} is truncated but may still make filenames long.',
+            cfn_input_tip: 'Available tokens: {screenName} {displayName} {date} {id} {index} {ext} {origName} {text}\nNote: {ext} does not include the dot — write .{ext} if you need one. {origName} is the original Twitter CDN filename code (e.g. HP_yBXibUAA2-Qu), without extension, empty if unavailable. {text} is truncated but may still make filenames long.',
             cfn_preview_label: 'Preview',
             cfn_preview_empty: '(empty template — falls back to default format)',
             cfn_reset_toast: '↺ Filename template reset to default',
@@ -429,6 +429,7 @@
             cfn_token_id: '{id}',
             cfn_token_index: '{index}',
             cfn_token_ext: '{ext}',
+            cfn_token_origName: '{origName}',
             cfn_token_text: '{text}',
             cfn_token_text_warn_badge: '⚠ long',
             cfn_token_text_warn_tip: 'Tweet text is unpredictable in length. Even truncated to 20 characters here, combining with other tokens may still produce an overly long filename.',
@@ -6661,6 +6662,7 @@
                 { labelKey: 'cfn_token_id',          label: T.cfn_token_id          || '{id}',          token: '{id}'          },
                 { labelKey: 'cfn_token_index',       label: T.cfn_token_index       || '{index}',       token: '{index}'       },
                 { labelKey: 'cfn_token_ext',         label: T.cfn_token_ext         || '{ext}',         token: '{ext}'         },
+                { labelKey: 'cfn_token_origName', label: T.cfn_token_origName || '{origName}', token: '{origName}' },
                 { labelKey: 'cfn_token_text', label: T.cfn_token_text || '{text}', token: '{text}', warn: true },
             ];
 
@@ -6696,7 +6698,7 @@
                     padding: 6px 8px; border-radius: 6px; border: 1px solid ${C.border};
                     background: ${C.panel}; color: ${C.text}; outline: none;
                 `;
-                tplInput.title = T.cfn_input_tip || 'Available tokens: {screenName} {displayName} {date} {id} {index} {ext} {text}\nNote: {ext} does not include the dot — write .{ext} if you need one. {text} is truncated but may still make filenames long.';
+                tplInput.title = T.cfn_input_tip || 'Available tokens: {screenName} {displayName} {date} {id} {index} {ext} {origName} {text}\nNote: {ext} does not include the dot — write .{ext} if you need one. {origName} is the original Twitter CDN filename code (e.g. HP_yBXibUAA2-Qu), without extension, empty if unavailable. {text} is truncated but may still make filenames long.';
 
                 const resetBtn = _makeResetBtn(() => {
                     tplInput.value = CUSTOM_FN_DEFAULT_TEMPLATE;
@@ -6728,7 +6730,7 @@
                 `;
                 wrap.appendChild(previewBox);
 
-                const _CFN_SAMPLE = { screenName: 'example', displayName: 'Example User', date: '2026.07.14', id: '1234567890123456789', index: 1, ext: 'mp4', text: sanitizeForFilename('This is a sample tweet content for preview', CUSTOM_FN_TEXT_MAXLEN) };
+                const _CFN_SAMPLE = { screenName: 'example', displayName: 'Example User', date: '2026.07.14', id: '1234567890123456789', index: 1, ext: 'mp4', origName: 'HP_yBXibUAA2-Qu', text: sanitizeForFilename('This is a sample tweet content for preview', CUSTOM_FN_TEXT_MAXLEN) };
                 const _updateCfnPreview = () => {
                     const tpl = tplInput.value;
                     if (!tpl) { previewBox.textContent = T.cfn_preview_empty || '(empty template — falls back to default format)'; return; }
@@ -6739,6 +6741,7 @@
                         .replace(/\{id\}/g,          _CFN_SAMPLE.id)
                         .replace(/\{index\}/g,       String(_CFN_SAMPLE.index))
                         .replace(/\{ext\}/g,         _CFN_SAMPLE.ext)
+                        .replace(/\{origName\}/g,    _CFN_SAMPLE.origName)
                         .replace(/\{text\}/g,        _CFN_SAMPLE.text);
                     rendered = rendered.replace(/[\\/]/g, '_');
                     previewBox.textContent = rendered;
@@ -9943,7 +9946,7 @@
                             } catch (_) {}
                         }
                         const fname = buildCustomFilename(
-                            { screenName: safeScreen, displayName: safeDisplay, date: datePart, id: idPart, index: i + 1, ext, text: safeTextForToken },
+                            { screenName: safeScreen, displayName: safeDisplay, date: datePart, id: idPart, index: i + 1, ext, text: safeTextForToken, origName: _extractOrigMediaName(url) },
                             () => `[twitter] ${safeDisplay}(@${safeScreen})_${datePart}${textPart}_${idPart}_${i + 1}.${ext}`
                         );
                         setTimeout(() => forceDownloadBlob(url, fname), i * 600);
@@ -10106,7 +10109,7 @@
                             } catch (_) {}
                         }
                         const fname = buildCustomFilename(
-                            { screenName: safeScreen, displayName: safeDisplay, date: datePart, id: idPart, index: i + 1, ext, text: safeTextForToken },
+                            { screenName: safeScreen, displayName: safeDisplay, date: datePart, id: idPart, index: i + 1, ext, text: safeTextForToken, origName: _extractOrigMediaName(url) },
                             () => `[twitter] ${safeDisplay}(@${safeScreen})_${datePart}${textPart}_${idPart}_${i + 1}.${ext}`
                         );
                         setTimeout(() => forceDownloadBlob(url, fname), i * 600);
@@ -10274,7 +10277,7 @@
                                 } catch (_) {}
                             }
                             const fname = buildCustomFilename(
-                                { screenName: safeScreen, displayName: safeDisplay, date: datePart, id: idPart, index: i + 1, ext, text: safeTextForToken },
+                                { screenName: safeScreen, displayName: safeDisplay, date: datePart, id: idPart, index: i + 1, ext, text: safeTextForToken, origName: _extractOrigMediaName(url) },
                                 () => `[twitter] ${safeDisplay}(@${safeScreen})_${datePart}${textPart}_${idPart}_${i + 1}.${ext}`
                             );
                             setTimeout(() => forceDownloadBlob(url, fname), i * 600);
@@ -16002,9 +16005,22 @@
         return clean;
     }
 
+    function _extractOrigMediaName(url) {
+        if (!url) return '';
+        try {
+            const m1 = url.match(/\/media\/([^/?]+)/);
+            if (m1) return m1[1];
+            const m2 = url.match(/\/([^/?]+)\.mp4(?:\?|$)/);
+            if (m2) return m2[1];
+        } catch (_) {}
+        return '';
+    }
+
     function buildCustomFilename(vars, fallbackFn) {
         if (!_cachedCustomFilenameEnabled || !_cachedCustomFilenameTemplate) return fallbackFn();
+
         const safeExt = sanitizeForFilename(vars.ext);
+        const safeOrigName = vars.origName ? sanitizeForFilename(vars.origName) : '';
         let name = _cachedCustomFilenameTemplate
             .replace(/\{screenName\}/g,  vars.screenName)
             .replace(/\{displayName\}/g, vars.displayName)
@@ -16012,6 +16028,7 @@
             .replace(/\{id\}/g,          vars.id)
             .replace(/\{index\}/g,       String(vars.index))
             .replace(/\{ext\}/g,         safeExt)
+            .replace(/\{origName\}/g,    safeOrigName)
             .replace(/\{text\}/g,        vars.text || '');
         name = name.replace(/[\\/]/g, '_');
         return name || fallbackFn();
@@ -16642,7 +16659,7 @@
                     const textPart    = info.text ? `_${sanitizeForFilename(info.text, 40)}` : '';
                     const safeTextForToken = sanitizeForFilename(info.text || '', CUSTOM_FN_TEXT_MAXLEN);
                     const filename    = buildCustomFilename(
-                        { screenName: safeScreen, displayName: safeDisplay, date: info.date, id: info.id, index, ext: ext.replace(/^\./, ''), text: safeTextForToken },
+                        { screenName: safeScreen, displayName: safeDisplay, date: info.date, id: info.id, index, ext: ext.replace(/^\./, ''), text: safeTextForToken, origName: _extractOrigMediaName(url) },
                         () => `[twitter] ${safeDisplay}(@${safeScreen})_${info.date}${textPart}_${info.id}_${index}${ext}`
                     );
                     const fileOffset  = (index - 1) / total;
@@ -16889,7 +16906,7 @@
                     const safeDisplay = sanitizeForFilename(info.displayName);
                     const safeScreen = sanitizeForFilename(info.screenName);
                     const filename = buildCustomFilename(
-                        { screenName: safeScreen, displayName: safeDisplay, date: info.date, id: info.id, index, ext: ext.replace(/^\./, ''), text: safeTextForToken },
+                        { screenName: safeScreen, displayName: safeDisplay, date: info.date, id: info.id, index, ext: ext.replace(/^\./, ''), text: safeTextForToken, origName: _extractOrigMediaName(url) },
                         () => `[twitter] ${safeDisplay}(@${safeScreen})_${info.date}${textPart}_${info.id}_${index}${ext}`
                     );
 
@@ -17487,7 +17504,7 @@
                 const textPart = apiData.text ? `_${sanitizeForFilename(apiData.text)}` : '';
                 const safeTextForToken = sanitizeForFilename(apiData.text || '', CUSTOM_FN_TEXT_MAXLEN);
                 return buildCustomFilename(
-                    { screenName: safeScreen, displayName: safeDisplay, date: dateStr, id: tweetId, index: idx, ext: ext.replace(/^\./, ''), text: safeTextForToken },
+                    { screenName: safeScreen, displayName: safeDisplay, date: dateStr, id: tweetId, index: idx, ext: ext.replace(/^\./, ''), text: safeTextForToken, origName: _extractOrigMediaName(url) },
                     () => `[twitter] ${safeDisplay}(@${safeScreen})_${dateStr}${textPart}_${tweetId}_${idx}${ext}`
                 );
             };
