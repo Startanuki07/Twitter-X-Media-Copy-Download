@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.1.1.1
+// @version      3.1.1.8
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -13541,7 +13541,10 @@
                     let freshVids = fallbackVids;
                     if (!_isTwitterDomain) {
                         if (fallbackImgs && fallbackImgs.length > 0) {
-                            showImageLightbox(fallbackImgs, null, false);
+                            showImageLightbox(fallbackImgs, null, false, {
+                                screenName: rec.screenName, displayName: rec.displayName,
+                                date: rec.tweetDate || rec.downloadDate, id: rec.tweetId || rec.id, text: rec.text,
+                            });
                             requestAnimationFrame(() => {
                                 const gb = document.getElementById('tm-lb-gallery-btn');
                                 if (gb) gb.style.display = 'none';
@@ -13560,7 +13563,10 @@
                         } catch (_) {  }
                     }
                     if (fallbackImgs && fallbackImgs.length > 0) {
-                        showImageLightbox(fallbackImgs, freshVids.length > 0 ? freshVids : null, false);
+                        showImageLightbox(fallbackImgs, freshVids.length > 0 ? freshVids : null, false, {
+                            screenName: rec.screenName, displayName: rec.displayName,
+                            date: rec.tweetDate || rec.downloadDate, id: rec.tweetId || rec.id, text: rec.text,
+                        });
                         requestAnimationFrame(() => {
                             const gb = document.getElementById('tm-lb-gallery-btn');
                             if (gb) gb.style.display = 'none';
@@ -14649,7 +14655,7 @@
         });
     }
 
-    function showFloatingVideoPlayer(videoUrls, startIndex = 0, imageUrls = null, openGallery = false) {
+    function showFloatingVideoPlayer(videoUrls, startIndex = 0, imageUrls = null, openGallery = false, tweetInfo = null) {
         document.querySelectorAll('video, audio').forEach(media => {
             if (!media.paused) media.pause();
         });
@@ -14773,9 +14779,37 @@
             viewImgBtn.onclick = (e) => {
                 e.stopPropagation();
                 closeModal();
-                showImageLightbox(imageUrls, videoUrls);
+                showImageLightbox(imageUrls, videoUrls, false, tweetInfo);
             };
         }
+
+        const vpDownloadBtn = document.createElement('button');
+        vpDownloadBtn.title = 'Download video';
+        vpDownloadBtn.setAttribute('aria-label', 'Download video');
+        vpDownloadBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M6 9l4 4 4-4"/><line x1="3" y1="17" x2="17" y2="17"/></svg>`;
+        vpDownloadBtn.style.cssText = `
+            position: absolute; top: 20px;
+            background: rgba(0,0,0,0.6); color: white; border: none;
+            width: 40px; height: 40px; border-radius: 50%;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s, right 0.25s ease; z-index: 4;
+        `;
+        vpDownloadBtn.onmouseenter = () => vpDownloadBtn.style.background = 'rgba(255,255,255,0.3)';
+        vpDownloadBtn.onmouseleave = () => vpDownloadBtn.style.background = 'rgba(0,0,0,0.6)';
+        vpDownloadBtn.onclick = async e => {
+            e.stopPropagation();
+            const original = vpDownloadBtn.innerHTML;
+            vpDownloadBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" stroke-dasharray="42" stroke-dashoffset="14"/></svg>';
+            try {
+                await forceDownloadBlob(videoUrls[currentIndex], _lbFilename(videoUrls[currentIndex], currentIndex + 1, tweetInfo));
+                vpDownloadBtn.innerHTML = `<svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`;
+            } catch (_) {
+                showToast(T.msg_download_failed || '❌ Download failed');
+                vpDownloadBtn.innerHTML = original;
+            } finally {
+                setTimeout(() => { vpDownloadBtn.innerHTML = original; }, 1200);
+            }
+        };
 
         function updatePlayer() {
             video.src = videoUrls[currentIndex];
@@ -14895,7 +14929,9 @@
         };
         document.addEventListener('keydown', keyHandler);
 
-        const _vpGalleryRightBase = viewImgBtn ? 130 : 75;
+        const _vpDownloadRightBase = viewImgBtn ? 130 : 75;
+        const _vpGalleryRightBase = _vpDownloadRightBase + 55;
+        vpDownloadBtn.style.right = _vpDownloadRightBase + 'px';
         const SVG_GRID_VP = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
             <rect x="1.5" y="1.5" width="5" height="5" rx="1"/>
             <rect x="9.5" y="1.5" width="5" height="5" rx="1"/>
@@ -14979,6 +15015,7 @@
             const _shift = _vpGalleryOpen ? GALLERY_PANEL_WIDTH : 0;
             closeBtn.style.right = (25 + _shift) + 'px';
             if (viewImgBtn) viewImgBtn.style.right = (75 + _shift) + 'px';
+            vpDownloadBtn.style.right = (_vpDownloadRightBase + _shift) + 'px';
             vpGalleryBtn.style.right = (_vpGalleryRightBase + _shift) + 'px';
 
             if (_vpGalleryOpen && !_vpGalleryItems) {
@@ -15052,6 +15089,7 @@
         modal.appendChild(video);
         modal.appendChild(closeBtn);
         if (viewImgBtn) modal.appendChild(viewImgBtn);
+        modal.appendChild(vpDownloadBtn);
         modal.appendChild(vpGalleryBtn);
         modal.appendChild(vpGalleryPanel);
         modal.appendChild(counter);
@@ -15193,7 +15231,7 @@
         return results;
     }
 
-    function showImageLightbox(urls, videoUrls = null, openGallery = false) {
+    function showImageLightbox(urls, videoUrls = null, openGallery = false, tweetInfo = null) {
         if (!urls.length) return;
 
         const old = document.getElementById('tm-image-lightbox');
@@ -15327,6 +15365,25 @@
                     color: rgba(255,255,255,0.6);
                     overflow: hidden; text-overflow: ellipsis;
                 }
+
+                .tm-lb-quick-actions {
+                    position: absolute; top: 12px; right: 12px;
+                    display: flex; gap: 6px; z-index: 29;
+                    opacity: 0; pointer-events: none;
+                    transition: opacity 0.18s ease;
+                }
+                .tm-lb-quick-actions.tm-qa-show { opacity: 1; pointer-events: auto; }
+                .tm-lb-quick-actions button {
+                    width: 32px; height: 32px; border-radius: 50%;
+                    background: rgba(0,0,0,0.55); color: rgba(255,255,255,0.9); border: none;
+                    cursor: pointer; display: flex; align-items: center; justify-content: center;
+                    transition: background 0.15s;
+                }
+                .tm-lb-quick-actions button:hover { background: rgba(255,255,255,0.28); }
+                
+                #tm-image-lightbox .tm-lb-quick-actions.tm-qa-branch-b {
+                    position: fixed; top: 0; right: auto; 
+                }
             `;
             document.head.appendChild(s);
         }
@@ -15352,6 +15409,53 @@
                 opacity: abs >= 3 ? 0.5 : 1,
                 focused: pos === 0,
             };
+        }
+
+        const SVG_QA_DOWNLOAD = `<svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M6 9l4 4 4-4"/><line x1="3" y1="17" x2="17" y2="17"/></svg>`;
+        const SVG_QA_COPY_LINK = `<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5a2.5 2.5 0 0 0 3.5 0l2-2a2.5 2.5 0 0 0-3.5-3.5l-1 1"/><path d="M9.5 6.5a2.5 2.5 0 0 0-3.5 0l-2 2a2.5 2.5 0 0 0 3.5 3.5l1-1"/></svg>`;
+        function _createQuickActionBtns(getUrl) {
+            const wrap = document.createElement('div');
+            wrap.className = 'tm-lb-quick-actions';
+
+            const dlBtn = document.createElement('button');
+            dlBtn.innerHTML = SVG_QA_DOWNLOAD;
+            dlBtn.title = 'Download';
+            dlBtn.setAttribute('aria-label', 'Download image');
+            dlBtn.onclick = async e => {
+                e.stopPropagation();
+                const url = getUrl();
+                if (!url) return;
+                const original = dlBtn.innerHTML;
+                dlBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" stroke-dasharray="42" stroke-dashoffset="14"/></svg>';
+                try {
+                    await forceDownloadBlob(url, _lbFilename(url, focused + 1, tweetInfo));
+                    dlBtn.innerHTML = `<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`;
+                } catch (_) {
+                    showToast(T.msg_download_failed || '❌ Download failed');
+                    dlBtn.innerHTML = original;
+                } finally {
+                    setTimeout(() => { dlBtn.innerHTML = original; }, 1200);
+                }
+            };
+
+            const copyBtn = document.createElement('button');
+            copyBtn.innerHTML = SVG_QA_COPY_LINK;
+            copyBtn.title = 'Copy link';
+            copyBtn.setAttribute('aria-label', 'Copy image link');
+            copyBtn.onclick = e => {
+                e.stopPropagation();
+                const url = getUrl();
+                if (!url) return;
+                GM_setClipboard(url);
+                showToast(T.toast_grid_media_copied || 'Link copied!');
+                const original = copyBtn.innerHTML;
+                copyBtn.innerHTML = `<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`;
+                setTimeout(() => { copyBtn.innerHTML = original; }, 1200);
+            };
+
+            wrap.appendChild(dlBtn);
+            wrap.appendChild(copyBtn);
+            return wrap;
         }
 
         const modal = document.createElement('div');
@@ -15504,11 +15608,20 @@
             img.style.cssText = `
                 max-width: 95vw; max-height: 95vh;
                 object-fit: contain; display: block;
-                background: transparent; pointer-events: none;
+                background: transparent; pointer-events: auto;
                 user-select: none; -webkit-user-drag: none;
             `;
 
             container.appendChild(img);
+
+            const qaBtnsA = _createQuickActionBtns(() => urls[0]);
+            qaBtnsA.style.cssText = `
+                position: absolute; top: 20px; right: 125px;
+                display: flex; gap: 6px; z-index: 29;
+                opacity: 1; pointer-events: auto; transition: right 0.25s ease;
+            `;
+            modal.appendChild(qaBtnsA);
+
             modal.appendChild(container);
 
             const closeBtn = document.createElement('button');
@@ -15559,7 +15672,7 @@
                 `;
                 viewVidBtn.onmouseenter = () => viewVidBtn.style.background = 'rgba(29,155,240,1)';
                 viewVidBtn.onmouseleave = () => viewVidBtn.style.background = 'rgba(29,155,240,0.85)';
-                viewVidBtn.onclick = e => { e.stopPropagation(); closeLightbox(); showFloatingVideoPlayer(videoUrls, 0, urls); };
+                viewVidBtn.onclick = e => { e.stopPropagation(); closeLightbox(); showFloatingVideoPlayer(videoUrls, 0, urls, false, tweetInfo); };
                 modal.appendChild(viewVidBtn);
             }
 
@@ -15580,11 +15693,9 @@
                 _lbScale = 1; _lbTranslate = { x: 0, y: 0 };
                 img.style.transform = '';
                 img.style.cursor = '';
-                img.style.pointerEvents = 'none';
             };
             const _lbApplyTransform = () => {
                 img.style.transform = `scale(${_lbScale}) translate(${_lbTranslate.x / _lbScale}px, ${_lbTranslate.y / _lbScale}px)`;
-                img.style.pointerEvents = _lbScale > 1 ? 'auto' : 'none';
                 img.style.cursor = _lbScale > 1 ? 'grab' : '';
             };
             modal.addEventListener('wheel', e => {
@@ -15638,7 +15749,7 @@
                 img.src = targetUrl;
                 updA(targetUrl);
                 _showPill(pillA, group);
-            }, [{ el: closeBtn, base: 25 }, { el: viewVidBtn, base: 130 }]);
+            }, [{ el: closeBtn, base: 25 }, { el: viewVidBtn, base: 130 }, { el: qaBtnsA, base: 125 }]);
             container._toggleGalleryRef = tgA;
             modal.appendChild(gbA);
             modal.appendChild(gpA);
@@ -15660,6 +15771,23 @@
             flex-shrink: 0; overflow: visible;
         `;
 
+        const qaBtnsB = _createQuickActionBtns(() => urls[focused]);
+        qaBtnsB.classList.add('tm-qa-branch-b');
+        qaBtnsB.addEventListener('mouseenter', () => qaBtnsB.classList.add('tm-qa-show'));
+        qaBtnsB.addEventListener('mouseleave', () => qaBtnsB.classList.remove('tm-qa-show'));
+        function _updateQABPosition() {
+            const fc = modal.querySelector('.tm-lb-card.tm-lb-focused');
+            if (!fc) return;
+            const r = fc.getBoundingClientRect();
+            qaBtnsB.style.left = (r.right - 44 - 30) + 'px';
+            qaBtnsB.style.top  = (r.top + 12) + 'px';
+        }
+        stage.addEventListener('transitionend', e => {
+            if (e.propertyName !== 'transform') return;
+            if (!e.target.classList.contains('tm-lb-focused')) return;
+            _updateQABPosition();
+        });
+
         const cards = urls.map((url, i) => {
             const card = document.createElement('div');
             card.className = 'tm-lb-card';
@@ -15679,7 +15807,7 @@
             img.style.cssText = `
                 width: 100%; height: 100%;
                 object-fit: contain; display: block;
-                background: transparent; pointer-events: none;
+                background: transparent; pointer-events: auto;
                 user-select: none; -webkit-user-drag: none;
             `;
             card.appendChild(img);
@@ -15692,6 +15820,8 @@
                     _toggleGalleryRef();
                 }
             });
+            card.addEventListener('mouseenter', () => { if (i === focused) qaBtnsB.classList.add('tm-qa-show'); });
+            card.addEventListener('mouseleave', () => qaBtnsB.classList.remove('tm-qa-show'));
             stage.appendChild(card);
             return card;
         });
@@ -15762,7 +15892,7 @@
             `;
             viewVidBtn.onmouseenter = () => viewVidBtn.style.background = 'rgba(29,155,240,1)';
             viewVidBtn.onmouseleave = () => viewVidBtn.style.background = 'rgba(29,155,240,0.85)';
-            viewVidBtn.onclick = e => { e.stopPropagation(); closeLightbox(); showFloatingVideoPlayer(videoUrls, 0, urls); };
+            viewVidBtn.onclick = e => { e.stopPropagation(); closeLightbox(); showFloatingVideoPlayer(videoUrls, 0, urls, false, tweetInfo); };
         }
 
         let _bZoom = 1, _bTx = 0, _bTy = 0, _bDragActive = false, _bDragStart = null;
@@ -15777,13 +15907,12 @@
             const img = _getZoomImg();
             if (!img) return;
             img.style.transform  = `scale(${_bZoom}) translate(${_bTx / _bZoom}px, ${_bTy / _bZoom}px)`;
-            img.style.pointerEvents = _bZoom > 1 ? 'auto' : 'none';
             img.style.cursor     = _bZoom > 1 ? 'grab' : '';
         };
         const _bReset = () => {
             _bZoom = 1; _bTx = 0; _bTy = 0;
             const img = _getZoomImg();
-            if (img) { img.style.transform = ''; img.style.cursor = ''; img.style.pointerEvents = 'none'; }
+            if (img) { img.style.transform = ''; img.style.cursor = ''; }
         };
         modal.addEventListener('wheel', e => {
             if (_lbIsOnPanel(e)) return;
@@ -15888,6 +16017,8 @@
                 dot.style.transform = i === focused ? 'scale(1.4)' : 'scale(1)';
             });
             counter.textContent = `${focused + 1} / ${total}`;
+            qaBtnsB.classList.remove('tm-qa-show');
+            _updateQABPosition();
         }
 
         function _showPill(pillEl, group) {
@@ -15946,6 +16077,7 @@
         if (lbPrevBtn)  modal.appendChild(lbPrevBtn);
         if (lbNextBtn)  modal.appendChild(lbNextBtn);
         if (total > 1) { modal.appendChild(dotsWrap); modal.appendChild(counter); }
+        modal.appendChild(qaBtnsB);
         modal.appendChild(gbB);
         modal.appendChild(gpB);
         document.body.appendChild(pillB);
@@ -16032,6 +16164,30 @@
             .replace(/\{text\}/g,        vars.text || '');
         name = name.replace(/[\\/]/g, '_');
         return name || fallbackFn();
+    }
+
+    function _lbFilename(url, index, tweetInfo) {
+        let ext = 'jpg';
+        if (url.includes('.mp4')) ext = 'mp4';
+        else {
+            try {
+                const fmtParam = new URL(url).searchParams.get('format');
+                ext = fmtParam || url.match(/\.(\w{3,4})(?:\?|$)/)?.[1] || 'jpg';
+            } catch (_) {}
+        }
+        if (!tweetInfo) return `[twitter] media_${Date.now()}_${index}.${ext}`;
+        const safeScreen = sanitizeForFilename(tweetInfo.screenName || 'unknown');
+        const hasRichMeta = !!(tweetInfo.date || tweetInfo.displayName);
+        if (!hasRichMeta) return `[twitter] ${safeScreen}_${tweetInfo.id || Date.now()}_${index}.${ext}`;
+        const safeDisplay = sanitizeForFilename(tweetInfo.displayName || tweetInfo.screenName || 'unknown');
+        const datePart    = tweetInfo.date || '';
+        const idPart      = tweetInfo.id || '';
+        const textPart    = tweetInfo.text ? `_${sanitizeForFilename(tweetInfo.text, 40)}` : '';
+        const safeTextForToken = sanitizeForFilename(tweetInfo.text || '', CUSTOM_FN_TEXT_MAXLEN);
+        return buildCustomFilename(
+            { screenName: safeScreen, displayName: safeDisplay, date: datePart, id: idPart, index, ext, text: safeTextForToken, origName: _extractOrigMediaName(url) },
+            () => `[twitter] ${safeDisplay}(@${safeScreen})_${datePart}${textPart}_${idPart}_${index}.${ext}`
+        );
     }
 
     function getTweetInfo(article) {
@@ -16739,9 +16895,9 @@
                             const all = await extractMediaUrls(article);
                             imgUrls = all.filter(u => !new Set(videos).has(u));
                         }
-                        if (videos.length && imgUrls.length) showFloatingVideoPlayer(videos, 0, imgUrls);
-                        else if (videos.length) showFloatingVideoPlayer(videos);
-                        else if (imgUrls.length) showImageLightbox(imgUrls);
+                        if (videos.length && imgUrls.length) showFloatingVideoPlayer(videos, 0, imgUrls, false, getTweetInfo(article));
+                        else if (videos.length) showFloatingVideoPlayer(videos, 0, null, false, getTweetInfo(article));
+                        else if (imgUrls.length) showImageLightbox(imgUrls, null, false, getTweetInfo(article));
                         else { setMediaIcon('msg', T.msg_no_media, 'No Media'); setTimeout(() => setMediaIcon('default'), 1500); }
                     },
                 },
@@ -16809,11 +16965,11 @@
                 }
 
                 if (videos.length && imgUrls.length) {
-                    showFloatingVideoPlayer(videos, 0, imgUrls);
+                    showFloatingVideoPlayer(videos, 0, imgUrls, false, getTweetInfo(article));
                 } else if (videos.length) {
-                    showFloatingVideoPlayer(videos);
+                    showFloatingVideoPlayer(videos, 0, null, false, getTweetInfo(article));
                 } else if (imgUrls.length) {
-                    showImageLightbox(imgUrls);
+                    showImageLightbox(imgUrls, null, false, getTweetInfo(article));
                 } else {
                     setMediaIcon('msg', T.msg_no_media, 'No Media');
                     setTimeout(() => setMediaIcon('default'), 1500);
@@ -17589,10 +17745,14 @@
                     showToast(T.msg_no_media || 'No media found');
                     return;
                 }
+                const gridTweetInfo = {
+                    screenName, displayName: apiData.displayName,
+                    date: apiData.date ? formatDate(apiData.date) : '', id: tweetId, text: apiData.text,
+                };
                 if (apiData.videos.length) {
-                    showFloatingVideoPlayer(apiData.videos, 0, apiData.images.length ? apiData.images : null);
+                    showFloatingVideoPlayer(apiData.videos, 0, apiData.images.length ? apiData.images : null, false, gridTweetInfo);
                 } else {
-                    showImageLightbox(apiData.images, null, true);
+                    showImageLightbox(apiData.images, null, true, gridTweetInfo);
                 }
             });
 
