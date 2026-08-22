@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.1.1.8
+// @version      3.1.2.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -342,6 +342,12 @@
     const KEY_TF_CSS_SIMPLIFY = 'app_tf_css_simplify';
     const KEY_TF_FEED_PRUNE   = 'app_tf_feed_prune';
     const KEY_LEGACY_MEDIA_GRID = 'app_legacy_media_grid';
+    const DEFAULT_LEGACY_GRID_CONFIRM_MSG =
+        'Legacy Media Grid {state}.<br><br>' +
+        '<span style="color:#e0245e"><b>⚠️ Note:</b> If you use Tampermonkey (stable), this feature may not work.</span><br>' +
+        'For reliable results, please use <span style="color:#e0245e"><b>Tampermonkey Beta</b></span>, ' +
+        '<span style="color:#e0245e"><b>ScriptCat</b></span>, <span style="color:#e0245e"><b>Violentmonkey</b></span>, or other managers.<br><br>' +
+        'Reload page now to apply?';
     const KEY_HISTORY_PREFIX    = 'app_history_m_';
     const KEY_HISTORY_INDEX     = 'app_history_index';
 
@@ -409,6 +415,7 @@
             sp_grid_media_btn_label: 'Media Grid Buttons',
             sp_grid_media_btn_desc: 'Show copy/preview/download buttons on /media page thumbnails',
             grid_btn_copy_tip: 'Copy media link (long-press to copy with prefix, or menu if multiple)',
+            grid_btn_share_tip: 'Copy tweet link (long-press to copy with prefix)',
             grid_btn_preview_tip: 'Preview in lightbox',
             grid_btn_download_tip: 'Download media (long-press for menu)',
             toast_grid_media_copied: 'Link copied!',
@@ -573,7 +580,13 @@
             sp_reset_confirm:       'Reset all settings to defaults?\n\nThis will clear: copy format, feedback style, dock style, trigger distances, group panel appearance, corner position, button visibility, and list/thumb view mode.\n\nDownload history and groups will NOT be affected.',
             sp_legacy_grid_label:   'Legacy Media Grid',
             sp_legacy_grid_desc:    'Restore the old profile media grid layout. Requires a page reload to apply.',
-            confirm_legacy_grid_reload: 'Legacy Media Grid {state}.\nReload page now to apply?',
+            confirm_legacy_grid_reload: 'Legacy Media Grid {state}.<br><br>' +
+                '<span style="color:#e0245e"><b>⚠️ Note:</b> If you use Tampermonkey (stable), this feature may not work.</span><br>' +
+                'For reliable results, please use <span style="color:#e0245e"><b>Tampermonkey Beta</b></span>, ' +
+                '<span style="color:#e0245e"><b>ScriptCat</b></span>, <span style="color:#e0245e"><b>Violentmonkey</b></span>, or other managers.<br><br>' +
+                'Reload page now to apply?',
+            btn_legacy_grid_later:      'Later',
+            btn_legacy_grid_reload_now: 'Reload now',
             toast_legacy_grid_pending: 'Change saved. Reload the page to apply.',
             sp_bearer_title:        '🔑 Custom Bearer Token',
             sp_bearer_detect:       'Auto-detect',
@@ -653,6 +666,7 @@
             sp_grid_media_btn_label: '媒體 Grid 按鈕',
             sp_grid_media_btn_desc: '在 /media 頁面縮圖顯示複製/預覽/下載按鈕',
             grid_btn_copy_tip: '複製媒體連結（長按複製前綴連結，多張則顯示選單）',
+            grid_btn_share_tip: '複製貼文連結（長按複製前綴連結）',
             grid_btn_preview_tip: '燈箱預覽',
             grid_btn_download_tip: '下載媒體（長按顯示選單）',
             toast_grid_media_copied: '連結已複製！',
@@ -799,7 +813,13 @@
             sp_reset_confirm:       '確定要將所有設定重設為預設值嗎？\n\n將清除：複製格式、提示風格、停靠樣式、觸發距離、群組面板外觀、按鈕位置與顯示開關、列表/縮圖檢視模式。\n\n下載履歷與群組不受影響。',
             sp_legacy_grid_label:   '舊版媒體網格',
             sp_legacy_grid_desc:    '還原個人頁面舊版媒體網格排版，切換後需重新整理頁面生效。',
-            confirm_legacy_grid_reload: '舊版媒體網格已{state}。\n立即重新載入頁面以套用？',
+            confirm_legacy_grid_reload: '舊版媒體網格已{state}。<br><br>' +
+                '<span style="color:#e0245e"><b>⚠️ 注意：</b>若您使用 Tampermonkey 穩定版，此功能可能無法正常運作。</span><br>' +
+                '若要正常使用，請改用 <span style="color:#e0245e"><b>Tampermonkey Beta</b></span>、' +
+                '<span style="color:#e0245e"><b>ScriptCat</b></span>、<span style="color:#e0245e"><b>Violentmonkey</b></span> 或其他管理器。<br><br>' +
+                '立即重新載入頁面以套用？',
+            btn_legacy_grid_later:      '稍後',
+            btn_legacy_grid_reload_now: '立即重新載入',
             toast_legacy_grid_pending: '設定已儲存，重新整理頁面後生效。',
             sp_bearer_title:        '🔑 自訂 Bearer Token',
             sp_bearer_detect:       '自動偵測',
@@ -877,6 +897,7 @@
             sp_grid_media_btn_label: '媒体 Grid 按钮',
             sp_grid_media_btn_desc: '在 /media 页面缩图显示复制/预览/下载按钮',
             grid_btn_copy_tip: '复制媒体链接（长按复制前缀链接，多张则显示菜单）',
+            grid_btn_share_tip: '复制推文链接（长按复制前缀链接）',
             grid_btn_preview_tip: '灯箱预览',
             grid_btn_download_tip: '下载媒体（长按显示菜单）',
             toast_grid_media_copied: '链接已复制！',
@@ -1023,7 +1044,13 @@
             sp_reset_confirm:       '确定要将所有设置重置为默认值吗？\n\n将清除：复制格式、提示风格、停靠样式、触发距离、分组面板外观、按钮位置与显示开关、列表/缩略图视图模式。\n\n下载历史与分组不受影响。',
             sp_legacy_grid_label:   '旧版媒体网格',
             sp_legacy_grid_desc:    '还原个人主页的旧版媒体网格布局。需要刷新页面才能生效。',
-            confirm_legacy_grid_reload: '旧版媒体网格已{state}。\n是否立即刷新页面以生效？',
+            confirm_legacy_grid_reload: '旧版媒体网格已{state}。<br><br>' +
+                '<span style="color:#e0245e"><b>⚠️ 注意：</b>若您使用 Tampermonkey 稳定版，此功能可能无法正常运作。</span><br>' +
+                '若要正常使用，请改用 <span style="color:#e0245e"><b>Tampermonkey Beta</b></span>、' +
+                '<span style="color:#e0245e"><b>ScriptCat</b></span>、<span style="color:#e0245e"><b>Violentmonkey</b></span> 或其他管理器。<br><br>' +
+                '是否立即刷新页面以生效？',
+            btn_legacy_grid_later:      '稍后',
+            btn_legacy_grid_reload_now: '立即刷新',
             toast_legacy_grid_pending: '更改已保存。刷新页面后生效。',
             sp_bearer_title:        '🔑 自定义 Bearer Token',
             sp_bearer_detect:       '自动检测',
@@ -1101,6 +1128,7 @@
             sp_grid_media_btn_label: 'メディア Grid ボタン',
             sp_grid_media_btn_desc: '/media ページのサムネイルにコピー/プレビュー/ダウンロードボタンを表示',
             grid_btn_copy_tip: 'メディアリンクをコピー（長押しでプレフィックス付きコピー、複数の場合はメニュー表示）',
+            grid_btn_share_tip: 'ツイートリンクをコピー（長押しでプレフィックス付きコピー）',
             grid_btn_preview_tip: 'ライトボックスでプレビュー',
             grid_btn_download_tip: 'メディアをダウンロード（長押しでメニュー表示）',
             toast_grid_media_copied: 'リンクをコピーしました！',
@@ -1247,7 +1275,13 @@
             sp_reset_confirm:       'すべての設定をデフォルトに戻しますか？\n\nリセット対象：コピー形式、通知スタイル、ドックスタイル、トリガー距離、グループパネル外観、ボタン位置・表示、リスト/サムネイルモード。\n\nダウンロード履歴とグループは影響を受けません。',
             sp_legacy_grid_label:   '旧メディアグリッド',
             sp_legacy_grid_desc:    'プロフィールページの旧メディアグリッドレイアウトを復元します。適用にはページの再読み込みが必要です。',
-            confirm_legacy_grid_reload: '旧メディアグリッドを{state}しました。\n今すぐページを再読み込みして適用しますか？',
+            confirm_legacy_grid_reload: '旧メディアグリッドを{state}しました。<br><br>' +
+                '<span style="color:#e0245e"><b>⚠️ 注意：</b>Tampermonkey（安定版）をご利用の場合、この機能が正常に動作しない可能性があります。</span><br>' +
+                '確実に動作させるには、<span style="color:#e0245e"><b>Tampermonkey Beta</b></span>、' +
+                '<span style="color:#e0245e"><b>ScriptCat</b></span>、<span style="color:#e0245e"><b>Violentmonkey</b></span> など他の管理ツールをご利用ください。<br><br>' +
+                '今すぐページを再読み込みして適用しますか？',
+            btn_legacy_grid_later:      '後で',
+            btn_legacy_grid_reload_now: '今すぐ再読み込み',
             toast_legacy_grid_pending: '変更を保存しました。ページを再読み込みすると適用されます。',
             sp_bearer_title:        '🔑 カスタム Bearer Token',
             sp_bearer_detect:       '自動検出',
@@ -1325,6 +1359,7 @@
             sp_grid_media_btn_label: '미디어 Grid 버튼',
             sp_grid_media_btn_desc: '/media 페이지 썸네일에 복사/미리보기/다운로드 버튼 표시',
             grid_btn_copy_tip: '미디어 링크 복사 (길게 누르면 접두사 포함 복사, 여러 개면 메뉴 표시)',
+            grid_btn_share_tip: '트윗 링크 복사 (길게 누르면 접두사 포함 복사)',
             grid_btn_preview_tip: '라이트박스로 미리보기',
             grid_btn_download_tip: '미디어 다운로드 (길게 누르면 메뉴 표시)',
             toast_grid_media_copied: '링크가 복사되었습니다!',
@@ -1471,7 +1506,13 @@
             sp_reset_confirm:       '모든 설정을 기본값으로 재설정하시겠습니까?\n\n초기화 항목: 복사 형식, 알림 스타일, 도크 스타일, 트리거 거리, 그룹 패널, 버튼 위치/표시, 목록/썸네일 모드.\n\n다운로드 기록과 그룹은 영향받지 않습니다.',
             sp_legacy_grid_label:   '레거시 미디어 그리드',
             sp_legacy_grid_desc:    '프로필 페이지의 레거시 미디어 그리드 레이아웃을 복원합니다. 적용하려면 페이지를 새로고침해야 합니다.',
-            confirm_legacy_grid_reload: '레거시 미디어 그리드가 {state}되었습니다.\n지금 페이지를 새로고침하여 적용하시겠습니까?',
+            confirm_legacy_grid_reload: '레거시 미디어 그리드가 {state}되었습니다.<br><br>' +
+                '<span style="color:#e0245e"><b>⚠️ 참고:</b> Tampermonkey(안정 버전)를 사용 중이라면 이 기능이 정상 작동하지 않을 수 있습니다.</span><br>' +
+                '정상적으로 사용하려면 <span style="color:#e0245e"><b>Tampermonkey Beta</b></span>, ' +
+                '<span style="color:#e0245e"><b>ScriptCat</b></span>, <span style="color:#e0245e"><b>Violentmonkey</b></span> 등 다른 관리자를 사용해 주세요.<br><br>' +
+                '지금 페이지를 새로고침하여 적용하시겠습니까?',
+            btn_legacy_grid_later:      '나중에',
+            btn_legacy_grid_reload_now: '지금 새로고침',
             toast_legacy_grid_pending: '변경 사항이 저장되었습니다. 페이지를 새로고침하면 적용됩니다.',
             sp_bearer_title:        '🔑 커스텀 Bearer Token',
             sp_bearer_detect:       '자동 감지',
@@ -1549,6 +1590,7 @@
             sp_grid_media_btn_label: 'Botones de Grid de Medios',
             sp_grid_media_btn_desc: 'Mostrar botones de copiar/vista previa/descargar en miniaturas de /media',
             grid_btn_copy_tip: 'Copiar enlace del medio (mantén pulsado para copiar con prefijo, o el menú si hay varios)',
+            grid_btn_share_tip: 'Copiar enlace del tweet (mantén pulsado para copiar con prefijo)',
             grid_btn_preview_tip: 'Vista previa en galería',
             grid_btn_download_tip: 'Descargar medio (mantén pulsado para el menú)',
             toast_grid_media_copied: '¡Enlace copiado!',
@@ -1695,7 +1737,13 @@
             sp_reset_confirm:       '¿Restablecer toda la configuración?\n\nSe borrará: formato de copia, estilo de notificación, estilo de dock, distancias, apariencia del panel, posición de botones y modo lista/miniaturas.\n\nEl historial y los grupos no se verán afectados.',
             sp_legacy_grid_label:   'Cuadrícula de medios clásica',
             sp_legacy_grid_desc:    'Restaura el diseño clásico de la cuadrícula de medios del perfil. Requiere recargar la página para aplicarse.',
-            confirm_legacy_grid_reload: 'Cuadrícula de medios clásica {state}.\n¿Recargar la página ahora para aplicar los cambios?',
+            confirm_legacy_grid_reload: 'Cuadrícula de medios clásica {state}.<br><br>' +
+                '<span style="color:#e0245e"><b>⚠️ Nota:</b> Si usas Tampermonkey (versión estable), esta función podría no funcionar.</span><br>' +
+                'Para un resultado fiable, usa <span style="color:#e0245e"><b>Tampermonkey Beta</b></span>, ' +
+                '<span style="color:#e0245e"><b>ScriptCat</b></span>, <span style="color:#e0245e"><b>Violentmonkey</b></span>, u otro gestor.<br><br>' +
+                '¿Recargar la página ahora para aplicar los cambios?',
+            btn_legacy_grid_later:      'Más tarde',
+            btn_legacy_grid_reload_now: 'Recargar ahora',
             toast_legacy_grid_pending: 'Cambio guardado. Recarga la página para aplicarlo.',
             sp_bearer_title:        '🔑 Bearer Token personalizado',
             sp_bearer_detect:       'Detección automática',
@@ -1773,6 +1821,7 @@
             sp_grid_media_btn_label: 'Botões de Grid de Mídia',
             sp_grid_media_btn_desc: 'Mostrar botões de copiar/visualizar/baixar nas miniaturas de /media',
             grid_btn_copy_tip: 'Copiar link da mídia (pressione e segure para copiar com prefixo, ou o menu se houver vários)',
+            grid_btn_share_tip: 'Copiar link do tweet (pressione e segure para copiar com prefixo)',
             grid_btn_preview_tip: 'Visualizar na galeria',
             grid_btn_download_tip: 'Baixar mídia (pressione e segure para o menu)',
             toast_grid_media_copied: 'Link copiado!',
@@ -1919,7 +1968,13 @@
             sp_reset_confirm:       'Restaurar todas as configurações para o padrão?\n\nSerá apagado: formato de cópia, estilo de notificação, estilo de dock, distâncias, aparência do painel, posição dos botões e modo lista/miniaturas.\n\nO histórico de downloads e os grupos não serão afetados.',
             sp_legacy_grid_label:   'Grade de mídia clássica',
             sp_legacy_grid_desc:    'Restaura o layout clássico da grade de mídia do perfil. É necessário recarregar a página para aplicar.',
-            confirm_legacy_grid_reload: 'Grade de mídia clássica {state}.\nRecarregar a página agora para aplicar?',
+            confirm_legacy_grid_reload: 'Grade de mídia clássica {state}.<br><br>' +
+                '<span style="color:#e0245e"><b>⚠️ Nota:</b> Se você usa o Tampermonkey (versão estável), este recurso pode não funcionar.</span><br>' +
+                'Para um resultado confiável, use o <span style="color:#e0245e"><b>Tampermonkey Beta</b></span>, ' +
+                '<span style="color:#e0245e"><b>ScriptCat</b></span>, <span style="color:#e0245e"><b>Violentmonkey</b></span>, ou outro gerenciador.<br><br>' +
+                'Recarregar a página agora para aplicar?',
+            btn_legacy_grid_later:      'Mais tarde',
+            btn_legacy_grid_reload_now: 'Recarregar agora',
             toast_legacy_grid_pending: 'Alteração salva. Recarregue a página para aplicar.',
             sp_bearer_title:        '🔑 Bearer Token personalizado',
             sp_bearer_detect:       'Detecção automática',
@@ -1997,6 +2052,7 @@
             sp_grid_media_btn_label: 'Boutons Grid Média',
             sp_grid_media_btn_desc: 'Afficher les boutons copier/aperçu/télécharger sur les vignettes de /media',
             grid_btn_copy_tip: 'Copier le lien du m\u00e9dia (appui long pour copier avec pr\u00e9fixe, ou le menu si plusieurs)',
+            grid_btn_share_tip: 'Copier le lien du tweet (appui long pour copier avec pr\u00e9fixe)',
             grid_btn_preview_tip: 'Aper\u00e7u dans la galerie',
             grid_btn_download_tip: 'T\u00e9l\u00e9charger le m\u00e9dia (appui long pour le menu)',
             toast_grid_media_copied: 'Lien copi\u00e9\u00a0!',
@@ -2143,7 +2199,13 @@
             sp_reset_confirm:       'Réinitialiser tous les paramètres aux valeurs par défaut ?\n\nCeci effacera : format de copie, style de notification, style de dock, distances, apparence du panneau, position des boutons et mode liste/vignettes.\n\nL\'historique et les groupes ne seront pas affectés.',
             sp_legacy_grid_label:   'Grille média classique',
             sp_legacy_grid_desc:    'Restaure l\'ancienne mise en page de la grille de médias du profil. Nécessite un rechargement de la page pour s\'appliquer.',
-            confirm_legacy_grid_reload: 'Grille média classique {state}.\nRecharger la page maintenant pour appliquer ?',
+            confirm_legacy_grid_reload: 'Grille média classique {state}.<br><br>' +
+                '<span style="color:#e0245e"><b>⚠️ Remarque :</b> si vous utilisez Tampermonkey (stable), cette fonctionnalité peut ne pas fonctionner.</span><br>' +
+                'Pour un résultat fiable, utilisez <span style="color:#e0245e"><b>Tampermonkey Beta</b></span>, ' +
+                '<span style="color:#e0245e"><b>ScriptCat</b></span>, <span style="color:#e0245e"><b>Violentmonkey</b></span>, ou un autre gestionnaire.<br><br>' +
+                'Recharger la page maintenant pour appliquer ?',
+            btn_legacy_grid_later:      'Plus tard',
+            btn_legacy_grid_reload_now: 'Recharger maintenant',
             toast_legacy_grid_pending: 'Modification enregistrée. Rechargez la page pour l\'appliquer.',
             sp_bearer_title:        '🔑 Bearer Token personnalisé',
             sp_bearer_detect:       'Détection automatique',
@@ -2221,6 +2283,7 @@
             sp_grid_media_btn_label: 'Кнопки сетки медиа',
             sp_grid_media_btn_desc: 'Показывать кнопки копирования/просмотра/скачивания на миниатюрах /media',
             grid_btn_copy_tip: 'Копировать ссылку на медиа (долгое нажатие — копия с префиксом, или меню при нескольких)',
+            grid_btn_share_tip: 'Копировать ссылку на твит (долгое нажатие — копия с префиксом)',
             grid_btn_preview_tip: 'Просмотр в галерее',
             grid_btn_download_tip: 'Скачать медиа (долгое нажатие — меню)',
             toast_grid_media_copied: 'Ссылка скопирована!',
@@ -2367,7 +2430,13 @@
             sp_reset_confirm:       'Сбросить все настройки до значений по умолчанию?\n\nБудет очищено: формат копирования, стиль уведомлений, стиль панели, расстояния активации, внешний вид, положение кнопок и режим список/миниатюры.\n\nИстория загрузок и группы не затронуты.',
             sp_legacy_grid_label:   'Классическая сетка медиа',
             sp_legacy_grid_desc:    'Восстанавливает старую сетку медиа в профиле. Для применения требуется перезагрузка страницы.',
-            confirm_legacy_grid_reload: 'Классическая сетка медиа {state}.\nПерезагрузить страницу сейчас, чтобы применить?',
+            confirm_legacy_grid_reload: 'Классическая сетка медиа {state}.<br><br>' +
+                '<span style="color:#e0245e"><b>⚠️ Примечание:</b> если вы используете Tampermonkey (стабильная версия), эта функция может не работать.</span><br>' +
+                'Для надёжной работы используйте <span style="color:#e0245e"><b>Tampermonkey Beta</b></span>, ' +
+                '<span style="color:#e0245e"><b>ScriptCat</b></span>, <span style="color:#e0245e"><b>Violentmonkey</b></span> или другой менеджер.<br><br>' +
+                'Перезагрузить страницу сейчас, чтобы применить?',
+            btn_legacy_grid_later:      'Позже',
+            btn_legacy_grid_reload_now: 'Перезагрузить сейчас',
             toast_legacy_grid_pending: 'Изменение сохранено. Перезагрузите страницу, чтобы применить.',
             sp_bearer_title:        '🔑 Пользовательский Bearer Token',
             sp_bearer_detect:       'Автоопределение',
@@ -2635,6 +2704,108 @@
         content.appendChild(closeBtn);
         content.appendChild(title);
         content.appendChild(body);
+        modal.appendChild(content);
+        document.body.appendChild(modal);
+    }
+
+    function showLegacyGridConfirmModal(bodyHtml, onConfirm, onCancel) {
+        const old = document.getElementById('tm-legacy-grid-confirm-modal');
+        if (old) old.remove();
+
+        const curLang = GM_getValue(KEY_LANG, 'en');
+        const curT = TR[curLang] || TR['en'];
+
+        const dark = _isDarkTheme();
+        const presetKey = _getActiveThemePresetKey();
+        const _t = _getActiveThemeColors(presetKey, 'settings');
+        const _ex = _getActiveThemeExtras(presetKey, 'settings');
+        const C = dark ? {
+            overlay: 'rgba(0,0,0,0.82)',
+            panel:   _t.bg,
+            text:    _t.text,
+            border:  _ex.borderB,
+            sub:     _t.sub,
+        } : {
+            overlay: 'rgba(0,0,0,0.7)',
+            panel:   _t.bg,
+            text:    _t.text,
+            border:  _ex.borderB,
+            sub:     _t.sub,
+        };
+
+        const modal = document.createElement('div');
+        modal.id = 'tm-legacy-grid-confirm-modal';
+        modal.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: ${C.overlay}; z-index: 100000;
+            display: flex; align-items: center; justify-content: center;
+        `;
+
+        const content = document.createElement('div');
+        content.style.cssText = `
+            background: ${C.panel}; color: ${C.text}; padding: 22px 25px; border-radius: 12px;
+            width: 90%; max-width: 440px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            font-family: sans-serif; line-height: 1.6; position: relative;
+            max-height: 90vh; overflow-y: auto;
+        `;
+
+        const title = document.createElement('h2');
+        title.textContent = curT.sp_legacy_grid_label || 'Legacy Media Grid';
+        title.style.cssText = `margin-top: 0; margin-bottom: 12px; border-bottom: 2px solid ${C.border}; padding-bottom: 10px; font-size: 1.1rem; color: ${C.text};`;
+
+        const body = document.createElement('div');
+        body.style.cssText = `font-size: 14px; color: ${C.text};`;
+        sanitizeHelpHtml(bodyHtml, body);
+
+        const btnRow = document.createElement('div');
+        btnRow.style.cssText = `display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;`;
+
+        const laterBtn = document.createElement('button');
+        laterBtn.textContent = curT.btn_legacy_grid_later || 'Later';
+        laterBtn.style.cssText = `
+            padding: 8px 16px; border-radius: 8px; border: 1px solid ${C.border};
+            background: transparent; color: ${C.text}; font-size: 14px; cursor: pointer;
+        `;
+        let _cancelFired = false;
+        const fireCancel = () => {
+            if (_cancelFired) return;
+            _cancelFired = true;
+            modal.remove();
+            if (typeof onCancel === 'function') onCancel();
+        };
+
+        laterBtn.onclick = () => fireCancel();
+
+        const reloadBtn = document.createElement('button');
+        reloadBtn.textContent = curT.btn_legacy_grid_reload_now || 'Reload now';
+        reloadBtn.style.cssText = `
+            padding: 8px 16px; border-radius: 8px; border: none;
+            background: #1d9bf0; color: #fff; font-size: 14px; font-weight: bold; cursor: pointer;
+        `;
+        reloadBtn.onclick = () => {
+            _cancelFired = true;
+            modal.remove();
+            onConfirm();
+        };
+
+        btnRow.appendChild(laterBtn);
+        btnRow.appendChild(reloadBtn);
+
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
+        closeBtn.setAttribute('aria-label', 'Close');
+        closeBtn.style.cssText = `
+            position: absolute; top: 10px; right: 12px; border: none; background: none;
+            width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: ${C.sub}; border-radius: 5px;
+        `;
+        closeBtn.onclick = () => fireCancel();
+        modal.onclick = (e) => { if (e.target === modal) fireCancel(); };
+
+        content.appendChild(closeBtn);
+        content.appendChild(title);
+        content.appendChild(body);
+        content.appendChild(btnRow);
         modal.appendChild(content);
         document.body.appendChild(modal);
     }
@@ -8189,13 +8360,13 @@
                         GM_setValue(KEY_LEGACY_MEDIA_GRID, next);
                         updateVal();
                         const stateText = next ? (T.status_on || 'On') : (T.status_off || 'Off');
-                        const confirmMsg = (T.confirm_legacy_grid_reload || 'Legacy Media Grid {state}.\nReload page now to apply?')
+                        const confirmMsg = (T.confirm_legacy_grid_reload || DEFAULT_LEGACY_GRID_CONFIRM_MSG)
                             .replace('{state}', stateText);
-                        if (confirm(confirmMsg)) {
-                            location.reload();
-                        } else {
-                            showToast(T.toast_legacy_grid_pending || 'Change saved. Reload the page to apply.');
-                        }
+                        showLegacyGridConfirmModal(
+                            confirmMsg,
+                            () => location.reload(),
+                            () => showToast(T.toast_legacy_grid_pending || 'Change saved. Reload the page to apply.')
+                        );
                     });
                     return row;
                 };
@@ -17592,8 +17763,18 @@
             }
             .${GRID_BTN_CLASS}:hover { background: rgba(29,155,240,0.85); transform: scale(1.08); }
             .${GRID_BTN_CLASS}.tm-grid-btn-ok { background: rgba(0,186,124,0.9) !important; }
-            
-            .${GRID_BTN_CLASS}.tm-grid-btn-copy   { top: 6px;  right: 6px; }
+
+            .tm-grid-btn-copy-wrap { position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; }
+            .tm-grid-btn-copy-wrap .tm-grid-btn-copy { position: static; }
+            .${GRID_BTN_CLASS}.tm-grid-btn-share {
+                position: absolute; top: 0; right: 32px;
+                opacity: 0; pointer-events: none;
+                transform: translateX(6px);
+                transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
+            }
+            .tm-grid-btn-copy-wrap.tm-force-open .tm-grid-btn-share {
+                opacity: 1; pointer-events: auto; transform: translateX(0);
+            }
             .${GRID_BTN_CLASS}.tm-grid-btn-dl     { top: 36px; right: 6px; }
             .${GRID_BTN_CLASS}.tm-grid-btn-preview{ top: 66px; right: 6px; }
             .${GRID_BTN_CLASS} svg { width: 14px; height: 14px; pointer-events: none; }
@@ -17609,6 +17790,7 @@
     const SVG_GRID_COPY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
     const SVG_GRID_PREVIEW = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
     const SVG_GRID_DL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
+    const SVG_GRID_SHARE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>`;
     const SVG_GRID_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,12 9,17 20,6"/></svg>`;
 
     _gridBtnFeedback = function (btn, originalSvg) {
@@ -17669,14 +17851,14 @@
                 try { await forceDownloadBlob(url, _gridFilename(apiData, url, idx)); } catch (_) {}
             };
 
-            const _buildGridCopyMenuItems = (apiData, urls, withPrefix) => urls.map((url, i) => ({
+            const _buildGridCopyMenuItems = (apiData, urls) => urls.map((url, i) => ({
                 icon: SVG_GRID_COPY,
                 label: (url.includes('.mp4') ? (T.grid_menu_item_video || 'Video {n}') : (T.grid_menu_item_image || 'Image {n}')).replace('{n}', i + 1),
                 itemClass: 'tm-menu-item--copied',
                 action: () => {
-                    GM_setClipboard(withPrefix ? _buildPrefixedTweetUrl(url) : url);
+                    GM_setClipboard(url);
                     _gridBtnFeedback(copyBtn, SVG_GRID_COPY);
-                    showToast(withPrefix ? (T.msg_prefix_copied || 'Prefix Copied') : (T.toast_grid_media_copied || 'Link copied!'));
+                    showToast(T.toast_grid_media_copied || 'Link copied!');
                 },
             }));
 
@@ -17699,11 +17881,11 @@
                     const urls = _gridMediaUrls(apiData);
                     if (!urls.length) { showToast(T.msg_no_media || 'No media found'); return; }
                     if (urls.length === 1) {
-                        GM_setClipboard(_buildPrefixedTweetUrl(urls[0]));
+                        GM_setClipboard(urls[0]);
                         _gridBtnFeedback(copyBtn, SVG_GRID_COPY);
-                        showToast(T.msg_prefix_copied || 'Prefix Copied');
+                        showToast(T.toast_grid_media_copied || 'Link copied!');
                     } else {
-                        _showActionMenu(copyBtn, _buildGridCopyMenuItems(apiData, urls, true));
+                        _showActionMenu(copyBtn, _buildGridCopyMenuItems(apiData, urls));
                     }
                 }, 500);
             });
@@ -17730,6 +17912,61 @@
             });
             copyBtn.addEventListener('mouseleave', () => { if (_copyLTimer && !_copyPressing) { clearTimeout(_copyLTimer); _copyLTimer = null; } });
             copyBtn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
+
+            const copyWrap = document.createElement('div');
+            copyWrap.className = 'tm-grid-btn-copy-wrap';
+
+            const shareBtn = document.createElement('button');
+            shareBtn.type = 'button';
+            shareBtn.className = `${GRID_BTN_CLASS} tm-grid-btn-share`;
+            shareBtn.title = T.grid_btn_share_tip || 'Copy tweet link (long-press to copy with prefix)';
+            shareBtn.innerHTML = SVG_GRID_SHARE;
+            let _shareLTimer = null;
+            let _sharePressing = false;
+            shareBtn.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return;
+                e.preventDefault(); e.stopPropagation();
+                _sharePressing = true;
+                _shareLTimer = setTimeout(() => {
+                    _shareLTimer = null;
+                    _sharePressing = false;
+                    const tweetUrl = `https://x.com/${screenName}/status/${tweetId}`;
+                    GM_setClipboard(_buildPrefixedTweetUrl(tweetUrl));
+                    _gridBtnFeedback(shareBtn, SVG_GRID_SHARE);
+                    showToast(T.msg_prefix_copied || 'Prefix Copied');
+                }, 500);
+            });
+            shareBtn.addEventListener('mouseup', (e) => {
+                if (e.button !== 0) return;
+                if (_shareLTimer) {
+                    clearTimeout(_shareLTimer);
+                    _shareLTimer = null;
+                    _sharePressing = false;
+                    const tweetUrl = `https://x.com/${screenName}/status/${tweetId}`;
+                    GM_setClipboard(_convertTweetUrlDomain(tweetUrl));
+                    _gridBtnFeedback(shareBtn, SVG_GRID_SHARE);
+                    showToast(T.toast_grid_media_copied || 'Link copied!');
+                }
+            });
+            shareBtn.addEventListener('mouseleave', () => { if (_shareLTimer && !_sharePressing) { clearTimeout(_shareLTimer); _shareLTimer = null; } });
+            shareBtn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
+
+            const _shareOpen = () => {
+                if (copyWrap._tmShareCloseTimer) { clearTimeout(copyWrap._tmShareCloseTimer); copyWrap._tmShareCloseTimer = null; }
+                copyWrap.classList.add('tm-force-open');
+            };
+            const _shareClose = () => {
+                copyWrap._tmShareCloseTimer = setTimeout(() => {
+                    copyWrap.classList.remove('tm-force-open');
+                    copyWrap._tmShareCloseTimer = null;
+                }, 200);
+            };
+            copyWrap.addEventListener('mouseenter', _shareOpen);
+            copyWrap.addEventListener('mouseleave', _shareClose);
+            shareBtn.addEventListener('mouseenter', _shareOpen);
+            shareBtn.addEventListener('mouseleave', _shareClose);
+
+            copyWrap.append(shareBtn, copyBtn);
 
             const previewBtn = document.createElement('button');
             previewBtn.type = 'button';
@@ -17843,7 +18080,7 @@
             dlBtn.addEventListener('mouseleave', () => { if (_dlLTimer && !_dlPressing) { clearTimeout(_dlLTimer); _dlLTimer = null; } });
             dlBtn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
 
-            layer.append(copyBtn, previewBtn, dlBtn);
+            layer.append(copyWrap, previewBtn, dlBtn);
             posHost.appendChild(layer);
 
             li.dataset.tmGridHref = href;
