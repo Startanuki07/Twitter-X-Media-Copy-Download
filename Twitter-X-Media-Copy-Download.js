@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.1.2.0
+// @version      3.1.2.2
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -447,6 +447,7 @@
             msg_prefix_copied: 'Prefix Copied',
             msg_copied: 'Copied',
             msg_downloaded: 'Downloaded',
+            msg_download_failed: '❌ Download failed',
             msg_no_media: '❌ No Media',
             play_btn_tooltip: 'Click: Preview Video in Floating Player',
             btn_switch_to_video: 'Switch to Video',
@@ -647,6 +648,7 @@
             sp_theme_sync_desc:        'When off, Settings and History panels remember separate dark/light choices',
             sp_dock_reset_pos:         'Reset Panel Position',
             sp_dock_reset_pos_desc:    'Restore panel to default coordinates (dock side kept)',
+            sp_dock_reset_btn:         'Reset',
         },
         'zh-TW': {
             langName: '繁體中文',
@@ -676,11 +678,29 @@
             avatar_media_btn_tip: '前往 /media 頁面',
             sp_avatar_media_btn_label: '頭像媒體捷徑',
             sp_avatar_media_btn_desc: '在 timeline 頭像旁顯示低調徽章，點擊直達該使用者的 /media 頁面',
+            sp_custom_filename_label: '自訂檔名',
+            cfn_input_tip: '可用 token：{screenName} {displayName} {date} {id} {index} {ext} {origName} {text}\n注意：{ext} 不含點號——若需要請自行寫成 .{ext}。{origName} 是原始 Twitter CDN 檔名代碼（例如 HP_yBXibUAA2-Qu），不含副檔名，若無法取得則為空。{text} 已截斷，但與其他 token 組合後仍可能產生過長的檔名。',
+            cfn_preview_label: '預覽',
+            cfn_preview_empty: '（空白樣板——將退回預設格式）',
+            cfn_reset_toast: '↺ 檔名樣板已重設為預設值',
+            cfn_token_screenName: '{screenName}',
+            cfn_token_displayName: '{displayName}',
+            cfn_token_date: '{date}',
+            cfn_token_id: '{id}',
+            cfn_token_index: '{index}',
+            cfn_token_ext: '{ext}',
+            cfn_token_origName: '{origName}',
+            cfn_token_text: '{text}',
+            cfn_token_text_warn_badge: '⚠ 過長',
+            cfn_token_text_warn_tip: '推文文字長度難以預測。即使此處已截斷至 20 字元，與其他 token 組合後仍可能產生過長的檔名。',
+            sp_collapseall_expand_tip: '展開全部群組',
+            sp_collapseall_collapse_tip: '收合全部群組',
             link_tooltip: '點擊：複製 ',
             link_tooltip_long: '\n長按：複製前綴 + ',
             msg_prefix_copied: '前綴已複製',
             msg_copied: '已複製',
             msg_downloaded: '已下載',
+            msg_download_failed: '❌ 下載失敗',
             msg_no_media: '❌ 無媒體',
             play_btn_tooltip: '點擊：在浮動播放器中預覽影片',
             btn_switch_to_video: '切換至影片',
@@ -878,6 +898,7 @@
             sp_theme_sync_desc:        '關閉後，設定面板與下載歷史面板可各自記住不同的深色/淺色選擇',
             sp_dock_reset_pos:         '重置面板位置',
             sp_dock_reset_pos_desc:    '還原面板至預設座標（停靠側不變）',
+            sp_dock_reset_btn:         '重置',
         },
         'zh-CN': {
             langName: '简体中文',
@@ -907,11 +928,29 @@
             avatar_media_btn_tip: '前往 /media 页面',
             sp_avatar_media_btn_label: '头像媒体快捷方式',
             sp_avatar_media_btn_desc: '在 timeline 头像旁显示低调徽章，点击直达该用户的 /media 页面',
+            sp_custom_filename_label: '自定义文件名',
+            cfn_input_tip: '可用 token：{screenName} {displayName} {date} {id} {index} {ext} {origName} {text}\n注意：{ext} 不含点号——如需要请自行写成 .{ext}。{origName} 是原始 Twitter CDN 文件名代码（例如 HP_yBXibUAA2-Qu），不含扩展名，若无法获取则为空。{text} 已截断，但与其他 token 组合后仍可能产生过长的文件名。',
+            cfn_preview_label: '预览',
+            cfn_preview_empty: '（空白模板——将回退到默认格式）',
+            cfn_reset_toast: '↺ 文件名模板已重置为默认值',
+            cfn_token_screenName: '{screenName}',
+            cfn_token_displayName: '{displayName}',
+            cfn_token_date: '{date}',
+            cfn_token_id: '{id}',
+            cfn_token_index: '{index}',
+            cfn_token_ext: '{ext}',
+            cfn_token_origName: '{origName}',
+            cfn_token_text: '{text}',
+            cfn_token_text_warn_badge: '⚠ 过长',
+            cfn_token_text_warn_tip: '推文文字长度难以预测。即使此处已截断至 20 字符，与其他 token 组合后仍可能产生过长的文件名。',
+            sp_collapseall_expand_tip: '展开全部分组',
+            sp_collapseall_collapse_tip: '收起全部分组',
             link_tooltip: '点击：复制 ',
             link_tooltip_long: '\n长按：复制前缀 + ',
             msg_prefix_copied: '前缀已复制',
             msg_copied: '已复制',
             msg_downloaded: '已下载',
+            msg_download_failed: '❌ 下载失败',
             msg_no_media: '❌ 无媒体',
             play_btn_tooltip: '点击：在浮动播放器中预览视频',
             btn_switch_to_video: '切换至视频',
@@ -1109,6 +1148,7 @@
             sp_theme_sync_desc:        '关闭后，设置面板与下载历史面板可各自记住不同的深色/浅色选择',
             sp_dock_reset_pos:         '重置面板位置',
             sp_dock_reset_pos_desc:    '还原面板至默认坐标（停靠侧不变）',
+            sp_dock_reset_btn:         '重置',
         },
         'ja': {
             langName: '日本語',
@@ -1138,11 +1178,29 @@
             avatar_media_btn_tip: '/media ページへ移動',
             sp_avatar_media_btn_label: 'アバターメディアショートカット',
             sp_avatar_media_btn_desc: 'タイムラインのアバター横に控えめなバッジを表示し、そのユーザーの /media ページへ移動',
+            sp_custom_filename_label: 'カスタムファイル名',
+            cfn_input_tip: '使用可能なトークン：{screenName} {displayName} {date} {id} {index} {ext} {origName} {text}\n注：{ext} にはドットが含まれません——必要な場合は .{ext} と記述してください。{origName} は元の Twitter CDN ファイル名コード（例：HP_yBXibUAA2-Qu）で、拡張子を含まず、取得できない場合は空になります。{text} は切り詰められますが、他のトークンと組み合わせるとファイル名が長くなる場合があります。',
+            cfn_preview_label: 'プレビュー',
+            cfn_preview_empty: '（空のテンプレート——デフォルト形式にフォールバックします）',
+            cfn_reset_toast: '↺ ファイル名テンプレートをデフォルトにリセットしました',
+            cfn_token_screenName: '{screenName}',
+            cfn_token_displayName: '{displayName}',
+            cfn_token_date: '{date}',
+            cfn_token_id: '{id}',
+            cfn_token_index: '{index}',
+            cfn_token_ext: '{ext}',
+            cfn_token_origName: '{origName}',
+            cfn_token_text: '{text}',
+            cfn_token_text_warn_badge: '⚠ 長い',
+            cfn_token_text_warn_tip: 'ツイート本文の長さは予測できません。ここで20文字に切り詰めても、他のトークンと組み合わせるとファイル名が長くなりすぎる場合があります。',
+            sp_collapseall_expand_tip: 'すべてのグループを展開',
+            sp_collapseall_collapse_tip: 'すべてのグループを折りたたむ',
             link_tooltip: 'クリック：コピー ',
             link_tooltip_long: '\n長押し：プレフィックス付きコピー ',
             msg_prefix_copied: 'プレフィックス付',
             msg_copied: 'コピー完了',
             msg_downloaded: 'ダウンロード完了',
+            msg_download_failed: '❌ ダウンロード失敗',
             msg_no_media: '❌ メディアなし',
             play_btn_tooltip: 'クリック：フローティングプレーヤーで動画を再生',
             btn_switch_to_video: '動画に切り替え',
@@ -1340,6 +1398,7 @@
             sp_theme_sync_desc:        'オフにすると、設定パネルとダウンロード履歴パネルが別々にダーク/ライトを記憶します',
             sp_dock_reset_pos:         'パネル位置をリセット',
             sp_dock_reset_pos_desc:    'パネルを初期座標に戻します（ドック側は維持）',
+            sp_dock_reset_btn:         'リセット',
         },
         'ko': {
             langName: '한국어',
@@ -1369,11 +1428,29 @@
             avatar_media_btn_tip: '/media 페이지로 이동',
             sp_avatar_media_btn_label: '아바타 미디어 바로가기',
             sp_avatar_media_btn_desc: '타임라인 아바타 옆에 은은한 배지를 표시하여 해당 사용자의 /media 페이지로 이동',
+            sp_custom_filename_label: '사용자 지정 파일 이름',
+            cfn_input_tip: '사용 가능한 토큰: {screenName} {displayName} {date} {id} {index} {ext} {origName} {text}\n참고: {ext}에는 점이 포함되지 않습니다——필요한 경우 직접 .{ext}로 작성하세요. {origName}은 원본 Twitter CDN 파일명 코드(예: HP_yBXibUAA2-Qu)이며 확장자를 포함하지 않고, 가져올 수 없는 경우 비어 있습니다. {text}는 잘리지만 다른 토큰과 결합하면 파일 이름이 너무 길어질 수 있습니다.',
+            cfn_preview_label: '미리보기',
+            cfn_preview_empty: '(빈 템플릿——기본 형식으로 대체됩니다)',
+            cfn_reset_toast: '↺ 파일명 템플릿이 기본값으로 재설정되었습니다',
+            cfn_token_screenName: '{screenName}',
+            cfn_token_displayName: '{displayName}',
+            cfn_token_date: '{date}',
+            cfn_token_id: '{id}',
+            cfn_token_index: '{index}',
+            cfn_token_ext: '{ext}',
+            cfn_token_origName: '{origName}',
+            cfn_token_text: '{text}',
+            cfn_token_text_warn_badge: '⚠ 너무 김',
+            cfn_token_text_warn_tip: '트윗 텍스트 길이는 예측할 수 없습니다. 여기서 20자로 잘라도 다른 토큰과 결합하면 파일 이름이 너무 길어질 수 있습니다.',
+            sp_collapseall_expand_tip: '모든 그룹 펼치기',
+            sp_collapseall_collapse_tip: '모든 그룹 접기',
             link_tooltip: '클릭: 복사 ',
             link_tooltip_long: '\n길게 누르기: 접두사 포함 복사 ',
             msg_prefix_copied: '접두사 복사됨',
             msg_copied: '복사 완료',
             msg_downloaded: '다운로드 완료',
+            msg_download_failed: '❌ 다운로드 실패',
             msg_no_media: '❌ 미디어 없음',
             play_btn_tooltip: '클릭: 플로팅 플레이어에서 동영상 재생',
             btn_switch_to_video: '동영상으로 전환',
@@ -1571,6 +1648,7 @@
             sp_theme_sync_desc:        '끄면 설정 패널과 다운로드 기록 패널이 각각 다른 다크/라이트 상태를 기억합니다',
             sp_dock_reset_pos:         '패널 위치 재설정',
             sp_dock_reset_pos_desc:    '패널을 기본 좌표로 복원합니다 (도크 방향은 유지)',
+            sp_dock_reset_btn:         '초기화',
         },
         'es': {
             langName: 'Español',
@@ -1600,11 +1678,29 @@
             avatar_media_btn_tip: 'Ir a la página /media',
             sp_avatar_media_btn_label: 'Atajo de Medios del Avatar',
             sp_avatar_media_btn_desc: 'Mostrar una insignia sutil junto a los avatares para abrir la página /media de ese usuario',
+            sp_custom_filename_label: 'Nombre de archivo personalizado',
+            cfn_input_tip: 'Tokens disponibles: {screenName} {displayName} {date} {id} {index} {ext} {origName} {text}\nNota: {ext} no incluye el punto — escribe .{ext} si lo necesitas. {origName} es el código de nombre de archivo original de la CDN de Twitter (p. ej., HP_yBXibUAA2-Qu), sin extensión, vacío si no está disponible. {text} se trunca, pero al combinarlo con otros tokens el nombre del archivo puede seguir siendo demasiado largo.',
+            cfn_preview_label: 'Vista previa',
+            cfn_preview_empty: '(plantilla vacía — se usará el formato predeterminado)',
+            cfn_reset_toast: '↺ Plantilla de nombre de archivo restablecida al valor predeterminado',
+            cfn_token_screenName: '{screenName}',
+            cfn_token_displayName: '{displayName}',
+            cfn_token_date: '{date}',
+            cfn_token_id: '{id}',
+            cfn_token_index: '{index}',
+            cfn_token_ext: '{ext}',
+            cfn_token_origName: '{origName}',
+            cfn_token_text: '{text}',
+            cfn_token_text_warn_badge: '⚠ largo',
+            cfn_token_text_warn_tip: 'La longitud del texto del tuit es impredecible. Aunque aquí se trunca a 20 caracteres, al combinarlo con otros tokens el nombre del archivo puede resultar demasiado largo.',
+            sp_collapseall_expand_tip: 'Expandir todos los grupos',
+            sp_collapseall_collapse_tip: 'Contraer todos los grupos',
             link_tooltip: 'Clic: Copiar ',
             link_tooltip_long: '\nPulsación larga: Copiar prefijo + ',
             msg_prefix_copied: 'Prefijo copiado',
             msg_copied: 'Copiado',
             msg_downloaded: 'Descargado',
+            msg_download_failed: '❌ Error al descargar',
             msg_no_media: '❌ Sin medios',
             play_btn_tooltip: 'Clic: Ver video en reproductor flotante',
             btn_switch_to_video: 'Cambiar a vídeo',
@@ -1802,6 +1898,7 @@
             sp_theme_sync_desc:        'Si está desactivado, el panel de ajustes y el de historial recordarán temas claro/oscuro independientes',
             sp_dock_reset_pos:         'Restablecer posición del panel',
             sp_dock_reset_pos_desc:    'Restaura el panel a las coordenadas predeterminadas (mantiene el lado de anclaje)',
+            sp_dock_reset_btn:         'Restablecer',
         },
         'pt-BR': {
             langName: 'Português (BR)',
@@ -1831,11 +1928,29 @@
             avatar_media_btn_tip: 'Ir para a página /media',
             sp_avatar_media_btn_label: 'Atalho de Mídia do Avatar',
             sp_avatar_media_btn_desc: 'Mostrar um selo discreto ao lado dos avatares para abrir a página /media desse usuário',
+            sp_custom_filename_label: 'Nome de arquivo personalizado',
+            cfn_input_tip: 'Tokens disponíveis: {screenName} {displayName} {date} {id} {index} {ext} {origName} {text}\nNota: {ext} não inclui o ponto — escreva .{ext} se precisar. {origName} é o código de nome de arquivo original da CDN do Twitter (ex.: HP_yBXibUAA2-Qu), sem extensão, vazio se não estiver disponível. {text} é truncado, mas ao combinar com outros tokens o nome do arquivo ainda pode ficar muito longo.',
+            cfn_preview_label: 'Pré-visualização',
+            cfn_preview_empty: '(modelo vazio — usará o formato padrão)',
+            cfn_reset_toast: '↺ Modelo de nome de arquivo redefinido para o padrão',
+            cfn_token_screenName: '{screenName}',
+            cfn_token_displayName: '{displayName}',
+            cfn_token_date: '{date}',
+            cfn_token_id: '{id}',
+            cfn_token_index: '{index}',
+            cfn_token_ext: '{ext}',
+            cfn_token_origName: '{origName}',
+            cfn_token_text: '{text}',
+            cfn_token_text_warn_badge: '⚠ longo',
+            cfn_token_text_warn_tip: 'O comprimento do texto do tweet é imprevisível. Mesmo truncado para 20 caracteres aqui, ao combinar com outros tokens o nome do arquivo ainda pode ficar muito longo.',
+            sp_collapseall_expand_tip: 'Expandir todos os grupos',
+            sp_collapseall_collapse_tip: 'Recolher todos os grupos',
             link_tooltip: 'Clique: Copiar ',
             link_tooltip_long: '\nPressão longa: Copiar prefixo + ',
             msg_prefix_copied: 'Prefixo copiado',
             msg_copied: 'Copiado',
             msg_downloaded: 'Baixado',
+            msg_download_failed: '❌ Falha no download',
             msg_no_media: '❌ Sem mídia',
             play_btn_tooltip: 'Clique: Reproduzir vídeo no player flutuante',
             btn_switch_to_video: 'Trocar para vídeo',
@@ -2033,6 +2148,7 @@
             sp_theme_sync_desc:        'Quando desativado, os painéis de Configurações e Histórico lembram temas claro/escuro separados',
             sp_dock_reset_pos:         'Redefinir posição do painel',
             sp_dock_reset_pos_desc:    'Restaura o painel para as coordenadas padrão (lado de ancoragem mantido)',
+            sp_dock_reset_btn:         'Redefinir',
         },
         'fr': {
             langName: 'Français',
@@ -2062,11 +2178,29 @@
             avatar_media_btn_tip: 'Aller \u00e0 la page /media',
             sp_avatar_media_btn_label: 'Raccourci M\u00e9dia de l\u2019Avatar',
             sp_avatar_media_btn_desc: 'Afficher un badge discret pr\u00e8s des avatars pour ouvrir la page /media de cet utilisateur',
+            sp_custom_filename_label: 'Nom de fichier personnalis\u00e9',
+            cfn_input_tip: 'Jetons disponibles : {screenName} {displayName} {date} {id} {index} {ext} {origName} {text}\nRemarque : {ext} n\u2019inclut pas le point \u2014 \u00e9crivez .{ext} si n\u00e9cessaire. {origName} est le code de nom de fichier original du CDN Twitter (ex. HP_yBXibUAA2-Qu), sans extension, vide si indisponible. {text} est tronqu\u00e9, mais combin\u00e9 \u00e0 d\u2019autres jetons, le nom de fichier peut rester trop long.',
+            cfn_preview_label: 'Aper\u00e7u',
+            cfn_preview_empty: '(mod\u00e8le vide \u2014 reviendra au format par d\u00e9faut)',
+            cfn_reset_toast: '\u21ba Mod\u00e8le de nom de fichier r\u00e9initialis\u00e9 par d\u00e9faut',
+            cfn_token_screenName: '{screenName}',
+            cfn_token_displayName: '{displayName}',
+            cfn_token_date: '{date}',
+            cfn_token_id: '{id}',
+            cfn_token_index: '{index}',
+            cfn_token_ext: '{ext}',
+            cfn_token_origName: '{origName}',
+            cfn_token_text: '{text}',
+            cfn_token_text_warn_badge: '\u26a0 long',
+            cfn_token_text_warn_tip: 'La longueur du texte du tweet est impr\u00e9visible. M\u00eame tronqu\u00e9 \u00e0 20 caract\u00e8res ici, combin\u00e9 \u00e0 d\u2019autres jetons, le nom de fichier peut rester trop long.',
+            sp_collapseall_expand_tip: 'D\u00e9velopper tous les groupes',
+            sp_collapseall_collapse_tip: 'R\u00e9duire tous les groupes',
             link_tooltip: 'Clic : Copier ',
             link_tooltip_long: '\nAppui long : Copier préfixe + ',
             msg_prefix_copied: 'Préfixe copié',
             msg_copied: 'Copié',
             msg_downloaded: 'Téléchargé',
+            msg_download_failed: '❌ Échec du téléchargement',
             msg_no_media: '❌ Aucun média',
             play_btn_tooltip: 'Clic : Lire la vidéo dans le lecteur flottant',
             btn_switch_to_video: 'Basculer vers la vidéo',
@@ -2264,6 +2398,7 @@
             sp_theme_sync_desc:        'Si désactivé, les panneaux Paramètres et Historique mémorisent des thèmes clair/sombre distincts',
             sp_dock_reset_pos:         'Réinitialiser la position du panneau',
             sp_dock_reset_pos_desc:    "Restaure le panneau aux coordonnées par défaut (côté d'ancrage conservé)",
+            sp_dock_reset_btn:         'Réinitialiser',
         },
         'ru': {
             langName: 'Русский',
@@ -2293,11 +2428,29 @@
             avatar_media_btn_tip: 'Перейти на страницу /media',
             sp_avatar_media_btn_label: 'Ярлык медиа аватара',
             sp_avatar_media_btn_desc: 'Показывать скромный значок рядом с аватарами для перехода на страницу /media этого пользователя',
+            sp_custom_filename_label: 'Пользовательское имя файла',
+            cfn_input_tip: 'Доступные токены: {screenName} {displayName} {date} {id} {index} {ext} {origName} {text}\nПримечание: {ext} не включает точку — напишите .{ext}, если нужно. {origName} — это исходный код имени файла Twitter CDN (напр., HP_yBXibUAA2-Qu), без расширения, пусто, если недоступно. {text} обрезается, но в сочетании с другими токенами имя файла всё равно может получиться слишком длинным.',
+            cfn_preview_label: 'Предпросмотр',
+            cfn_preview_empty: '(пустой шаблон — будет использован формат по умолчанию)',
+            cfn_reset_toast: '↺ Шаблон имени файла сброшен к значению по умолчанию',
+            cfn_token_screenName: '{screenName}',
+            cfn_token_displayName: '{displayName}',
+            cfn_token_date: '{date}',
+            cfn_token_id: '{id}',
+            cfn_token_index: '{index}',
+            cfn_token_ext: '{ext}',
+            cfn_token_origName: '{origName}',
+            cfn_token_text: '{text}',
+            cfn_token_text_warn_badge: '⚠ длинно',
+            cfn_token_text_warn_tip: 'Длина текста твита непредсказуема. Даже если здесь он обрезан до 20 символов, в сочетании с другими токенами имя файла всё равно может получиться слишком длинным.',
+            sp_collapseall_expand_tip: 'Развернуть все группы',
+            sp_collapseall_collapse_tip: 'Свернуть все группы',
             link_tooltip: 'Клик: Копировать ',
             link_tooltip_long: '\nДолгое нажатие: Копировать с префиксом ',
             msg_prefix_copied: 'Префикс скопирован',
             msg_copied: 'Скопировано',
             msg_downloaded: 'Загружено',
+            msg_download_failed: '❌ Ошибка загрузки',
             msg_no_media: '❌ Нет медиа',
             play_btn_tooltip: 'Клик: Воспроизвести видео во всплывающем плеере',
             btn_switch_to_video: 'Переключить на видео',
@@ -2495,6 +2648,7 @@
             sp_theme_sync_desc:        'Если выключено, панели настроек и истории будут запоминать разные темы (светлая/тёмная) отдельно',
             sp_dock_reset_pos:         'Сбросить позицию панели',
             sp_dock_reset_pos_desc:    'Восстанавливает панель в исходные координаты (сторона стыковки сохраняется)',
+            sp_dock_reset_btn:         'Сбросить',
         }
     };
 
@@ -4567,6 +4721,7 @@
     }
 
     function createSettingsPanel() {
+        try {
         const existingWrapper = document.getElementById('tm-settings-wrapper');
         const _wasOpen  = existingWrapper?.getAttribute('data-open')  === 'true';
         const _prevFocus = existingWrapper?.getAttribute('data-focus') || null;
@@ -7287,7 +7442,7 @@
 
             const fanMaskRow = makeRow(
                 T.sp_grp_fan_mask || 'Fan Backdrop',
-                () => GM_getValue(KEY_GROUP_PANEL_CFG, '{}').includes('"fanMaskEnabled":false')
+                () => (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })().fanMaskEnabled === false
                     ? (T.status_off || 'Off') : (T.status_on || 'On'),
                 () => {
                     const cfg = (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })();
@@ -8489,6 +8644,11 @@
             wrapper.style.transform = '';
         }
         if (_prevFocus) wrapper.setAttribute('data-focus', _prevFocus);
+        } catch (e) {
+            console.error('[TM] createSettingsPanel failed, settings panel unavailable this cycle:', e);
+            document.getElementById('tm-settings-panel-style')?.remove();
+            document.getElementById('tm-settings-wrapper')?.remove();
+        }
     }
 
     const _downloadedIds = (() => {
@@ -12075,6 +12235,7 @@
 
                         const addCount = _mergeImportedRecords(imported);
                         imported.forEach(r => { if (r.tweetId) _downloadedIds.add(r.tweetId); });
+                        _invalidateRecordsCache();
                         showToast(groupAddCount > 0
                             ? `✅ Imported ${addCount} record(s), ${groupAddCount} group(s)`
                             : `✅ Imported ${addCount} new record(s)`);
@@ -12257,7 +12418,6 @@
         let _loadSentinelObserver = null;
         let _searchRenderTimer    = null;
         let _searchDrop        = null;
-        let _searchDropVisible = false;
 
         let _recordsCache = null;
         function _invalidateRecordsCache() { _recordsCache = null; }
