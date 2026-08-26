@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.1.2.2
+// @version      3.1.2.5
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -8058,7 +8058,8 @@
                     const data = JSON.parse(json);
                     const valid = new Set(ALL_SETTING_KEYS);
                     Object.entries(data).forEach(([k, v]) => { if (valid.has(k)) GM_setValue(k, v); });
-                    showToast('✅ Settings imported. Reload to apply.', 4000);
+                    showToast('✅ Settings imported.', 3000);
+                    createSettingsPanel();
                 } catch (_) { showToast('❌ Invalid settings file.', 3000); }
             }
             const _ROW_CSS = `display:flex;align-items:center;padding:8px 14px;gap:8px;font:13px system-ui;color:${C.text};`;
@@ -12158,7 +12159,7 @@
     }
 
     function _createImportExportController(deps) {
-        const { getRecords, btnExp, render } = deps;
+        const { getRecords, btnExp, render, _invalidateRecordsCache } = deps;
         let _expMenu = null;
 
         function _exportCSV() {
@@ -12215,6 +12216,8 @@
                 if (!file) { input.remove(); return; }
                 const reader = new FileReader();
                 reader.onload = (e) => {
+                    showToast('⏳ Importing…', 60000);
+                    setTimeout(() => {
                     try {
                         const parsed = JSON.parse(e.target.result);
 
@@ -12245,6 +12248,7 @@
                     } finally {
                         input.remove();
                     }
+                    }, 0);
                 };
                 reader.readAsText(file);
             });
@@ -14058,7 +14062,7 @@
             });
         }
 
-        const importExportCtl = _createImportExportController({ getRecords, btnExp, render });
+        const importExportCtl = _createImportExportController({ getRecords, btnExp, render, _invalidateRecordsCache });
         const _exportCSV    = importExportCtl.exportCSV;
         const _exportJSON   = importExportCtl.exportJSON;
         const _importJSON   = importExportCtl.importJSON;
