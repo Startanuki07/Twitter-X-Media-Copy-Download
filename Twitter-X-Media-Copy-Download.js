@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.1.2.5
+// @version      3.1.2.7
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -7012,7 +7012,7 @@
                 wrap.addEventListener('click', e => e.stopPropagation());
 
                 const editRow = document.createElement('div');
-                editRow.style.cssText = 'display:flex;align-items:center;gap:6px;';
+                editRow.style.cssText = 'position:relative;';
 
                 const tplInput = document.createElement('input');
                 tplInput.type = 'text';
@@ -7020,8 +7020,9 @@
                 tplInput.autocomplete = 'off';
                 tplInput.value = GM_getValue(KEY_CUSTOM_FILENAME_TEMPLATE, '') || CUSTOM_FN_DEFAULT_TEMPLATE;
                 tplInput.style.cssText = `
-                    flex: 1; min-width: 0; font-size: 12px; font-family: ui-monospace, monospace;
-                    padding: 6px 8px; border-radius: 6px; border: 1px solid ${C.border};
+                    display: block; width: 100%; box-sizing: border-box;
+                    font-size: 12px; font-family: ui-monospace, monospace;
+                    padding: 6px 30px 6px 8px; border-radius: 6px; border: 1px solid ${C.border};
                     background: ${C.panel}; color: ${C.text}; outline: none;
                 `;
                 tplInput.title = T.cfn_input_tip || 'Available tokens: {screenName} {displayName} {date} {id} {index} {ext} {origName} {text}\nNote: {ext} does not include the dot — write .{ext} if you need one. {origName} is the original Twitter CDN filename code (e.g. HP_yBXibUAA2-Qu), without extension, empty if unavailable. {text} is truncated but may still make filenames long.';
@@ -7034,6 +7035,10 @@
                     _updateCfnResetState();
                     showToast(T.cfn_reset_toast || '↺ Filename template reset to default');
                 });
+                resetBtn.style.position = 'absolute';
+                resetBtn.style.right = '6px';
+                resetBtn.style.top = '50%';
+                resetBtn.style.transform = 'translateY(-50%)';
                 editRow.appendChild(tplInput);
                 editRow.appendChild(resetBtn);
                 wrap.appendChild(editRow);
@@ -7094,12 +7099,18 @@
                 const _insertCfnToken = (token) => {
                     const start = tplInput.selectionStart ?? tplInput.value.length;
                     const end = tplInput.selectionEnd ?? tplInput.value.length;
-                    const cur = tplInput.value;
-                    const nextVal = cur.slice(0, start) + token + cur.slice(end);
-                    tplInput.value = nextVal;
-                    const caret = start + token.length;
-                    tplInput.setSelectionRange(caret, caret);
-                    GM_setValue(KEY_CUSTOM_FILENAME_TEMPLATE, nextVal);
+                    tplInput.focus();
+                    tplInput.setSelectionRange(start, end);
+                    let inserted = false;
+                    try { inserted = document.execCommand('insertText', false, token); } catch (_) { inserted = false; }
+                    if (!inserted) {
+                        const cur = tplInput.value;
+                        const nextVal = cur.slice(0, start) + token + cur.slice(end);
+                        tplInput.value = nextVal;
+                        const caret = start + token.length;
+                        tplInput.setSelectionRange(caret, caret);
+                    }
+                    GM_setValue(KEY_CUSTOM_FILENAME_TEMPLATE, tplInput.value);
                     _refreshCustomFilenameCache();
                     _updateCfnPreview();
                     _updateCfnResetState();
