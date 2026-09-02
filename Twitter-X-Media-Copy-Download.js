@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.1.2.8
+// @version      3.1.2.12
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -3894,6 +3894,19 @@
         gold:   { label: 'Gold',   bg: '#1a1608', text: '#f5edd0', sub: '#ab9552', header: '#2d260f', border: '#e8c547' },
         cyber:  { label: 'Cyber',  bg: '#0d0b16', text: '#e2e8ff', sub: '#8886b3', header: '#191325', border: '#8b5cf6' },
         volt:   { label: 'Volt',   bg: '#0e0e10', text: '#ececec', sub: '#8a8a90', header: '#1c1c1f', border: '#ef4444' },
+        rose:   { label: 'Rose',   bg: '#20121a', text: '#f5dce7', sub: '#c087a0', header: '#341e2b', border: '#e0448b' },
+        ocean:  { label: 'Ocean',  bg: '#0a1a24', text: '#dcedf5', sub: '#7fa8bf', header: '#122938', border: '#2f9bd6' },
+        mint:   { label: 'Mint',   bg: '#eef7f2', text: '#1c3a2e', sub: '#4d7863', header: '#dcefe4', border: '#2fae7c' },
+        cyan:     { label: 'Cyan',     bg: '#08191c', text: '#d6f0f4', sub: '#6fa8b0', header: '#0f2a2e', border: '#22b8c4' },
+        coral:    { label: 'Coral',    bg: '#23130f', text: '#fbe0d5', sub: '#d1917a', header: '#391f18', border: '#f0654a' },
+        lavender: { label: 'Lavender', bg: '#f3effa', text: '#3a2d52', sub: '#7d6a9c', header: '#e6ddf4', border: '#8b6fd6' },
+        olive:    { label: 'Olive',    bg: '#f6f3e4', text: '#3d3c1f', sub: '#7d7a4a', header: '#ece5c9', border: '#9aa832' },
+        teal:     { label: 'Teal',     bg: '#e6f5f3', text: '#0f3d38', sub: '#3f8a7f', header: '#d3ece8', border: '#189685' },
+        burgundy: { label: 'Burgundy', bg: '#1c0a10', text: '#f2dbe1', sub: '#b57284', header: '#2f1219', border: '#a02040' },
+        indigo:   { label: 'Indigo',   bg: '#10132a', text: '#dfe2f7', sub: '#8790c4', header: '#1b2040', border: '#5a67d8' },
+        peach:    { label: 'Peach',    bg: '#fbeee4', text: '#5a3421', sub: '#a3735a', header: '#f5ddc9', border: '#e8875a' },
+        sakura:    { label: 'Sakura',    bg: '#fdf0f3', text: '#6b2d3d', sub: '#b4788c', header: '#fbe1e7', border: '#e888a3' },
+        champagne: { label: 'Champagne', bg: '#fbf3e3', text: '#5c4a26', sub: '#8c7442', header: '#f5e8c9', border: '#c9a860' },
     };
 
     function _applyQuickPreset(scope, presetKey) {
@@ -4069,7 +4082,7 @@
         const tabBar = document.createElement('div');
         tabBar.style.cssText = 'display:flex; gap:6px; margin: 10px 0 8px;';
         const _tabBtnStyle = (active) => `flex:1; padding:6px 0; border-radius:6px; border:1px solid ${C.border};
-            cursor:pointer; font-size:12px; background:${active ? '#1d9bf0' : 'transparent'}; color:${active ? '#fff' : C.text};`;
+            cursor:pointer; font-size:12px; text-align:center; background:${active ? '#1d9bf0' : 'transparent'}; color:${active ? '#fff' : C.text};`;
         const settingsTabBtn = document.createElement('button');
         settingsTabBtn.type = 'button';
         settingsTabBtn.textContent = T.tp_tab_settings || 'Settings';
