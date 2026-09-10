@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.1.2.15
+// @version      3.1.2.16
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -616,6 +616,9 @@
             hist_sort_author:       'Author A–Z',
             hist_sort_count:        'Most Media',
             hist_search_ph:         '🔍  Search…',
+            hist_empty_search:      'No results matching search.',
+            hist_empty_classic:     'No download history yet.\nRight-click 🎞️ to download & record.',
+            hist_empty_menu:        'No download history yet.\nClick 🎞️ and choose Download All to record.',
             
             sp_grp_group:           '⭐  Groups',
             sp_grp_on_dl:           'Group on Download',
@@ -875,6 +878,9 @@
             hist_sort_author:       '作者 A–Z',
             hist_sort_count:        '媒體最多',
             hist_search_ph:         '🔍  搜尋…',
+            hist_empty_search:      '沒有符合搜尋條件的紀錄。',
+            hist_empty_classic:     '尚無下載紀錄。\n右鍵點擊 🎞️ 即可下載並記錄。',
+            hist_empty_menu:        '尚無下載紀錄。\n點擊 🎞️ 並選擇「下載全部」即可記錄。',
             sp_grp_group:           '⭐  群組',
             sp_grp_on_dl:           '下載時分組',
             sp_grp_popup_style:      '彈出樣式',
@@ -1133,6 +1139,9 @@
             hist_sort_author:       '作者 A–Z',
             hist_sort_count:        '媒体最多',
             hist_search_ph:         '🔍  搜索…',
+            hist_empty_search:      '没有符合搜索条件的记录。',
+            hist_empty_classic:     '尚无下载记录。\n右键点击 🎞️ 即可下载并记录。',
+            hist_empty_menu:        '尚无下载记录。\n点击 🎞️ 并选择"下载全部"即可记录。',
             sp_grp_group:           '⭐  分组',
             sp_grp_on_dl:           '下载时分组',
             sp_grp_popup_style:      '弹出样式',
@@ -1391,6 +1400,9 @@
             hist_sort_author:       '著者 A–Z',
             hist_sort_count:        'メディア数順',
             hist_search_ph:         '🔍  検索…',
+            hist_empty_search:      '検索条件に一致する記録がありません。',
+            hist_empty_classic:     'まだダウンロード履歴がありません。\n🎞️ を右クリックするとダウンロードして記録できます。',
+            hist_empty_menu:        'まだダウンロード履歴がありません。\n🎞️ をクリックし「一括ダウンロード」を選ぶと記録できます。',
             sp_grp_group:           '⭐  グループ',
             sp_grp_on_dl:           'DL時にグループ分け',
             sp_grp_popup_style:      'ポップアップ様式',
@@ -1649,6 +1661,9 @@
             hist_sort_author:       '작성자 A–Z',
             hist_sort_count:        '미디어 많은순',
             hist_search_ph:         '🔍  검색…',
+            hist_empty_search:      '검색 조건에 맞는 기록이 없습니다.',
+            hist_empty_classic:     '아직 다운로드 기록이 없습니다.\n🎞️ 를 우클릭하면 다운로드 및 기록이 됩니다.',
+            hist_empty_menu:        '아직 다운로드 기록이 없습니다.\n🎞️ 를 클릭 후 "전체 다운로드"를 선택하면 기록됩니다.',
             sp_grp_group:           '⭐  그룹',
             sp_grp_on_dl:           '다운로드 시 그룹화',
             sp_grp_popup_style:      '팝업 스타일',
@@ -1907,6 +1922,9 @@
             hist_sort_author:       'Autor A–Z',
             hist_sort_count:        'Más medios',
             hist_search_ph:         '🔍  Buscar…',
+            hist_empty_search:      'No hay resultados para la búsqueda.',
+            hist_empty_classic:     'Aún no hay historial de descargas.\nClic derecho en 🎞️ para descargar y registrar.',
+            hist_empty_menu:        'Aún no hay historial de descargas.\nHaz clic en 🎞️ y elige "Descargar todo" para registrar.',
             sp_grp_group:           '⭐  Grupos',
             sp_grp_on_dl:           'Agrupar al descargar',
             sp_grp_popup_style:      'Estilo emergente',
@@ -2165,6 +2183,9 @@
             hist_sort_author:       'Autor A–Z',
             hist_sort_count:        'Mais mídia',
             hist_search_ph:         '🔍  Pesquisar…',
+            hist_empty_search:      'Nenhum resultado para a busca.',
+            hist_empty_classic:     'Ainda não há histórico de downloads.\nClique com o botão direito em 🎞️ para baixar e registrar.',
+            hist_empty_menu:        'Ainda não há histórico de downloads.\nClique em 🎞️ e escolha "Baixar tudo" para registrar.',
             sp_grp_group:           '⭐  Grupos',
             sp_grp_on_dl:           'Agrupar ao baixar',
             sp_grp_popup_style:      'Estilo pop-up',
@@ -2423,6 +2444,9 @@
             hist_sort_author:       'Auteur A–Z',
             hist_sort_count:        'Plus de médias',
             hist_search_ph:         '🔍  Rechercher…',
+            hist_empty_search:      'Aucun résultat pour cette recherche.',
+            hist_empty_classic:     'Aucun historique de téléchargement pour l\'instant.\nClic droit sur 🎞️ pour télécharger et enregistrer.',
+            hist_empty_menu:        'Aucun historique de téléchargement pour l\'instant.\nCliquez sur 🎞️ et choisissez « Tout télécharger » pour enregistrer.',
             sp_grp_group:           '⭐  Groupes',
             sp_grp_on_dl:           'Grouper au téléchargement',
             sp_grp_popup_style:      'Style de popup',
@@ -2681,6 +2705,9 @@
             hist_sort_author:       'Автор А–Я',
             hist_sort_count:        'Больше медиа',
             hist_search_ph:         '🔍  Поиск…',
+            hist_empty_search:      'Нет результатов по запросу.',
+            hist_empty_classic:     'История загрузок пуста.\nЩёлкните правой кнопкой по 🎞️, чтобы скачать и записать.',
+            hist_empty_menu:        'История загрузок пуста.\nНажмите 🎞️ и выберите «Скачать всё», чтобы записать.',
             sp_grp_group:           '⭐  Группы',
             sp_grp_on_dl:           'Группировать при загрузке',
             sp_grp_popup_style:      'Стиль всплывающего меню',
@@ -10766,7 +10793,12 @@
             em.className = 'tm-hist-empty';
             em.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
             const msg = document.createElement('div');
-            msg.textContent = query ? 'No results matching search.' : 'No download history yet.\nRight-click 🎞️ to download & record.';
+            const _emptyText = query
+                ? (T.hist_empty_search || 'No results matching search.')
+                : (GM_getValue(KEY_CLICK_MODE, 'classic') === 'menu'
+                    ? (T.hist_empty_menu    || 'No download history yet.\nClick 🎞️ and choose Download All to record.')
+                    : (T.hist_empty_classic || 'No download history yet.\nRight-click 🎞️ to download & record.'));
+            msg.textContent = _emptyText;
             msg.style.whiteSpace = 'pre-line';
             em.appendChild(msg);
             body.appendChild(em);
@@ -17255,6 +17287,7 @@
                 ring.el.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;';
                 btn.appendChild(ring.el);
                 let index = 1, failCount = 0;
+                const succeededUrls = [];
                 const total = urls.length;
                 for (const url of urls) {
                     let ext = '.jpg';
@@ -17275,7 +17308,8 @@
                         await forceDownloadBlob(url, filename, (pct) => {
                             ring.update(pct === null ? null : Math.round((fileOffset + fileShare * pct / 100) * 100));
                         });
-                    } catch(_) { failCount++; }
+                        succeededUrls.push(url);
+                    } catch(err) { failCount++; _log('warn', 'downloadAll (classic) failed for one file:', err); }
                     await new Promise(r => setTimeout(r, 250));
                     index++;
                 }
@@ -17284,10 +17318,11 @@
                 if (failCount > 0) {
                     setMediaIcon('warn', `⚠️ ${successCount}/${total}`);
                     showToast(`⚠️ Downloaded ${successCount} of ${total} files (${failCount} failed).`);
+                    if (succeededUrls.length) { recordHistory(info, succeededUrls, btn); fireMeteor(btn); }
                 } else {
                     setMediaIcon('ok', T.msg_downloaded, 'Downloaded', 'download');
                     showToast(`✅ Downloaded ${total} file${total !== 1 ? 's' : ''}.`);
-                    recordHistory(info, urls, btn);
+                    recordHistory(info, succeededUrls, btn);
                     fireMeteor(btn);
                 }
                 setTimeout(() => setMediaIcon('default'), 2000);
@@ -17497,6 +17532,7 @@
 
                 let index = 1;
                 let failCount = 0;
+                const succeededUrls = [];
                 const total = urls.length;
 
                 for (const url of urls) {
@@ -17527,8 +17563,10 @@
                                 ring.update(Math.round((fileOffset + fileShare * pct / 100) * 100));
                             }
                         });
-                    } catch(_) {
+                        succeededUrls.push(url);
+                    } catch(err) {
                         failCount++;
+                        _log('warn', 'downloadAll (menu) failed for one file:', err);
                     }
                     await new Promise(r => setTimeout(r, 250));
                     index++;
@@ -17539,10 +17577,11 @@
                 if (failCount > 0) {
                     setMediaIcon('warn', `⚠️ ${successCount}/${total}`);
                     showToast(`⚠️ Downloaded ${successCount} of ${total} files (${failCount} failed).`);
+                    if (succeededUrls.length) { recordHistory(info, succeededUrls, btn); fireMeteor(btn); }
                 } else {
                     setMediaIcon('ok', T.msg_downloaded, 'Downloaded', 'download');
                     showToast(`✅ Downloaded ${total} file${total !== 1 ? 's' : ''}.`);
-                    recordHistory(info, urls, btn);
+                    recordHistory(info, succeededUrls, btn);
                     fireMeteor(btn);
                 }
                 setTimeout(() => setMediaIcon('default'), 2000);
