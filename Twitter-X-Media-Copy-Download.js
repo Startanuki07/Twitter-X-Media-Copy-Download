@@ -8450,6 +8450,7 @@
                     let found = null;
                     for (const script of document.querySelectorAll('script[src*="main."]')) {
                         if (!script.src) continue;
+                        if (new URL(script.src, location.href).origin !== location.origin) continue;
                         const resp = await fetch(script.src);
                         if (!resp.ok) continue;
                         const text = await resp.text();
@@ -16757,6 +16758,7 @@
             try {
                 for (const script of document.querySelectorAll('script[src*="main."]')) {
                     if (!script.src) continue;
+                    if (new URL(script.src, location.href).origin !== location.origin) continue;
                     const resp = await fetch(script.src);
                     if (!resp.ok) continue;
                     const text = await resp.text();
