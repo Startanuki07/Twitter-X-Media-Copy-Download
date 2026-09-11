@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.1.2.16
+// @version      3.1.2.17
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -573,6 +573,7 @@
             cma_action_copy_url:      'Copy Tweet URL',
             cma_action_save_bookmark: 'Save as Text Bookmark',
             cma_action_none:          'No Action',
+            cma_saved:                'settings saved',
             pt_group_title:           '⚡ Performance Tweaks',
             pt_css_simplify_label:    'CSS Simplify',
             pt_css_simplify_desc:     'Remove blur/shadow/gradient globally',
@@ -837,6 +838,7 @@
             cma_action_copy_url:      '複製推文網址',
             cma_action_save_bookmark: '另存為文字書籤',
             cma_action_none:          '無動作',
+            cma_saved:                '設定已儲存',
             pt_group_title:           '⚡ 效能微調',
             pt_css_simplify_label:    '簡化樣式',
             pt_css_simplify_desc:     '全域移除模糊/陰影/漸層效果',
@@ -1098,6 +1100,7 @@
             cma_action_copy_url:      '复制推文网址',
             cma_action_save_bookmark: '另存为文字书签',
             cma_action_none:          '无动作',
+            cma_saved:                '设置已保存',
             pt_group_title:           '⚡ 性能微调',
             pt_css_simplify_label:    '简化样式',
             pt_css_simplify_desc:     '全局移除模糊/阴影/渐变效果',
@@ -1359,6 +1362,7 @@
             cma_action_copy_url:      'ツイートURLをコピー',
             cma_action_save_bookmark: 'テキストブックマークとして保存',
             cma_action_none:          '操作なし',
+            cma_saved:                '設定を保存しました',
             pt_group_title:           '⚡ パフォーマンス調整',
             pt_css_simplify_label:    'スタイル簡略化',
             pt_css_simplify_desc:     'ぼかし/影/グラデーションを全体的に削除',
@@ -1620,6 +1624,7 @@
             cma_action_copy_url:      '트윗 URL 복사',
             cma_action_save_bookmark: '텍스트 북마크로 저장',
             cma_action_none:          '동작 없음',
+            cma_saved:                '설정이 저장되었습니다',
             pt_group_title:           '⚡ 성능 조정',
             pt_css_simplify_label:    '스타일 단순화',
             pt_css_simplify_desc:     '블러/그림자/그라데이션 전역 제거',
@@ -1881,6 +1886,7 @@
             cma_action_copy_url:      'Copiar URL del tuit',
             cma_action_save_bookmark: 'Guardar como marcador de texto',
             cma_action_none:          'Sin acción',
+            cma_saved:                'configuración guardada',
             pt_group_title:           '⚡ Ajustes de rendimiento',
             pt_css_simplify_label:    'Simplificar estilos',
             pt_css_simplify_desc:     'Eliminar difuminado/sombra/degradado globalmente',
@@ -2142,6 +2148,7 @@
             cma_action_copy_url:      'Copiar URL do tweet',
             cma_action_save_bookmark: 'Salvar como marcador de texto',
             cma_action_none:          'Sem ação',
+            cma_saved:                'configurações salvas',
             pt_group_title:           '⚡ Ajustes de desempenho',
             pt_css_simplify_label:    'Simplificar estilos',
             pt_css_simplify_desc:     'Remover desfoque/sombra/gradiente globalmente',
@@ -2403,6 +2410,7 @@
             cma_action_copy_url:      "Copier l'URL du tweet",
             cma_action_save_bookmark: 'Enregistrer comme signet texte',
             cma_action_none:          'Aucune action',
+            cma_saved:                'paramètres enregistrés',
             pt_group_title:           '⚡ Ajustements de performance',
             pt_css_simplify_label:    'Simplifier les styles',
             pt_css_simplify_desc:     'Supprimer flou/ombre/dégradé globalement',
@@ -2664,6 +2672,7 @@
             cma_action_copy_url:      'Скопировать URL твита',
             cma_action_save_bookmark: 'Сохранить как текстовую закладку',
             cma_action_none:          'Без действия',
+            cma_saved:                'настройки сохранены',
             pt_group_title:           '⚡ Настройки производительности',
             pt_css_simplify_label:    'Упростить стили',
             pt_css_simplify_desc:     'Глобально убрать размытие/тень/градиент',
@@ -2815,15 +2824,24 @@
         };
     }
 
-    function showToast(message, duration = 2500) {
+    const TOAST_TYPE_STYLES = {
+        info:    { bg: '#1d9bf0', bar: 'rgba(255,255,255,0.55)' },
+        success: { bg: '#00ba7c', bar: 'rgba(255,255,255,0.55)' },
+        error:   { bg: '#e0245e', bar: 'rgba(255,255,255,0.55)' },
+        warning: { bg: '#c9840c', bar: 'rgba(255,255,255,0.6)'  },
+    };
+
+    function showToast(message, duration = 2500, type = 'info') {
         const existing = document.getElementById('tm-reload-toast');
         if (existing) existing.remove();
+
+        const _style = TOAST_TYPE_STYLES[type] || TOAST_TYPE_STYLES.info;
 
         const toast = document.createElement('div');
         toast.id = 'tm-reload-toast';
         toast.style.cssText = `
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: #1d9bf0; color: white; padding: 10px 20px;
+            background: ${_style.bg}; color: white; padding: 10px 20px 10px 16px;
             border-radius: 16px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);
             font-family: system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: bold;
             z-index: 999999; display: flex; align-items: center; gap: 8px;
@@ -2831,6 +2849,12 @@
             white-space: normal; max-width: min(420px, 90vw); word-break: break-word;
             text-align: center;
         `;
+        const bar = document.createElement('span');
+        bar.style.cssText = `
+            display: block; align-self: stretch; width: 3px; border-radius: 9999px;
+            background: ${_style.bar}; flex-shrink: 0;
+        `;
+        toast.appendChild(bar);
         const toastSpan = document.createElement('span');
         toastSpan.textContent = message;
         toast.appendChild(toastSpan);
@@ -6910,6 +6934,7 @@
                                 selects[otherKey].value = oldVal;
                             }
                             GM_setValue(gmKey, JSON.stringify(current));
+                            showToast(`✅ ${headerLabel} ${T.cma_saved || 'updated'}`, 2000, 'success');
                         });
                     });
                 };
@@ -17180,6 +17205,12 @@
         mclick:    T.cma_slot_mclick     || 'Middle Click',
         rclick:    T.cma_slot_rclick     || 'Right Click',
     };
+    const _MEDIA_ACTION_LABELS = {
+        copy:         T.cma_action_copy         || 'Copy Media URLs',
+        copy_prefix:  T.cma_action_copy_prefix  || 'Copy with Prefix',
+        preview:      T.cma_action_preview      || 'Preview',
+        download_all: T.cma_action_download_all || 'Download All',
+    };
     function _createMediaActionController(article, btn) {
         const SVG_FILM = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="16" height="12" rx="2"/><line x1="2" y1="7" x2="18" y2="7"/><line x1="2" y1="13" x2="18" y2="13"/><line x1="6" y1="4" x2="6" y2="7"/><line x1="10" y1="4" x2="10" y2="7"/><line x1="14" y1="4" x2="14" y2="7"/><line x1="6" y1="13" x2="6" y2="16"/><line x1="10" y1="13" x2="10" y2="16"/><line x1="14" y1="13" x2="14" y2="16"/></svg>`;
         const SVG_FILM_PLAY = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="14" height="14" rx="2.5"/><path d="M8 7.3v5.4l4.6-2.7z" fill="currentColor" stroke="none"/></svg>`;
@@ -17899,6 +17930,17 @@
                 preview:      _mediaActionPreview,
                 download_all: _mediaActionDownloadAll,
             };
+
+            btn.addEventListener('mouseenter', () => {
+                const map = _getCustomMediaActions();
+                const labelFor = (id) => _MEDIA_ACTION_LABELS[id] || id;
+                btn.title = [
+                    `${_LINK_SLOT_LABELS.click}: ${labelFor(map.click)}`,
+                    `${_LINK_SLOT_LABELS.longpress}: ${labelFor(map.longpress)}`,
+                    `${_LINK_SLOT_LABELS.mclick}: ${labelFor(map.mclick)}`,
+                    `${_LINK_SLOT_LABELS.rclick}: ${labelFor(map.rclick)}`,
+                ].join('\n');
+            });
 
             let timer = null;
             let longFired = false;
