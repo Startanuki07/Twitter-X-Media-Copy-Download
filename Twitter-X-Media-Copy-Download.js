@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.1.2.17
+// @version      3.1.2.19
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -8211,9 +8211,9 @@
                     const data = JSON.parse(json);
                     const valid = new Set(ALL_SETTING_KEYS);
                     Object.entries(data).forEach(([k, v]) => { if (valid.has(k)) GM_setValue(k, v); });
-                    showToast('✅ Settings imported.', 3000);
+                    showToast('✅ Settings imported.', 3000, 'success');
                     createSettingsPanel();
-                } catch (_) { showToast('❌ Invalid settings file.', 3000); }
+                } catch (_) { showToast('❌ Invalid settings file.', 3000, 'error'); }
             }
             const _ROW_CSS = `display:flex;align-items:center;padding:8px 14px;gap:8px;font:13px system-ui;color:${C.text};`;
             const _BTN_CSS = `padding:4px 10px;border-radius:6px;border:1px solid ${C.border};background:${C.inputBg};color:${C.text};cursor:pointer;font:12px system-ui;`;
@@ -8276,7 +8276,7 @@
                 ];
                 RESET_KEYS.forEach(k => GM_deleteValue(k));
                 buildContent();
-                showToast('✅ Settings reset to defaults.');
+                showToast('✅ Settings reset to defaults.', 2500, 'success');
             });
             resetRow.style.opacity = '0.7';
             grpAdv.append(resetRow);
@@ -8454,7 +8454,7 @@
                 GM_setValue(KEY_CUSTOM_BEARER, _bearerRealVal);
                 _bearerLocked = true;
                 _syncBearerLock();
-                if (_bearerRealVal) showToast('✅ Bearer Token saved.', 2500);
+                if (_bearerRealVal) showToast('✅ Bearer Token saved.', 2500, 'success');
             });
             bearerEditBtn.addEventListener('click', () => {
                 _bearerLocked = false;
@@ -8465,7 +8465,7 @@
 
             bearerDetectBtn.addEventListener('click', async () => {
                 if (!_isTwitterDomain) {
-                    showToast('⚠️ Open Twitter / X first, then try auto-detect.', 3500);
+                    showToast('⚠️ Open Twitter / X first, then try auto-detect.', 3500, 'warning');
                     return;
                 }
                 const _origTxt = bearerDetectBtn.textContent;
@@ -8486,12 +8486,12 @@
                         GM_setValue(KEY_CUSTOM_BEARER, _bearerRealVal);
                         _bearerLocked = true;
                         _syncBearerLock();
-                        showToast('✅ Bearer Token detected and saved.', 3000);
+                        showToast('✅ Bearer Token detected and saved.', 3000, 'success');
                     } else {
-                        showToast('⚠️ Not found in page scripts. Use DevTools method (click ❓).', 4000);
+                        showToast('⚠️ Not found in page scripts. Use DevTools method (click ❓).', 4000, 'warning');
                     }
                 } catch (err) {
-                    showToast('❌ Detection failed: ' + err.message, 3000);
+                    showToast('❌ Detection failed: ' + err.message, 3000, 'error');
                 } finally {
                     bearerDetectBtn.textContent = _origTxt;
                     bearerDetectBtn.disabled = false;
@@ -9269,7 +9269,7 @@
         assignGroup(StarPipState.pendingGroupRecordId, groupId);
         StarPipState.pendingGroupRecordId = null;
         StarPipState.pendingIsText        = false;
-        showToast(`⭐ → ${groupName}`);
+        showToast(`⭐ → ${groupName}`, 2500, 'success');
         closeGroupFan();
         _runStarEscapeAnim(() => hideStarPip());
     }
@@ -9442,7 +9442,7 @@
                     assignGroup(StarPipState.pendingGroupRecordId, g.id);
                     StarPipState.pendingGroupRecordId = null;
                     StarPipState.pendingIsText        = false;
-                    showToast(`${toastPrefix} → ${g.name}`);
+                    showToast(`${toastPrefix} → ${g.name}`, 2500, 'success');
                     closeTextGroupMenu();
                     _runStarEscapeAnim(() => hideStarPip());
                 });
@@ -9742,7 +9742,7 @@
             StarPipState.pendingGroupRecordId = null;
         }
         StarPipState.pendingIsText = false;
-        showToast(`⭐ Created「${ic.label} · ${name}」`);
+        showToast(`⭐ Created「${ic.label} · ${name}」`, 2500, 'success');
 
         setTimeout(() => {
             if (document.getElementById('tm-star-pip')?.classList.contains('tm-popped')) {
@@ -9939,7 +9939,7 @@
                         const resolved = _resolveGroupIcon(newIc.id);
                         iconWrap.style.color = resolved.color;
                         iconWrap.innerHTML = resolved.svg;
-                        showToast(`Icon → ${resolved.label}`);
+                        showToast(`Icon → ${resolved.label}`, 2500, 'success');
                     });
                     wrapper.appendChild(picker);
                     _openIconPicker = picker;
@@ -9956,7 +9956,7 @@
                     else if (n !== g.name) {
                         const arr = getGroups();
                         const idx = arr.findIndex(x => x.id === g.id);
-                        if (idx > -1) { arr[idx].name = n; saveGroups(arr); g.name = n; showToast(`Renamed → ${n}`); }
+                        if (idx > -1) { arr[idx].name = n; saveGroups(arr); g.name = n; showToast(`Renamed → ${n}`, 2500, 'success'); }
                     }
                     nameInput.readOnly = true;
                     nameInput.style.borderColor = 'transparent';
@@ -10002,7 +10002,7 @@
                     if (cnt === 0 && !confirm(`Delete「${g.name}」?`)) return;
                     deleteGroup(g.id);
                     rebuildList();
-                    showToast(`Deleted「${g.name}」`);
+                    showToast(`Deleted「${g.name}」`, 2500, 'success');
                 });
 
                 row.appendChild(dragHandle);
@@ -10123,7 +10123,7 @@
                             '📋 You have 2000+ download records. ' +
                             'Consider exporting a backup (📤 in the history panel) and deleting old entries ' +
                             'to keep storage healthy and panel loading fast.',
-                            8000
+                            8000, 'warning'
                         ), 500);
                     }
                 }
@@ -12414,10 +12414,10 @@
                         _invalidateRecordsCache();
                         showToast(groupAddCount > 0
                             ? `✅ Imported ${addCount} record(s), ${groupAddCount} group(s)`
-                            : `✅ Imported ${addCount} new record(s)`);
+                            : `✅ Imported ${addCount} new record(s)`, 2500, 'success');
                         render();
                     } catch (err) {
-                        showToast(`❌ Import failed: ${err.message}`);
+                        showToast(`❌ Import failed: ${err.message}`, 2500, 'error');
                     } finally {
                         input.remove();
                     }
@@ -15312,7 +15312,7 @@
                 await forceDownloadBlob(videoUrls[currentIndex], _lbFilename(videoUrls[currentIndex], currentIndex + 1, tweetInfo));
                 vpDownloadBtn.innerHTML = `<svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`;
             } catch (_) {
-                showToast(T.msg_download_failed || '❌ Download failed');
+                showToast(T.msg_download_failed || '❌ Download failed', 2500, 'error');
                 vpDownloadBtn.innerHTML = original;
             } finally {
                 setTimeout(() => { vpDownloadBtn.innerHTML = original; }, 1200);
@@ -15578,13 +15578,13 @@
                                     closeModal();
                                     showFloatingVideoPlayer([mp4Url], 0, null, true);
                                 } else {
-                                    showToast(T.msg_no_video || '❌ No Video');
+                                    showToast(T.msg_no_video || '❌ No Video', 2500, 'warning');
                                 }
                             } else if (isValidUrl(item.url)) {
                                 closeModal();
                                 showImageLightbox([item.url], null, true);
                             } else {
-                                showToast(T.msg_no_media || '❌ No Media');
+                                showToast(T.msg_no_media || '❌ No Media', 2500, 'warning');
                             }
                         };
                         grid.appendChild(el);
@@ -15939,7 +15939,7 @@
                     await forceDownloadBlob(url, _lbFilename(url, focused + 1, tweetInfo));
                     dlBtn.innerHTML = `<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`;
                 } catch (_) {
-                    showToast(T.msg_download_failed || '❌ Download failed');
+                    showToast(T.msg_download_failed || '❌ Download failed', 2500, 'error');
                     dlBtn.innerHTML = original;
                 } finally {
                     setTimeout(() => { dlBtn.innerHTML = original; }, 1200);
@@ -15955,7 +15955,7 @@
                 const url = getUrl();
                 if (!url) return;
                 GM_setClipboard(url);
-                showToast(T.toast_grid_media_copied || 'Link copied!');
+                showToast(T.toast_grid_media_copied || 'Link copied!', 2500, 'success');
                 const original = copyBtn.innerHTML;
                 copyBtn.innerHTML = `<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`;
                 setTimeout(() => { copyBtn.innerHTML = original; }, 1200);
@@ -16248,7 +16248,7 @@
                         closeLightbox();
                         showFloatingVideoPlayer([mp4Url], 0, null, true);
                     } else {
-                        showToast(T.msg_no_video || '❌ No Video');
+                        showToast(T.msg_no_video || '❌ No Video', 2500, 'warning');
                     }
                     return;
                 }
@@ -16558,7 +16558,7 @@
                     closeLightbox();
                     showFloatingVideoPlayer([mp4Url], 0, null, true);
                 } else {
-                    showToast(T.msg_no_video || '❌ No Video');
+                    showToast(T.msg_no_video || '❌ No Video', 2500, 'warning');
                 }
                 return;
             }
@@ -16980,7 +16980,7 @@
                     _bearerPendingPromise = null;
                     showToast(
                         '⚠️ API token expired. Set a custom Bearer Token in ⚙️ Settings → Advanced to restore video fetch.',
-                        6000
+                        6000, 'warning'
                     );
                 } else if (res.status === 404) {
                     _log('TMApi', 'TweetResultByRestId 404, cachedGqlId=', _cachedGqlId, '— 可能已輪替');
@@ -17348,11 +17348,11 @@
                 const successCount = total - failCount;
                 if (failCount > 0) {
                     setMediaIcon('warn', `⚠️ ${successCount}/${total}`);
-                    showToast(`⚠️ Downloaded ${successCount} of ${total} files (${failCount} failed).`);
+                    showToast(`⚠️ Downloaded ${successCount} of ${total} files (${failCount} failed).`, 2500, 'warning');
                     if (succeededUrls.length) { recordHistory(info, succeededUrls, btn); fireMeteor(btn); }
                 } else {
                     setMediaIcon('ok', T.msg_downloaded, 'Downloaded', 'download');
-                    showToast(`✅ Downloaded ${total} file${total !== 1 ? 's' : ''}.`);
+                    showToast(`✅ Downloaded ${total} file${total !== 1 ? 's' : ''}.`, 2500, 'success');
                     recordHistory(info, succeededUrls, btn);
                     fireMeteor(btn);
                 }
@@ -17607,11 +17607,11 @@
                 const successCount = total - failCount;
                 if (failCount > 0) {
                     setMediaIcon('warn', `⚠️ ${successCount}/${total}`);
-                    showToast(`⚠️ Downloaded ${successCount} of ${total} files (${failCount} failed).`);
+                    showToast(`⚠️ Downloaded ${successCount} of ${total} files (${failCount} failed).`, 2500, 'warning');
                     if (succeededUrls.length) { recordHistory(info, succeededUrls, btn); fireMeteor(btn); }
                 } else {
                     setMediaIcon('ok', T.msg_downloaded, 'Downloaded', 'download');
-                    showToast(`✅ Downloaded ${total} file${total !== 1 ? 's' : ''}.`);
+                    showToast(`✅ Downloaded ${total} file${total !== 1 ? 's' : ''}.`, 2500, 'success');
                     recordHistory(info, succeededUrls, btn);
                     fireMeteor(btn);
                 }
@@ -18219,7 +18219,7 @@
                 action: () => {
                     GM_setClipboard(url);
                     _gridBtnFeedback(copyBtn, SVG_GRID_COPY);
-                    showToast(T.toast_grid_media_copied || 'Link copied!');
+                    showToast(T.toast_grid_media_copied || 'Link copied!', 2500, 'success');
                 },
             }));
 
@@ -18238,13 +18238,13 @@
                     _copyLTimer = null;
                     _copyPressing = false;
                     const apiData = await fetchTweetMediaFromAPI(tweetId);
-                    if (!apiData) { showToast(T.msg_no_media || 'No media found'); return; }
+                    if (!apiData) { showToast(T.msg_no_media || 'No media found', 2500, 'warning'); return; }
                     const urls = _gridMediaUrls(apiData);
-                    if (!urls.length) { showToast(T.msg_no_media || 'No media found'); return; }
+                    if (!urls.length) { showToast(T.msg_no_media || 'No media found', 2500, 'warning'); return; }
                     if (urls.length === 1) {
                         GM_setClipboard(urls[0]);
                         _gridBtnFeedback(copyBtn, SVG_GRID_COPY);
-                        showToast(T.toast_grid_media_copied || 'Link copied!');
+                        showToast(T.toast_grid_media_copied || 'Link copied!', 2500, 'success');
                     } else {
                         _showActionMenu(copyBtn, _buildGridCopyMenuItems(apiData, urls));
                     }
@@ -18257,17 +18257,17 @@
                     _copyLTimer = null;
                     _copyPressing = false;
                     const apiData = await fetchTweetMediaFromAPI(tweetId);
-                    if (!apiData) { showToast(T.msg_no_media || 'No media found'); return; }
+                    if (!apiData) { showToast(T.msg_no_media || 'No media found', 2500, 'warning'); return; }
                     const urls = _gridMediaUrls(apiData);
-                    if (!urls.length) { showToast(T.msg_no_media || 'No media found'); return; }
+                    if (!urls.length) { showToast(T.msg_no_media || 'No media found', 2500, 'warning'); return; }
                     if (urls.length === 1) {
                         GM_setClipboard(urls[0]);
                         _gridBtnFeedback(copyBtn, SVG_GRID_COPY);
-                        showToast(T.toast_grid_media_copied || 'Link copied!');
+                        showToast(T.toast_grid_media_copied || 'Link copied!', 2500, 'success');
                     } else {
                         GM_setClipboard(urls[0]);
                         _gridBtnFeedback(copyBtn, SVG_GRID_COPY);
-                        showToast(T.toast_grid_media_copied || 'Link copied!');
+                        showToast(T.toast_grid_media_copied || 'Link copied!', 2500, 'success');
                     }
                 }
             });
@@ -18294,7 +18294,7 @@
                     const tweetUrl = `https://x.com/${screenName}/status/${tweetId}`;
                     GM_setClipboard(_buildPrefixedTweetUrl(tweetUrl));
                     _gridBtnFeedback(shareBtn, SVG_GRID_SHARE);
-                    showToast(T.msg_prefix_copied || 'Prefix Copied');
+                    showToast(T.msg_prefix_copied || 'Prefix Copied', 2500, 'success');
                 }, 500);
             });
             shareBtn.addEventListener('mouseup', (e) => {
@@ -18306,7 +18306,7 @@
                     const tweetUrl = `https://x.com/${screenName}/status/${tweetId}`;
                     GM_setClipboard(_convertTweetUrlDomain(tweetUrl));
                     _gridBtnFeedback(shareBtn, SVG_GRID_SHARE);
-                    showToast(T.toast_grid_media_copied || 'Link copied!');
+                    showToast(T.toast_grid_media_copied || 'Link copied!', 2500, 'success');
                 }
             });
             shareBtn.addEventListener('mouseleave', () => { if (_shareLTimer && !_sharePressing) { clearTimeout(_shareLTimer); _shareLTimer = null; } });
@@ -18340,7 +18340,7 @@
                 const apiData = await fetchTweetMediaFromAPI(tweetId);
                 previewBtn.innerHTML = SVG_GRID_PREVIEW;
                 if (!apiData || (!apiData.videos.length && !apiData.images.length)) {
-                    showToast(T.msg_no_media || 'No media found');
+                    showToast(T.msg_no_media || 'No media found', 2500, 'warning');
                     return;
                 }
                 const gridTweetInfo = {
@@ -18371,7 +18371,7 @@
                         let idx = 1;
                         for (const url of urls) { await _gridDownloadOne(apiData, url, idx); idx++; }
                         _gridBtnFeedback(dlBtn, SVG_GRID_DL);
-                        showToast(T.toast_grid_media_saved || 'Media saved!');
+                        showToast(T.toast_grid_media_saved || 'Media saved!', 2500, 'success');
                     },
                 },
                 'divider',
@@ -18382,7 +18382,7 @@
                     action: async () => {
                         await _gridDownloadOne(apiData, url, i + 1);
                         _gridBtnFeedback(dlBtn, SVG_GRID_DL);
-                        showToast(T.toast_grid_media_saved || 'Media saved!');
+                        showToast(T.toast_grid_media_saved || 'Media saved!', 2500, 'success');
                     },
                 })),
             ];
@@ -18397,15 +18397,15 @@
                     const apiData = await fetchTweetMediaFromAPI(tweetId);
                     dlBtn.innerHTML = SVG_GRID_DL;
                     if (!apiData || (!apiData.videos.length && !apiData.images.length)) {
-                        showToast(T.msg_no_media || 'No media found');
+                        showToast(T.msg_no_media || 'No media found', 2500, 'warning');
                         return;
                     }
                     const urls = _gridMediaUrls(apiData);
-                    if (!urls.length) { showToast(T.msg_no_media || 'No media found'); return; }
+                    if (!urls.length) { showToast(T.msg_no_media || 'No media found', 2500, 'warning'); return; }
                     if (urls.length === 1) {
                         await _gridDownloadOne(apiData, urls[0], 1);
                         _gridBtnFeedback(dlBtn, SVG_GRID_DL);
-                        showToast(T.toast_grid_media_saved || 'Media saved!');
+                        showToast(T.toast_grid_media_saved || 'Media saved!', 2500, 'success');
                     } else {
                         _showActionMenu(dlBtn, _dlBuildMenuItems(apiData, urls));
                     }
@@ -18421,20 +18421,20 @@
                     const apiData = await fetchTweetMediaFromAPI(tweetId);
                     dlBtn.innerHTML = SVG_GRID_DL;
                     if (!apiData || (!apiData.videos.length && !apiData.images.length)) {
-                        showToast(T.msg_no_media || 'No media found');
+                        showToast(T.msg_no_media || 'No media found', 2500, 'warning');
                         return;
                     }
                     const urls = _gridMediaUrls(apiData);
-                    if (!urls.length) { showToast(T.msg_no_media || 'No media found'); return; }
+                    if (!urls.length) { showToast(T.msg_no_media || 'No media found', 2500, 'warning'); return; }
                     if (urls.length === 1) {
                         await _gridDownloadOne(apiData, urls[0], 1);
                         _gridBtnFeedback(dlBtn, SVG_GRID_DL);
-                        showToast(T.toast_grid_media_saved || 'Media saved!');
+                        showToast(T.toast_grid_media_saved || 'Media saved!', 2500, 'success');
                     } else {
                         let idx = 1;
                         for (const url of urls) { await _gridDownloadOne(apiData, url, idx); idx++; }
                         _gridBtnFeedback(dlBtn, SVG_GRID_DL);
-                        showToast(T.toast_grid_media_saved || 'Media saved!');
+                        showToast(T.toast_grid_media_saved || 'Media saved!', 2500, 'success');
                     }
                 }
             });
