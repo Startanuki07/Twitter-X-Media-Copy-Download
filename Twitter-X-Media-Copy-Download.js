@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.1.2.19
+// @version      3.1.2.21
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -3526,7 +3526,7 @@
             a.click();
             document.body.removeChild(a);
             setTimeout(() => URL.revokeObjectURL(url), 5000);
-            showToast('📤 Template exported!');
+            showToast('📤 Template exported!', 2500, 'success');
         };
 
         const importBtn = document.createElement('button');
@@ -3558,7 +3558,7 @@
                         GM_deleteValue(KEY_ONBOARDING_DONE);
                         TR['custom'] = merged;
                         modal.remove();
-                        showToast(`✅ Loaded: ${merged.langName}`);
+                        showToast(`✅ Loaded: ${merged.langName}`, 2500, 'success');
                         if (confirm(`Custom language "${merged.langName}" loaded.\nReload page now to apply?`)) {
                             location.reload();
                         }
@@ -3599,7 +3599,7 @@
                 GM_setValue(KEY_LANG, 'en');
                 delete TR['custom'];
                 modal.remove();
-                showToast('🗑️ Custom language cleared.');
+                showToast('🗑️ Custom language cleared.', 2500, 'success');
                 if (confirm('Reverted to English.\nReload page now?')) location.reload();
             };
             panel.appendChild(clearBtn);
@@ -14482,7 +14482,7 @@
             if (DockState.side === 'left') {
                 _exitDockMode();
             } else if (DockState.side === 'right') {
-                showToast('⚠️ Undock right side first before docking left');
+                showToast('⚠️ Undock right side first before docking left', 2500, 'warning');
             } else {
                 _dock('left');
             }
@@ -14492,7 +14492,7 @@
             if (DockState.side === 'right') {
                 _exitDockMode();
             } else if (DockState.side === 'left') {
-                showToast('⚠️ Undock left side first before docking right');
+                showToast('⚠️ Undock left side first before docking right', 2500, 'warning');
             } else {
                 _dock('right');
             }
@@ -17340,7 +17340,7 @@
                             ring.update(pct === null ? null : Math.round((fileOffset + fileShare * pct / 100) * 100));
                         });
                         succeededUrls.push(url);
-                    } catch(err) { failCount++; _log('warn', 'downloadAll (classic) failed for one file:', err); }
+                    } catch(err) { failCount++; _log('warn', 'downloadAll (menu-item) failed for one file:', err); }
                     await new Promise(r => setTimeout(r, 250));
                     index++;
                 }
@@ -17597,7 +17597,7 @@
                         succeededUrls.push(url);
                     } catch(err) {
                         failCount++;
-                        _log('warn', 'downloadAll (menu) failed for one file:', err);
+                        _log('warn', 'downloadAll (classic-rclick) failed for one file:', err);
                     }
                     await new Promise(r => setTimeout(r, 250));
                     index++;
