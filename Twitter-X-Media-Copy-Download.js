@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.1.2.21
+// @version      3.1.2.22
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -3669,16 +3669,10 @@
         const clickStatusText = clickCustom ? `${T.status_custom} (${clickDomain})` : T.status_default;
 
         menuIds.push(GM_registerMenuCommand(T.menu_domain_click + ` [${clickStatusText}]`, () => {
-            if (!clickCustom) {
-                if(selectDomain(KEY_LINK_DOMAIN_CLICK)) {
-                    GM_setValue(KEY_CLICK_MODE_CUSTOM, true);
-                    const newDomain = GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com');
-                    showToast(T.toast_domain_click + newDomain);
-                    registerMenus();
-                }
-            } else {
-                GM_setValue(KEY_CLICK_MODE_CUSTOM, false);
-                showToast(T.toast_domain_click + 'x.com');
+            if (selectDomain(KEY_LINK_DOMAIN_CLICK)) {
+                const newDomain = GM_getValue(KEY_LINK_DOMAIN_CLICK, 'x.com');
+                GM_setValue(KEY_CLICK_MODE_CUSTOM, newDomain !== 'x.com');
+                showToast(T.toast_domain_click + newDomain);
                 registerMenus();
             }
         }));
@@ -6806,17 +6800,11 @@
             const clickVal = clickCustom ? clickDomain : 'x.com (default)';
             const clickLabel = T.menu_domain_click ? T.menu_domain_click.replace(/^🔗\s*/, '') : 'Single-Click Domain';
             grpLink.append(makeRow(clickLabel, clickVal, () => {
-                if (!clickCustom) {
-                    showDomainPickerModal(KEY_LINK_DOMAIN_CLICK, dom => {
-                        GM_setValue(KEY_CLICK_MODE_CUSTOM, true);
-                        showToast(T.toast_domain_click + dom);
-                        registerMenus(); buildContent();
-                    });
-                } else {
-                    GM_setValue(KEY_CLICK_MODE_CUSTOM, false);
-                    showToast(T.toast_domain_click + 'x.com');
+                showDomainPickerModal(KEY_LINK_DOMAIN_CLICK, dom => {
+                    GM_setValue(KEY_CLICK_MODE_CUSTOM, dom !== 'x.com');
+                    showToast(T.toast_domain_click + dom);
                     registerMenus(); buildContent();
-                }
+                });
             }));
 
             const prefixLabel = T.menu_prefix ? T.menu_prefix.replace(/^⚙️\s*/, '') : 'Discord Prefix';
