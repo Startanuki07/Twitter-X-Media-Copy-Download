@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.1.2.22
+// @version      3.2.0.2
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -327,6 +327,8 @@
     const DEFAULT_LINK_ACTIONS    = { click: 'copy_url', longpress: 'copy_prefix_url', mclick: 'none', rclick: 'save_text_bookmark' };
     const KEY_MEDIA_ICON_STYLE  = 'app_media_icon_style';
     const KEY_LINK_ICON_STYLE   = 'app_link_icon_style';
+    const KEY_SHOW_LINK_BTN     = 'app_show_link_btn';
+    const KEY_SHOW_MEDIA_BTN    = 'app_show_media_btn';
     const KEY_SEARCH_HISTORY    = 'app_search_hist';
     const KEY_VIDEO_SPEED       = 'app_video_speed';
     const KEY_CUSTOM_BEARER     = 'app_custom_bearer';
@@ -384,6 +386,8 @@
         'sp_media_icon_style',
         'sp_link_icon_style',
         'legacy_media_grid',
+        'sp_link_btn_visibility',
+        'sp_media_btn_visibility',
     ];
 
     const DOMAIN_LIST = [
@@ -564,6 +568,11 @@
             sp_media_icon_copy: 'Copy',
             sp_link_icon_style_short: 'Link icon',
             sp_media_icon_style_short: 'Media icon',
+            confirm_hide_btn: 'Hide the "{btn}" button?\nYou can turn it back on here anytime.',
+            toast_btn_hidden: '🙈 {btn} hidden',
+            toast_btn_shown: '👁 {btn} shown',
+            sp_btn_hide_tip: 'Hide this button',
+            sp_btn_show_tip: 'Show this button',
             sp_link_icon_copy: 'Copy',
             sp_media_icon_download: 'Download',
             cma_action_copy:          'Copy Media URLs',
@@ -829,6 +838,11 @@
             sp_media_icon_copy: '複製',
             sp_link_icon_style_short: '連結圖示',
             sp_media_icon_style_short: '媒體圖示',
+            confirm_hide_btn: '確定要隱藏「{btn}」按鈕嗎？\n隱藏後可隨時回到這裡重新開啟。',
+            toast_btn_hidden: '🙈 {btn} 已隱藏',
+            toast_btn_shown: '👁 {btn} 已顯示',
+            sp_btn_hide_tip: '隱藏此按鈕',
+            sp_btn_show_tip: '顯示此按鈕',
             sp_link_icon_copy: '複製',
             sp_media_icon_download: '下載',
             cma_action_copy:          '複製媒體網址',
@@ -1091,6 +1105,11 @@
             sp_media_icon_copy: '复制',
             sp_link_icon_style_short: '链接图标',
             sp_media_icon_style_short: '媒体图标',
+            confirm_hide_btn: '确定要隐藏「{btn}」按钮吗？\n隐藏后可随时回到这里重新开启。',
+            toast_btn_hidden: '🙈 {btn} 已隐藏',
+            toast_btn_shown: '👁 {btn} 已显示',
+            sp_btn_hide_tip: '隐藏此按钮',
+            sp_btn_show_tip: '显示此按钮',
             sp_link_icon_copy: '复制',
             sp_media_icon_download: '下载',
             cma_action_copy:          '复制媒体网址',
@@ -1353,6 +1372,11 @@
             sp_media_icon_copy: 'コピー',
             sp_link_icon_style_short: 'リンクアイコン',
             sp_media_icon_style_short: 'メディアアイコン',
+            confirm_hide_btn: '「{btn}」ボタンを非表示にしますか？\nここからいつでも再表示できます。',
+            toast_btn_hidden: '🙈 {btn} を非表示にしました',
+            toast_btn_shown: '👁 {btn} を表示しました',
+            sp_btn_hide_tip: 'このボタンを非表示',
+            sp_btn_show_tip: 'このボタンを表示',
             sp_link_icon_copy: 'コピー',
             sp_media_icon_download: 'ダウンロード',
             cma_action_copy:          'メディアURLをコピー',
@@ -1615,6 +1639,11 @@
             sp_media_icon_copy: '복사',
             sp_link_icon_style_short: '링크 아이콘',
             sp_media_icon_style_short: '미디어 아이콘',
+            confirm_hide_btn: '"{btn}" 버튼을 숨기시겠습니까?\n언제든지 여기서 다시 켤 수 있습니다.',
+            toast_btn_hidden: '🙈 {btn} 숨김',
+            toast_btn_shown: '👁 {btn} 표시됨',
+            sp_btn_hide_tip: '이 버튼 숨기기',
+            sp_btn_show_tip: '이 버튼 표시',
             sp_link_icon_copy: '복사',
             sp_media_icon_download: '다운로드',
             cma_action_copy:          '미디어 URL 복사',
@@ -1877,6 +1906,11 @@
             sp_media_icon_copy: 'Copiar',
             sp_link_icon_style_short: 'Icono de enlace',
             sp_media_icon_style_short: 'Icono de medios',
+            confirm_hide_btn: '¿Ocultar el botón "{btn}"?\nPuedes volver a activarlo aquí en cualquier momento.',
+            toast_btn_hidden: '🙈 {btn} oculto',
+            toast_btn_shown: '👁 {btn} visible',
+            sp_btn_hide_tip: 'Ocultar este botón',
+            sp_btn_show_tip: 'Mostrar este botón',
             sp_link_icon_copy: 'Copiar',
             sp_media_icon_download: 'Descargar',
             cma_action_copy:          'Copiar URLs de medios',
@@ -2139,6 +2173,11 @@
             sp_media_icon_copy: 'Copiar',
             sp_link_icon_style_short: 'Ícone de link',
             sp_media_icon_style_short: 'Ícone de mídia',
+            confirm_hide_btn: 'Ocultar o botão "{btn}"?\nVocê pode reativá-lo aqui a qualquer momento.',
+            toast_btn_hidden: '🙈 {btn} ocultado',
+            toast_btn_shown: '👁 {btn} exibido',
+            sp_btn_hide_tip: 'Ocultar este botão',
+            sp_btn_show_tip: 'Exibir este botão',
             sp_link_icon_copy: 'Copiar',
             sp_media_icon_download: 'Baixar',
             cma_action_copy:          'Copiar URLs de mídia',
@@ -2401,6 +2440,11 @@
             sp_media_icon_copy: 'Copier',
             sp_link_icon_style_short: 'Icône de lien',
             sp_media_icon_style_short: 'Icône média',
+            confirm_hide_btn: 'Masquer le bouton « {btn} » ?\nVous pourrez le réactiver ici à tout moment.',
+            toast_btn_hidden: '🙈 {btn} masqué',
+            toast_btn_shown: '👁 {btn} affiché',
+            sp_btn_hide_tip: 'Masquer ce bouton',
+            sp_btn_show_tip: 'Afficher ce bouton',
             sp_link_icon_copy: 'Copier',
             sp_media_icon_download: 'Télécharger',
             cma_action_copy:          'Copier les URL des médias',
@@ -2663,6 +2707,11 @@
             sp_media_icon_copy: 'Копия',
             sp_link_icon_style_short: 'Значок ссылки',
             sp_media_icon_style_short: 'Значок медиа',
+            confirm_hide_btn: 'Скрыть кнопку «{btn}»?\nВы можете снова включить её здесь в любое время.',
+            toast_btn_hidden: '🙈 {btn} скрыта',
+            toast_btn_shown: '👁 {btn} отображается',
+            sp_btn_hide_tip: 'Скрыть эту кнопку',
+            sp_btn_show_tip: 'Показать эту кнопку',
             sp_link_icon_copy: 'Копия',
             sp_media_icon_download: 'Скачать',
             cma_action_copy:          'Скопировать URL медиа',
@@ -2808,6 +2857,8 @@
     let _cachedClickMode       = GM_getValue(KEY_CLICK_MODE, 'classic');
     let _cachedFeedbackStyle   = GM_getValue(KEY_FEEDBACK_STYLE, 'toast');
     let _cachedClickModeCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
+    let _cachedShowMediaBtn    = GM_getValue(KEY_SHOW_MEDIA_BTN, true);
+    let _cachedShowLinkBtn     = GM_getValue(KEY_SHOW_LINK_BTN, true);
 
     function _readSettings() {
         return {
@@ -6178,6 +6229,18 @@
                 return btn;
             };
 
+            const _makeHelpIcon = (tipText) => {
+                const icon = document.createElement('span');
+                icon.textContent = '❓';
+                icon.title = tipText;
+                icon.style.cssText = `
+                    display: inline-block; margin-left: 5px; font-size: 10px;
+                    opacity: 0.55; cursor: help; vertical-align: 1px;
+                `;
+                icon.addEventListener('click', e => e.stopPropagation());
+                return icon;
+            };
+
             const _spGroupRegistry = [];
 
             const makeGroup = (label, defaultOpen = true, tooltip = null, onOpen = null) => {
@@ -6424,7 +6487,7 @@
                 return wrap;
             };
 
-            const makeIconStyleRow = (label, options, currentVal, onSelect, featureId = null) => {
+            const makeIconStyleRow = (label, options, currentVal, onSelect, featureId = null, visCtl = null) => {
                 const wrap = document.createElement('div');
                 wrap.style.cssText = 'padding: 8px 16px 10px;';
 
@@ -6440,8 +6503,54 @@
                 }
                 wrap.appendChild(lbl);
 
+                if (visCtl) {
+                    lbl.style.lineHeight = '16px';
+                    lbl.style.justifyContent = 'space-between';
+
+                    const toggleWrap = document.createElement('button');
+                    toggleWrap.type = 'button';
+                    toggleWrap.style.cssText = `
+                        position: relative; display: flex; align-items: center;
+                        width: 28px; height: 16px; padding: 0;
+                        border: none; border-radius: 8px;
+                        cursor: pointer; flex-shrink: 0; transition: background 0.15s;
+                        background: ${visCtl.show ? '#1d9bf0' : (dark ? 'rgba(255,255,255,0.18)' : 'rgba(15,20,25,0.18)')};
+                    `;
+                    const knob = document.createElement('span');
+                    knob.style.cssText = `
+                        position: absolute; top: 2px; left: ${visCtl.show ? '14px' : '2px'};
+                        width: 12px; height: 12px; border-radius: 50%; background: #fff;
+                        transition: left 0.15s; pointer-events: none;
+                        box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+                    `;
+                    toggleWrap.appendChild(knob);
+                    toggleWrap.title = visCtl.show ? (T.sp_btn_hide_tip || 'Hide this button') : (T.sp_btn_show_tip || 'Show this button');
+                    toggleWrap.setAttribute('role', 'switch');
+                    toggleWrap.setAttribute('aria-checked', String(visCtl.show));
+
+                    let newDot = null;
+                    if (visCtl.featureId && isFeatureNew(visCtl.featureId)) {
+                        newDot = document.createElement('span');
+                        newDot.style.cssText = `
+                            position: absolute; top: -4px; right: -4px; width: 7px; height: 7px;
+                            border-radius: 50%; background: #1d9bf0; animation: tm-sp-new-pulse 1.8s ease-in-out infinite;
+                            pointer-events: none;
+                        `;
+                        toggleWrap.appendChild(newDot);
+                    }
+
+                    toggleWrap.addEventListener('click', e => {
+                        e.stopPropagation();
+                        if (visCtl.featureId) markFeatureSeen(visCtl.featureId);
+                        if (newDot) { newDot.remove(); newDot = null; }
+                        visCtl.onToggle(!visCtl.show);
+                    });
+                    lbl.appendChild(toggleWrap);
+                }
+
                 const row = document.createElement('div');
-                row.style.cssText = 'display: flex; gap: 6px;';
+                row.style.cssText = 'display: flex; gap: 6px;'
+                    + (visCtl && !visCtl.show ? ' opacity: 0.4; pointer-events: none;' : '');
 
                 const _optBgIdle  = dark ? 'rgba(255,255,255,0.04)' : 'rgba(15,20,25,0.04)';
                 const _optOutIdle = dark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(15,20,25,0.12)';
@@ -6484,6 +6593,27 @@
 
                 wrap.appendChild(row);
                 return wrap;
+            };
+
+            const _toggleActionBtnVisibility = (key, nextShow, btnSelector, labelText, cacheSetter) => {
+                if (!nextShow) {
+                    const msg = (T.confirm_hide_btn || 'Hide the "{btn}" button?\nYou can turn it back on here anytime.')
+                        .replace('{btn}', labelText);
+                    if (!confirm(msg)) return;
+                    GM_setValue(key, false);
+                    cacheSetter(false);
+                    document.querySelectorAll(`.${btnSelector}`).forEach(el => {
+                        if (el._menuAC) { el._menuAC.abort(); el._menuAC = null; }
+                        el.remove();
+                    });
+                    showToast((T.toast_btn_hidden || '🙈 {btn} hidden').replace('{btn}', labelText));
+                } else {
+                    GM_setValue(key, true);
+                    cacheSetter(true);
+                    showToast((T.toast_btn_shown || '👁 {btn} shown').replace('{btn}', labelText));
+                    if (typeof scanAndInsert === 'function') scanAndInsert();
+                }
+                buildContent();
             };
 
             const makeFeedbackPickerRow = (label, options, currentVal, onSelect, featureId = null, defaultVal = undefined) => {
@@ -7018,7 +7148,16 @@
                     showToast((T.sp_link_icon_style || 'Icon Style') + ' → ' + label);
                     buildContent();
                 },
-                'sp_link_icon_style'
+                'sp_link_icon_style',
+                {
+                    show: GM_getValue(KEY_SHOW_LINK_BTN, true),
+                    featureId: 'sp_link_btn_visibility',
+                    onToggle: (nextShow) => _toggleActionBtnVisibility(
+                        KEY_SHOW_LINK_BTN, nextShow, 'custom-copy-icon',
+                        T.sp_link_icon_style_short || 'Link icon',
+                        (v) => { _cachedShowLinkBtn = v; }
+                    )
+                }
             ));
 
             const mediaIconOpts = [
@@ -7039,7 +7178,16 @@
                     showToast((T.sp_media_icon_style || 'Icon Style') + ' → ' + label);
                     buildContent();
                 },
-                'sp_media_icon_style'
+                'sp_media_icon_style',
+                {
+                    show: GM_getValue(KEY_SHOW_MEDIA_BTN, true),
+                    featureId: 'sp_media_btn_visibility',
+                    onToggle: (nextShow) => _toggleActionBtnVisibility(
+                        KEY_SHOW_MEDIA_BTN, nextShow, BUTTON_CLASS,
+                        T.sp_media_icon_style_short || 'Media icon',
+                        (v) => { _cachedShowMediaBtn = v; }
+                    )
+                }
             ));
 
             const fbOpts = [
@@ -7056,6 +7204,9 @@
                 showToast((T.toast_feedback_style || '🔔 Feedback Style → ') + (chosen ? chosen.label : newFb));
                 buildContent();
             }, 'sp_feedback_picker', 'toast');
+            fbWrap.querySelector('.tm-sp-row-label')?.appendChild(_makeHelpIcon(
+                'Where to see it: the copy/download buttons on tweets — this controls the visual feedback animation shown right on the button after a successful action.'
+            ));
 
             grpMedia.append(fbWrap);
 
@@ -7064,13 +7215,17 @@
                 { value: 'western', label: (T.status_date_western || 'Western (DD.MM.YYYY)') },
             ];
             const fmtLabel = T.menu_date_format ? T.menu_date_format.replace(/^📅\s*/, '') : 'Date Format';
-            grpMedia.append(makePickerRow(fmtLabel, fmtOpts, fmt, (newFmt) => {
+            const fmtRow = makePickerRow(fmtLabel, fmtOpts, fmt, (newFmt) => {
                 GM_setValue(KEY_DATE_FORMAT, newFmt);
                 _refreshDateFormatCache();
                 const chosen = fmtOpts.find(o => o.value === newFmt);
                 showToast(T.toast_date_fmt + (chosen ? chosen.label : newFmt));
                 registerMenus(); buildContent();
-            }, 'sp_date_picker', 'asian'));
+            }, 'sp_date_picker', 'asian');
+            fmtRow.querySelector('.tm-sp-row-label')?.appendChild(_makeHelpIcon(
+                'Where to see it: date entries shown inside the Download History panel.'
+            ));
+            grpMedia.append(fmtRow);
 
             const gridBtnRow = makeRow(
                 T.sp_grid_media_btn_label || 'Media Grid Buttons',
@@ -7086,6 +7241,9 @@
             const gridBtnIcon = document.createElement('span');
             gridBtnIcon.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:6px;"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="9.5" y="3" width="6" height="6" rx="1"/><rect x="16" y="3" width="5" height="6" rx="1"/><rect x="3" y="9.5" width="6" height="6" rx="1"/><rect x="9.5" y="9.5" width="6" height="6" rx="1"/><rect x="16" y="9.5" width="5" height="6" rx="1"/><rect x="3" y="16" width="6" height="5" rx="1"/><rect x="9.5" y="16" width="6" height="5" rx="1"/><rect x="16" y="16" width="5" height="5" rx="1"/></svg>';
             gridBtnRow.querySelector('.tm-sp-row-label')?.prepend(gridBtnIcon);
+            gridBtnRow.querySelector('.tm-sp-row-label')?.appendChild(_makeHelpIcon(
+                'Where to see it: a triangle download button on each thumbnail, on your profile\'s /media page (grid view).'
+            ));
             grpMedia.append(gridBtnRow);
 
             const avatarBtnRow = makeRow(
@@ -7102,6 +7260,9 @@
             const avatarBtnIcon = document.createElement('span');
             avatarBtnIcon.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><polygon points="12,2 2,7 12,12 22,7"/><polyline points="2,12 12,17 22,12"/><polyline points="2,17 12,22 22,17"/></svg>';
             avatarBtnRow.querySelector('.tm-sp-row-label')?.prepend(avatarBtnIcon);
+            avatarBtnRow.querySelector('.tm-sp-row-label')?.appendChild(_makeHelpIcon(
+                'Where to see it: a small shortcut button next to user avatars on the timeline, linking directly to that user\'s /media page.'
+            ));
             grpMedia.append(avatarBtnRow);
 
             const CUSTOM_FN_DEFAULT_TEMPLATE = '[twitter] {displayName}(@{screenName})_{date}_{id}_{index}.{ext}';
@@ -7341,6 +7502,9 @@
                 },
                 'sp_group_on_dl'
             );
+            groupOnDlRow.querySelector('.tm-sp-row-label')?.appendChild(_makeHelpIcon(
+                'Where to see it: open the Download History panel — downloaded items will be organized into groups instead of one flat list.'
+            ));
             grpGroups.append(groupOnDlRow);
 
             const _popupSvgFaint  = dark ? 'rgba(255,255,255,0.35)' : 'rgba(15,20,25,0.32)';
@@ -7592,6 +7756,9 @@
                     showToast((T.sp_grp_fan_mask || 'Fan Backdrop') + ' → ' + (next ? (T.status_on || 'On') : (T.status_off || 'Off')));
                 }
             );
+            fanMaskRow.querySelector('.tm-sp-row-label')?.appendChild(_makeHelpIcon(
+                'Where to see it: expand a group\'s fan-shaped popup menu — a backdrop mask appears behind it (color/opacity/shape configurable below).'
+            ));
             grpGroups.append(fanMaskRow);
 
             const fanMaskColorRow = (() => {
@@ -18055,8 +18222,20 @@
 
             actions.style.setProperty('flex-wrap', 'nowrap', 'important');
 
-            actions.appendChild(btn);
-            actions.insertBefore(icon, btn);
+            if (_cachedShowMediaBtn) {
+                actions.appendChild(btn);
+            } else {
+                btn.remove();
+            }
+            if (_cachedShowLinkBtn) {
+                if (_cachedShowMediaBtn) {
+                    actions.insertBefore(icon, btn);
+                } else {
+                    actions.appendChild(icon);
+                }
+            } else {
+                icon.remove();
+            }
 
             article.setAttribute('data-tm-v', '1');
 
@@ -18536,6 +18715,8 @@
         _cachedClickMode       = GM_getValue(KEY_CLICK_MODE, 'classic');
         _cachedFeedbackStyle   = GM_getValue(KEY_FEEDBACK_STYLE, 'toast');
         _cachedClickModeCustom = GM_getValue(KEY_CLICK_MODE_CUSTOM, false);
+        _cachedShowMediaBtn    = GM_getValue(KEY_SHOW_MEDIA_BTN, true);
+        _cachedShowLinkBtn     = GM_getValue(KEY_SHOW_LINK_BTN, true);
         document.querySelectorAll('article').forEach(article => {
             const _fingerprint = _getTweetIdFromArticle(article)
                 || article.querySelector('time')?.getAttribute('datetime')
@@ -18547,8 +18728,9 @@
                 (_cachedClickMode === 'menu'    && !_existingBtnForModeCheck._menuAC) ||
                 (_cachedClickMode === 'classic' && !!_existingBtnForModeCheck._menuAC)
             );
+            const _btnStableCheck = _cachedShowMediaBtn ? _existingBtnForModeCheck : !_existingBtnForModeCheck;
 
-            if (_processedArticles.has(article) && _sameContent && _existingBtnForModeCheck && !_modeStale) {
+            if (_processedArticles.has(article) && _sameContent && _btnStableCheck && !_modeStale) {
                 return;
             }
 
@@ -18569,7 +18751,9 @@
             }
 
             insertCopyButton(article);
-            if (article.querySelector(`.${BUTTON_CLASS}`)) {
+            const _mediaBtnOk = _cachedShowMediaBtn === !!article.querySelector(`.${BUTTON_CLASS}`);
+            const _linkBtnOk  = _cachedShowLinkBtn  === !!article.querySelector('.custom-copy-icon');
+            if (_mediaBtnOk && _linkBtnOk) {
                 _processedArticles.add(article);
                 if (_fingerprint !== null) article.dataset.tmV = _fingerprint;
             }
