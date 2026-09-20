@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.0.2
+// @version      3.2.1.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -669,6 +669,49 @@
             sp_dock_reset_pos:         'Reset Panel Position',
             sp_dock_reset_pos_desc:    'Restore panel to default coordinates (dock side kept)',
             sp_dock_reset_btn:         'Reset',
+
+            sp_tip_change_lang:    "Change the script's interface language.",
+            sp_tip_click_domain:   'Choose which domain the copy-link button links to.',
+            sp_tip_prefix:         'Optional text prepended when copying a link (e.g. for Discord formatting).',
+            sp_tip_click_mode:     'Choose what happens when you click a media button: open a menu, or perform the classic single action.',
+            sp_tip_scan_interval:  'How often the script re-scans the page for new tweets to attach buttons to.',
+            sp_tip_link_icon:      'Choose the icon style for the link-copy button.',
+            sp_tip_media_icon:     'Choose the icon style for the media-download button.',
+            sp_tip_feedback_style: 'Where to see it: the copy/download buttons on tweets — this controls the visual feedback animation shown right on the button after a successful action.',
+            sp_tip_date_format:    'Where to see it: date entries shown inside the Download History panel.',
+            sp_tip_group_on_dl:    'Where to see it: open the Download History panel — downloaded items will be organized into groups instead of one flat list.',
+            sp_tip_popup_style:    "Choose how a group's popup menu is displayed when you hover or click it (Fan / List).",
+            sp_tip_glow_size:      'Size of the glow effect around each group icon.',
+            sp_tip_label_size:     "Font size of each group's label text.",
+            sp_tip_icon_size:      "Size of each group's icon.",
+            sp_tip_mask_alpha:     "Opacity of the backdrop mask shown behind a group's fan popup.",
+            sp_tip_mask_span:      'Angle span of the fan-shaped popup menu.',
+            sp_tip_mask_radius:    'Radius of the fan-shaped popup menu.',
+            sp_tip_fan_mask:       "Where to see it: expand a group's fan-shaped popup menu — a backdrop mask appears behind it (color/opacity/shape configurable below).",
+            sp_tip_dock_style:     'Appearance of the auto-hide edge handle on the History Panel.',
+            sp_tip_hover_delay:    'How long to hover the edge handle before the History Panel automatically slides out.',
+            sp_tip_trigger_l:      'How close to the left screen edge triggers the hidden handle (larger = easier to trigger).',
+            sp_tip_trigger_r:      'How close to the right screen edge triggers the hidden handle (larger = easier to trigger).',
+            sp_tip_reset_defaults: 'Reset all settings to their default values (a confirmation dialog will list exactly what is affected).',
+            sp_tip_help:           'Open the help/manual document.',
+            sp_tip_grp_link:       'Settings for the link-copy button: which domain it links to, and an optional prefix text (e.g. for Discord).',
+            sp_tip_grp_media:      'Settings for the media copy/download button: click behavior, icon styles, feedback animation, and related toggles.',
+            sp_tip_grp_groups:     'Organize downloaded items into groups after download, plus appearance settings for the group panel.',
+            sp_tip_grp_corner:     'Choose where the gear/history buttons float on the screen (9-position grid).',
+            sp_tip_grp_advanced:   'Advanced options: backup/restore settings, performance tweaks, and other power-user features.',
+
+            cfn_token_text_warn_badge: '⚠ long',
+            sp_del_group_confirm_count: 'Delete「{name}」? This will ungroup {count} item(s).',
+            sp_del_group_confirm_empty: 'Delete「{name}」?',
+            sp_del_group_toast:         'Deleted「{name}」',
+            sp_invalid_domain_alert:    'Invalid domain: "{domain}"\nPlease enter a plain domain (e.g. fixupx.com), without http:// or paths.',
+            sp_empty_bookmark_confirm:  'This post has no text content.\nSave it as an empty text bookmark anyway?',
+            sp_template_exported_toast: '📤 Template exported!',
+            sp_bm_color_toast:          'Text Bookmark Content Color → {hex}',
+            sp_bearer_cleared_toast:    '🔑 Custom Bearer Token cleared.',
+            sp_dock_reset_toast:        '🔓 Dock reset — panel restored',
+            sp_importing_toast:         '⏳ Importing…',
+            sp_rclick_tip_toast:        '💡 Tip: Right-click this button to download all media directly.',
         },
         'zh-TW': {
             langName: '繁體中文',
@@ -936,6 +979,48 @@
             sp_dock_reset_pos:         '重置面板位置',
             sp_dock_reset_pos_desc:    '還原面板至預設座標（停靠側不變）',
             sp_dock_reset_btn:         '重置',
+
+            sp_tip_change_lang:    '更改腳本的介面語言。',
+            sp_tip_click_domain:   '選擇連結複製按鈕要連向哪個網域。',
+            sp_tip_prefix:         '複製連結時附加的可選前綴文字（例如用於 Discord 格式）。',
+            sp_tip_click_mode:     '選擇點擊媒體按鈕時的行為：開啟選單，或執行傳統的單一動作。',
+            sp_tip_scan_interval:  '腳本重新掃描頁面以偵測新推文並附加按鈕的頻率。',
+            sp_tip_link_icon:      '選擇連結複製按鈕的圖示樣式。',
+            sp_tip_media_icon:     '選擇媒體下載按鈕的圖示樣式。',
+            sp_tip_feedback_style: '入口位置：推文上的複製/下載按鈕——此設定控制動作成功後，按鈕上顯示的視覺回饋動畫。',
+            sp_tip_date_format:    '入口位置：下載歷史面板內顯示的日期格式。',
+            sp_tip_group_on_dl:    '入口位置：開啟下載歷史面板——下載項目會依分組顯示，而非單一平面清單。',
+            sp_tip_popup_style:    '選擇滑鼠懸停或點擊分組時，彈出選單的顯示方式（扇形／清單）。',
+            sp_tip_glow_size:      '每個分組圖示周圍發光效果的大小。',
+            sp_tip_label_size:     '每個分組標籤文字的字體大小。',
+            sp_tip_icon_size:      '每個分組圖示的大小。',
+            sp_tip_mask_alpha:     '分組扇形彈出選單背後遮罩的不透明度。',
+            sp_tip_mask_span:      '扇形彈出選單的展開角度範圍。',
+            sp_tip_mask_radius:    '扇形彈出選單的半徑大小。',
+            sp_tip_fan_mask:       '入口位置：展開分組的扇形彈出選單——背後會出現一層遮罩（顏色/不透明度/形狀可於下方設定）。',
+            sp_tip_dock_style:     '下載歷史面板自動隱藏把手的外觀樣式。',
+            sp_tip_hover_delay:    '滑鼠停留在把手上多久後，下載歷史面板才會自動滑出。',
+            sp_tip_trigger_l:      '距離螢幕左邊緣多近會觸發隱藏把手（數值越大越容易觸發）。',
+            sp_tip_trigger_r:      '距離螢幕右邊緣多近會觸發隱藏把手（數值越大越容易觸發）。',
+            sp_tip_reset_defaults: '將所有設定重置為預設值（確認對話框會列出具體受影響的項目）。',
+            sp_tip_help:           '開啟說明文件。',
+            sp_tip_grp_link:       '連結複製按鈕的相關設定：連向哪個網域、以及可選的前綴文字（例如用於 Discord）。',
+            sp_tip_grp_media:      '媒體複製/下載按鈕的相關設定：點擊行為、圖示樣式、回饋動畫，以及相關開關。',
+            sp_tip_grp_groups:     '下載後將項目分組整理，以及分組面板的外觀設定。',
+            sp_tip_grp_corner:     '選擇齒輪/歷史按鈕在螢幕上的懸浮位置（九宮格）。',
+            sp_tip_grp_advanced:   '進階選項：備份/還原設定、效能調校，以及其他進階使用者功能。',
+
+            sp_del_group_confirm_count: '刪除「{name}」？這將解散 {count} 個項目的分組。',
+            sp_del_group_confirm_empty: '刪除「{name}」？',
+            sp_del_group_toast:         '已刪除「{name}」',
+            sp_invalid_domain_alert:    '網域無效：「{domain}」\n請輸入單純的網域（例如 fixupx.com），不含 http:// 或路徑。',
+            sp_empty_bookmark_confirm:  '這則貼文沒有文字內容。\n仍要另存為空白文字書籤嗎？',
+            sp_template_exported_toast: '📤 範本已匯出！',
+            sp_bm_color_toast:          '文字書籤內容顏色 → {hex}',
+            sp_bearer_cleared_toast:    '🔑 自訂 Bearer Token 已清除。',
+            sp_dock_reset_toast:        '🔓 已重置停靠 — 面板已還原',
+            sp_importing_toast:         '⏳ 匯入中…',
+            sp_rclick_tip_toast:        '💡 提示：在此按鈕上按右鍵可直接下載全部媒體。',
         },
         'zh-CN': {
             langName: '简体中文',
@@ -1203,6 +1288,48 @@
             sp_dock_reset_pos:         '重置面板位置',
             sp_dock_reset_pos_desc:    '还原面板至默认坐标（停靠侧不变）',
             sp_dock_reset_btn:         '重置',
+
+            sp_tip_change_lang:    '更改脚本的界面语言。',
+            sp_tip_click_domain:   '选择链接复制按钮要链接到哪个域名。',
+            sp_tip_prefix:         '复制链接时附加的可选前缀文字（例如用于 Discord 格式）。',
+            sp_tip_click_mode:     '选择点击媒体按钮时的行为：打开菜单，或执行传统的单一动作。',
+            sp_tip_scan_interval:  '脚本重新扫描页面以检测新推文并附加按钮的频率。',
+            sp_tip_link_icon:      '选择链接复制按钮的图标样式。',
+            sp_tip_media_icon:     '选择媒体下载按钮的图标样式。',
+            sp_tip_feedback_style: '入口位置：推文上的复制/下载按钮——此设置控制操作成功后，按钮上显示的视觉反馈动画。',
+            sp_tip_date_format:    '入口位置：下载历史面板内显示的日期格式。',
+            sp_tip_group_on_dl:    '入口位置：打开下载历史面板——下载项目会按分组显示，而非单一平铺列表。',
+            sp_tip_popup_style:    '选择鼠标悬停或点击分组时，弹出菜单的显示方式（扇形／列表）。',
+            sp_tip_glow_size:      '每个分组图标周围发光效果的大小。',
+            sp_tip_label_size:     '每个分组标签文字的字体大小。',
+            sp_tip_icon_size:      '每个分组图标的大小。',
+            sp_tip_mask_alpha:     '分组扇形弹出菜单背后遮罩的不透明度。',
+            sp_tip_mask_span:      '扇形弹出菜单的展开角度范围。',
+            sp_tip_mask_radius:    '扇形弹出菜单的半径大小。',
+            sp_tip_fan_mask:       '入口位置：展开分组的扇形弹出菜单——背后会出现一层遮罩（颜色/不透明度/形状可在下方设置）。',
+            sp_tip_dock_style:     '下载历史面板自动隐藏把手的外观样式。',
+            sp_tip_hover_delay:    '鼠标停留在把手上多久后，下载历史面板才会自动滑出。',
+            sp_tip_trigger_l:      '距离屏幕左边缘多近会触发隐藏把手（数值越大越容易触发）。',
+            sp_tip_trigger_r:      '距离屏幕右边缘多近会触发隐藏把手（数值越大越容易触发）。',
+            sp_tip_reset_defaults: '将所有设置重置为默认值（确认对话框会列出具体受影响的项目）。',
+            sp_tip_help:           '打开帮助文档。',
+            sp_tip_grp_link:       '链接复制按钮的相关设置：链接到哪个域名、以及可选的前缀文字（例如用于 Discord）。',
+            sp_tip_grp_media:      '媒体复制/下载按钮的相关设置：点击行为、图标样式、反馈动画，以及相关开关。',
+            sp_tip_grp_groups:     '下载后将项目分组整理，以及分组面板的外观设置。',
+            sp_tip_grp_corner:     '选择齿轮/历史按钮在屏幕上的悬浮位置（九宫格）。',
+            sp_tip_grp_advanced:   '高级选项：备份/还原设置、性能调优，以及其他高级用户功能。',
+
+            sp_del_group_confirm_count: '删除「{name}」？这将解散 {count} 个项目的分组。',
+            sp_del_group_confirm_empty: '删除「{name}」？',
+            sp_del_group_toast:         '已删除「{name}」',
+            sp_invalid_domain_alert:    '域名无效："{domain}"\n请输入单纯的域名（例如 fixupx.com），不含 http:// 或路径。',
+            sp_empty_bookmark_confirm:  '这条推文没有文字内容。\n仍要另存为空白文字书签吗？',
+            sp_template_exported_toast: '📤 模板已导出！',
+            sp_bm_color_toast:          '文字书签内容颜色 → {hex}',
+            sp_bearer_cleared_toast:    '🔑 自定义 Bearer Token 已清除。',
+            sp_dock_reset_toast:        '🔓 已重置停靠 — 面板已恢复',
+            sp_importing_toast:         '⏳ 导入中…',
+            sp_rclick_tip_toast:        '💡 提示：在此按钮上右键单击可直接下载全部媒体。',
         },
         'ja': {
             langName: '日本語',
@@ -1470,6 +1597,48 @@
             sp_dock_reset_pos:         'パネル位置をリセット',
             sp_dock_reset_pos_desc:    'パネルを初期座標に戻します（ドック側は維持）',
             sp_dock_reset_btn:         'リセット',
+
+            sp_tip_change_lang:    'スクリプトの表示言語を変更します。',
+            sp_tip_click_domain:   'リンクコピーボタンがリンクするドメインを選択します。',
+            sp_tip_prefix:         'リンクをコピーする際に付加する任意のテキスト（Discord書式など）。',
+            sp_tip_click_mode:     'メディアボタンをクリックしたときの動作を選択します：メニューを開く、またはクラシックな単一操作を実行。',
+            sp_tip_scan_interval:  'スクリプトが新しいツイートを検出してボタンを付加するためにページを再スキャンする頻度。',
+            sp_tip_link_icon:      'リンクコピーボタンのアイコンスタイルを選択します。',
+            sp_tip_media_icon:     'メディアダウンロードボタンのアイコンスタイルを選択します。',
+            sp_tip_feedback_style: '確認場所：ツイート上のコピー/ダウンロードボタン——この設定は、操作成功後にボタン上に表示される視覚的フィードバックアニメーションを制御します。',
+            sp_tip_date_format:    '確認場所：ダウンロード履歴パネル内に表示される日付の形式。',
+            sp_tip_group_on_dl:    '確認場所：ダウンロード履歴パネルを開くと、ダウンロード項目が単一の一覧ではなくグループ別に表示されます。',
+            sp_tip_popup_style:    'グループにホバーまたはクリックした際のポップアップメニューの表示方法を選択します（扇形／リスト）。',
+            sp_tip_glow_size:      '各グループアイコン周囲のグロー効果の大きさ。',
+            sp_tip_label_size:     '各グループのラベルテキストのフォントサイズ。',
+            sp_tip_icon_size:      '各グループのアイコンサイズ。',
+            sp_tip_mask_alpha:     'グループの扇形ポップアップの背後に表示されるマスクの不透明度。',
+            sp_tip_mask_span:      '扇形ポップアップメニューの展開角度の範囲。',
+            sp_tip_mask_radius:    '扇形ポップアップメニューの半径サイズ。',
+            sp_tip_fan_mask:       '確認場所：グループの扇形ポップアップメニューを展開すると、背後にマスクが表示されます（色/不透明度/形状は下記で設定可能）。',
+            sp_tip_dock_style:     'ダウンロード履歴パネルの自動非表示ハンドルの外観スタイル。',
+            sp_tip_hover_delay:    'ハンドルにホバーしてからダウンロード履歴パネルが自動的にスライドアウトするまでの時間。',
+            sp_tip_trigger_l:      '画面左端からどれだけ近づくと非表示ハンドルが作動するか（値が大きいほど作動しやすくなります）。',
+            sp_tip_trigger_r:      '画面右端からどれだけ近づくと非表示ハンドルが作動するか（値が大きいほど作動しやすくなります）。',
+            sp_tip_reset_defaults: 'すべての設定をデフォルト値にリセットします（確認ダイアログに影響を受ける項目が具体的に表示されます）。',
+            sp_tip_help:           'ヘルプ/マニュアル文書を開きます。',
+            sp_tip_grp_link:       'リンクコピーボタンの関連設定：リンク先のドメイン、および任意のプレフィックステキスト（Discordなど）。',
+            sp_tip_grp_media:      'メディアコピー/ダウンロードボタンの関連設定：クリック動作、アイコンスタイル、フィードバックアニメーション、および関連するスイッチ。',
+            sp_tip_grp_groups:     'ダウンロード後に項目をグループ別に整理する設定、およびグループパネルの外観設定。',
+            sp_tip_grp_corner:     'ギア/履歴ボタンを画面上のどこに表示するか選択します（9方向グリッド）。',
+            sp_tip_grp_advanced:   '詳細オプション：設定のバックアップ/復元、パフォーマンス調整、その他のパワーユーザー向け機能。',
+
+            sp_del_group_confirm_count: '「{name}」を削除しますか？{count} 件の項目のグループが解除されます。',
+            sp_del_group_confirm_empty: '「{name}」を削除しますか？',
+            sp_del_group_toast:         '「{name}」を削除しました',
+            sp_invalid_domain_alert:    '無効なドメイン：「{domain}」\nhttp:// やパスを含まない、単純なドメイン（例：fixupx.com）を入力してください。',
+            sp_empty_bookmark_confirm:  'この投稿にはテキスト内容がありません。\nそれでも空のテキストブックマークとして保存しますか？',
+            sp_template_exported_toast: '📤 テンプレートをエクスポートしました！',
+            sp_bm_color_toast:          'テキストブックマークの内容色 → {hex}',
+            sp_bearer_cleared_toast:    '🔑 カスタム Bearer Token をクリアしました。',
+            sp_dock_reset_toast:        '🔓 ドックをリセット — パネルを復元しました',
+            sp_importing_toast:         '⏳ インポート中…',
+            sp_rclick_tip_toast:        '💡 ヒント：このボタンを右クリックすると、すべてのメディアを直接ダウンロードできます。',
         },
         'ko': {
             langName: '한국어',
@@ -1737,6 +1906,48 @@
             sp_dock_reset_pos:         '패널 위치 재설정',
             sp_dock_reset_pos_desc:    '패널을 기본 좌표로 복원합니다 (도크 방향은 유지)',
             sp_dock_reset_btn:         '초기화',
+
+            sp_tip_change_lang:    '스크립트의 인터페이스 언어를 변경합니다.',
+            sp_tip_click_domain:   '링크 복사 버튼이 연결할 도메인을 선택합니다.',
+            sp_tip_prefix:         '링크 복사 시 추가되는 선택적 텍스트입니다 (예: Discord 서식용).',
+            sp_tip_click_mode:     '미디어 버튼을 클릭했을 때의 동작을 선택합니다: 메뉴 열기 또는 기존의 단일 동작 실행.',
+            sp_tip_scan_interval:  '스크립트가 새 트윗을 감지하여 버튼을 추가하기 위해 페이지를 다시 스캔하는 빈도입니다.',
+            sp_tip_link_icon:      '링크 복사 버튼의 아이콘 스타일을 선택합니다.',
+            sp_tip_media_icon:     '미디어 다운로드 버튼의 아이콘 스타일을 선택합니다.',
+            sp_tip_feedback_style: '확인 위치: 트윗의 복사/다운로드 버튼 — 이 설정은 작업 성공 후 버튼에 표시되는 시각적 피드백 애니메이션을 제어합니다.',
+            sp_tip_date_format:    '확인 위치: 다운로드 기록 패널 내에 표시되는 날짜 형식입니다.',
+            sp_tip_group_on_dl:    '확인 위치: 다운로드 기록 패널을 열면 다운로드된 항목이 하나의 목록이 아닌 그룹별로 표시됩니다.',
+            sp_tip_popup_style:    '그룹에 마우스를 올리거나 클릭했을 때 팝업 메뉴가 표시되는 방식을 선택합니다 (팬형／목록).',
+            sp_tip_glow_size:      '각 그룹 아이콘 주변의 발광 효과 크기입니다.',
+            sp_tip_label_size:     '각 그룹 라벨 텍스트의 글꼴 크기입니다.',
+            sp_tip_icon_size:      '각 그룹 아이콘의 크기입니다.',
+            sp_tip_mask_alpha:     '그룹의 팬형 팝업 뒤에 표시되는 마스크의 불투명도입니다.',
+            sp_tip_mask_span:      '팬형 팝업 메뉴의 펼침 각도 범위입니다.',
+            sp_tip_mask_radius:    '팬형 팝업 메뉴의 반경 크기입니다.',
+            sp_tip_fan_mask:       '확인 위치: 그룹의 팬형 팝업 메뉴를 펼치면 뒤에 마스크가 나타납니다 (색상/불투명도/모양은 아래에서 설정 가능).',
+            sp_tip_dock_style:     '다운로드 기록 패널의 자동 숨김 핸들 모양입니다.',
+            sp_tip_hover_delay:    '핸들에 마우스를 올린 후 다운로드 기록 패널이 자동으로 슬라이드 아웃되기까지의 시간입니다.',
+            sp_tip_trigger_l:      '화면 왼쪽 가장자리에서 얼마나 가까워야 숨겨진 핸들이 작동하는지 (값이 클수록 작동하기 쉬워짐).',
+            sp_tip_trigger_r:      '화면 오른쪽 가장자리에서 얼마나 가까워야 숨겨진 핸들이 작동하는지 (값이 클수록 작동하기 쉬워짐).',
+            sp_tip_reset_defaults: '모든 설정을 기본값으로 재설정합니다 (확인 대화상자에 영향을 받는 항목이 구체적으로 표시됩니다).',
+            sp_tip_help:           '도움말/매뉴얼 문서를 엽니다.',
+            sp_tip_grp_link:       '링크 복사 버튼 관련 설정: 연결할 도메인 및 선택적 접두사 텍스트 (예: Discord용).',
+            sp_tip_grp_media:      '미디어 복사/다운로드 버튼 관련 설정: 클릭 동작, 아이콘 스타일, 피드백 애니메이션 및 관련 스위치.',
+            sp_tip_grp_groups:     '다운로드 후 항목을 그룹으로 정리하는 설정 및 그룹 패널의 모양 설정.',
+            sp_tip_grp_corner:     '기어/기록 버튼이 화면에 떠 있을 위치를 선택합니다 (9방향 그리드).',
+            sp_tip_grp_advanced:   '고급 옵션: 설정 백업/복원, 성능 조정 및 기타 파워 유저 기능.',
+
+            sp_del_group_confirm_count: '「{name}」을(를) 삭제하시겠습니까? {count}개 항목의 그룹이 해제됩니다.',
+            sp_del_group_confirm_empty: '「{name}」을(를) 삭제하시겠습니까?',
+            sp_del_group_toast:         '「{name}」이(가) 삭제되었습니다',
+            sp_invalid_domain_alert:    '잘못된 도메인: "{domain}"\nhttp:// 나 경로 없이 순수한 도메인(예: fixupx.com)을 입력하세요.',
+            sp_empty_bookmark_confirm:  '이 게시물에는 텍스트 내용이 없습니다.\n그래도 빈 텍스트 북마크로 저장하시겠습니까?',
+            sp_template_exported_toast: '📤 템플릿을 내보냈습니다!',
+            sp_bm_color_toast:          '텍스트 북마크 내용 색상 → {hex}',
+            sp_bearer_cleared_toast:    '🔑 사용자 지정 Bearer Token이 지워졌습니다.',
+            sp_dock_reset_toast:        '🔓 도크 재설정 — 패널이 복원되었습니다',
+            sp_importing_toast:         '⏳ 가져오는 중…',
+            sp_rclick_tip_toast:        '💡 팁: 이 버튼을 마우스 오른쪽 버튼으로 클릭하면 모든 미디어를 바로 다운로드할 수 있습니다.',
         },
         'es': {
             langName: 'Español',
@@ -2004,6 +2215,48 @@
             sp_dock_reset_pos:         'Restablecer posición del panel',
             sp_dock_reset_pos_desc:    'Restaura el panel a las coordenadas predeterminadas (mantiene el lado de anclaje)',
             sp_dock_reset_btn:         'Restablecer',
+
+            sp_tip_change_lang:    'Cambia el idioma de la interfaz del script.',
+            sp_tip_click_domain:   'Elige a qué dominio enlaza el botón de copiar enlace.',
+            sp_tip_prefix:         'Texto opcional que se añade al copiar un enlace (por ejemplo, para formato de Discord).',
+            sp_tip_click_mode:     'Elige qué ocurre al hacer clic en un botón de medios: abrir un menú o realizar la acción única clásica.',
+            sp_tip_scan_interval:  'Con qué frecuencia el script vuelve a escanear la página para detectar nuevos tuits y añadir botones.',
+            sp_tip_link_icon:      'Elige el estilo de icono para el botón de copiar enlace.',
+            sp_tip_media_icon:     'Elige el estilo de icono para el botón de descarga de medios.',
+            sp_tip_feedback_style: 'Dónde verlo: los botones de copiar/descargar en los tuits — esto controla la animación de retroalimentación visual que se muestra en el botón tras una acción exitosa.',
+            sp_tip_date_format:    'Dónde verlo: las entradas de fecha mostradas dentro del panel de Historial de Descargas.',
+            sp_tip_group_on_dl:    'Dónde verlo: abre el panel de Historial de Descargas — los elementos descargados se organizarán en grupos en lugar de una lista plana.',
+            sp_tip_popup_style:    'Elige cómo se muestra el menú emergente de un grupo al pasar el cursor o hacer clic (Abanico / Lista).',
+            sp_tip_glow_size:      'Tamaño del efecto de brillo alrededor de cada icono de grupo.',
+            sp_tip_label_size:     'Tamaño de fuente del texto de etiqueta de cada grupo.',
+            sp_tip_icon_size:      'Tamaño del icono de cada grupo.',
+            sp_tip_mask_alpha:     'Opacidad de la máscara de fondo mostrada tras el menú emergente en abanico de un grupo.',
+            sp_tip_mask_span:      'Ángulo de apertura del menú emergente en forma de abanico.',
+            sp_tip_mask_radius:    'Radio del menú emergente en forma de abanico.',
+            sp_tip_fan_mask:       'Dónde verlo: al desplegar el menú emergente en abanico de un grupo aparece una máscara de fondo (color/opacidad/forma configurables abajo).',
+            sp_tip_dock_style:     'Apariencia del asa de borde de auto-ocultado en el Panel de Historial.',
+            sp_tip_hover_delay:    'Cuánto tiempo hay que mantener el cursor sobre el asa antes de que el Panel de Historial se despliegue automáticamente.',
+            sp_tip_trigger_l:      'Qué tan cerca del borde izquierdo de la pantalla activa el asa oculta (mayor valor = más fácil de activar).',
+            sp_tip_trigger_r:      'Qué tan cerca del borde derecho de la pantalla activa el asa oculta (mayor valor = más fácil de activar).',
+            sp_tip_reset_defaults: 'Restablece todos los ajustes a sus valores predeterminados (un diálogo de confirmación detallará exactamente qué se verá afectado).',
+            sp_tip_help:           'Abre el documento de ayuda/manual.',
+            sp_tip_grp_link:       'Ajustes para el botón de copiar enlace: a qué dominio enlaza y un texto de prefijo opcional (por ejemplo, para Discord).',
+            sp_tip_grp_media:      'Ajustes para el botón de copiar/descargar medios: comportamiento del clic, estilos de icono, animación de retroalimentación y opciones relacionadas.',
+            sp_tip_grp_groups:     'Organiza los elementos descargados en grupos, además de los ajustes de apariencia del panel de grupos.',
+            sp_tip_grp_corner:     'Elige dónde flotan los botones de ajustes/historial en la pantalla (cuadrícula de 9 posiciones).',
+            sp_tip_grp_advanced:   'Opciones avanzadas: copia de seguridad/restauración de ajustes, ajustes de rendimiento y otras funciones para usuarios avanzados.',
+
+            sp_del_group_confirm_count: '¿Eliminar «{name}»? Esto desagrupará {count} elemento(s).',
+            sp_del_group_confirm_empty: '¿Eliminar «{name}»?',
+            sp_del_group_toast:         'Eliminado «{name}»',
+            sp_invalid_domain_alert:    'Dominio no válido: "{domain}"\nIntroduce un dominio simple (p. ej. fixupx.com), sin http:// ni rutas.',
+            sp_empty_bookmark_confirm:  'Esta publicación no tiene contenido de texto.\n¿Guardarla de todos modos como marcador de texto vacío?',
+            sp_template_exported_toast: '📤 ¡Plantilla exportada!',
+            sp_bm_color_toast:          'Color del contenido del marcador de texto → {hex}',
+            sp_bearer_cleared_toast:    '🔑 Token Bearer personalizado borrado.',
+            sp_dock_reset_toast:        '🔓 Anclaje restablecido — panel restaurado',
+            sp_importing_toast:         '⏳ Importando…',
+            sp_rclick_tip_toast:        '💡 Consejo: haz clic derecho en este botón para descargar todos los medios directamente.',
         },
         'pt-BR': {
             langName: 'Português (BR)',
@@ -2271,6 +2524,48 @@
             sp_dock_reset_pos:         'Redefinir posição do painel',
             sp_dock_reset_pos_desc:    'Restaura o painel para as coordenadas padrão (lado de ancoragem mantido)',
             sp_dock_reset_btn:         'Redefinir',
+
+            sp_tip_change_lang:    'Altera o idioma da interface do script.',
+            sp_tip_click_domain:   'Escolha para qual domínio o botão de copiar link aponta.',
+            sp_tip_prefix:         'Texto opcional adicionado ao copiar um link (por exemplo, para formatação do Discord).',
+            sp_tip_click_mode:     'Escolha o que acontece ao clicar em um botão de mídia: abrir um menu ou executar a ação única clássica.',
+            sp_tip_scan_interval:  'Com que frequência o script varre novamente a página para detectar novos tweets e anexar botões.',
+            sp_tip_link_icon:      'Escolha o estilo do ícone para o botão de copiar link.',
+            sp_tip_media_icon:     'Escolha o estilo do ícone para o botão de download de mídia.',
+            sp_tip_feedback_style: 'Onde ver: os botões de copiar/baixar nos tweets — este ajuste controla a animação de feedback visual exibida no botão após uma ação bem-sucedida.',
+            sp_tip_date_format:    'Onde ver: as datas exibidas dentro do painel de Histórico de Downloads.',
+            sp_tip_group_on_dl:    'Onde ver: abra o painel de Histórico de Downloads — os itens baixados serão organizados em grupos em vez de uma lista simples.',
+            sp_tip_popup_style:    'Escolha como o menu pop-up de um grupo é exibido ao passar o cursor ou clicar (Leque / Lista).',
+            sp_tip_glow_size:      'Tamanho do efeito de brilho em torno de cada ícone de grupo.',
+            sp_tip_label_size:     'Tamanho da fonte do texto do rótulo de cada grupo.',
+            sp_tip_icon_size:      'Tamanho do ícone de cada grupo.',
+            sp_tip_mask_alpha:     'Opacidade da máscara de fundo exibida atrás do menu pop-up em leque de um grupo.',
+            sp_tip_mask_span:      'Ângulo de abertura do menu pop-up em formato de leque.',
+            sp_tip_mask_radius:    'Raio do menu pop-up em formato de leque.',
+            sp_tip_fan_mask:       'Onde ver: ao expandir o menu pop-up em leque de um grupo, uma máscara de fundo aparece (cor/opacidade/formato configuráveis abaixo).',
+            sp_tip_dock_style:     'Aparência da alça de borda de ocultação automática no Painel de Histórico.',
+            sp_tip_hover_delay:    'Quanto tempo passar o cursor sobre a alça antes que o Painel de Histórico deslize para fora automaticamente.',
+            sp_tip_trigger_l:      'A que distância da borda esquerda da tela a alça oculta é acionada (valor maior = mais fácil de acionar).',
+            sp_tip_trigger_r:      'A que distância da borda direita da tela a alça oculta é acionada (valor maior = mais fácil de acionar).',
+            sp_tip_reset_defaults: 'Redefine todas as configurações para os valores padrão (um diálogo de confirmação listará exatamente o que será afetado).',
+            sp_tip_help:           'Abre o documento de ajuda/manual.',
+            sp_tip_grp_link:       'Configurações para o botão de copiar link: para qual domínio aponta e um texto de prefixo opcional (por exemplo, para Discord).',
+            sp_tip_grp_media:      'Configurações para o botão de copiar/baixar mídia: comportamento do clique, estilos de ícone, animação de feedback e opções relacionadas.',
+            sp_tip_grp_groups:     'Organize os itens baixados em grupos após o download, além das configurações de aparência do painel de grupos.',
+            sp_tip_grp_corner:     'Escolha onde os botões de engrenagem/histórico flutuam na tela (grade de 9 posições).',
+            sp_tip_grp_advanced:   'Opções avançadas: backup/restauração de configurações, ajustes de desempenho e outros recursos para usuários avançados.',
+
+            sp_del_group_confirm_count: 'Excluir «{name}»? Isso desagrupará {count} item(ns).',
+            sp_del_group_confirm_empty: 'Excluir «{name}»?',
+            sp_del_group_toast:         'Excluído «{name}»',
+            sp_invalid_domain_alert:    'Domínio inválido: "{domain}"\nInsira um domínio simples (ex.: fixupx.com), sem http:// ou caminhos.',
+            sp_empty_bookmark_confirm:  'Esta postagem não tem conteúdo de texto.\nSalvar mesmo assim como marcador de texto vazio?',
+            sp_template_exported_toast: '📤 Modelo exportado!',
+            sp_bm_color_toast:          'Cor do conteúdo do marcador de texto → {hex}',
+            sp_bearer_cleared_toast:    '🔑 Token Bearer personalizado apagado.',
+            sp_dock_reset_toast:        '🔓 Ancoragem redefinida — painel restaurado',
+            sp_importing_toast:         '⏳ Importando…',
+            sp_rclick_tip_toast:        '💡 Dica: clique com o botão direito neste botão para baixar todas as mídias diretamente.',
         },
         'fr': {
             langName: 'Français',
@@ -2538,6 +2833,48 @@
             sp_dock_reset_pos:         'Réinitialiser la position du panneau',
             sp_dock_reset_pos_desc:    "Restaure le panneau aux coordonnées par défaut (côté d'ancrage conservé)",
             sp_dock_reset_btn:         'Réinitialiser',
+
+            sp_tip_change_lang:    "Change la langue de l'interface du script.",
+            sp_tip_click_domain:   'Choisissez le domaine vers lequel le bouton de copie de lien pointe.',
+            sp_tip_prefix:         'Texte optionnel ajouté lors de la copie d\'un lien (par exemple, pour le formatage Discord).',
+            sp_tip_click_mode:     'Choisissez ce qui se passe lorsque vous cliquez sur un bouton média : ouvrir un menu, ou effectuer l\'action unique classique.',
+            sp_tip_scan_interval:  'Fréquence à laquelle le script réanalyse la page pour détecter de nouveaux tweets et y attacher des boutons.',
+            sp_tip_link_icon:      'Choisissez le style d\'icône pour le bouton de copie de lien.',
+            sp_tip_media_icon:     'Choisissez le style d\'icône pour le bouton de téléchargement de média.',
+            sp_tip_feedback_style: 'Où le voir : les boutons copier/télécharger sur les tweets — ce paramètre contrôle l\'animation de retour visuel affichée sur le bouton après une action réussie.',
+            sp_tip_date_format:    'Où le voir : les dates affichées dans le panneau Historique des téléchargements.',
+            sp_tip_group_on_dl:    'Où le voir : ouvrez le panneau Historique des téléchargements — les éléments téléchargés seront organisés en groupes au lieu d\'une liste plate.',
+            sp_tip_popup_style:    'Choisissez comment le menu contextuel d\'un groupe s\'affiche au survol ou au clic (Éventail / Liste).',
+            sp_tip_glow_size:      'Taille de l\'effet de lueur autour de chaque icône de groupe.',
+            sp_tip_label_size:     'Taille de police du texte de libellé de chaque groupe.',
+            sp_tip_icon_size:      'Taille de l\'icône de chaque groupe.',
+            sp_tip_mask_alpha:     'Opacité du masque de fond affiché derrière le menu contextuel en éventail d\'un groupe.',
+            sp_tip_mask_span:      'Angle d\'ouverture du menu contextuel en éventail.',
+            sp_tip_mask_radius:    'Rayon du menu contextuel en éventail.',
+            sp_tip_fan_mask:       'Où le voir : en développant le menu contextuel en éventail d\'un groupe, un masque de fond apparaît (couleur/opacité/forme configurables ci-dessous).',
+            sp_tip_dock_style:     'Apparence de la poignée de bord à masquage automatique sur le Panneau Historique.',
+            sp_tip_hover_delay:    'Durée de survol de la poignée avant que le Panneau Historique ne se déploie automatiquement.',
+            sp_tip_trigger_l:      'À quelle proximité du bord gauche de l\'écran la poignée cachée s\'active (valeur plus élevée = plus facile à activer).',
+            sp_tip_trigger_r:      'À quelle proximité du bord droit de l\'écran la poignée cachée s\'active (valeur plus élevée = plus facile à activer).',
+            sp_tip_reset_defaults: 'Réinitialise tous les paramètres à leurs valeurs par défaut (une boîte de dialogue de confirmation détaillera exactement ce qui sera affecté).',
+            sp_tip_help:           'Ouvre le document d\'aide/manuel.',
+            sp_tip_grp_link:       'Paramètres du bouton de copie de lien : vers quel domaine il pointe, et un texte de préfixe optionnel (par exemple, pour Discord).',
+            sp_tip_grp_media:      'Paramètres du bouton de copie/téléchargement de média : comportement du clic, styles d\'icône, animation de retour, et options associées.',
+            sp_tip_grp_groups:     'Organisez les éléments téléchargés en groupes après le téléchargement, ainsi que les paramètres d\'apparence du panneau de groupes.',
+            sp_tip_grp_corner:     'Choisissez où les boutons engrenage/historique flottent sur l\'écran (grille à 9 positions).',
+            sp_tip_grp_advanced:   'Options avancées : sauvegarde/restauration des paramètres, ajustements de performance, et autres fonctionnalités pour utilisateurs avancés.',
+
+            sp_del_group_confirm_count: 'Supprimer « {name} » ? Cela dissociera {count} élément(s).',
+            sp_del_group_confirm_empty: 'Supprimer « {name} » ?',
+            sp_del_group_toast:         'Supprimé « {name} »',
+            sp_invalid_domain_alert:    'Domaine invalide : « {domain} »\nVeuillez entrer un domaine simple (ex. fixupx.com), sans http:// ni chemin.',
+            sp_empty_bookmark_confirm:  'Cette publication n\'a pas de contenu textuel.\nL\'enregistrer quand même comme signet de texte vide ?',
+            sp_template_exported_toast: '📤 Modèle exporté !',
+            sp_bm_color_toast:          'Couleur du contenu du signet texte → {hex}',
+            sp_bearer_cleared_toast:    '🔑 Jeton Bearer personnalisé effacé.',
+            sp_dock_reset_toast:        '🔓 Ancrage réinitialisé — panneau restauré',
+            sp_importing_toast:         '⏳ Importation…',
+            sp_rclick_tip_toast:        '💡 Astuce : faites un clic droit sur ce bouton pour télécharger tous les médias directement.',
         },
         'ru': {
             langName: 'Русский',
@@ -2805,6 +3142,48 @@
             sp_dock_reset_pos:         'Сбросить позицию панели',
             sp_dock_reset_pos_desc:    'Восстанавливает панель в исходные координаты (сторона стыковки сохраняется)',
             sp_dock_reset_btn:         'Сбросить',
+
+            sp_tip_change_lang:    'Изменить язык интерфейса скрипта.',
+            sp_tip_click_domain:   'Выберите домен, на который ведёт кнопка копирования ссылки.',
+            sp_tip_prefix:         'Необязательный текст, добавляемый при копировании ссылки (например, для форматирования Discord).',
+            sp_tip_click_mode:     'Выберите, что происходит при нажатии кнопки медиа: открыть меню или выполнить классическое единичное действие.',
+            sp_tip_scan_interval:  'Как часто скрипт повторно сканирует страницу для обнаружения новых твитов и добавления кнопок.',
+            sp_tip_link_icon:      'Выберите стиль значка для кнопки копирования ссылки.',
+            sp_tip_media_icon:     'Выберите стиль значка для кнопки скачивания медиа.',
+            sp_tip_feedback_style: 'Где увидеть: кнопки копирования/скачивания на твитах — этот параметр управляет анимацией визуальной обратной связи, отображаемой на кнопке после успешного действия.',
+            sp_tip_date_format:    'Где увидеть: записи с датами, отображаемые в панели истории загрузок.',
+            sp_tip_group_on_dl:    'Где увидеть: откройте панель истории загрузок — загруженные элементы будут organized по группам, а не единым плоским списком.',
+            sp_tip_popup_style:    'Выберите, как отображается всплывающее меню группы при наведении или нажатии (веером／списком).',
+            sp_tip_glow_size:      'Размер эффекта свечения вокруг значка каждой группы.',
+            sp_tip_label_size:     'Размер шрифта текста метки каждой группы.',
+            sp_tip_icon_size:      'Размер значка каждой группы.',
+            sp_tip_mask_alpha:     'Прозрачность маски фона, отображаемой за веерным всплывающим меню группы.',
+            sp_tip_mask_span:      'Угол раскрытия веерного всплывающего меню.',
+            sp_tip_mask_radius:    'Радиус веерного всплывающего меню.',
+            sp_tip_fan_mask:       'Где увидеть: при раскрытии веерного всплывающего меню группы появляется маска фона (цвет/прозрачность/форма настраиваются ниже).',
+            sp_tip_dock_style:     'Внешний вид скрытого края-рукоятки на панели истории.',
+            sp_tip_hover_delay:    'Сколько нужно удерживать курсор на рукоятке, чтобы панель истории автоматически выдвинулась.',
+            sp_tip_trigger_l:      'Насколько близко к левому краю экрана срабатывает скрытая рукоятка (больше значение = легче сработать).',
+            sp_tip_trigger_r:      'Насколько близко к правому краю экрана срабатывает скрытая рукоятка (больше значение = легче сработать).',
+            sp_tip_reset_defaults: 'Сбрасывает все настройки на значения по умолчанию (диалог подтверждения покажет, что именно будет затронуто).',
+            sp_tip_help:           'Открыть справочный документ/руководство.',
+            sp_tip_grp_link:       'Настройки кнопки копирования ссылки: на какой домен она ведёт, и необязательный текст префикса (например, для Discord).',
+            sp_tip_grp_media:      'Настройки кнопки копирования/скачивания медиа: поведение при нажатии, стили значков, анимация обратной связи и связанные переключатели.',
+            sp_tip_grp_groups:     'Организация загруженных элементов по группам после загрузки, а также настройки внешнего вида панели групп.',
+            sp_tip_grp_corner:     'Выберите, где на экране будут плавать кнопки шестерёнки/истории (сетка из 9 позиций).',
+            sp_tip_grp_advanced:   'Дополнительные параметры: резервное копирование/восстановление настроек, настройки производительности и другие функции для опытных пользователей.',
+
+            sp_del_group_confirm_count: 'Удалить «{name}»? Это разгруппирует {count} элемент(ов).',
+            sp_del_group_confirm_empty: 'Удалить «{name}»?',
+            sp_del_group_toast:         'Удалено «{name}»',
+            sp_invalid_domain_alert:    'Недопустимый домен: «{domain}»\nВведите простой домен (например, fixupx.com), без http:// и путей.',
+            sp_empty_bookmark_confirm:  'В этом посте нет текстового содержимого.\nВсё равно сохранить как пустую текстовую закладку?',
+            sp_template_exported_toast: '📤 Шаблон экспортирован!',
+            sp_bm_color_toast:          'Цвет содержимого текстовой закладки → {hex}',
+            sp_bearer_cleared_toast:    '🔑 Пользовательский Bearer Token очищен.',
+            sp_dock_reset_toast:        '🔓 Панель сброшена — восстановлена',
+            sp_importing_toast:         '⏳ Импорт…',
+            sp_rclick_tip_toast:        '💡 Совет: щёлкните правой кнопкой мыши по этой кнопке, чтобы скачать все медиа напрямую.',
         }
     };
 
@@ -3577,7 +3956,7 @@
             a.click();
             document.body.removeChild(a);
             setTimeout(() => URL.revokeObjectURL(url), 5000);
-            showToast('📤 Template exported!', 2500, 'success');
+            showToast(T.sp_template_exported_toast || '📤 Template exported!', 2500, 'success');
         };
 
         const importBtn = document.createElement('button');
@@ -3677,7 +4056,7 @@
                     GM_setValue(key, cleanDomain);
                     return true;
                 } else {
-                    alert(`Invalid domain: "${cleanDomain}"\nPlease enter a plain domain (e.g. fixupx.com), without http:// or paths.`);
+                    alert((T.sp_invalid_domain_alert || 'Invalid domain: "{domain}"\nPlease enter a plain domain (e.g. fixupx.com), without http:// or paths.').replace('{domain}', cleanDomain));
                 }
             }
         }
@@ -6229,23 +6608,12 @@
                 return btn;
             };
 
-            const _makeHelpIcon = (tipText) => {
-                const icon = document.createElement('span');
-                icon.textContent = '❓';
-                icon.title = tipText;
-                icon.style.cssText = `
-                    display: inline-block; margin-left: 5px; font-size: 10px;
-                    opacity: 0.55; cursor: help; vertical-align: 1px;
-                `;
-                icon.addEventListener('click', e => e.stopPropagation());
-                return icon;
-            };
+            const SVG_HELP_LUCIDE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>`;
 
             const _spGroupRegistry = [];
 
             const makeGroup = (label, defaultOpen = true, tooltip = null, onOpen = null) => {
                 const SVG_CHEVRON = `<svg viewBox="0 0 10 10" width="9" height="9" fill="currentColor"><path d="M1 3l4 4 4-4z"/></svg>`;
-                const SVG_HELP    = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"/><path d="M6 6.2C6 5.1 6.9 4.2 8 4.2s2 .9 2 2c0 1-1 1.5-2 2v.6"/><circle cx="8" cy="11.2" r=".6" fill="currentColor" stroke="none"/></svg>`;
 
                 let openState = defaultOpen;
                 try {
@@ -6263,7 +6631,7 @@
                 if (tooltip) {
                     const helpBadge = document.createElement('span');
                     helpBadge.className = 'tm-sp-help-badge';
-                    helpBadge.innerHTML = SVG_HELP;
+                    helpBadge.innerHTML = SVG_HELP_LUCIDE;
                     helpBadge.title = tooltip;
                     g.appendChild(helpBadge);
                 }
@@ -6920,34 +7288,40 @@
             };
 
             const langLabel = T.menu_lang.replace(/^🌐\s*/, '').replace(/\s*\(Change Language\)/i, '').trim();
-            const grpLang = makeGroup('🌐  ' + langLabel, true);
-            grpLang.append(makeRow(langLabel, T.langName, () => {
+            const grpLang = makeGroup('🌐  ' + langLabel, true, T.sp_tip_change_lang || "Change the script's interface language.");
+            const langRow = makeRow(langLabel, T.langName, () => {
                 showLangPickerModal();
-            }));
+            });
+            langRow.title = T.sp_tip_change_lang || "Change the script's interface language.";
+            grpLang.append(langRow);
 
-            const grpLink = makeGroup('🔗  Link', true);
+            const grpLink = makeGroup('🔗  Link', true, T.sp_tip_grp_link || 'Settings for the link-copy button: which domain it links to, and an optional prefix text (e.g. for Discord).');
 
             const clickVal = clickCustom ? clickDomain : 'x.com (default)';
             const clickLabel = T.menu_domain_click ? T.menu_domain_click.replace(/^🔗\s*/, '') : 'Single-Click Domain';
-            grpLink.append(makeRow(clickLabel, clickVal, () => {
+            const clickDomainRow = makeRow(clickLabel, clickVal, () => {
                 showDomainPickerModal(KEY_LINK_DOMAIN_CLICK, dom => {
                     GM_setValue(KEY_CLICK_MODE_CUSTOM, dom !== 'x.com');
                     showToast(T.toast_domain_click + dom);
                     registerMenus(); buildContent();
                 });
-            }));
+            });
+            clickDomainRow.title = T.sp_tip_click_domain || 'Choose which domain the copy-link button links to.';
+            grpLink.append(clickDomainRow);
 
             const prefixLabel = T.menu_prefix ? T.menu_prefix.replace(/^⚙️\s*/, '') : 'Discord Prefix';
-            grpLink.append(makeRow(prefixLabel, prefix || '(empty)', () => {
+            const prefixRow = makeRow(prefixLabel, prefix || '(empty)', () => {
                 const newPrefix = prompt(T.prompt_prefix, prefix);
                 if (newPrefix !== null) {
                     GM_setValue(KEY_PREFIX_TEXT, newPrefix);
                     showToast(T.toast_prefix + (newPrefix || '(empty)'));
                     registerMenus(); buildContent();
                 }
-            }));
+            });
+            prefixRow.title = T.sp_tip_prefix || 'Optional text prepended when copying a link (e.g. for Discord formatting).';
+            grpLink.append(prefixRow);
 
-            const grpMedia = makeGroup('🎞  Media', true);
+            const grpMedia = makeGroup('🎞  Media', true, T.sp_tip_grp_media || 'Settings for the media copy/download button: click behavior, icon styles, feedback animation, and related toggles.');
 
             const clickModeOpts = [
                 { value: 'menu',    label: T.status_click_menu    || 'Menu',    featureId: 'click_mode_menu' },
@@ -6962,6 +7336,8 @@
                 buildContent();
                 showToast(toastMsg);
             }, null, 'classic');
+            clickModeRow.querySelector('.tm-sp-row').title =
+                T.sp_tip_click_mode || 'Choose what happens when you click a media button: open a menu, or perform the classic single action.';
             grpMedia.append(clickModeRow);
 
             (() => {
@@ -7128,6 +7504,8 @@
                 },
                 null, '1500'
             );
+            scanIntervalRow.querySelector('.tm-sp-row').title =
+                T.sp_tip_scan_interval || 'How often the script re-scans the page for new tweets to attach buttons to.';
             grpMedia.append(scanIntervalRow);
 
             const linkIconOpts = [
@@ -7138,7 +7516,7 @@
                 { value: 'copy', label: T.sp_link_icon_copy || 'Copy',
                   svg: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M4 13V5a2 2 0 0 1 2-2h8"/></svg>` },
             ];
-            grpMedia.append(makeIconStyleRow(
+            const linkIconRow = makeIconStyleRow(
                 T.sp_link_icon_style_short || 'Link icon',
                 linkIconOpts,
                 GM_getValue(KEY_LINK_ICON_STYLE, 'classic'),
@@ -7158,7 +7536,10 @@
                         (v) => { _cachedShowLinkBtn = v; }
                     )
                 }
-            ));
+            );
+            const linkIconLbl = linkIconRow.querySelector('.tm-sp-label');
+            if (linkIconLbl) linkIconLbl.title = T.sp_tip_link_icon || 'Choose the icon style for the link-copy button.';
+            grpMedia.append(linkIconRow);
 
             const mediaIconOpts = [
                 { value: 'classic', label: T.sp_media_icon_classic || 'Classic',
@@ -7168,7 +7549,7 @@
                 { value: 'download', label: T.sp_media_icon_download || 'Download',
                   svg: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v9M6.5 9L10 12.5 13.5 9"/><path d="M4 15.5h12"/></svg>` },
             ];
-            grpMedia.append(makeIconStyleRow(
+            const mediaIconRow = makeIconStyleRow(
                 T.sp_media_icon_style_short || 'Media icon',
                 mediaIconOpts,
                 GM_getValue(KEY_MEDIA_ICON_STYLE, 'classic'),
@@ -7188,7 +7569,10 @@
                         (v) => { _cachedShowMediaBtn = v; }
                     )
                 }
-            ));
+            );
+            const mediaIconLbl = mediaIconRow.querySelector('.tm-sp-label');
+            if (mediaIconLbl) mediaIconLbl.title = T.sp_tip_media_icon || 'Choose the icon style for the media-download button.';
+            grpMedia.append(mediaIconRow);
 
             const fbOpts = [
                 { value: 'toast',  label: T.status_feedback_toast  || 'Toast' },
@@ -7198,17 +7582,16 @@
                 { value: 'slide',  label: T.status_feedback_slide  || 'Slide Up',     featureId: 'sp_feedback_slide' },
             ];
             const fbLabel = T.menu_feedback_style ? T.menu_feedback_style.replace(/^🔔\s*/, '') : 'Feedback Style';
-            const fbWrap = makeFeedbackPickerRow(fbLabel, fbOpts, _fbStyle, (newFb) => {
+            const fbRow = makeFeedbackPickerRow(fbLabel, fbOpts, _fbStyle, (newFb) => {
                 GM_setValue(KEY_FEEDBACK_STYLE, newFb);
                 const chosen = fbOpts.find(o => o.value === newFb);
                 showToast((T.toast_feedback_style || '🔔 Feedback Style → ') + (chosen ? chosen.label : newFb));
                 buildContent();
             }, 'sp_feedback_picker', 'toast');
-            fbWrap.querySelector('.tm-sp-row-label')?.appendChild(_makeHelpIcon(
-                'Where to see it: the copy/download buttons on tweets — this controls the visual feedback animation shown right on the button after a successful action.'
-            ));
+            fbRow.querySelector('.tm-sp-row').title =
+                T.sp_tip_feedback_style || 'Where to see it: the copy/download buttons on tweets — this controls the visual feedback animation shown right on the button after a successful action.';
 
-            grpMedia.append(fbWrap);
+            grpMedia.append(fbRow);
 
             const fmtOpts = [
                 { value: 'asian',   label: (T.status_date_asian   || 'Asian (YYYY.MM.DD)') },
@@ -7222,9 +7605,8 @@
                 showToast(T.toast_date_fmt + (chosen ? chosen.label : newFmt));
                 registerMenus(); buildContent();
             }, 'sp_date_picker', 'asian');
-            fmtRow.querySelector('.tm-sp-row-label')?.appendChild(_makeHelpIcon(
-                'Where to see it: date entries shown inside the Download History panel.'
-            ));
+            fmtRow.querySelector('.tm-sp-row').title =
+                T.sp_tip_date_format || 'Where to see it: date entries shown inside the Download History panel.';
             grpMedia.append(fmtRow);
 
             const gridBtnRow = makeRow(
@@ -7241,9 +7623,8 @@
             const gridBtnIcon = document.createElement('span');
             gridBtnIcon.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:6px;"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="9.5" y="3" width="6" height="6" rx="1"/><rect x="16" y="3" width="5" height="6" rx="1"/><rect x="3" y="9.5" width="6" height="6" rx="1"/><rect x="9.5" y="9.5" width="6" height="6" rx="1"/><rect x="16" y="9.5" width="5" height="6" rx="1"/><rect x="3" y="16" width="6" height="5" rx="1"/><rect x="9.5" y="16" width="6" height="5" rx="1"/><rect x="16" y="16" width="5" height="5" rx="1"/></svg>';
             gridBtnRow.querySelector('.tm-sp-row-label')?.prepend(gridBtnIcon);
-            gridBtnRow.querySelector('.tm-sp-row-label')?.appendChild(_makeHelpIcon(
-                'Where to see it: a triangle download button on each thumbnail, on your profile\'s /media page (grid view).'
-            ));
+            gridBtnRow.title =
+                T.sp_grid_media_btn_desc || 'Where to see it: a triangle download button on each thumbnail, on your profile\'s /media page (grid view).';
             grpMedia.append(gridBtnRow);
 
             const avatarBtnRow = makeRow(
@@ -7260,9 +7641,8 @@
             const avatarBtnIcon = document.createElement('span');
             avatarBtnIcon.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><polygon points="12,2 2,7 12,12 22,7"/><polyline points="2,12 12,17 22,12"/><polyline points="2,17 12,22 22,17"/></svg>';
             avatarBtnRow.querySelector('.tm-sp-row-label')?.prepend(avatarBtnIcon);
-            avatarBtnRow.querySelector('.tm-sp-row-label')?.appendChild(_makeHelpIcon(
-                'Where to see it: a small shortcut button next to user avatars on the timeline, linking directly to that user\'s /media page.'
-            ));
+            avatarBtnRow.title =
+                T.sp_avatar_media_btn_desc || 'Where to see it: a small shortcut button next to user avatars on the timeline, linking directly to that user\'s /media page.';
             grpMedia.append(avatarBtnRow);
 
             const CUSTOM_FN_DEFAULT_TEMPLATE = '[twitter] {displayName}(@{screenName})_{date}_{id}_{index}.{ext}';
@@ -7480,7 +7860,7 @@
             };
             _syncCustomFilenameChildDisabled();
 
-            const grpGroups = makeGroup(T.sp_grp_group || '⭐  Groups', true);
+            const grpGroups = makeGroup(T.sp_grp_group || '⭐  Groups', true, T.sp_tip_grp_groups || 'Organize downloaded items into groups after download, plus appearance settings for the group panel.');
 
             const _grpSub    = dark ? 'rgba(255,255,255,.7)'  : '#7a6f5c';
             const _grpDiv    = dark ? 'rgba(255,255,255,.06)' : 'rgba(15,20,25,.08)';
@@ -7502,9 +7882,8 @@
                 },
                 'sp_group_on_dl'
             );
-            groupOnDlRow.querySelector('.tm-sp-row-label')?.appendChild(_makeHelpIcon(
-                'Where to see it: open the Download History panel — downloaded items will be organized into groups instead of one flat list.'
-            ));
+            groupOnDlRow.title =
+                T.sp_tip_group_on_dl || 'Where to see it: open the Download History panel — downloaded items will be organized into groups instead of one flat list.';
             grpGroups.append(groupOnDlRow);
 
             const _popupSvgFaint  = dark ? 'rgba(255,255,255,0.35)' : 'rgba(15,20,25,0.32)';
@@ -7535,6 +7914,8 @@
                 'sp_group_popup_style', 'list',
                 36, 36
             );
+            popupStyleRow.querySelector('.tm-sp-row').title =
+                T.sp_tip_popup_style || "Choose how a group's popup menu is displayed when you hover or click it (Fan / List).";
             grpGroups.append(popupStyleRow);
 
             const _grpCfgRaw  = (() => { try { return JSON.parse(GM_getValue(KEY_GROUP_PANEL_CFG, '{}')); } catch(_) { return {}; } })();
@@ -7637,7 +8018,7 @@
             })();
             grpGroups.append(glowColorRow);
 
-            grpGroups.append(makeSliderRow(
+            const glowSizeRow = makeSliderRow(
                 T.sp_grp_glow_size || 'Glow Size', _grpGlowSz, 4, 60, 2, 'px',
                 null,
                 (n) => {
@@ -7646,9 +8027,11 @@
                     GM_setValue(KEY_GROUP_PANEL_CFG, JSON.stringify(cfg));
                 },
                 'sp_group_glow_size', 12
-            ));
+            );
+            glowSizeRow.title = T.sp_tip_glow_size || 'Size of the glow effect around each group icon.';
+            grpGroups.append(glowSizeRow);
 
-            grpGroups.append(makeSliderRow(
+            const labelSizeRow = makeSliderRow(
                 T.sp_grp_label_size || 'Label Text Size', _grpLabelSz, 7, 16, 1, 'px',
                 null,
                 (n) => {
@@ -7657,9 +8040,11 @@
                     GM_setValue(KEY_GROUP_PANEL_CFG, JSON.stringify(cfg));
                 },
                 'sp_group_label_size', 9
-            ));
+            );
+            labelSizeRow.title = T.sp_tip_label_size || "Font size of each group's label text.";
+            grpGroups.append(labelSizeRow);
 
-            grpGroups.append(makeSliderRow(
+            const iconSizeRow = makeSliderRow(
                 T.sp_grp_icon_size || 'Icon Size', _grpIconSz, 14, 28, 1, 'px',
                 null,
                 (n) => {
@@ -7668,7 +8053,9 @@
                     GM_setValue(KEY_GROUP_PANEL_CFG, JSON.stringify(cfg));
                 },
                 'sp_group_icon_size', 18
-            ));
+            );
+            iconSizeRow.title = T.sp_tip_icon_size || "Size of each group's icon.";
+            grpGroups.append(iconSizeRow);
 
             const labelColorRow = (() => {
                 const wrap = document.createElement('div');
@@ -7756,9 +8143,8 @@
                     showToast((T.sp_grp_fan_mask || 'Fan Backdrop') + ' → ' + (next ? (T.status_on || 'On') : (T.status_off || 'Off')));
                 }
             );
-            fanMaskRow.querySelector('.tm-sp-row-label')?.appendChild(_makeHelpIcon(
-                'Where to see it: expand a group\'s fan-shaped popup menu — a backdrop mask appears behind it (color/opacity/shape configurable below).'
-            ));
+            fanMaskRow.title =
+                T.sp_tip_fan_mask || 'Where to see it: expand a group\'s fan-shaped popup menu — a backdrop mask appears behind it (color/opacity/shape configurable below).';
             grpGroups.append(fanMaskRow);
 
             const fanMaskColorRow = (() => {
@@ -7817,26 +8203,32 @@
             })();
             grpGroups.append(fanMaskColorRow);
 
-            grpGroups.append(makeSliderRow(
+            const maskAlphaRow = makeSliderRow(
                 T.sp_grp_fan_mask_alpha || 'Backdrop Opacity', Math.round(_maskAlpha * 100), 5, 100, 5, '%',
                 null,
                 (n) => { _saveMaskCfg({ fanMaskAlpha: n / 100 }); },
                 null, 45
-            ));
+            );
+            maskAlphaRow.title = T.sp_tip_mask_alpha || "Opacity of the backdrop mask shown behind a group's fan popup.";
+            grpGroups.append(maskAlphaRow);
 
-            grpGroups.append(makeSliderRow(
+            const maskSpanRow = makeSliderRow(
                 T.sp_grp_fan_mask_span || 'Backdrop Spread', _maskSpanDeg, 20, 340, 10, '°',
                 null,
                 (n) => { _saveMaskCfg({ fanMaskSpanDeg: n }); },
                 null, 160
-            ));
+            );
+            maskSpanRow.title = T.sp_tip_mask_span || 'Angle span of the fan-shaped popup menu.';
+            grpGroups.append(maskSpanRow);
 
-            grpGroups.append(makeSliderRow(
+            const maskRadiusRow = makeSliderRow(
                 T.sp_grp_fan_mask_radius || 'Backdrop Size', _maskRadius, 60, 360, 10, 'px',
                 null,
                 (n) => { _saveMaskCfg({ fanMaskRadius: n }); },
                 null, 180
-            ));
+            );
+            maskRadiusRow.title = T.sp_tip_mask_radius || 'Radius of the fan-shaped popup menu.';
+            grpGroups.append(maskRadiusRow);
 
             const grpBtnRow = document.createElement('div');
             grpBtnRow.style.cssText = 'padding:6px 12px 10px';
@@ -7913,7 +8305,7 @@
                         saveTbmColor(hex);
                         colorRow.querySelectorAll('button[data-tbm-swatch]').forEach(s => s.style.borderColor = 'transparent');
                         sw.style.borderColor = _grpSelRing;
-                        showToast('Text Bookmark Content Color → ' + hex);
+                        showToast((T.sp_bm_color_toast || 'Text Bookmark Content Color → {hex}').replace('{hex}', hex));
                     });
                     sw.dataset.tbmSwatch = hex;
                     colorRow.appendChild(sw);
@@ -7941,7 +8333,7 @@
             };
             _syncGroupChildrenDisabled();
 
-            const grpCorner = makeGroup(T.sp_grp_corner || '📌  Corner Position', true, null, () => {
+            const grpCorner = makeGroup(T.sp_grp_corner || '📌  Corner Position', true, T.sp_tip_grp_corner || 'Choose where the gear/history buttons float on the screen (9-position grid).', () => {
                 markFeatureSeen('sp_corner_position');
             });
 
@@ -8252,7 +8644,7 @@
                 { value: 'dots',  label: T.sp_dock_dots  || 'Dots',
                   svg: `<svg viewBox="0 0 28 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="0" width="8" height="52" rx="1" fill="${_DS.bg}"/><circle cx="14" cy="19" r="1.8" fill="${_DS.sub}"/><circle cx="14" cy="26" r="1.8" fill="${_DS.blue}"/><circle cx="14" cy="33" r="1.8" fill="${_DS.sub}"/></svg>` },
             ];
-            grpHist.append(makeDockStylePickerRow(T.sp_grp_dock_style || 'Dock Style', dockStyleOpts, dockStyle, (next) => {
+            const dockStyleRow = makeDockStylePickerRow(T.sp_grp_dock_style || 'Dock Style', dockStyleOpts, dockStyle, (next) => {
                 GM_setValue(KEY_DOCK_STYLE, next);
                 showToast('🗂 ' + (T.sp_grp_dock_style || 'Dock Style') + ' → ' + (dockStyleOpts.find(o => o.value === next)?.label ?? next));
                 const curTab = document.getElementById('tm-hist-dock-tab');
@@ -8268,16 +8660,21 @@
                         }
                     }
                 }
-            }, 'sp_dock_picker', 'arrow'));
+            }, 'sp_dock_picker', 'arrow');
+            dockStyleRow.querySelector('.tm-sp-row').title =
+                T.sp_tip_dock_style || 'Appearance of the auto-hide edge handle on the History Panel.';
+            grpHist.append(dockStyleRow);
 
-            grpHist.append(makeSliderRow(
+            const hoverDelayRow = makeSliderRow(
                 T.sp_grp_hover_delay || 'Hover Delay', dockHoverDelay, 100, 3000, 50, 'ms',
                 null,
                 (n) => { GM_setValue(KEY_DOCK_HOVER_DELAY, String(n)); showToast('⏱ ' + (T.sp_grp_hover_delay || 'Hover Delay') + ' → ' + n + ' ms'); },
                 'sp_slider_controls', 500
-            ));
+            );
+            hoverDelayRow.title = T.sp_tip_hover_delay || 'How long to hover the edge handle before the History Panel automatically slides out.';
+            grpHist.append(hoverDelayRow);
 
-            grpHist.append(makeSliderRow(
+            const triggerLRow = makeSliderRow(
                 T.sp_grp_trigger_l || 'Trigger Distance ◀ Left', dockTriggerL, 20, 120, 5, 'px',
                 (n) => {
                     const hotzone = document.querySelector('#tm-hist-dock-tab.side-left .tm-dock-hotzone');
@@ -8285,9 +8682,11 @@
                 },
                 (n) => { GM_setValue(KEY_DOCK_TRIGGER_L, String(n)); },
                 'sp_slider_controls', 80
-            ));
+            );
+            triggerLRow.title = T.sp_tip_trigger_l || 'How close to the left screen edge triggers the hidden handle (larger = easier to trigger).';
+            grpHist.append(triggerLRow);
 
-            grpHist.append(makeSliderRow(
+            const triggerRRow = makeSliderRow(
                 T.sp_grp_trigger_r || 'Trigger Distance ▶ Right', dockTriggerR, 20, 120, 5, 'px',
                 (n) => {
                     const hotzone = document.querySelector('#tm-hist-dock-tab.side-right .tm-dock-hotzone');
@@ -8295,7 +8694,9 @@
                 },
                 (n) => { GM_setValue(KEY_DOCK_TRIGGER_R, String(n)); },
                 'sp_slider_controls', 80
-            ));
+            );
+            triggerRRow.title = T.sp_tip_trigger_r || 'How close to the right screen edge triggers the hidden handle (larger = easier to trigger).';
+            grpHist.append(triggerRRow);
 
             {
                 const _remRow = makeRow(
@@ -8334,7 +8735,7 @@
                 grpHist.append(_rstRow);
             }
 
-            const grpAdv = makeGroup(T.sp_group_advanced || '⚙ Advanced', false, null);
+            const grpAdv = makeGroup(T.sp_group_advanced || '⚙ Advanced', false, T.sp_tip_grp_advanced || 'Advanced options: backup/restore settings, performance tweaks, and other power-user features.');
 
             const ALL_SETTING_KEYS = [
                 KEY_PREFIX_TEXT, KEY_LANG, KEY_LINK_DOMAIN_CLICK, KEY_CLICK_MODE_CUSTOM,
@@ -8428,12 +8829,21 @@
                     KEY_SP_GROUP_OPEN, KEY_SEEN_FEATURES,
                     KEY_HISTORY_VIEW_MODE,
                     KEY_SCAN_INTERVAL,
+                    KEY_SHOW_LINK_BTN, KEY_SHOW_MEDIA_BTN,
                 ];
                 RESET_KEYS.forEach(k => GM_deleteValue(k));
+                const _linkBtnWasHidden  = !_cachedShowLinkBtn;
+                const _mediaBtnWasHidden = !_cachedShowMediaBtn;
+                _cachedShowLinkBtn  = GM_getValue(KEY_SHOW_LINK_BTN, true);
+                _cachedShowMediaBtn = GM_getValue(KEY_SHOW_MEDIA_BTN, true);
+                if ((_linkBtnWasHidden || _mediaBtnWasHidden) && typeof scanAndInsert === 'function') {
+                    scanAndInsert();
+                }
                 buildContent();
                 showToast('✅ Settings reset to defaults.', 2500, 'success');
             });
             resetRow.style.opacity = '0.7';
+            resetRow.title = T.sp_tip_reset_defaults || 'Reset all settings to their default values (a confirmation dialog will list exactly what is affected).';
             grpAdv.append(resetRow);
 
             const bearerGroupTitle = T.sp_bearer_title || '🔑 Custom Bearer Token';
@@ -8658,7 +9068,7 @@
                 bearerTa.value = '';
                 _bearerLocked = false;
                 _syncBearerLock();
-                showToast('🔑 Custom Bearer Token cleared.');
+                showToast(T.sp_bearer_cleared_toast || '🔑 Custom Bearer Token cleared.');
             };
             bearerRow.append(bearerTitleRow, bearerPopover, bearerTa);
             bearerGroupBody.appendChild(bearerRow);
@@ -8875,6 +9285,7 @@
                 showHelpModal();
             });
             helpRow.style.borderTop = `1px solid ${C.border}`;
+            helpRow.title = T.sp_tip_help || 'Open the help/manual document.';
             panel.appendChild(helpRow);
         }
 
@@ -10153,11 +10564,11 @@
                 delBtn.addEventListener('mouseover', () => delBtn.style.color = 'rgba(255,80,80,.9)');
                 delBtn.addEventListener('mouseout',  () => delBtn.style.color = 'rgba(255,80,80,.55)');
                 delBtn.addEventListener('click', () => {
-                    if (cnt > 0 && !confirm(`Delete「${g.name}」? This will ungroup ${cnt} item(s).`)) return;
-                    if (cnt === 0 && !confirm(`Delete「${g.name}」?`)) return;
+                    if (cnt > 0 && !confirm((T.sp_del_group_confirm_count || 'Delete「{name}」? This will ungroup {count} item(s).').replace('{name}', g.name).replace('{count}', cnt))) return;
+                    if (cnt === 0 && !confirm((T.sp_del_group_confirm_empty || 'Delete「{name}」?').replace('{name}', g.name))) return;
                     deleteGroup(g.id);
                     rebuildList();
-                    showToast(`Deleted「${g.name}」`, 2500, 'success');
+                    showToast((T.sp_del_group_toast || 'Deleted「{name}」').replace('{name}', g.name), 2500, 'success');
                 });
 
                 row.appendChild(dragHandle);
@@ -11424,7 +11835,7 @@
             panel.offsetWidth;
             panel.style.transition = '';
             render();
-            showToast('🔓 Dock reset — panel restored');
+            showToast(T.sp_dock_reset_toast || '🔓 Dock reset — panel restored');
         }
 
         return {
@@ -12263,7 +12674,7 @@
                         menu.appendChild(sep);
                         menu.appendChild(mkItem('🗑️', 'Delete group', 'rgba(255,100,100,.9)', () => {
                             _dialogOpenGlobal = true;
-                            const ok = confirm(`Delete group「${label}」? Records will be ungrouped.`);
+                            const ok = confirm((T.sp_del_group_confirm_empty || 'Delete「{name}」?').replace('{name}', label));
                             _dialogOpenGlobal = false;
                             if (!ok) return;
                             if (isTextTab) deleteTextGroup(value);
@@ -12544,7 +12955,7 @@
                 if (!file) { input.remove(); return; }
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    showToast('⏳ Importing…', 60000);
+                    showToast(T.sp_importing_toast || '⏳ Importing…', 60000);
                     setTimeout(() => {
                     try {
                         const parsed = JSON.parse(e.target.result);
@@ -17594,7 +18005,7 @@
                 setTimeout(() => setMediaIcon('default'), 1500);
                 if (isFeatureNew('right_click_tip')) {
                     markFeatureSeen('right_click_tip');
-                    setTimeout(() => showToast('💡 Tip: Right-click this button to download all media directly.', 5000), 400);
+                    setTimeout(() => showToast(T.sp_rclick_tip_toast || '💡 Tip: Right-click this button to download all media directly.', 5000), 400);
                 }
             };
 
@@ -17853,7 +18264,7 @@
                 const info = getTweetInfo(article);
                 if (!rawText) {
                     _dialogOpenGlobal = true;
-                    const ok = confirm(`This post has no text content.\nSave it as an empty text bookmark anyway?`);
+                    const ok = confirm(T.sp_empty_bookmark_confirm || 'This post has no text content.\nSave it as an empty text bookmark anyway?');
                     _dialogOpenGlobal = false;
                     if (!ok) return;
                 }
@@ -18339,7 +18750,7 @@
             const href = anchor.getAttribute('href') || '';
             const m = href.match(/^\/([^/]+)\/status\/(\d+)\/(photo|video)\/(\d+)/);
             if (!m) return;
-            const [, screenName, tweetId, mediaType] = m;
+            const [, screenName, tweetId] = m;
 
             if (_processedGridItems.has(li) && li.dataset.tmGridHref === href) return;
             if (li.dataset.tmGridHref && li.dataset.tmGridHref !== href) {
