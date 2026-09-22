@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.1.0
+// @version      3.2.1.3
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -550,6 +550,9 @@
             menu_click_mode:        '🖱 Click Mode',
             status_click_menu:      'Menu',
             status_click_classic:   'Classic',
+            sp_click_menu_desc:     'Click opens an action menu',
+            sp_click_classic_desc:  'Click / long-press / middle / right',
+            sp_cma_classic_only:    'Applies to Classic mode only',
             toast_click_mode:       '🖱 Click Mode → ',
             cma_title:                'Customize button actions',
             cma_slot_click:           'Single Click',
@@ -616,6 +619,7 @@
             sp_bearer_apply:        'Apply',
             sp_bearer_edit:         'Edit',
             sp_scan_interval:       'Scan Interval',
+            sp_scan_interval_desc:  'Applies to both Link and Media button scanning',
             
             hist_filter_all:        'All',
             hist_filter_image:      '🖼 Image',
@@ -863,6 +867,9 @@
             menu_click_mode:        '🖱 點擊模式',
             status_click_menu:      '選單',
             status_click_classic:   '經典',
+            sp_click_menu_desc:     '點擊開啟操作選單',
+            sp_click_classic_desc:  '單擊／長按／中鍵／右鍵',
+            sp_cma_classic_only:    '僅適用於經典模式',
             toast_click_mode:       '🖱 點擊模式 → ',
             cma_title:                '自訂按鈕操作',
             cma_slot_click:           '左鍵單擊',
@@ -928,6 +935,7 @@
             sp_bearer_apply:        '套用',
             sp_bearer_edit:         '編輯',
             sp_scan_interval:       '掃描間隔',
+            sp_scan_interval_desc:  '同時影響連結與媒體按鈕的掃描頻率',
             hist_filter_all:        '全部',
             hist_filter_image:      '🖼 圖片',
             hist_filter_video:      '🎬 影片',
@@ -1172,6 +1180,9 @@
             menu_click_mode:        '🖱 点击模式',
             status_click_menu:      '菜单',
             status_click_classic:   '经典',
+            sp_click_menu_desc:     '点击打开操作菜单',
+            sp_click_classic_desc:  '单击／长按／中键／右键',
+            sp_cma_classic_only:    '仅适用于经典模式',
             toast_click_mode:       '🖱 点击模式 → ',
             cma_title:                '自定义按钮操作',
             cma_slot_click:           '左键单击',
@@ -1237,6 +1248,7 @@
             sp_bearer_apply:        '应用',
             sp_bearer_edit:         '编辑',
             sp_scan_interval:       '扫描间隔',
+            sp_scan_interval_desc:  '同时影响链接与媒体按钮的扫描频率',
             hist_filter_all:        '全部',
             hist_filter_image:      '🖼 图片',
             hist_filter_video:      '🎬 视频',
@@ -1481,6 +1493,9 @@
             menu_click_mode:        '🖱 クリックモード',
             status_click_menu:      'メニュー',
             status_click_classic:   'クラシック',
+            sp_click_menu_desc:     'クリックで操作メニューを開く',
+            sp_click_classic_desc:  'クリック／長押し／中クリック／右クリック',
+            sp_cma_classic_only:    'クラシックモードのみ有効',
             toast_click_mode:       '🖱 クリックモード → ',
             cma_title:                'ボタン操作のカスタマイズ',
             cma_slot_click:           'シングルクリック',
@@ -1546,6 +1561,7 @@
             sp_bearer_apply:        '適用',
             sp_bearer_edit:         '編集',
             sp_scan_interval:       'スキャン間隔',
+            sp_scan_interval_desc:  'リンクとメディア両方のボタンのスキャンに適用',
             hist_filter_all:        'すべて',
             hist_filter_image:      '🖼 画像',
             hist_filter_video:      '🎬 動画',
@@ -1790,6 +1806,9 @@
             menu_click_mode:        '🖱 클릭 모드',
             status_click_menu:      '메뉴',
             status_click_classic:   '클래식',
+            sp_click_menu_desc:     '클릭하면 작업 메뉴 열기',
+            sp_click_classic_desc:  '클릭 / 길게 누르기 / 가운데 / 오른쪽 클릭',
+            sp_cma_classic_only:    '클래식 모드에서만 적용',
             toast_click_mode:       '🖱 클릭 모드 → ',
             cma_title:                '버튼 동작 사용자 지정',
             cma_slot_click:           '좌클릭',
@@ -1855,6 +1874,7 @@
             sp_bearer_apply:        '적용',
             sp_bearer_edit:         '편집',
             sp_scan_interval:       '스캔 간격',
+            sp_scan_interval_desc:  '링크와 미디어 버튼 스캔에 모두 적용됩니다',
             hist_filter_all:        '전체',
             hist_filter_image:      '🖼 이미지',
             hist_filter_video:      '🎬 동영상',
@@ -2099,6 +2119,9 @@
             menu_click_mode:        '🖱 Modo de Clic',
             status_click_menu:      'Menú',
             status_click_classic:   'Clásico',
+            sp_click_menu_desc:     'Clic abre un menú de acciones',
+            sp_click_classic_desc:  'Clic / pulsación larga / central / derecho',
+            sp_cma_classic_only:    'Solo se aplica al modo Clásico',
             toast_click_mode:       '🖱 Modo de Clic → ',
             cma_title:                'Personalizar acciones del botón',
             cma_slot_click:           'Clic simple',
@@ -2164,6 +2187,7 @@
             sp_bearer_apply:        'Aplicar',
             sp_bearer_edit:         'Editar',
             sp_scan_interval:       'Intervalo de escaneo',
+            sp_scan_interval_desc:  'Se aplica al escaneo de botones de enlace y de medios',
             hist_filter_all:        'Todo',
             hist_filter_image:      '🖼 Imagen',
             hist_filter_video:      '🎬 Video',
@@ -2408,6 +2432,9 @@
             menu_click_mode:        '🖱 Modo de Clique',
             status_click_menu:      'Menu',
             status_click_classic:   'Clássico',
+            sp_click_menu_desc:     'Clique abre um menu de ações',
+            sp_click_classic_desc:  'Clique / pressionar / meio / direito',
+            sp_cma_classic_only:    'Aplica-se somente ao modo Clássico',
             toast_click_mode:       '🖱 Modo de Clique → ',
             cma_title:                'Personalizar ações do botão',
             cma_slot_click:           'Clique simples',
@@ -2473,6 +2500,7 @@
             sp_bearer_apply:        'Aplicar',
             sp_bearer_edit:         'Editar',
             sp_scan_interval:       'Intervalo de varredura',
+            sp_scan_interval_desc:  'Aplica-se à varredura dos botões de link e mídia',
             hist_filter_all:        'Tudo',
             hist_filter_image:      '🖼 Imagem',
             hist_filter_video:      '🎬 Vídeo',
@@ -2717,6 +2745,9 @@
             menu_click_mode:        '🖱 Mode de Clic',
             status_click_menu:      'Menu',
             status_click_classic:   'Classique',
+            sp_click_menu_desc:     'Un clic ouvre un menu d\'actions',
+            sp_click_classic_desc:  'Clic / appui long / milieu / droit',
+            sp_cma_classic_only:    'S\'applique au mode Classique uniquement',
             toast_click_mode:       '🖱 Mode de Clic → ',
             cma_title:                'Personnaliser les actions du bouton',
             cma_slot_click:           'Clic simple',
@@ -2782,6 +2813,7 @@
             sp_bearer_apply:        'Appliquer',
             sp_bearer_edit:         'Modifier',
             sp_scan_interval:       'Intervalle de scan',
+            sp_scan_interval_desc:  'S\'applique au scan des boutons de lien et de média',
             hist_filter_all:        'Tout',
             hist_filter_image:      '🖼 Image',
             hist_filter_video:      '🎬 Vidéo',
@@ -3026,6 +3058,9 @@
             menu_click_mode:        '🖱 Режим клика',
             status_click_menu:      'Меню',
             status_click_classic:   'Классика',
+            sp_click_menu_desc:     'Клик открывает меню действий',
+            sp_click_classic_desc:  'Клик / удержание / средняя / правая',
+            sp_cma_classic_only:    'Только для режима «Классика»',
             toast_click_mode:       '🖱 Режим клика → ',
             cma_title:                'Настроить действия кнопки',
             cma_slot_click:           'Одиночный клик',
@@ -3091,6 +3126,7 @@
             sp_bearer_apply:        'Применить',
             sp_bearer_edit:         'Изменить',
             sp_scan_interval:       'Интервал сканирования',
+            sp_scan_interval_desc:  'Применяется к сканированию кнопок ссылок и медиа',
             hist_filter_all:        'Все',
             hist_filter_image:      '🖼 Изображение',
             hist_filter_video:      '🎬 Видео',
@@ -5610,6 +5646,11 @@
                 font-size: 11px; color: #1d9bf0;
             }
             
+            .tm-sp-picker-opt .tm-sp-opt-col { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+            .tm-sp-picker-opt.active .tm-sp-row-desc { color: #1d9bf0; opacity: 0.75; font-weight: 400; }
+            
+            .tm-sp-cma-gear.tm-cma-inactive { opacity: 0.4; }
+            
             .tm-sp-cma-gear {
                 margin-left: auto; flex-shrink: 0;
                 width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
@@ -5654,6 +5695,10 @@
                 transition: opacity 0.15s;
             }
             .tm-sp-group-header:hover { opacity: 1 !important; }
+            
+            .tm-sp-icon-title { display: inline-flex; align-items: center; gap: 5px; min-width: 0; }
+            .tm-sp-grp-ico { display: inline-flex; align-items: center; flex-shrink: 0; }
+            .tm-sp-grp-ico svg { display: block; }
             .tm-sp-group-chevron {
                 margin-left: auto; flex-shrink: 0;
                 opacity: 0.5;
@@ -6510,6 +6555,75 @@
 
         let _lastEggBubbleAC = null;
         let _lastCfnMenuAC = null;
+
+        const PANEL_ICONS = {
+            globe:    [['circle', { cx: 12, cy: 12, r: 10 }],
+                       ['path', { d: 'M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20' }],
+                       ['path', { d: 'M2 12h20' }]],
+            link:     [['path', { d: 'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71' }],
+                       ['path', { d: 'M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71' }]],
+            film:     [['rect', { x: 2, y: 2, width: 20, height: 20, rx: 2.18 }],
+                       ['path', { d: 'M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5' }]],
+            star:     [['polygon', { points: '12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2' }]],
+            pin:      [['path', { d: 'M12 17v5' }],
+                       ['path', { d: 'M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z' }]],
+            history:  [['circle', { cx: 12, cy: 12, r: 9 }],
+                       ['polyline', { points: '12 7 12 12 15.5 15.5' }],
+                       ['path', { d: 'M5 5l2.5 2.5', opacity: 0.5 }]],
+            settings: [['path', { d: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z' }],
+                       ['path', { d: 'M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z' }]],
+            zap:      [['polygon', { points: '13 2 3 14 12 14 11 22 21 10 12 10 13 2' }]],
+            key:      [['path', { d: 'M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4' }]],
+            timer:    [['line', { x1: 10, y1: 2, x2: 14, y2: 2 }],
+                       ['line', { x1: 12, y1: 14, x2: 15, y2: 11 }],
+                       ['circle', { cx: 12, cy: 14, r: 8 }]],
+            book:     [['path', { d: 'M12 7v14' }],
+                       ['path', { d: 'M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z' }]],
+            palette:  [['circle', { cx: 13.5, cy: 6.5, r: 0.5, fill: 'currentColor' }],
+                       ['circle', { cx: 17.5, cy: 10.5, r: 0.5, fill: 'currentColor' }],
+                       ['circle', { cx: 8.5, cy: 7.5, r: 0.5, fill: 'currentColor' }],
+                       ['circle', { cx: 6.5, cy: 12.5, r: 0.5, fill: 'currentColor' }],
+                       ['path', { d: 'M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z' }]],
+        };
+        const PANEL_SVG_NS = 'http://www.w3.org/2000/svg';
+        const makePanelIcon = (name, size = 12) => {
+            const spec = PANEL_ICONS[name];
+            if (!spec) return null;
+            const svg = document.createElementNS(PANEL_SVG_NS, 'svg');
+            svg.setAttribute('viewBox', '0 0 24 24');
+            svg.setAttribute('width', String(size));
+            svg.setAttribute('height', String(size));
+            svg.setAttribute('fill', 'none');
+            svg.setAttribute('stroke', 'currentColor');
+            svg.setAttribute('stroke-width', '2');
+            svg.setAttribute('stroke-linecap', 'round');
+            svg.setAttribute('stroke-linejoin', 'round');
+            svg.setAttribute('aria-hidden', 'true');
+            spec.forEach(([tag, attrs]) => {
+                const el = document.createElementNS(PANEL_SVG_NS, tag);
+                Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, String(v)));
+                svg.appendChild(el);
+            });
+            return svg;
+        };
+        const _LEADING_EMOJI_RE = (() => {
+            try { return new RegExp('^[\\p{Extended_Pictographic}\\uFE0F\\u200D]+\\s*', 'u'); }
+            catch (_) { return /^(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2190-\u2BFF])[\uFE0F\u200D]*\s*/; }
+        })();
+        const stripLeadingEmoji = (s) => String(s).replace(_LEADING_EMOJI_RE, '');
+        const makeIconTitle = (label, iconName, size = 12) => {
+            const span = document.createElement('span');
+            const ico = iconName ? makePanelIcon(iconName, size) : null;
+            if (!ico) { span.textContent = label; return span; }
+            span.className = 'tm-sp-icon-title';
+            const wrap = document.createElement('span');
+            wrap.className = 'tm-sp-grp-ico';
+            wrap.appendChild(ico);
+            span.appendChild(wrap);
+            span.appendChild(document.createTextNode(stripLeadingEmoji(label)));
+            return span;
+        };
+
         function buildContent() {
             if (_lastEggBubbleAC) { _lastEggBubbleAC.abort(); _lastEggBubbleAC = null; }
             if (_lastCfnMenuAC) { _lastCfnMenuAC.abort(); _lastCfnMenuAC = null; }
@@ -6612,7 +6726,7 @@
 
             const _spGroupRegistry = [];
 
-            const makeGroup = (label, defaultOpen = true, tooltip = null, onOpen = null) => {
+            const makeGroup = (label, defaultOpen = true, tooltip = null, onOpen = null, iconName = null) => {
                 const SVG_CHEVRON = `<svg viewBox="0 0 10 10" width="9" height="9" fill="currentColor"><path d="M1 3l4 4 4-4z"/></svg>`;
 
                 let openState = defaultOpen;
@@ -6624,8 +6738,7 @@
                 const g = document.createElement('div');
                 g.className = 'tm-sp-group-header' + (openState ? '' : ' collapsed');
 
-                const labelSpan = document.createElement('span');
-                labelSpan.textContent = label;
+                const labelSpan = makeIconTitle(label, iconName);
                 g.appendChild(labelSpan);
 
                 if (tooltip) {
@@ -6718,7 +6831,19 @@
                     const txt = document.createElement('span');
                     txt.textContent = opt.label;
                     btn.appendChild(check);
-                    btn.appendChild(txt);
+                    if (opt.desc) {
+                        const col = document.createElement('span');
+                        col.className = 'tm-sp-opt-col';
+                        const sub = document.createElement('span');
+                        sub.className = 'tm-sp-row-desc';
+                        sub.textContent = opt.desc;
+                        col.appendChild(txt);
+                        col.appendChild(sub);
+                        btn.appendChild(col);
+                    } else {
+                        btn.appendChild(txt);
+                    }
+                    if (opt.tip) btn.title = opt.tip;
                     btn.addEventListener('click', (e) => {
                         e.stopPropagation();
                         if (featureId) markFeatureSeen(featureId);
@@ -7288,14 +7413,14 @@
             };
 
             const langLabel = T.menu_lang.replace(/^🌐\s*/, '').replace(/\s*\(Change Language\)/i, '').trim();
-            const grpLang = makeGroup('🌐  ' + langLabel, true, T.sp_tip_change_lang || "Change the script's interface language.");
+            const grpLang = makeGroup('🌐  ' + langLabel, true, T.sp_tip_change_lang || "Change the script's interface language.", null, 'globe');
             const langRow = makeRow(langLabel, T.langName, () => {
                 showLangPickerModal();
             });
             langRow.title = T.sp_tip_change_lang || "Change the script's interface language.";
             grpLang.append(langRow);
 
-            const grpLink = makeGroup('🔗  Link', true, T.sp_tip_grp_link || 'Settings for the link-copy button: which domain it links to, and an optional prefix text (e.g. for Discord).');
+            const grpLink = makeGroup('🔗  Link', true, T.sp_tip_grp_link || 'Settings for the link-copy button: which domain it links to, and an optional prefix text (e.g. for Discord).', null, 'link');
 
             const clickVal = clickCustom ? clickDomain : 'x.com (default)';
             const clickLabel = T.menu_domain_click ? T.menu_domain_click.replace(/^🔗\s*/, '') : 'Single-Click Domain';
@@ -7321,11 +7446,22 @@
             prefixRow.title = T.sp_tip_prefix || 'Optional text prepended when copying a link (e.g. for Discord formatting).';
             grpLink.append(prefixRow);
 
-            const grpMedia = makeGroup('🎞  Media', true, T.sp_tip_grp_media || 'Settings for the media copy/download button: click behavior, icon styles, feedback animation, and related toggles.');
+            const grpMedia = makeGroup('🎞  Media', true, T.sp_tip_grp_media || 'Settings for the media copy/download button: click behavior, icon styles, feedback animation, and related toggles.', null, 'film');
 
             const clickModeOpts = [
-                { value: 'menu',    label: T.status_click_menu    || 'Menu',    featureId: 'click_mode_menu' },
-                { value: 'classic', label: T.status_click_classic || 'Classic' },
+                {
+                    value: 'menu',
+                    label: T.status_click_menu || 'Menu',
+                    featureId: 'click_mode_menu',
+                    desc: T.sp_click_menu_desc || 'Click opens an action menu',
+                    tip:  T.btn_tooltip_menu,
+                },
+                {
+                    value: 'classic',
+                    label: T.status_click_classic || 'Classic',
+                    desc: T.sp_click_classic_desc || 'Click / long-press / middle / right',
+                    tip:  T.btn_tooltip,
+                },
             ];
             const clickModeRow = makePickerRow(T.menu_click_mode || '🖱 Click Mode', clickModeOpts, GM_getValue(KEY_CLICK_MODE, 'classic'), (newMode) => {
                 GM_setValue(KEY_CLICK_MODE, newMode);
@@ -7358,9 +7494,14 @@
                 const gear = document.createElement('span');
                 gear.className = 'tm-sp-cma-gear';
                 gear.textContent = '⚙️';
-                gear.title = T.cma_title || 'Customize button actions';
+                const _cmaInactive = GM_getValue(KEY_CLICK_MODE, 'classic') === 'menu';
+                const _cmaBaseTitle = T.cma_title || 'Customize button actions';
+                gear.title = _cmaInactive
+                    ? `${_cmaBaseTitle}\n${T.sp_cma_classic_only || 'Applies to Classic mode only'}`
+                    : _cmaBaseTitle;
+                gear.classList.toggle('tm-cma-inactive', _cmaInactive);
                 gear.setAttribute('role', 'button');
-                gear.setAttribute('aria-label', T.cma_title || 'Customize button actions');
+                gear.setAttribute('aria-label', gear.title);
                 gear.tabIndex = 0;
                 tail.appendChild(gear);
                 classicOpt.appendChild(tail);
@@ -7495,7 +7636,7 @@
                 label: `${ms}ms`,
             }));
             const scanIntervalRow = makePickerRow(
-                `🔗🎞️ ${T.sp_scan_interval || 'Scan Interval'}`,
+                T.sp_scan_interval || 'Scan Interval',
                 scanIntervalOpts,
                 String(parseInt(GM_getValue(KEY_SCAN_INTERVAL, '1500'), 10) || 1500),
                 (newVal) => {
@@ -7504,6 +7645,14 @@
                 },
                 null, '1500'
             );
+            const _siLbl = scanIntervalRow.querySelector('.tm-sp-row-label');
+            const _siIcon = makeIconTitle(T.sp_scan_interval || 'Scan Interval', 'timer');
+            _siIcon.classList.add('tm-sp-row-label');
+            _siLbl.replaceWith(_siIcon);
+            const _siDesc = document.createElement('span');
+            _siDesc.className = 'tm-sp-row-desc';
+            _siDesc.textContent = T.sp_scan_interval_desc || 'Applies to both Link and Media button scanning';
+            scanIntervalRow.querySelector('.tm-sp-row-left').appendChild(_siDesc);
             scanIntervalRow.querySelector('.tm-sp-row').title =
                 T.sp_tip_scan_interval || 'How often the script re-scans the page for new tweets to attach buttons to.';
             grpMedia.append(scanIntervalRow);
@@ -7860,7 +8009,7 @@
             };
             _syncCustomFilenameChildDisabled();
 
-            const grpGroups = makeGroup(T.sp_grp_group || '⭐  Groups', true, T.sp_tip_grp_groups || 'Organize downloaded items into groups after download, plus appearance settings for the group panel.');
+            const grpGroups = makeGroup(T.sp_grp_group || '⭐  Groups', true, T.sp_tip_grp_groups || 'Organize downloaded items into groups after download, plus appearance settings for the group panel.', null, 'star');
 
             const _grpSub    = dark ? 'rgba(255,255,255,.7)'  : '#7a6f5c';
             const _grpDiv    = dark ? 'rgba(255,255,255,.06)' : 'rgba(15,20,25,.08)';
@@ -8262,9 +8411,8 @@
 
                 const topRow = document.createElement('div');
                 topRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:7px';
-                const lbl = document.createElement('span');
-                lbl.style.cssText = `font-size:12px;color:${_grpSub}`;
-                lbl.textContent = '📝 Text Bookmark — Content Color';
+                const lbl = makeIconTitle('Text Bookmark — Content Color', 'palette', 14);
+                lbl.style.cssText = `font-size:12px;color:${_grpSub};gap:6px`;
                 topRow.appendChild(lbl);
 
                 const colorRow = document.createElement('div');
@@ -8335,7 +8483,7 @@
 
             const grpCorner = makeGroup(T.sp_grp_corner || '📌  Corner Position', true, T.sp_tip_grp_corner || 'Choose where the gear/history buttons float on the screen (9-position grid).', () => {
                 markFeatureSeen('sp_corner_position');
-            });
+            }, 'pin');
 
             if (isFeatureNew('sp_corner_position')) {
                 const grpCornerHeader = _spGroupRegistry[_spGroupRegistry.length - 1]?.header || null;
@@ -8619,7 +8767,7 @@
 
             const HIST_TOOLTIP = T.hist_panel_tooltip ||
                 'Hidden feature: The history panel has invisible dock triggers (⋮) on its left & right edges. Hover or click the ⋮ button to auto-hide the panel to the screen edge!';
-            const grpHist = makeGroup(T.sp_grp_history || '🗂  History Panel', false, HIST_TOOLTIP, showDockSpotlight);
+            const grpHist = makeGroup(T.sp_grp_history || '🗂  History Panel', false, HIST_TOOLTIP, showDockSpotlight, 'history');
 
             const _DS = {
                 bg:    dark ? 'rgba(255,255,255,0.06)' : 'rgba(15,20,25,0.05)',
@@ -8735,7 +8883,7 @@
                 grpHist.append(_rstRow);
             }
 
-            const grpAdv = makeGroup(T.sp_group_advanced || '⚙ Advanced', false, T.sp_tip_grp_advanced || 'Advanced options: backup/restore settings, performance tweaks, and other power-user features.');
+            const grpAdv = makeGroup(T.sp_group_advanced || '⚙ Advanced', false, T.sp_tip_grp_advanced || 'Advanced options: backup/restore settings, performance tweaks, and other power-user features.', null, 'settings');
 
             const ALL_SETTING_KEYS = [
                 KEY_PREFIX_TEXT, KEY_LANG, KEY_LINK_DOMAIN_CLICK, KEY_CLICK_MODE_CUSTOM,
@@ -8849,8 +8997,7 @@
             const bearerGroupTitle = T.sp_bearer_title || '🔑 Custom Bearer Token';
             const bearerGroupHeader = document.createElement('div');
             bearerGroupHeader.className = 'tm-tf-group-header';
-            const bearerGroupLabel = document.createElement('span');
-            bearerGroupLabel.textContent = bearerGroupTitle;
+            const bearerGroupLabel = makeIconTitle(bearerGroupTitle, 'key');
             bearerGroupHeader.appendChild(bearerGroupLabel);
             const bearerGroupChevron = document.createElement('span');
             bearerGroupChevron.className = 'tm-tf-group-header-chevron';
@@ -9084,8 +9231,7 @@
                 tfGroupHeader.className = 'tm-tf-group-header';
 
                 const tfGroupTitle = T.pt_group_title || '⚡ Performance Tweaks';
-                const tfGroupLabel = document.createElement('span');
-                tfGroupLabel.textContent = tfGroupTitle;
+                const tfGroupLabel = makeIconTitle(tfGroupTitle, 'zap');
                 tfGroupHeader.appendChild(tfGroupLabel);
 
                 const tfGroupChevron = document.createElement('span');
@@ -9281,9 +9427,13 @@
             _updateCollapseAllBtnIcon();
 
             const helpLabel = T.menu_help ? T.menu_help.replace(/^📖\s*/, '') : 'Help / Manual';
-            const helpRow = makeRow('📖 ' + helpLabel, '', () => {
+            const helpRow = makeRow(helpLabel, '', () => {
                 showHelpModal();
             });
+            const _hLbl = helpRow.querySelector('.tm-sp-row-label');
+            const _hIcon = makeIconTitle(helpLabel, 'book');
+            _hIcon.classList.add('tm-sp-row-label');
+            _hLbl.replaceWith(_hIcon);
             helpRow.style.borderTop = `1px solid ${C.border}`;
             helpRow.title = T.sp_tip_help || 'Open the help/manual document.';
             panel.appendChild(helpRow);
