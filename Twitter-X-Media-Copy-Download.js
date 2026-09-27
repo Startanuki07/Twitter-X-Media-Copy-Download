@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.1.3
+// @version      3.2.1.4
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -4267,10 +4267,14 @@
     function _getCustomThemeColors(scope = 'settings') {
         const useHistorySlot = scope === 'history' && GM_getValue(KEY_THEME_SYNC, true) === false;
         const slot = useHistorySlot ? 'history' : 'settings';
+        const _isSafeColor = v => typeof v === 'string' && (
+            /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3}([0-9a-fA-F]{2})?)?$/.test(v.trim()) ||
+            /^rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(,\s*[\d.]+\s*)?\)$/.test(v.trim())
+        );
         try {
             const all = JSON.parse(GM_getValue(KEY_CUSTOM_THEME_COLORS, '{}'));
             const c = all && all[slot];
-            if (c && c.bg && c.text && c.sub && c.header && c.border) return c;
+            if (c && ['bg', 'text', 'sub', 'header', 'border'].every(k => _isSafeColor(c[k]))) return c;
         } catch (_) {  }
         return null;
     }
@@ -8899,6 +8903,7 @@
                 KEY_APP_THEME, KEY_APP_THEME_HISTORY, KEY_THEME_SYNC,
                 KEY_CUSTOM_THEME_ENABLED, KEY_CUSTOM_THEME_COLORS,
                 KEY_LINK_ICON_STYLE, KEY_MEDIA_ICON_STYLE, KEY_SP_GROUP_OPEN,
+                KEY_SHOW_LINK_BTN, KEY_SHOW_MEDIA_BTN,
             ];
             function _exportSettings() {
                 const snap = {};
