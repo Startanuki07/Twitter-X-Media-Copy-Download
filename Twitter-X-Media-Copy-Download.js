@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.1.4
+// @version      3.2.1.5
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -9589,9 +9589,11 @@
     }
 
     window.addEventListener('scroll', e => {
-        const fromMenuList = e.target?.nodeType === 1 && e.target.closest?.('.tm-tgm-list');
         if (!StarPipState.fanOpen) hideStarPip();
-        if (StarPipState.textMenuOpen && !fromMenuList) closeTextGroupMenu();
+        if (StarPipState.textMenuOpen) {
+            const fromMenuList = e.target?.nodeType === 1 && e.target.closest?.('.tm-tgm-list');
+            if (!fromMenuList) closeTextGroupMenu();
+        }
     }, { passive: true, capture: true });
     document.addEventListener('visibilitychange', () => { if (document.hidden) { if (StarPipState.fanOpen) closeGroupFan(); if (StarPipState.textMenuOpen) closeTextGroupMenu(); hideStarPip(); } });
 
@@ -10078,6 +10080,7 @@
         }, { passive: false });
 
         let _dragSrcIdx = -1;
+        let _lastDragOverEl = null, _lastDragOverSide = null;
 
         if (groups.length) {
             groups.forEach((g, gIdx) => {
@@ -10096,20 +10099,21 @@
                     list.querySelectorAll('.tm-tgm-item-wrap').forEach(el => {
                         el.style.borderTop = ''; el.style.borderBottom = '';
                     });
+                    _lastDragOverEl = null; _lastDragOverSide = null;
                 });
                 wrapper.addEventListener('dragover', e => {
                     e.preventDefault();
                     e.dataTransfer.dropEffect = 'move';
                     const rect = wrapper.getBoundingClientRect();
-                    const mid  = rect.top + rect.height / 2;
-                    list.querySelectorAll('.tm-tgm-item-wrap').forEach(el => {
-                        el.style.borderTop = ''; el.style.borderBottom = '';
-                    });
-                    if (e.clientY < mid) wrapper.style.borderTop    = '2px solid rgba(29,155,240,.7)';
-                    else                 wrapper.style.borderBottom = '2px solid rgba(29,155,240,.7)';
+                    const side = (e.clientY < rect.top + rect.height / 2) ? 'top' : 'bottom';
+                    if (_lastDragOverEl === wrapper && _lastDragOverSide === side) return;
+                    if (_lastDragOverEl) { _lastDragOverEl.style.borderTop = ''; _lastDragOverEl.style.borderBottom = ''; }
+                    wrapper.style[side === 'top' ? 'borderTop' : 'borderBottom'] = '2px solid rgba(29,155,240,.7)';
+                    _lastDragOverEl = wrapper; _lastDragOverSide = side;
                 });
                 wrapper.addEventListener('dragleave', () => {
                     wrapper.style.borderTop = ''; wrapper.style.borderBottom = '';
+                    if (_lastDragOverEl === wrapper) { _lastDragOverEl = null; _lastDragOverSide = null; }
                 });
                 wrapper.addEventListener('drop', e => {
                     e.preventDefault();
@@ -10567,6 +10571,7 @@
             }
 
             let _dragSrcIdx = -1;
+            let _lastDragOverEl = null, _lastDragOverSide = null;
 
             const _groupCountMap = _loadAllRecords().reduce((m, r) => {
                 if (r.groupId) m.set(r.groupId, (m.get(r.groupId) || 0) + 1);
@@ -10591,20 +10596,21 @@
                         el.style.borderTop    = '';
                         el.style.borderBottom = '';
                     });
+                    _lastDragOverEl = null; _lastDragOverSide = null;
                 });
                 wrapper.addEventListener('dragover', e => {
                     e.preventDefault();
                     e.dataTransfer.dropEffect = 'move';
                     const rect = wrapper.getBoundingClientRect();
-                    const mid  = rect.top + rect.height / 2;
-                    list.querySelectorAll('[data-group-id]').forEach(el => {
-                        el.style.borderTop = ''; el.style.borderBottom = '';
-                    });
-                    if (e.clientY < mid) wrapper.style.borderTop    = '2px solid rgba(29,155,240,.7)';
-                    else                 wrapper.style.borderBottom = '2px solid rgba(29,155,240,.7)';
+                    const side = (e.clientY < rect.top + rect.height / 2) ? 'top' : 'bottom';
+                    if (_lastDragOverEl === wrapper && _lastDragOverSide === side) return;
+                    if (_lastDragOverEl) { _lastDragOverEl.style.borderTop = ''; _lastDragOverEl.style.borderBottom = ''; }
+                    wrapper.style[side === 'top' ? 'borderTop' : 'borderBottom'] = '2px solid rgba(29,155,240,.7)';
+                    _lastDragOverEl = wrapper; _lastDragOverSide = side;
                 });
                 wrapper.addEventListener('dragleave', () => {
                     wrapper.style.borderTop = ''; wrapper.style.borderBottom = '';
+                    if (_lastDragOverEl === wrapper) { _lastDragOverEl = null; _lastDragOverSide = null; }
                 });
                 wrapper.addEventListener('drop', e => {
                     e.preventDefault();
