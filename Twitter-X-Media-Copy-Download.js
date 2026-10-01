@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.1.5
+// @version      3.2.2.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -355,20 +355,15 @@
 
     const NEW_FEATURE_IDS = [
         'history_panel',
-        'dock_style',
         'sp_feedback_picker',
         'sp_date_picker',
         'sp_dock_picker',
-        'sp_trigger_dist',
         'sp_slider_controls',
-        'sp_dock_persist',
         'sp_group_on_dl',
-        'sp_group_glow_color',
         'sp_group_glow_size',
         'sp_group_label_size',
         'sp_group_icon_size',
         'sp_group_popup_style',
-        'sp_group_text_color',
         'sp_corner_position',
         'sp_feedback_pulse',
         'sp_feedback_flash',
@@ -381,7 +376,6 @@
         'grid_media_btn',
         'avatar_media_btn',
         'custom_filename_toggle',
-        'sp_theme_sync',
         'corner_buttons_modes',
         'sp_media_icon_style',
         'sp_link_icon_style',
@@ -389,6 +383,10 @@
         'sp_link_btn_visibility',
         'sp_media_btn_visibility',
     ];
+
+    if (GM_getValue(KEY_SEEN_FEATURES, null) === null) {
+        GM_setValue(KEY_SEEN_FEATURES, JSON.stringify(NEW_FEATURE_IDS));
+    }
 
     const DOMAIN_LIST = [
         "vxtwitter.com",
@@ -8985,6 +8983,7 @@
                     KEY_SHOW_LINK_BTN, KEY_SHOW_MEDIA_BTN,
                 ];
                 RESET_KEYS.forEach(k => GM_deleteValue(k));
+                GM_setValue(KEY_SEEN_FEATURES, JSON.stringify(NEW_FEATURE_IDS));
                 const _linkBtnWasHidden  = !_cachedShowLinkBtn;
                 const _mediaBtnWasHidden = !_cachedShowMediaBtn;
                 _cachedShowLinkBtn  = GM_getValue(KEY_SHOW_LINK_BTN, true);
