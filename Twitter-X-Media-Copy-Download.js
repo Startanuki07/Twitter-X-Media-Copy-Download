@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.2.0
+// @version      3.2.2.6
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -130,6 +130,7 @@
         pendingIsText:        false,
         textMenuOpen:         false,
         textMenuAnchorEl:     null,
+        listHintAutoCloseTimer: null,
     };
 
     function _readMonthRecords(ym) {
@@ -320,6 +321,7 @@
     const KEY_GEAR_DISPLAY_MODE = 'app_gear_display_mode';
     const KEY_GEAR_CORNER       = 'app_gear_corner';
     const KEY_HIST_CLEANUP_NOTIFIED = 'app_hist_cleanup_notified';
+    const KEY_LIST_STYLE_HINT_SEEN = 'app_list_style_hint_seen';
     const KEY_CLICK_MODE        = 'app_click_mode';
     const KEY_CUSTOM_MEDIA_ACTIONS = 'app_custom_media_actions';
     const DEFAULT_MEDIA_ACTIONS  = { click: 'copy', longpress: 'copy_prefix', mclick: 'preview', rclick: 'download_all' };
@@ -638,6 +640,8 @@
             sp_grp_popup_style_fan:  'Fan',
             sp_grp_popup_style_list: 'List',
             sp_grp_glow_color:      'Glow Color',
+            list_style_hint_text:   'Tip: you can switch back to the original ⭐ star-style popup anytime in ⚙️ Settings → ⭐ Groups → Popup Style.',
+            list_style_hint_close:  'Close tip',
             sp_grp_glow_multi:      'Multi',
             sp_grp_glow_size:       'Glow Size',
             sp_grp_label_color:     'Label Color',
@@ -951,6 +955,8 @@
             sp_grp_popup_style:      '彈出樣式',
             sp_grp_popup_style_fan:  '扇形',
             sp_grp_popup_style_list: '清單',
+            list_style_hint_text:   '提示：隨時可在 ⚙️ 設定 → ⭐ Groups → Popup Style 切回原本的 ⭐ 星形彈出樣式。',
+            list_style_hint_close:  '關閉提示',
             sp_grp_glow_color:      '光暈顏色',
             sp_grp_glow_multi:      '多色',
             sp_grp_glow_size:       '光暈大小',
@@ -1264,6 +1270,8 @@
             sp_grp_popup_style:      '弹出样式',
             sp_grp_popup_style_fan:  '扇形',
             sp_grp_popup_style_list: '列表',
+            list_style_hint_text:   '提示：随时可在 ⚙️ 设置 → ⭐ Groups → Popup Style 切回原本的 ⭐ 星形弹出样式。',
+            list_style_hint_close:  '关闭提示',
             sp_grp_glow_color:      '光晕颜色',
             sp_grp_glow_multi:      '多色',
             sp_grp_glow_size:       '光晕大小',
@@ -1577,6 +1585,8 @@
             sp_grp_popup_style:      'ポップアップ様式',
             sp_grp_popup_style_fan:  'ファン型',
             sp_grp_popup_style_list: 'リスト',
+            list_style_hint_text:   'ヒント：⚙️ 設定 → ⭐ Groups → Popup Style でいつでも元の ⭐ スター型ポップアップに戻せます。',
+            list_style_hint_close:  'ヒントを閉じる',
             sp_grp_glow_color:      'グロー色',
             sp_grp_glow_multi:      'マルチ',
             sp_grp_glow_size:       'グローサイズ',
@@ -1890,6 +1900,8 @@
             sp_grp_popup_style:      '팝업 스타일',
             sp_grp_popup_style_fan:  '부채꼴',
             sp_grp_popup_style_list: '목록',
+            list_style_hint_text:   '팁: ⚙️ 설정 → ⭐ Groups → Popup Style에서 언제든지 원래의 ⭐ 별 모양 팝업으로 되돌릴 수 있습니다.',
+            list_style_hint_close:  '팁 닫기',
             sp_grp_glow_color:      '글로우 색상',
             sp_grp_glow_multi:      '멀티',
             sp_grp_glow_size:       '글로우 크기',
@@ -2203,6 +2215,8 @@
             sp_grp_popup_style:      'Estilo emergente',
             sp_grp_popup_style_fan:  'Abanico',
             sp_grp_popup_style_list: 'Lista',
+            list_style_hint_text:   'Consejo: puedes volver al estilo emergente original de ⭐ en cualquier momento desde ⚙️ Ajustes → ⭐ Groups → Popup Style.',
+            list_style_hint_close:  'Cerrar consejo',
             sp_grp_glow_color:      'Color de brillo',
             sp_grp_glow_multi:      'Multi',
             sp_grp_glow_size:       'Tamaño del brillo',
@@ -2516,6 +2530,8 @@
             sp_grp_popup_style:      'Estilo pop-up',
             sp_grp_popup_style_fan:  'Leque',
             sp_grp_popup_style_list: 'Lista',
+            list_style_hint_text:   'Dica: você pode voltar ao estilo pop-up original de ⭐ a qualquer momento em ⚙️ Configurações → ⭐ Groups → Popup Style.',
+            list_style_hint_close:  'Fechar dica',
             sp_grp_glow_color:      'Cor do brilho',
             sp_grp_glow_multi:      'Multi',
             sp_grp_glow_size:       'Tamanho do brilho',
@@ -2829,6 +2845,8 @@
             sp_grp_popup_style:      'Style de popup',
             sp_grp_popup_style_fan:  'Éventail',
             sp_grp_popup_style_list: 'Liste',
+            list_style_hint_text:   'Astuce : vous pouvez revenir au style pop-up original ⭐ à tout moment dans ⚙️ Paramètres → ⭐ Groups → Popup Style.',
+            list_style_hint_close:  'Fermer l\'astuce',
             sp_grp_glow_color:      'Couleur de lueur',
             sp_grp_glow_multi:      'Multi',
             sp_grp_glow_size:       'Taille de lueur',
@@ -3142,6 +3160,8 @@
             sp_grp_popup_style:      'Стиль всплывающего меню',
             sp_grp_popup_style_fan:  'Веер',
             sp_grp_popup_style_list: 'Список',
+            list_style_hint_text:   'Совет: вы можете в любой момент вернуться к исходному стилю всплывающего меню ⭐ в ⚙️ Настройках → ⭐ Groups → Popup Style.',
+            list_style_hint_close:  'Закрыть совет',
             sp_grp_glow_color:      'Цвет свечения',
             sp_grp_glow_multi:      'Мульти',
             sp_grp_glow_size:       'Размер свечения',
@@ -6173,6 +6193,40 @@
                 0%   { opacity: 1; transform: scale(1)    translate(0, 0); }
                 100% { opacity: 0; transform: scale(0.15) translate(-9px, 9px); }
             }
+            
+            .tm-star-pip-hint-badge {
+                position: absolute; top: -4px; right: -4px;
+                width: 11px; height: 11px; border-radius: 50%;
+                background: rgba(20,20,20,.75); color: rgba(255,214,0,.95);
+                font-size: 8px; line-height: 11px; font-weight: 700;
+                text-align: center;
+                box-shadow: 0 0 0 1.5px rgba(0,0,0,.5);
+                pointer-events: none; cursor: help;
+            }
+            
+            .tm-star-pip.tm-popped .tm-star-pip-hint-badge { pointer-events: all; }
+            
+            .tm-list-hint-tooltip {
+                position: fixed; z-index: 99997; max-width: 220px;
+                background: rgba(28,30,38,.94); color: #e8eaf0;
+                border: 1px solid rgba(255,255,255,.12);
+                border-radius: 10px; padding: 10px 28px 10px 12px;
+                font-size: 12.5px; line-height: 1.5;
+                box-shadow: 0 6px 18px rgba(0,0,0,.4);
+                opacity: 0;
+                
+                transform: translateX(-50%) translateY(4px);
+                transition: opacity .2s ease, transform .2s ease;
+                pointer-events: none;
+            }
+            .tm-list-hint-tooltip.tm-lht-open { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: all; }
+            .tm-list-hint-tooltip-close {
+                position: absolute; top: 4px; right: 6px;
+                width: 16px; height: 16px; border: none; background: transparent;
+                color: rgba(255,255,255,.55); font-size: 13px; line-height: 16px;
+                cursor: pointer; padding: 0;
+            }
+            .tm-list-hint-tooltip-close:hover { color: #fff; }
             
             .tm-fan-node {
                 position: fixed;
@@ -9379,17 +9433,29 @@
                     row.appendChild(right);
 
                     row.addEventListener('click', () => {
+                        if (document.getElementById('tm-legacy-grid-confirm-modal')) return;
+
                         markFeatureSeen('legacy_media_grid');
                         const next = !GM_getValue(KEY_LEGACY_MEDIA_GRID, false);
-                        GM_setValue(KEY_LEGACY_MEDIA_GRID, next);
-                        updateVal();
                         const stateText = next ? (T.status_on || 'On') : (T.status_off || 'Off');
+                        const commit = () => {
+                            GM_setValue(KEY_LEGACY_MEDIA_GRID, next);
+                            updateVal();
+                        };
+                        if (!next) {
+                            commit();
+                            showToast(T.toast_legacy_grid_pending || 'Change saved. Reload the page to apply.');
+                            return;
+                        }
                         const confirmMsg = (T.confirm_legacy_grid_reload || DEFAULT_LEGACY_GRID_CONFIRM_MSG)
                             .replace('{state}', stateText);
                         showLegacyGridConfirmModal(
                             confirmMsg,
-                            () => location.reload(),
-                            () => showToast(T.toast_legacy_grid_pending || 'Change saved. Reload the page to apply.')
+                            () => { commit(); location.reload(); },
+                            () => {
+                                commit();
+                                showToast(T.toast_legacy_grid_pending || 'Change saved. Reload the page to apply.');
+                            }
                         );
                     });
                     return row;
@@ -9462,6 +9528,7 @@
             if (e.target.closest('.tm-sp-picker'))            return;
             if (e.target.closest('#tm-cfn-menu-el'))          return;
             if (e.target.closest('#tm-theme-palette-modal'))  return;
+            if (e.target.closest('#tm-legacy-grid-confirm-modal')) return;
             wrapper.setAttribute('data-open', 'false');
         }, { signal: _spClickAC.signal });
 
@@ -9713,6 +9780,18 @@
         'rgba(220,160,60,.28)',
     ];
 
+    function _appendListStyleHintBadge(pip) {
+        if (GM_getValue(KEY_LIST_STYLE_HINT_SEEN, false)) return;
+        pip.insertAdjacentHTML('beforeend', '<span class="tm-star-pip-hint-badge" title="">❓</span>');
+        const _hintBadge = pip.querySelector('.tm-star-pip-hint-badge');
+        if (_hintBadge) {
+            _hintBadge.addEventListener('mouseenter', (e) => {
+                e.stopPropagation();
+                _showListStyleHintTooltip(_hintBadge);
+            });
+        }
+    }
+
     function _renderStarPipIcon(pip) {
         if (StarPipState.pendingIsText) {
             pip.innerHTML = '<span class="tm-star-pip-glyph">📁</span>';
@@ -9720,9 +9799,62 @@
         }
         if (GM_getValue(KEY_GROUP_POPUP_STYLE, 'fan') === 'list') {
             pip.innerHTML = `<span class="tm-star-pip-glyph tm-star-pip-svg">${_GROUP_LIST_TRIGGER_SVG}</span>`;
+            _appendListStyleHintBadge(pip);
             return;
         }
         pip.innerHTML = '<span class="tm-star-pip-glyph">⭐</span><span class="tm-star-pip-badge">+</span>';
+    }
+
+    function _markListStyleHintSeen() {
+        GM_setValue(KEY_LIST_STYLE_HINT_SEEN, true);
+        const pip = document.getElementById('tm-star-pip');
+        pip?.querySelector('.tm-star-pip-hint-badge')?.remove();
+    }
+
+    const STAR_LIST_HINT_MIN_SEC = 7;
+
+    function _showListStyleHintTooltip(anchorEl) {
+        _markListStyleHintSeen();
+
+        let tip = document.getElementById('tm-list-hint-tooltip');
+        if (!tip) {
+            tip = document.createElement('div');
+            tip.id = 'tm-list-hint-tooltip';
+            tip.className = 'tm-list-hint-tooltip';
+            tip.setAttribute('role', 'tooltip');
+            document.body.appendChild(tip);
+        }
+
+        tip.innerHTML = '';
+        const textEl = document.createElement('span');
+        textEl.textContent = T.list_style_hint_text || 'Tip: you can switch back to the original ⭐ star-style popup anytime in ⚙️ Settings → ⭐ Groups → Popup Style.';
+        tip.appendChild(textEl);
+
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'tm-list-hint-tooltip-close';
+        closeBtn.textContent = '✕';
+        closeBtn.setAttribute('aria-label', T.list_style_hint_close || 'Close tip');
+        closeBtn.addEventListener('click', (e) => {
+            e.preventDefault(); e.stopPropagation();
+            _closeListStyleHintTooltip();
+        });
+        tip.appendChild(closeBtn);
+
+        tip.style.left = '50%';
+        tip.style.bottom = '24px';
+        tip.style.top = '';
+
+        requestAnimationFrame(() => tip.classList.add('tm-lht-open'));
+
+        clearTimeout(StarPipState.listHintAutoCloseTimer);
+        StarPipState.listHintAutoCloseTimer = setTimeout(_closeListStyleHintTooltip, STAR_LIST_HINT_MIN_SEC * 1000);
+    }
+
+    function _closeListStyleHintTooltip() {
+        clearTimeout(StarPipState.listHintAutoCloseTimer);
+        const tip = document.getElementById('tm-list-hint-tooltip');
+        tip?.classList.remove('tm-lht-open');
     }
 
     function popStarPip(mediaBtnEl) {
@@ -9753,6 +9885,7 @@
         clearTimeout(StarPipState.autoHideTimer);
         if (GM_getValue(KEY_GROUP_POPUP_STYLE, 'fan') === 'list') {
             pip.innerHTML = `<span class="tm-star-pip-glyph tm-star-pip-svg">${_GROUP_LIST_TRIGGER_SVG}</span>`;
+            _appendListStyleHintBadge(pip);
         } else {
             pip.innerHTML = '<span class="tm-star-pip-glyph">⭐</span><span class="tm-star-pip-badge">+</span>';
         }
