@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.2.6
+// @version      3.2.2.9
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -494,6 +494,7 @@
             tp_field_header: 'Header',
             tp_field_border: 'Border',
             tp_lock_note: 'Synced with Settings — turn off sync above to edit independently.',
+            tp_lock_preview_only: 'For now, you can only preview the History panel.',
             menu_date_format: '📅 Date Format',
             status_date_asian: 'Asian (YYYY.MM.DD)',
             status_date_western: 'Western (DD.MM.YYYY)',
@@ -813,6 +814,7 @@
             tp_field_header: '標頭',
             tp_field_border: '邊框',
             tp_lock_note: '已與設定面板同步 — 取消上方同步開關即可獨立編輯。',
+            tp_lock_preview_only: '目前只能預覽「下載紀錄」面板。',
             menu_date_format: '📅 日期格式',
             status_date_asian: '亞洲慣用 (YYYY.MM.DD)',
             status_date_western: '歐美慣用 (DD.MM.YYYY)',
@@ -1128,6 +1130,7 @@
             tp_field_header: '标头',
             tp_field_border: '边框',
             tp_lock_note: '已与设置面板同步 — 取消上方同步开关即可独立编辑。',
+            tp_lock_preview_only: '目前只能预览「下载记录」面板。',
             menu_date_format: '📅 日期格式',
             status_date_asian: '亚洲惯用 (YYYY.MM.DD)',
             status_date_western: '欧美惯用 (DD.MM.YYYY)',
@@ -1443,6 +1446,7 @@
             tp_field_header: 'ヘッダー',
             tp_field_border: '枠線',
             tp_lock_note: '設定と同期中 — 上の同期をオフにすると個別に編集できます。',
+            tp_lock_preview_only: '現在は「履歴」パネルのプレビューのみ可能です。',
             menu_date_format: '📅 日付フォーマット',
             status_date_asian: 'アジア式 (YYYY.MM.DD)',
             status_date_western: '欧米式 (DD.MM.YYYY)',
@@ -1758,6 +1762,7 @@
             tp_field_header: '헤더',
             tp_field_border: '테두리',
             tp_lock_note: '설정과 동기화됨 — 위 동기화를 끄면 개별 편집이 가능합니다.',
+            tp_lock_preview_only: '현재는 기록 패널만 미리 볼 수 있습니다.',
             menu_date_format: '📅 날짜 형식',
             status_date_asian: '아시아식 (YYYY.MM.DD)',
             status_date_western: '서양식 (DD.MM.YYYY)',
@@ -2073,6 +2078,7 @@
             tp_field_header: 'Encabezado',
             tp_field_border: 'Borde',
             tp_lock_note: 'Sincronizado con Ajustes — desactiva la sincronización arriba para editar de forma independiente.',
+            tp_lock_preview_only: 'Por ahora solo puedes previsualizar el panel de Historial.',
             menu_date_format: '📅 Formato de fecha',
             status_date_asian: 'Asiático (YYYY.MM.DD)',
             status_date_western: 'Occidental (DD.MM.YYYY)',
@@ -2388,6 +2394,7 @@
             tp_field_header: 'Cabeçalho',
             tp_field_border: 'Borda',
             tp_lock_note: 'Sincronizado com Configurações — desative a sincronização acima para editar de forma independente.',
+            tp_lock_preview_only: 'Por enquanto, você só pode visualizar o painel de Histórico.',
             menu_date_format: '📅 Formato de data',
             status_date_asian: 'Asiático (YYYY.MM.DD)',
             status_date_western: 'Ocidental (DD.MM.YYYY)',
@@ -2703,6 +2710,7 @@
             tp_field_header: 'En-tête',
             tp_field_border: 'Bordure',
             tp_lock_note: 'Synchronisé avec les Paramètres — désactivez la synchronisation ci-dessus pour modifier indépendamment.',
+            tp_lock_preview_only: 'Pour le moment, vous ne pouvez que prévisualiser le panneau Historique.',
             menu_date_format: '📅 Format de date',
             status_date_asian: 'Asiatique (YYYY.MM.DD)',
             status_date_western: 'Occidental (DD.MM.YYYY)',
@@ -3018,6 +3026,7 @@
             tp_field_header: 'Заголовок',
             tp_field_border: 'Граница',
             tp_lock_note: 'Синхронизировано с Настройками — отключите синхронизацию выше для независимого редактирования.',
+            tp_lock_preview_only: 'Пока доступен только предпросмотр панели «История».',
             menu_date_format: '📅 Формат даты',
             status_date_asian: 'Азиатский (YYYY.MM.DD)',
             status_date_western: 'Западный (DD.MM.YYYY)',
@@ -4654,9 +4663,33 @@
         });
 
         const fieldsWrap = document.createElement('div');
-        const lockNote = document.createElement('p');
-        lockNote.textContent = T.tp_lock_note || 'Synced with Settings — turn off sync above to edit independently.';
-        lockNote.style.cssText = `font-size:11px; color:${C.sub}; margin: 8px 0 0; display:none;`;
+
+        const editorWrap = document.createElement('div');
+        editorWrap.style.cssText = 'position: relative;';
+        const lockOverlay = document.createElement('div');
+        lockOverlay.style.cssText = `
+            display: none; position: absolute; inset: 0; z-index: 2;
+            background: ${dark ? 'rgba(20,28,38,0.55)' : 'rgba(255,255,255,0.55)'};
+            backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+            border-radius: 8px; cursor: not-allowed;
+            align-items: center; justify-content: center; padding: 6px; box-sizing: border-box;
+        `;
+        const lockOverlayText = document.createElement('div');
+        lockOverlayText.style.cssText = `
+            width: 100%; max-width: 100%; box-sizing: border-box;
+            text-align: center; font-size: 12px; line-height: 1.5; font-weight: 600;
+            text-wrap: balance;
+            color: ${C.text}; background: ${C.panel}; border: 1px solid ${C.border};
+            border-radius: 8px; padding: 10px 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        `;
+        const _lockNoteMain = document.createElement('div');
+        _lockNoteMain.textContent = T.tp_lock_note || 'Synced with Settings — turn off sync above to edit independently.';
+        const _lockNoteScope = document.createElement('div');
+        _lockNoteScope.textContent = T.tp_lock_preview_only || 'For now, you can only preview the History panel.';
+        _lockNoteScope.style.cssText = `margin-top: 6px; font-weight: 400; font-size: 11px; color: ${C.sub};`;
+        lockOverlayText.appendChild(_lockNoteMain);
+        lockOverlayText.appendChild(_lockNoteScope);
+        lockOverlay.appendChild(lockOverlayText);
 
         let _rows = [];
         function _renderFields() {
@@ -4678,9 +4711,9 @@
             _quickBtns.forEach(b => {
                 b.disabled = locked;
                 b.style.opacity = locked ? '0.4' : '1';
-                b.style.cursor = locked ? 'default' : 'pointer';
+                b.style.cursor = locked ? 'not-allowed' : 'pointer';
             });
-            lockNote.style.display = locked ? 'block' : 'none';
+            lockOverlay.style.display = locked ? 'flex' : 'none';
             _syncPreviewPanel(activeTab);
         }
 
@@ -4693,10 +4726,11 @@
         content.appendChild(title);
         content.appendChild(togglesWrap);
         content.appendChild(tabBar);
-        content.appendChild(quickPicksLabel);
-        content.appendChild(quickPicksWrap);
-        content.appendChild(fieldsWrap);
-        content.appendChild(lockNote);
+        editorWrap.appendChild(quickPicksLabel);
+        editorWrap.appendChild(quickPicksWrap);
+        editorWrap.appendChild(fieldsWrap);
+        editorWrap.appendChild(lockOverlay);
+        content.appendChild(editorWrap);
         modal.appendChild(content);
         document.body.appendChild(modal);
     }
