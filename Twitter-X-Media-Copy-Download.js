@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.2.9
+// @version      3.2.2.10
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -4194,7 +4194,11 @@
             registerMenus();
         }));
 
-        menuIds.push(GM_registerMenuCommand(T.menu_help, showHelpModal));
+        const _gearModeLabels = { all: T.corner_opt_all, gear: T.corner_opt_gear, hist: T.corner_opt_hist, none: T.corner_opt_none };
+        const gearModeText = _gearModeLabels[_getGearDisplayMode()] || _gearModeLabels.all;
+        menuIds.push(GM_registerMenuCommand(`${T.menu_corner_btns} [${gearModeText}]`, () => {
+            showCornerButtonsModal();
+        }));
 
         menuIds.push(GM_registerMenuCommand('⚙️ Open Settings Panel', () => {
             const wrapper = document.getElementById('tm-settings-wrapper');
@@ -4209,11 +4213,7 @@
             showHistoryPanel();
         }));
 
-        const _gearModeLabels = { all: T.corner_opt_all, gear: T.corner_opt_gear, hist: T.corner_opt_hist, none: T.corner_opt_none };
-        const gearModeText = _gearModeLabels[_getGearDisplayMode()] || _gearModeLabels.all;
-        menuIds.push(GM_registerMenuCommand(`${T.menu_corner_btns} [${gearModeText}]`, () => {
-            showCornerButtonsModal();
-        }));
+        menuIds.push(GM_registerMenuCommand(T.menu_help, showHelpModal));
     }
     registerMenus();
 
