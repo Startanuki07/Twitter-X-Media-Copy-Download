@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.2.10
+// @version      3.2.2.11
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -17883,7 +17883,6 @@
                 _circuitRecordFailure();
                 return null;
             }
-            _circuitRecordSuccess();
             let json = await res.json();
             let core = json.data?.tweetResult?.result?.tweet || json.data?.tweetResult?.result;
             if (!core) {
@@ -17934,6 +17933,7 @@
                 if (userLegacy?.name) result.displayName = userLegacy.name;
             } catch(_) {  }
 
+            _circuitRecordSuccess();
             return result;
         } catch(e) {
             _log('TMApi', 'fetchTweetMediaFromAPI 未預期錯誤', e);
