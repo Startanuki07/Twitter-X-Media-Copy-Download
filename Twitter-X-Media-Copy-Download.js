@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.2.11
+// @version      3.2.2.13
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -249,17 +249,47 @@
         }
     }
 
+    function _importSafeUrl(value, hostSuffixes) {
+        if (typeof value !== 'string') return '';
+        try {
+            const u = new URL(value);
+            if (u.protocol !== 'https:') return '';
+            const h = u.hostname.toLowerCase();
+            return hostSuffixes.some(s => h === s || h.endsWith('.' + s)) ? value : '';
+        } catch (_) { return ''; }
+    }
+    function _sanitizeImportedRecord(raw) {
+        if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+        const tweetId = String(raw.tweetId == null ? '' : raw.tweetId);
+        if (!/^\d{1,25}$/.test(tweetId)) return null;
+        const r = Object.assign({}, raw, { tweetId });
+        const ts = Number(r.ts);
+        r.ts = (Number.isFinite(ts) && ts > 0 && ts < 4.1e12) ? ts : Date.now();
+        const idNum = Number(r.id);
+        r.id = Number.isFinite(idNum) ? idNum : r.ts;
+        if (typeof r.yyyymm !== 'string' || !/^\d{4}\.(0[1-9]|1[0-2])$/.test(r.yyyymm)) {
+            r.yyyymm = new Date(r.ts).toISOString().slice(0, 7).replace('-', '.');
+        }
+        r.tweetUrl = _importSafeUrl(r.tweetUrl, ['x.com', 'twitter.com']) || ('https://x.com/i/status/' + tweetId);
+        if ('avatarUrl' in r) {
+            const a = _importSafeUrl(r.avatarUrl, ['twimg.com']);
+            if (a) r.avatarUrl = a; else delete r.avatarUrl;
+        }
+        r.thumbUrls = Array.isArray(r.thumbUrls) ? r.thumbUrls.map(u => _importSafeUrl(u, ['twimg.com'])).filter(Boolean) : [];
+        r.mediaUrls = Array.isArray(r.mediaUrls) ? r.mediaUrls.map(u => _importSafeUrl(u, ['twimg.com'])).filter(Boolean) : [];
+        return r;
+    }
+
     function _mergeImportedRecords(importedArr) {
         const existing = _loadAllRecords();
         const existMap = new Map(existing.map(r => [r.tweetId, r]));
         let addCount = 0;
-        importedArr.forEach(r => {
-            if (!r.tweetId) return;
+        importedArr.forEach(raw => {
+            const r = _sanitizeImportedRecord(raw);
+            if (!r) return;
             if (!existMap.has(r.tweetId)) addCount++;
-            if (!r.yyyymm && r.ts)
-                r.yyyymm = new Date(r.ts).toISOString().slice(0, 7).replace('-', '.');
-            r.yyyymm = r.yyyymm || '9999.99';
             existMap.set(r.tweetId, r);
+            _downloadedIds.add(r.tweetId);
         });
         const byMonth = {};
         existMap.forEach(r => { (byMonth[r.yyyymm] = byMonth[r.yyyymm] || []).push(r); });
@@ -13303,7 +13333,6 @@
                             + _mergeImportedGroups(importedTextGroups, getTextGroups, saveTextGroups);
 
                         const addCount = _mergeImportedRecords(imported);
-                        imported.forEach(r => { if (r.tweetId) _downloadedIds.add(r.tweetId); });
                         _invalidateRecordsCache();
                         showToast(groupAddCount > 0
                             ? `✅ Imported ${addCount} record(s), ${groupAddCount} group(s)`
@@ -17555,14 +17584,14 @@
         const safeExt = sanitizeForFilename(vars.ext);
         const safeOrigName = vars.origName ? sanitizeForFilename(vars.origName) : '';
         let name = _cachedCustomFilenameTemplate
-            .replace(/\{screenName\}/g,  vars.screenName)
-            .replace(/\{displayName\}/g, vars.displayName)
-            .replace(/\{date\}/g,        vars.date)
-            .replace(/\{id\}/g,          vars.id)
-            .replace(/\{index\}/g,       String(vars.index))
-            .replace(/\{ext\}/g,         safeExt)
-            .replace(/\{origName\}/g,    safeOrigName)
-            .replace(/\{text\}/g,        vars.text || '');
+            .replace(/\{screenName\}/g,  () => vars.screenName)
+            .replace(/\{displayName\}/g, () => vars.displayName)
+            .replace(/\{date\}/g,        () => vars.date)
+            .replace(/\{id\}/g,          () => vars.id)
+            .replace(/\{index\}/g,       () => String(vars.index))
+            .replace(/\{ext\}/g,         () => safeExt)
+            .replace(/\{origName\}/g,    () => safeOrigName)
+            .replace(/\{text\}/g,        () => vars.text || '');
         name = name.replace(/[\\/]/g, '_');
         return name || fallbackFn();
     }
