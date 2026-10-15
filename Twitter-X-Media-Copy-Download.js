@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.2.13
+// @version      3.2.2.16
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -17696,7 +17696,7 @@
 
     async function _resolveBearerToken() {
         const _customToken = GM_getValue(KEY_CUSTOM_BEARER, '').trim();
-        if (_customToken) return _customToken;
+        if (_customToken) return /^Bearer\s/i.test(_customToken) ? _customToken : 'Bearer ' + _customToken;
         if (_cachedBearerToken) return _cachedBearerToken;
         if (_bearerPendingPromise) return _bearerPendingPromise;
 
@@ -17885,9 +17885,10 @@
 
             const _fetchAC = new AbortController();
             const _fetchTimeout = setTimeout(() => _fetchAC.abort(), 8000);
-            let res;
+            let res, json;
             try {
                 res = await fetch(url, { headers, signal: _fetchAC.signal });
+                if (res.ok) json = await res.json();
             } catch (e) {
                 if (e.name === 'AbortError') _log('TMApi', 'fetchTweetMediaFromAPI timed out (8s)');
                 else _log('TMApi', 'fetchTweetMediaFromAPI fetch error:', e);
@@ -17900,8 +17901,11 @@
                 if (res.status === 401 || res.status === 403) {
                     _cachedBearerToken   = _FALLBACK_BEARER;
                     _bearerPendingPromise = null;
+                    const _hasCustomBearer = !!GM_getValue(KEY_CUSTOM_BEARER, '').trim();
                     showToast(
-                        '⚠️ API token expired. Set a custom Bearer Token in ⚙️ Settings → Advanced to restore video fetch.',
+                        _hasCustomBearer
+                            ? '⚠️ API token rejected. Clear or update your custom Bearer Token in ⚙️ Settings → Advanced.'
+                            : '⚠️ API token expired. Set a custom Bearer Token in ⚙️ Settings → Advanced to restore video fetch.',
                         6000, 'warning'
                     );
                 } else if (res.status === 404) {
@@ -17912,7 +17916,6 @@
                 _circuitRecordFailure();
                 return null;
             }
-            let json = await res.json();
             let core = json.data?.tweetResult?.result?.tweet || json.data?.tweetResult?.result;
             if (!core) {
                 _log('TMApi', 'fetchTweetMediaFromAPI: result 整層缺失（非 tombstone/unavailable），計入電路斷路器', statusId);
