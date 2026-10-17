@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.2.16
+// @version      3.2.2.20
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -28,6 +28,7 @@
 // @connect      x.com
 // @connect      twimg.com
 // @run-at       document-start
+// @noframes
 // @description      Adds one-click copy/download buttons for tweet media & links, and can restore legacy media grid. Includes a download history panel with text bookmarks, custom groups, drag-to-reorder, cross-item lightbox, custom filename templates, avatar /media shortcuts, and dark/light/custom themes. More options in settings.
 // @description:zh-TW 為推文的媒體與連結新增一鍵複製分享連結與下載媒體按鈕，並可還原個人頁面的舊版媒體網格版面。提供下載歷史面板，包含文字書籤、自訂群組、拖曳排序、跨項目燈箱瀏覽、自訂檔名樣板、頭像 /media 捷徑，以及深色／淺色／自訂主題選項。部分進階功能未列出，可於設定面板開啟使用。
 // @description:zh-CN 为推文的媒体与链接新增一键复制分享链接与下载媒体按钮，并可还原个人页面的旧版媒体网格版面。提供下载历史面板，包含文字书签、自定义分组、拖拽排序、跨项目灯箱浏览、自定义文件名模板、头像 /media 快捷入口，以及深色／浅色／自定义主题选项。部分进阶功能未列出，可于设置面板开启使用。
@@ -9306,15 +9307,7 @@
                 bearerDetectBtn.textContent = T.sp_bearer_detecting || 'Detecting…';
                 bearerDetectBtn.disabled = true;
                 try {
-                    let found = null;
-                    for (const script of document.querySelectorAll('script[src*="main."]')) {
-                        if (!script.src) continue;
-                        const resp = await fetch(script.src);
-                        if (!resp.ok) continue;
-                        const text = await resp.text();
-                        const m = text.match(/Bearer (AAAAAAA[A-Za-z0-9%_-]{20,})/);
-                        if (m) { found = 'Bearer ' + m[1]; break; }
-                    }
+                    const found = await _scanMainJsForBearer();
                     if (found) {
                         _bearerRealVal = found.trim();
                         GM_setValue(KEY_CUSTOM_BEARER, _bearerRealVal);
@@ -16661,9 +16654,11 @@
         return results;
     }
 
+    let _lbPrevTeardown = null;
     function showImageLightbox(urls, videoUrls = null, openGallery = false, tweetInfo = null) {
         if (!urls.length) return;
 
+        if (_lbPrevTeardown) { _lbPrevTeardown(); _lbPrevTeardown = null; }
         const old = document.getElementById('tm-image-lightbox');
         if (old) old.remove();
 
@@ -16912,6 +16907,13 @@
         let _lbDragACRef = null;
         let _lbBranchBDragAC = null;
         const _LB_SCROLL_KEYS = new Set([' ', 'PageUp', 'PageDown', 'Home', 'End', 'ArrowUp', 'ArrowDown']);
+
+        const _teardownLbListeners = () => {
+            document.removeEventListener('keydown', keyHandler);
+            if (_lbDragACRef) { _lbDragACRef.abort(); _lbDragACRef = null; }
+            if (_lbBranchBDragAC) { _lbBranchBDragAC.abort(); _lbBranchBDragAC = null; }
+        };
+        _lbPrevTeardown = _teardownLbListeners;
 
         function closeLightbox() {
             modal.classList.remove('tm-lb-in');
@@ -17692,7 +17694,20 @@
     const _FALLBACK_BEARER = 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA';
     let _cachedBearerToken = null;
     let _bearerPendingPromise = null;
-    let _cachedGqlId = GM_getValue('app_gql_tweet_id', '2ICDjqPd81tulZcYrtpTuQ');
+    const _DEFAULT_GQL_ID = '2ICDjqPd81tulZcYrtpTuQ';
+    let _cachedGqlId = GM_getValue('app_gql_tweet_id', _DEFAULT_GQL_ID);
+
+    async function _scanMainJsForBearer() {
+        for (const script of document.querySelectorAll('script[src*="main."]')) {
+            if (!script.src) continue;
+            const resp = await fetch(script.src);
+            if (!resp.ok) continue;
+            const text = await resp.text();
+            const m = text.match(/Bearer (AAAAAAA[A-Za-z0-9%_-]{20,})/);
+            if (m) return 'Bearer ' + m[1];
+        }
+        return null;
+    }
 
     async function _resolveBearerToken() {
         const _customToken = GM_getValue(KEY_CUSTOM_BEARER, '').trim();
@@ -17702,14 +17717,8 @@
 
         _bearerPendingPromise = (async () => {
             try {
-                for (const script of document.querySelectorAll('script[src*="main."]')) {
-                    if (!script.src) continue;
-                    const resp = await fetch(script.src);
-                    if (!resp.ok) continue;
-                    const text = await resp.text();
-                    const m = text.match(/Bearer (AAAAAAA[A-Za-z0-9%_-]{20,})/);
-                    if (m) { _cachedBearerToken = 'Bearer ' + m[1]; break; }
-                }
+                const _found = await _scanMainJsForBearer();
+                if (_found) _cachedBearerToken = _found;
             } catch(e) { _log('TMApi', 'Bearer token 解析失敗，將降回 fallback', e); }
             _bearerPendingPromise = null;
             if (!_cachedBearerToken) _cachedBearerToken = _FALLBACK_BEARER;
@@ -17911,7 +17920,7 @@
                 } else if (res.status === 404) {
                     _log('TMApi', 'TweetResultByRestId 404, cachedGqlId=', _cachedGqlId, '— 可能已輪替');
                     GM_deleteValue('app_gql_tweet_id');
-                    _cachedGqlId = '2ICDjqPd81tulZcYrtpTuQ';
+                    _cachedGqlId = _DEFAULT_GQL_ID;
                 }
                 _circuitRecordFailure();
                 return null;
