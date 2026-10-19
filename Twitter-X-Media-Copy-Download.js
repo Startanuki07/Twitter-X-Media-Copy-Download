@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.2.20
+// @version      3.2.2.24
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -9036,7 +9036,9 @@
                 try {
                     const data = JSON.parse(json);
                     const valid = new Set(ALL_SETTING_KEYS);
-                    Object.entries(data).forEach(([k, v]) => { if (valid.has(k)) GM_setValue(k, v); });
+                    Object.entries(data).forEach(([k, v]) => {
+                        if (valid.has(k) && ['string', 'number', 'boolean'].includes(typeof v)) GM_setValue(k, v);
+                    });
                     showToast('✅ Settings imported.', 3000, 'success');
                     createSettingsPanel();
                 } catch (_) { showToast('❌ Invalid settings file.', 3000, 'error'); }
@@ -16039,7 +16041,7 @@
         await new Promise((resolve, reject) => {
             GM_xmlhttpRequest({
                 method: "GET", url: url, responseType: "blob",
-                timeout: 15000,
+                timeout: 120000,
                 onload: function(response) {
                     if (response.status === 200) {
                         const blob = response.response;
@@ -16061,7 +16063,7 @@
                     }
                 },
                 ontimeout: function() {
-                    console.warn('[MediaDL] GM fallback timed out (15s), falling back to new tab');
+                    console.warn('[MediaDL] GM fallback timed out (120s), falling back to new tab');
                     const tag = document.createElement('a');
                     tag.href = url; tag.download = filename; tag.target = '_blank';
                     document.body.appendChild(tag); tag.click(); document.body.removeChild(tag);
@@ -16078,11 +16080,13 @@
         });
     }
 
+    let _vpPrevTeardown = null;
     function showFloatingVideoPlayer(videoUrls, startIndex = 0, imageUrls = null, openGallery = false, tweetInfo = null) {
         document.querySelectorAll('video, audio').forEach(media => {
             if (!media.paused) media.pause();
         });
 
+        if (_vpPrevTeardown) { _vpPrevTeardown(); _vpPrevTeardown = null; }
         const oldModal = document.getElementById('tm-floating-video-modal');
         if (oldModal) oldModal.remove();
 
@@ -16351,6 +16355,7 @@
             }
         };
         document.addEventListener('keydown', keyHandler);
+        _vpPrevTeardown = () => document.removeEventListener('keydown', keyHandler);
 
         const _vpDownloadRightBase = viewImgBtn ? 130 : 75;
         const _vpGalleryRightBase = _vpDownloadRightBase + 55;
@@ -19583,6 +19588,7 @@
         ));
         _scanIntervalId = setInterval(() => {
             if (_isScrollingPage) return;
+            if (document.hidden) return;
             if (typeof requestIdleCallback !== 'undefined') {
                 requestIdleCallback(scanAndInsert, { timeout: ms * 2 });
             } else {
