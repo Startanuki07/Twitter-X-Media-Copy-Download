@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.2.24
+// @version      3.2.3.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -17827,7 +17827,9 @@
             const isGraphQL = url.includes('/graphql/') && (
                 url.includes('HomeTimeline') || url.includes('TweetDetail') ||
                 url.includes('UserTweets')   || url.includes('SearchTimeline') ||
-                url.includes('ListTimeline') || url.includes('TweetResultByRestId')
+                url.includes('ListTimeline') || url.includes('TweetResultByRestId') ||
+                url.includes('HomeLatestTimeline') || url.includes('UserOriginalsTimeline') ||
+                url.includes('UserVideoTimeline')
             );
             const _gqlIdMatch = url.match(/\/i\/api\/graphql\/([A-Za-z0-9_-]{20,})\/TweetResultByRestId/);
             if (_gqlIdMatch && _gqlIdMatch[1] !== _cachedGqlId) {
