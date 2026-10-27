@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.3.1
+// @version      3.2.3.2
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -415,6 +415,7 @@
         'legacy_media_grid',
         'sp_link_btn_visibility',
         'sp_media_btn_visibility',
+        'cfn_token_dateparts',
     ];
 
     if (GM_getValue(KEY_SEEN_FEATURES, null) === null) {
@@ -7878,6 +7879,9 @@
                 { labelKey: 'cfn_token_screenName',  label: T.cfn_token_screenName  || '{screenName}',  token: '{screenName}',  desc: T.cfn_token_screenName_desc  || '' },
                 { labelKey: 'cfn_token_displayName', label: T.cfn_token_displayName || '{displayName}', token: '{displayName}', desc: T.cfn_token_displayName_desc || '' },
                 { labelKey: 'cfn_token_date',        label: T.cfn_token_date        || '{date}',        token: '{date}',        desc: T.cfn_token_date_desc        || '' },
+                { labelKey: 'cfn_token_year',  label: T.cfn_token_year  || '{year}',  token: '{year}',  desc: T.cfn_token_year_desc  || 'Year',  isNew: 'cfn_token_dateparts' },
+                { labelKey: 'cfn_token_month', label: T.cfn_token_month || '{month}', token: '{month}', desc: T.cfn_token_month_desc || 'Month', isNew: 'cfn_token_dateparts' },
+                { labelKey: 'cfn_token_day',   label: T.cfn_token_day   || '{day}',   token: '{day}',   desc: T.cfn_token_day_desc   || 'Day',   isNew: 'cfn_token_dateparts' },
                 { labelKey: 'cfn_token_id',          label: T.cfn_token_id          || '{id}',          token: '{id}',          desc: T.cfn_token_id_desc          || '' },
                 { labelKey: 'cfn_token_index',       label: T.cfn_token_index       || '{index}',       token: '{index}',       desc: T.cfn_token_index_desc       || '' },
                 { labelKey: 'cfn_token_ext',         label: T.cfn_token_ext         || '{ext}',         token: '{ext}',         desc: T.cfn_token_ext_desc         || '' },
@@ -7918,7 +7922,7 @@
                     padding: 6px 30px 6px 8px; border-radius: 6px; border: 1px solid ${C.border};
                     background: ${C.panel}; color: ${C.text}; outline: none;
                 `;
-                tplInput.title = T.cfn_input_tip || 'Available tokens: {screenName} {displayName} {date} {id} {index} {ext} {origName} {text}\nNote: {ext} does not include the dot — write .{ext} if you need one. {origName} is the original Twitter CDN filename code (e.g. HP_yBXibUAA2-Qu), without extension, empty if unavailable. {text} is truncated but may still make filenames long.';
+                tplInput.title = T.cfn_input_tip || 'Available tokens: {screenName} {displayName} {date} {year} {month} {day} {id} {index} {ext} {origName} {text}\nNote: {ext} does not include the dot — write .{ext} if you need one. {year}/{month}/{day} are the split version of {date} without separators (month/day zero-padded); combine them freely, e.g. {year}{month}{day} or {year}-{month}-{day}. {origName} is the original Twitter CDN filename code (e.g. HP_yBXibUAA2-Qu), without extension, empty if unavailable. {text} is truncated but may still make filenames long.';
 
                 const resetBtn = _makeResetBtn(() => {
                     tplInput.value = CUSTOM_FN_DEFAULT_TEMPLATE;
@@ -7954,7 +7958,7 @@
                 `;
                 wrap.appendChild(previewBox);
 
-                const _CFN_SAMPLE = { screenName: 'example', displayName: 'Example User', date: '2026.07.14', id: '1234567890123456789', index: 1, ext: 'mp4', origName: 'HP_yBXibUAA2-Qu', text: sanitizeForFilename('This is a sample tweet content for preview', CUSTOM_FN_TEXT_MAXLEN) };
+                const _CFN_SAMPLE = { screenName: 'example', displayName: 'Example User', date: '2026.07.14', year: '2026', month: '07', day: '14', id: '1234567890123456789', index: 1, ext: 'mp4', origName: 'HP_yBXibUAA2-Qu', text: sanitizeForFilename('This is a sample tweet content for preview', CUSTOM_FN_TEXT_MAXLEN) };
                 const _updateCfnPreview = () => {
                     const tpl = tplInput.value;
                     if (!tpl) { previewBox.textContent = T.cfn_preview_empty || '(empty template — falls back to default format)'; return; }
@@ -7962,6 +7966,9 @@
                         .replace(/\{screenName\}/g,  _CFN_SAMPLE.screenName)
                         .replace(/\{displayName\}/g, _CFN_SAMPLE.displayName)
                         .replace(/\{date\}/g,        _CFN_SAMPLE.date)
+                        .replace(/\{year\}/g,        _CFN_SAMPLE.year)
+                        .replace(/\{month\}/g,       _CFN_SAMPLE.month)
+                        .replace(/\{day\}/g,         _CFN_SAMPLE.day)
                         .replace(/\{id\}/g,          _CFN_SAMPLE.id)
                         .replace(/\{index\}/g,       String(_CFN_SAMPLE.index))
                         .replace(/\{ext\}/g,         _CFN_SAMPLE.ext)
@@ -8013,6 +8020,7 @@
                     const item = document.createElement('button');
                     item.type = 'button';
                     item.style.cssText = `
+                        position: relative;
                         display: flex; align-items: center; justify-content: space-between; gap: 6px;
                         width: 100%; text-align: left;
                         padding: 7px 9px; font-size: 12px; font-family: ui-monospace, monospace;
@@ -8023,6 +8031,17 @@
                     labelSpan.textContent = t.label;
                     labelSpan.style.cssText = 'flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
                     item.appendChild(labelSpan);
+                    let newDot = null;
+                    if (t.isNew && isFeatureNew(t.isNew)) {
+                        newDot = document.createElement('span');
+                        newDot.className = 'tm-cfn-token-new-dot';
+                        newDot.style.cssText = `
+                            position: absolute; top: 3px; right: 3px; width: 6px; height: 6px;
+                            border-radius: 50%; background: #1d9bf0; animation: tm-sp-new-pulse 1.8s ease-in-out infinite;
+                            pointer-events: none;
+                        `;
+                        item.appendChild(newDot);
+                    }
                     if (t.desc) {
                         const descSpan = document.createElement('span');
                         descSpan.textContent = t.desc;
@@ -8044,6 +8063,10 @@
                     item.addEventListener('mouseleave', () => { item.style.background = 'transparent'; });
                     item.addEventListener('mousedown', (e) => {
                         e.preventDefault();
+                        if (t.isNew && isFeatureNew(t.isNew)) {
+                            markFeatureSeen(t.isNew);
+                            menu.querySelectorAll('.tm-cfn-token-new-dot').forEach(d => d.remove());
+                        }
                         _insertCfnToken(t.token);
                     });
                     menu.appendChild(item);
@@ -17455,6 +17478,19 @@
         } catch (e) { return '0000.00.00'; }
     }
 
+    function _extractDateParts(dateInput) {
+        try {
+            if (!dateInput) return { year: '', month: '', day: '' };
+            const date = new Date(dateInput);
+            if (isNaN(date.getTime())) return { year: '', month: '', day: '' };
+            return {
+                year:  String(date.getFullYear()),
+                month: String(date.getMonth() + 1).padStart(2, '0'),
+                day:   String(date.getDate()).padStart(2, '0'),
+            };
+        } catch (e) { return { year: '', month: '', day: '' }; }
+    }
+
     function sanitizeForFilename(text, maxLength = 50) {
         if (!text) return "";
         let clean = text.replace(/[\r\n]+/g, ' ');
@@ -17488,6 +17524,9 @@
             .replace(/\{screenName\}/g,  () => vars.screenName)
             .replace(/\{displayName\}/g, () => vars.displayName)
             .replace(/\{date\}/g,        () => vars.date)
+            .replace(/\{year\}/g,        () => vars.year || '')
+            .replace(/\{month\}/g,       () => vars.month || '')
+            .replace(/\{day\}/g,         () => vars.day || '')
             .replace(/\{id\}/g,          () => vars.id)
             .replace(/\{index\}/g,       () => String(vars.index))
             .replace(/\{ext\}/g,         () => safeExt)
@@ -17516,7 +17555,7 @@
         const textPart    = tweetInfo.text ? `_${sanitizeForFilename(tweetInfo.text, 40)}` : '';
         const safeTextForToken = sanitizeForFilename(tweetInfo.text || '', CUSTOM_FN_TEXT_MAXLEN);
         return buildCustomFilename(
-            { screenName: safeScreen, displayName: safeDisplay, date: datePart, id: idPart, index, ext, text: safeTextForToken, origName: _extractOrigMediaName(url) },
+            { screenName: safeScreen, displayName: safeDisplay, date: datePart, year: tweetInfo.year, month: tweetInfo.month, day: tweetInfo.day, id: idPart, index, ext, text: safeTextForToken, origName: _extractOrigMediaName(url) },
             () => `[twitter] ${safeDisplay}(@${safeScreen})_${datePart}${textPart}_${idPart}_${index}.${ext}`
         );
     }
@@ -17529,8 +17568,9 @@
         let tweetText = '';
 
         const timeEl = article.querySelector('time');
-        if (timeEl) date = formatDate(timeEl.getAttribute('datetime'));
-        else date = formatDate(new Date());
+        const _dateRaw = timeEl ? timeEl.getAttribute('datetime') : new Date();
+        date = formatDate(_dateRaw);
+        const _dp = _extractDateParts(_dateRaw);
 
         const allLinks = article.querySelectorAll('a[href*="/status/"]');
         for (const link of allLinks) {
@@ -17581,6 +17621,9 @@
             displayName: displayName,
             id: id,
             date: date,
+            year: _dp.year,
+            month: _dp.month,
+            day: _dp.day,
             text: sanitizeForFilename(tweetText),
             videoThumb: videoThumb,
             avatarUrl: avatarUrl,
@@ -17717,7 +17760,8 @@
     if (_isTwitterDomain) (function _interceptFetch() {
         const _origFetch = unsafeWindow.fetch;
         unsafeWindow.fetch = function(...args) {
-            const url = typeof args[0] === 'string' ? args[0] : args[0]?.url ?? '';
+            const _a0 = args[0];
+            const url = typeof _a0 === 'string' ? _a0 : String(_a0?.url ?? _a0?.href ?? '');
             const isGraphQL = url.includes('/graphql/') && (
                 url.includes('HomeTimeline') || url.includes('TweetDetail') ||
                 url.includes('UserTweets')   || url.includes('SearchTimeline') ||
@@ -17735,8 +17779,12 @@
             const promise = _origFetch.apply(this, args);
             if (!isGraphQL) return promise;
             return promise.then(resp => {
-                const clone = resp.clone();
-                clone.text().then(_processApiPayload).catch(e => _log('TMApi', 'clone.text() 讀取失敗，跳過本次 GraphQL 回應解析', e));
+                try {
+                    const clone = resp.clone();
+                    clone.text().then(_processApiPayload).catch(e => _log('TMApi', 'clone.text() 讀取失敗，跳過本次 GraphQL 回應解析', e));
+                } catch (e) {
+                    _log('TMApi', 'resp.clone() 失敗，跳過本次 GraphQL 回應解析（原始回應不受影響）', e);
+                }
                 return resp;
             });
         };
@@ -18165,7 +18213,7 @@
                     const textPart    = info.text ? `_${sanitizeForFilename(info.text, 40)}` : '';
                     const safeTextForToken = sanitizeForFilename(info.text || '', CUSTOM_FN_TEXT_MAXLEN);
                     const filename    = buildCustomFilename(
-                        { screenName: safeScreen, displayName: safeDisplay, date: info.date, id: info.id, index, ext: ext.replace(/^\./, ''), text: safeTextForToken, origName: _extractOrigMediaName(url) },
+                        { screenName: safeScreen, displayName: safeDisplay, date: info.date, year: info.year, month: info.month, day: info.day, id: info.id, index, ext: ext.replace(/^\./, ''), text: safeTextForToken, origName: _extractOrigMediaName(url) },
                         () => `[twitter] ${safeDisplay}(@${safeScreen})_${info.date}${textPart}_${info.id}_${index}${ext}`
                     );
                     const fileOffset  = (index - 1) / total;
@@ -18415,7 +18463,7 @@
                     const safeDisplay = sanitizeForFilename(info.displayName);
                     const safeScreen = sanitizeForFilename(info.screenName);
                     const filename = buildCustomFilename(
-                        { screenName: safeScreen, displayName: safeDisplay, date: info.date, id: info.id, index, ext: ext.replace(/^\./, ''), text: safeTextForToken, origName: _extractOrigMediaName(url) },
+                        { screenName: safeScreen, displayName: safeDisplay, date: info.date, year: info.year, month: info.month, day: info.day, id: info.id, index, ext: ext.replace(/^\./, ''), text: safeTextForToken, origName: _extractOrigMediaName(url) },
                         () => `[twitter] ${safeDisplay}(@${safeScreen})_${info.date}${textPart}_${info.id}_${index}${ext}`
                     );
 
@@ -19045,11 +19093,12 @@
                 const hasRichMeta = !!(apiData.date || apiData.displayName);
                 if (!hasRichMeta) return `[twitter] ${safeScreen}_${tweetId}_${idx}${ext}`;
                 const dateStr = apiData.date ? formatDate(apiData.date) : '';
+                const _dp = apiData.date ? _extractDateParts(apiData.date) : { year: '', month: '', day: '' };
                 const safeDisplay = apiData.displayName ? sanitizeForFilename(apiData.displayName) : safeScreen;
                 const textPart = apiData.text ? `_${sanitizeForFilename(apiData.text)}` : '';
                 const safeTextForToken = sanitizeForFilename(apiData.text || '', CUSTOM_FN_TEXT_MAXLEN);
                 return buildCustomFilename(
-                    { screenName: safeScreen, displayName: safeDisplay, date: dateStr, id: tweetId, index: idx, ext: ext.replace(/^\./, ''), text: safeTextForToken, origName: _extractOrigMediaName(url) },
+                    { screenName: safeScreen, displayName: safeDisplay, date: dateStr, year: _dp.year, month: _dp.month, day: _dp.day, id: tweetId, index: idx, ext: ext.replace(/^\./, ''), text: safeTextForToken, origName: _extractOrigMediaName(url) },
                     () => `[twitter] ${safeDisplay}(@${safeScreen})_${dateStr}${textPart}_${tweetId}_${idx}${ext}`
                 );
             };
