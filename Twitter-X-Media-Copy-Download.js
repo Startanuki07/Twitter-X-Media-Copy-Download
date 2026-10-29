@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.3.2
+// @version      3.2.3.3
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -305,16 +305,39 @@
     function _mergeImportedGroups(importedGroups, getFn, saveFn) {
         if (!Array.isArray(importedGroups) || importedGroups.length === 0) return 0;
         const existing = getFn();
+        const isText = getFn === getTextGroups;
         const existIds = new Set(existing.map(g => g.id));
         let addCount = 0;
-        importedGroups.forEach(g => {
-            if (!g || !g.id || existIds.has(g.id)) return;
+        importedGroups.forEach(raw => {
+            const g = _normalizeGroup(raw, isText);
+            if (!g || existIds.has(g.id)) return;
             existing.push(g);
             existIds.add(g.id);
             addCount++;
         });
         if (addCount > 0) saveFn(existing);
         return addCount;
+    }
+
+    function _isSafeGroupColor(v) {
+        if (typeof v !== 'string') return false;
+        const s = v.trim();
+        return /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3}([0-9a-fA-F]{2})?)?$/.test(s) ||
+               /^rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(,\s*[\d.]+\s*)?\)$/.test(s);
+    }
+    function _normalizeGroup(raw, isText) {
+        if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+        const id = typeof raw.id === 'string' ? raw.id : '';
+        if (!/^[A-Za-z0-9_-]{1,64}$/.test(id)) return null;
+        if (isText !== id.startsWith('txt_')) return null;
+        const name = (typeof raw.name === 'string' ? raw.name.trim() : '').slice(0, 24) || 'Group';
+        const icon = (typeof raw.icon === 'string' && raw.icon && raw.icon.length <= 32)
+            ? raw.icon : (isText ? '📝' : '📁');
+        const glow = _isSafeGroupColor(raw.glow)
+            ? raw.glow.trim() : (isText ? 'rgba(120,200,120,.5)' : 'rgba(80,160,240,.5)');
+        const ca = Number(raw.createdAt);
+        const createdAt = (Number.isFinite(ca) && ca > 0 && ca < 4.1e12) ? ca : Date.now();
+        return { id, name, icon, glow, createdAt };
     }
 
     const KEY_PREFIX_TEXT = 'discord_prefix_text';
@@ -9747,8 +9770,15 @@
         history.replaceState = _wrap(history.replaceState);
     })();
 
+    function _readGroupArray(key) {
+        try {
+            const v = JSON.parse(GM_getValue(key, '[]'));
+            return Array.isArray(v) ? v.filter(g => g && typeof g === 'object') : [];
+        } catch (_) { return []; }
+    }
+
     function getGroups() {
-        try { return JSON.parse(GM_getValue(KEY_GROUPS, '[]')); } catch (_) { return []; }
+        return _readGroupArray(KEY_GROUPS);
     }
 
     function saveGroups(arr) {
@@ -9756,7 +9786,7 @@
     }
 
     function getTextGroups() {
-        try { return JSON.parse(GM_getValue(KEY_TEXT_GROUPS, '[]')); } catch (_) { return []; }
+        return _readGroupArray(KEY_TEXT_GROUPS);
     }
 
     function saveTextGroups(arr) {
