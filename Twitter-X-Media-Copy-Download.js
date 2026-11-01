@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.3.3
+// @version      3.2.3.4
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -774,6 +774,32 @@
             sp_dock_reset_toast:        '🔓 Dock reset — panel restored',
             sp_importing_toast:         '⏳ Importing…',
             sp_rclick_tip_toast:        '💡 Tip: Right-click this button to download all media directly.',
+            sp_settings_imported_toast:    '✅ Settings imported.',
+            sp_settings_invalid_toast:     '❌ Invalid settings file.',
+            sp_settings_reset_toast:       '✅ Settings reset to defaults.',
+            sp_bearer_saved_toast:         '✅ Bearer Token saved.',
+            sp_bearer_open_x_toast:        '⚠️ Open Twitter / X first, then try auto-detect.',
+            sp_bearer_detected_toast:      '✅ Bearer Token detected and saved.',
+            sp_bearer_notfound_toast:      '⚠️ Not found in page scripts. Use DevTools method (click ❓).',
+            sp_bearer_detect_failed_toast: '❌ Detection failed: {msg}',
+            hist_refreshed_toast:          '🔄 History refreshed · {count} record(s)',
+            sp_grp_created_toast:          '⭐ Created「{label} · {name}」',
+            sp_grp_icon_toast:             'Icon → {label}',
+            sp_grp_renamed_toast:          'Renamed → {name}',
+            sp_grp_rename_prompt:          'Rename group:',
+            sp_import_failed_toast:        '❌ Import failed: {msg}',
+            sp_dock_undock_right_toast:    '⚠️ Undock right side first before docking left',
+            sp_dock_undock_left_toast:     '⚠️ Undock left side first before docking right',
+            msg_dl_partial:                '⚠️ Downloaded {ok} of {total} files ({fail} failed).',
+            msg_dl_done:                   '✅ Downloaded {total} file(s).',
+            sp_corner_pos_toast:           '📌 Corner → {label}',
+            sp_no_media_bookmark_confirm:  'This post has no media.\n\n"{text}"\n\nSave it as a text bookmark for grouping?',
+            custlang_loaded_toast:         '✅ Loaded: {lang}',
+            custlang_loaded_confirm:       'Custom language "{lang}" loaded.\nReload page now to apply?',
+            custlang_import_failed_alert:  '❌ Import failed: {msg}\n\nMake sure the file is valid JSON and contains a "langName" field.',
+            custlang_clear_confirm:        'Remove custom language and revert to English?',
+            custlang_cleared_toast:        '🗑️ Custom language cleared.',
+            custlang_reverted_confirm:     'Reverted to English.\nReload page now?',
         },
         'zh-TW': {
             langName: '繁體中文',
@@ -1090,6 +1116,32 @@
             sp_dock_reset_toast:        '🔓 已重置停靠 — 面板已還原',
             sp_importing_toast:         '⏳ 匯入中…',
             sp_rclick_tip_toast:        '💡 提示：在此按鈕上按右鍵可直接下載全部媒體。',
+            sp_settings_imported_toast:    '✅ 設定已匯入。',
+            sp_settings_invalid_toast:     '❌ 設定檔無效。',
+            sp_settings_reset_toast:       '✅ 設定已重設為預設值。',
+            sp_bearer_saved_toast:         '✅ Bearer Token 已儲存。',
+            sp_bearer_open_x_toast:        '⚠️ 請先開啟 Twitter / X，再嘗試自動偵測。',
+            sp_bearer_detected_toast:      '✅ 已偵測並儲存 Bearer Token。',
+            sp_bearer_notfound_toast:      '⚠️ 在頁面腳本中找不到。請改用開發者工具方式（點擊 ❓）。',
+            sp_bearer_detect_failed_toast: '❌ 偵測失敗：{msg}',
+            hist_refreshed_toast:          '🔄 歷史紀錄已重新整理 · {count} 筆',
+            sp_grp_created_toast:          '⭐ 已建立「{label} · {name}」',
+            sp_grp_icon_toast:             '圖示 → {label}',
+            sp_grp_renamed_toast:          '已重新命名 → {name}',
+            sp_grp_rename_prompt:          '重新命名群組：',
+            sp_import_failed_toast:        '❌ 匯入失敗：{msg}',
+            sp_dock_undock_right_toast:    '⚠️ 請先解除右側停靠，再停靠至左側',
+            sp_dock_undock_left_toast:     '⚠️ 請先解除左側停靠，再停靠至右側',
+            msg_dl_partial:                '⚠️ 已下載 {ok}／{total} 個檔案（{fail} 個失敗）。',
+            msg_dl_done:                   '✅ 已下載 {total} 個檔案。',
+            sp_corner_pos_toast:           '📌 角落 → {label}',
+            sp_no_media_bookmark_confirm:  '這則貼文沒有媒體。\n\n"{text}"\n\n要另存為文字書籤以便分組嗎？',
+            custlang_loaded_toast:         '✅ 已載入：{lang}',
+            custlang_loaded_confirm:       '自訂語言「{lang}」已載入。\n要立即重新載入頁面以套用嗎？',
+            custlang_import_failed_alert:  '❌ 匯入失敗：{msg}\n\n請確認檔案為有效的 JSON，且包含 "langName" 欄位。',
+            custlang_clear_confirm:        '要移除自訂語言並還原為英文嗎？',
+            custlang_cleared_toast:        '🗑️ 已清除自訂語言。',
+            custlang_reverted_confirm:     '已還原為英文。\n要立即重新載入頁面嗎？',
         },
         'zh-CN': {
             langName: '简体中文',
@@ -1406,6 +1458,32 @@
             sp_dock_reset_toast:        '🔓 已重置停靠 — 面板已恢复',
             sp_importing_toast:         '⏳ 导入中…',
             sp_rclick_tip_toast:        '💡 提示：在此按钮上右键单击可直接下载全部媒体。',
+            sp_settings_imported_toast:    '✅ 设置已导入。',
+            sp_settings_invalid_toast:     '❌ 设置文件无效。',
+            sp_settings_reset_toast:       '✅ 设置已重置为默认值。',
+            sp_bearer_saved_toast:         '✅ Bearer Token 已保存。',
+            sp_bearer_open_x_toast:        '⚠️ 请先打开 Twitter / X，再尝试自动检测。',
+            sp_bearer_detected_toast:      '✅ 已检测并保存 Bearer Token。',
+            sp_bearer_notfound_toast:      '⚠️ 在页面脚本中未找到。请改用开发者工具方式（点击 ❓）。',
+            sp_bearer_detect_failed_toast: '❌ 检测失败：{msg}',
+            hist_refreshed_toast:          '🔄 历史记录已刷新 · {count} 条',
+            sp_grp_created_toast:          '⭐ 已创建「{label} · {name}」',
+            sp_grp_icon_toast:             '图标 → {label}',
+            sp_grp_renamed_toast:          '已重命名 → {name}',
+            sp_grp_rename_prompt:          '重命名分组：',
+            sp_import_failed_toast:        '❌ 导入失败：{msg}',
+            sp_dock_undock_right_toast:    '⚠️ 请先解除右侧停靠，再停靠到左侧',
+            sp_dock_undock_left_toast:     '⚠️ 请先解除左侧停靠，再停靠到右侧',
+            msg_dl_partial:                '⚠️ 已下载 {ok}/{total} 个文件（{fail} 个失败）。',
+            msg_dl_done:                   '✅ 已下载 {total} 个文件。',
+            sp_corner_pos_toast:           '📌 角落 → {label}',
+            sp_no_media_bookmark_confirm:  '这条推文没有媒体。\n\n"{text}"\n\n要另存为文字书签以便分组吗？',
+            custlang_loaded_toast:         '✅ 已加载：{lang}',
+            custlang_loaded_confirm:       '自定义语言「{lang}」已加载。\n要立即刷新页面以应用吗？',
+            custlang_import_failed_alert:  '❌ 导入失败：{msg}\n\n请确认文件是有效的 JSON，且包含 "langName" 字段。',
+            custlang_clear_confirm:        '要移除自定义语言并恢复为英文吗？',
+            custlang_cleared_toast:        '🗑️ 已清除自定义语言。',
+            custlang_reverted_confirm:     '已恢复为英文。\n要立即刷新页面吗？',
         },
         'ja': {
             langName: '日本語',
@@ -1722,6 +1800,32 @@
             sp_dock_reset_toast:        '🔓 ドックをリセット — パネルを復元しました',
             sp_importing_toast:         '⏳ インポート中…',
             sp_rclick_tip_toast:        '💡 ヒント：このボタンを右クリックすると、すべてのメディアを直接ダウンロードできます。',
+            sp_settings_imported_toast:    '✅ 設定をインポートしました。',
+            sp_settings_invalid_toast:     '❌ 設定ファイルが無効です。',
+            sp_settings_reset_toast:       '✅ 設定をデフォルトに戻しました。',
+            sp_bearer_saved_toast:         '✅ Bearer Token を保存しました。',
+            sp_bearer_open_x_toast:        '⚠️ 先に Twitter / X を開いてから、自動検出をお試しください。',
+            sp_bearer_detected_toast:      '✅ Bearer Token を検出して保存しました。',
+            sp_bearer_notfound_toast:      '⚠️ ページのスクリプト内に見つかりません。DevTools の方法（❓ をクリック）をお試しください。',
+            sp_bearer_detect_failed_toast: '❌ 検出に失敗しました：{msg}',
+            hist_refreshed_toast:          '🔄 履歴を更新しました · {count} 件',
+            sp_grp_created_toast:          '⭐ 「{label} · {name}」を作成しました',
+            sp_grp_icon_toast:             'アイコン → {label}',
+            sp_grp_renamed_toast:          '名前を変更しました → {name}',
+            sp_grp_rename_prompt:          'グループ名を変更：',
+            sp_import_failed_toast:        '❌ インポートに失敗しました：{msg}',
+            sp_dock_undock_right_toast:    '⚠️ 左にドックする前に、右側のドックを解除してください',
+            sp_dock_undock_left_toast:     '⚠️ 右にドックする前に、左側のドックを解除してください',
+            msg_dl_partial:                '⚠️ {total} 件中 {ok} 件をダウンロードしました（{fail} 件失敗）。',
+            msg_dl_done:                   '✅ {total} 件のファイルをダウンロードしました。',
+            sp_corner_pos_toast:           '📌 コーナー → {label}',
+            sp_no_media_bookmark_confirm:  'この投稿にはメディアがありません。\n\n"{text}"\n\nグループ分け用にテキストブックマークとして保存しますか？',
+            custlang_loaded_toast:         '✅ 読み込みました：{lang}',
+            custlang_loaded_confirm:       'カスタム言語「{lang}」を読み込みました。\n今すぐページを再読み込みして適用しますか？',
+            custlang_import_failed_alert:  '❌ インポートに失敗しました：{msg}\n\nファイルが有効な JSON で、"langName" フィールドを含んでいることを確認してください。',
+            custlang_clear_confirm:        'カスタム言語を削除して英語に戻しますか？',
+            custlang_cleared_toast:        '🗑️ カスタム言語を削除しました。',
+            custlang_reverted_confirm:     '英語に戻しました。\n今すぐページを再読み込みしますか？',
         },
         'ko': {
             langName: '한국어',
@@ -2038,6 +2142,32 @@
             sp_dock_reset_toast:        '🔓 도크 재설정 — 패널이 복원되었습니다',
             sp_importing_toast:         '⏳ 가져오는 중…',
             sp_rclick_tip_toast:        '💡 팁: 이 버튼을 마우스 오른쪽 버튼으로 클릭하면 모든 미디어를 바로 다운로드할 수 있습니다.',
+            sp_settings_imported_toast:    '✅ 설정을 가져왔습니다.',
+            sp_settings_invalid_toast:     '❌ 올바르지 않은 설정 파일입니다.',
+            sp_settings_reset_toast:       '✅ 설정이 기본값으로 재설정되었습니다.',
+            sp_bearer_saved_toast:         '✅ Bearer Token이 저장되었습니다.',
+            sp_bearer_open_x_toast:        '⚠️ 먼저 Twitter / X를 연 다음 자동 감지를 시도하세요.',
+            sp_bearer_detected_toast:      '✅ Bearer Token을 감지하여 저장했습니다.',
+            sp_bearer_notfound_toast:      '⚠️ 페이지 스크립트에서 찾을 수 없습니다. 개발자 도구 방법을 사용하세요(❓ 클릭).',
+            sp_bearer_detect_failed_toast: '❌ 감지 실패: {msg}',
+            hist_refreshed_toast:          '🔄 기록을 새로 고쳤습니다 · {count}건',
+            sp_grp_created_toast:          '⭐ 「{label} · {name}」을(를) 만들었습니다',
+            sp_grp_icon_toast:             '아이콘 → {label}',
+            sp_grp_renamed_toast:          '이름 변경됨 → {name}',
+            sp_grp_rename_prompt:          '그룹 이름 변경:',
+            sp_import_failed_toast:        '❌ 가져오기 실패: {msg}',
+            sp_dock_undock_right_toast:    '⚠️ 왼쪽에 도킹하려면 먼저 오른쪽 도킹을 해제하세요',
+            sp_dock_undock_left_toast:     '⚠️ 오른쪽에 도킹하려면 먼저 왼쪽 도킹을 해제하세요',
+            msg_dl_partial:                '⚠️ {total}개 중 {ok}개 파일을 다운로드했습니다({fail}개 실패).',
+            msg_dl_done:                   '✅ 파일 {total}개를 다운로드했습니다.',
+            sp_corner_pos_toast:           '📌 모서리 → {label}',
+            sp_no_media_bookmark_confirm:  '이 게시물에는 미디어가 없습니다.\n\n"{text}"\n\n그룹 분류용 텍스트 북마크로 저장하시겠습니까?',
+            custlang_loaded_toast:         '✅ 불러옴: {lang}',
+            custlang_loaded_confirm:       '사용자 지정 언어 「{lang}」을(를) 불러왔습니다.\n지금 페이지를 새로 고쳐 적용하시겠습니까?',
+            custlang_import_failed_alert:  '❌ 가져오기 실패: {msg}\n\n파일이 올바른 JSON이며 "langName" 필드를 포함하는지 확인하세요.',
+            custlang_clear_confirm:        '사용자 지정 언어를 제거하고 영어로 되돌리시겠습니까?',
+            custlang_cleared_toast:        '🗑️ 사용자 지정 언어가 삭제되었습니다.',
+            custlang_reverted_confirm:     '영어로 되돌렸습니다.\n지금 페이지를 새로 고치시겠습니까?',
         },
         'es': {
             langName: 'Español',
@@ -2354,6 +2484,32 @@
             sp_dock_reset_toast:        '🔓 Anclaje restablecido — panel restaurado',
             sp_importing_toast:         '⏳ Importando…',
             sp_rclick_tip_toast:        '💡 Consejo: haz clic derecho en este botón para descargar todos los medios directamente.',
+            sp_settings_imported_toast:    '✅ Configuración importada.',
+            sp_settings_invalid_toast:     '❌ Archivo de configuración no válido.',
+            sp_settings_reset_toast:       '✅ Configuración restablecida a los valores predeterminados.',
+            sp_bearer_saved_toast:         '✅ Token Bearer guardado.',
+            sp_bearer_open_x_toast:        '⚠️ Abre primero Twitter / X y luego prueba la detección automática.',
+            sp_bearer_detected_toast:      '✅ Token Bearer detectado y guardado.',
+            sp_bearer_notfound_toast:      '⚠️ No se encontró en los scripts de la página. Usa el método de DevTools (clic en ❓).',
+            sp_bearer_detect_failed_toast: '❌ Error de detección: {msg}',
+            hist_refreshed_toast:          '🔄 Historial actualizado · {count} registro(s)',
+            sp_grp_created_toast:          '⭐ Creado «{label} · {name}»',
+            sp_grp_icon_toast:             'Icono → {label}',
+            sp_grp_renamed_toast:          'Renombrado → {name}',
+            sp_grp_rename_prompt:          'Renombrar grupo:',
+            sp_import_failed_toast:        '❌ Error al importar: {msg}',
+            sp_dock_undock_right_toast:    '⚠️ Desancla primero el lado derecho antes de anclar a la izquierda',
+            sp_dock_undock_left_toast:     '⚠️ Desancla primero el lado izquierdo antes de anclar a la derecha',
+            msg_dl_partial:                '⚠️ Descargados {ok} de {total} archivos ({fail} con error).',
+            msg_dl_done:                   '✅ {total} archivo(s) descargado(s).',
+            sp_corner_pos_toast:           '📌 Esquina → {label}',
+            sp_no_media_bookmark_confirm:  'Esta publicación no tiene medios.\n\n"{text}"\n\n¿Guardarla como marcador de texto para agruparla?',
+            custlang_loaded_toast:         '✅ Cargado: {lang}',
+            custlang_loaded_confirm:       'Idioma personalizado «{lang}» cargado.\n¿Recargar la página ahora para aplicarlo?',
+            custlang_import_failed_alert:  '❌ Error al importar: {msg}\n\nAsegúrate de que el archivo sea un JSON válido y contenga el campo "langName".',
+            custlang_clear_confirm:        '¿Eliminar el idioma personalizado y volver al inglés?',
+            custlang_cleared_toast:        '🗑️ Idioma personalizado eliminado.',
+            custlang_reverted_confirm:     'Se volvió al inglés.\n¿Recargar la página ahora?',
         },
         'pt-BR': {
             langName: 'Português (BR)',
@@ -2670,6 +2826,32 @@
             sp_dock_reset_toast:        '🔓 Ancoragem redefinida — painel restaurado',
             sp_importing_toast:         '⏳ Importando…',
             sp_rclick_tip_toast:        '💡 Dica: clique com o botão direito neste botão para baixar todas as mídias diretamente.',
+            sp_settings_imported_toast:    '✅ Configurações importadas.',
+            sp_settings_invalid_toast:     '❌ Arquivo de configurações inválido.',
+            sp_settings_reset_toast:       '✅ Configurações restauradas para o padrão.',
+            sp_bearer_saved_toast:         '✅ Token Bearer salvo.',
+            sp_bearer_open_x_toast:        '⚠️ Abra primeiro o Twitter / X e depois tente a detecção automática.',
+            sp_bearer_detected_toast:      '✅ Token Bearer detectado e salvo.',
+            sp_bearer_notfound_toast:      '⚠️ Não encontrado nos scripts da página. Use o método do DevTools (clique em ❓).',
+            sp_bearer_detect_failed_toast: '❌ Falha na detecção: {msg}',
+            hist_refreshed_toast:          '🔄 Histórico atualizado · {count} registro(s)',
+            sp_grp_created_toast:          '⭐ Criado «{label} · {name}»',
+            sp_grp_icon_toast:             'Ícone → {label}',
+            sp_grp_renamed_toast:          'Renomeado → {name}',
+            sp_grp_rename_prompt:          'Renomear grupo:',
+            sp_import_failed_toast:        '❌ Falha na importação: {msg}',
+            sp_dock_undock_right_toast:    '⚠️ Desancore primeiro o lado direito antes de ancorar à esquerda',
+            sp_dock_undock_left_toast:     '⚠️ Desancore primeiro o lado esquerdo antes de ancorar à direita',
+            msg_dl_partial:                '⚠️ Baixados {ok} de {total} arquivos ({fail} com falha).',
+            msg_dl_done:                   '✅ {total} arquivo(s) baixado(s).',
+            sp_corner_pos_toast:           '📌 Canto → {label}',
+            sp_no_media_bookmark_confirm:  'Esta postagem não tem mídia.\n\n"{text}"\n\nSalvar como marcador de texto para agrupar?',
+            custlang_loaded_toast:         '✅ Carregado: {lang}',
+            custlang_loaded_confirm:       'Idioma personalizado «{lang}» carregado.\nRecarregar a página agora para aplicar?',
+            custlang_import_failed_alert:  '❌ Falha na importação: {msg}\n\nVerifique se o arquivo é um JSON válido e contém o campo "langName".',
+            custlang_clear_confirm:        'Remover o idioma personalizado e voltar para o inglês?',
+            custlang_cleared_toast:        '🗑️ Idioma personalizado removido.',
+            custlang_reverted_confirm:     'Voltou para o inglês.\nRecarregar a página agora?',
         },
         'fr': {
             langName: 'Français',
@@ -2986,6 +3168,32 @@
             sp_dock_reset_toast:        '🔓 Ancrage réinitialisé — panneau restauré',
             sp_importing_toast:         '⏳ Importation…',
             sp_rclick_tip_toast:        '💡 Astuce : faites un clic droit sur ce bouton pour télécharger tous les médias directement.',
+            sp_settings_imported_toast:    '✅ Paramètres importés.',
+            sp_settings_invalid_toast:     '❌ Fichier de paramètres invalide.',
+            sp_settings_reset_toast:       '✅ Paramètres réinitialisés aux valeurs par défaut.',
+            sp_bearer_saved_toast:         '✅ Jeton Bearer enregistré.',
+            sp_bearer_open_x_toast:        '⚠️ Ouvrez d\'abord Twitter / X, puis essayez la détection automatique.',
+            sp_bearer_detected_toast:      '✅ Jeton Bearer détecté et enregistré.',
+            sp_bearer_notfound_toast:      '⚠️ Introuvable dans les scripts de la page. Utilisez la méthode DevTools (cliquez sur ❓).',
+            sp_bearer_detect_failed_toast: '❌ Échec de la détection : {msg}',
+            hist_refreshed_toast:          '🔄 Historique actualisé · {count} enregistrement(s)',
+            sp_grp_created_toast:          '⭐ Créé « {label} · {name} »',
+            sp_grp_icon_toast:             'Icône → {label}',
+            sp_grp_renamed_toast:          'Renommé → {name}',
+            sp_grp_rename_prompt:          'Renommer le groupe :',
+            sp_import_failed_toast:        '❌ Échec de l\'importation : {msg}',
+            sp_dock_undock_right_toast:    '⚠️ Détachez d\'abord le côté droit avant d\'ancrer à gauche',
+            sp_dock_undock_left_toast:     '⚠️ Détachez d\'abord le côté gauche avant d\'ancrer à droite',
+            msg_dl_partial:                '⚠️ {ok} fichier(s) sur {total} téléchargé(s) ({fail} en échec).',
+            msg_dl_done:                   '✅ {total} fichier(s) téléchargé(s).',
+            sp_corner_pos_toast:           '📌 Coin → {label}',
+            sp_no_media_bookmark_confirm:  'Cette publication n\'a pas de média.\n\n"{text}"\n\nL\'enregistrer comme signet de texte pour la regrouper ?',
+            custlang_loaded_toast:         '✅ Langue chargée : {lang}',
+            custlang_loaded_confirm:       'Langue personnalisée « {lang} » chargée.\nRecharger la page maintenant pour l\'appliquer ?',
+            custlang_import_failed_alert:  '❌ Échec de l\'importation : {msg}\n\nVérifiez que le fichier est un JSON valide et contient le champ "langName".',
+            custlang_clear_confirm:        'Supprimer la langue personnalisée et revenir à l\'anglais ?',
+            custlang_cleared_toast:        '🗑️ Langue personnalisée supprimée.',
+            custlang_reverted_confirm:     'Retour à l\'anglais.\nRecharger la page maintenant ?',
         },
         'ru': {
             langName: 'Русский',
@@ -3302,6 +3510,32 @@
             sp_dock_reset_toast:        '🔓 Панель сброшена — восстановлена',
             sp_importing_toast:         '⏳ Импорт…',
             sp_rclick_tip_toast:        '💡 Совет: щёлкните правой кнопкой мыши по этой кнопке, чтобы скачать все медиа напрямую.',
+            sp_settings_imported_toast:    '✅ Настройки импортированы.',
+            sp_settings_invalid_toast:     '❌ Недопустимый файл настроек.',
+            sp_settings_reset_toast:       '✅ Настройки сброшены до значений по умолчанию.',
+            sp_bearer_saved_toast:         '✅ Bearer Token сохранён.',
+            sp_bearer_open_x_toast:        '⚠️ Сначала откройте Twitter / X, затем попробуйте автоопределение.',
+            sp_bearer_detected_toast:      '✅ Bearer Token найден и сохранён.',
+            sp_bearer_notfound_toast:      '⚠️ Не найден в скриптах страницы. Используйте способ через DevTools (нажмите ❓).',
+            sp_bearer_detect_failed_toast: '❌ Не удалось определить: {msg}',
+            hist_refreshed_toast:          '🔄 История обновлена · записей: {count}',
+            sp_grp_created_toast:          '⭐ Создано «{label} · {name}»',
+            sp_grp_icon_toast:             'Значок → {label}',
+            sp_grp_renamed_toast:          'Переименовано → {name}',
+            sp_grp_rename_prompt:          'Переименовать группу:',
+            sp_import_failed_toast:        '❌ Ошибка импорта: {msg}',
+            sp_dock_undock_right_toast:    '⚠️ Сначала открепите правую сторону, затем закрепляйте слева',
+            sp_dock_undock_left_toast:     '⚠️ Сначала открепите левую сторону, затем закрепляйте справа',
+            msg_dl_partial:                '⚠️ Загружено {ok} из {total} файлов (ошибок: {fail}).',
+            msg_dl_done:                   '✅ Загружено файлов: {total}.',
+            sp_corner_pos_toast:           '📌 Угол → {label}',
+            sp_no_media_bookmark_confirm:  'В этом посте нет медиа.\n\n"{text}"\n\nСохранить как текстовую закладку для группировки?',
+            custlang_loaded_toast:         '✅ Загружено: {lang}',
+            custlang_loaded_confirm:       'Пользовательский язык «{lang}» загружен.\nПерезагрузить страницу сейчас для применения?',
+            custlang_import_failed_alert:  '❌ Ошибка импорта: {msg}\n\nУбедитесь, что файл — корректный JSON и содержит поле "langName".',
+            custlang_clear_confirm:        'Удалить пользовательский язык и вернуться к английскому?',
+            custlang_cleared_toast:        '🗑️ Пользовательский язык удалён.',
+            custlang_reverted_confirm:     'Возврат к английскому.\nПерезагрузить страницу сейчас?',
         }
     };
 
@@ -3338,6 +3572,8 @@
 
     const CURRENT_LANG = getAppLanguage();
     const T = TR[CURRENT_LANG];
+
+    const _fmt = (tpl, vars) => String(tpl).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
 
     let _cachedDateFormat = GM_getValue(KEY_DATE_FORMAT, 'asian');
     function _refreshDateFormatCache() {
@@ -4106,12 +4342,12 @@
                         GM_deleteValue(KEY_ONBOARDING_DONE);
                         TR['custom'] = merged;
                         modal.remove();
-                        showToast(`✅ Loaded: ${merged.langName}`, 2500, 'success');
-                        if (confirm(`Custom language "${merged.langName}" loaded.\nReload page now to apply?`)) {
+                        showToast(_fmt(T.custlang_loaded_toast || '✅ Loaded: {lang}', { lang: merged.langName }), 2500, 'success');
+                        if (confirm(_fmt(T.custlang_loaded_confirm || 'Custom language "{lang}" loaded.\nReload page now to apply?', { lang: merged.langName }))) {
                             location.reload();
                         }
                     } catch(err) {
-                        alert(`❌ Import failed: ${err.message}\n\nMake sure the file is valid JSON and contains a "langName" field.`);
+                        alert(_fmt(T.custlang_import_failed_alert || '❌ Import failed: {msg}\n\nMake sure the file is valid JSON and contains a "langName" field.', { msg: err.message }));
                     }
                 };
                 reader.readAsText(file, 'UTF-8');
@@ -4142,13 +4378,13 @@
             clearBtn.onmouseenter = () => { clearBtn.style.background = C.clearHover; };
             clearBtn.onmouseleave = () => { clearBtn.style.background = C.clearBg; };
             clearBtn.onclick = () => {
-                if (!confirm('Remove custom language and revert to English?')) return;
+                if (!confirm(T.custlang_clear_confirm || 'Remove custom language and revert to English?')) return;
                 GM_deleteValue(KEY_CUSTOM_LANG);
                 GM_setValue(KEY_LANG, 'en');
                 delete TR['custom'];
                 modal.remove();
-                showToast('🗑️ Custom language cleared.', 2500, 'success');
-                if (confirm('Reverted to English.\nReload page now?')) location.reload();
+                showToast(T.custlang_cleared_toast || '🗑️ Custom language cleared.', 2500, 'success');
+                if (confirm(T.custlang_reverted_confirm || 'Reverted to English.\nReload page now?')) location.reload();
             };
             panel.appendChild(clearBtn);
         }
@@ -8881,7 +9117,7 @@
                         GM_setValue(KEY_GEAR_CORNER, c.value);
                         _animateWrapperToCorner(c.value);
                         wrapper.setAttribute('data-open', 'false');
-                        showToast('📌 Corner → ' + c.label);
+                        showToast(_fmt(T.sp_corner_pos_toast || '📌 Corner → {label}', { label: c.label }));
                         cornerGrid.querySelectorAll('button').forEach(b => {
                             const bv = b.dataset.cornerValue;
                             const bActive = bv === c.value;
@@ -9052,9 +9288,9 @@
                     Object.entries(data).forEach(([k, v]) => {
                         if (valid.has(k) && ['string', 'number', 'boolean'].includes(typeof v)) GM_setValue(k, v);
                     });
-                    showToast('✅ Settings imported.', 3000, 'success');
+                    showToast(T.sp_settings_imported_toast || '✅ Settings imported.', 3000, 'success');
                     createSettingsPanel();
-                } catch (_) { showToast('❌ Invalid settings file.', 3000, 'error'); }
+                } catch (_) { showToast(T.sp_settings_invalid_toast || '❌ Invalid settings file.', 3000, 'error'); }
             }
             const _ROW_CSS = `display:flex;align-items:center;padding:8px 14px;gap:8px;font:13px system-ui;color:${C.text};`;
             const _BTN_CSS = `padding:4px 10px;border-radius:6px;border:1px solid ${C.border};background:${C.inputBg};color:${C.text};cursor:pointer;font:12px system-ui;`;
@@ -9126,7 +9362,7 @@
                     scanAndInsert();
                 }
                 buildContent();
-                showToast('✅ Settings reset to defaults.', 2500, 'success');
+                showToast(T.sp_settings_reset_toast || '✅ Settings reset to defaults.', 2500, 'success');
             });
             resetRow.style.opacity = '0.7';
             resetRow.title = T.sp_tip_reset_defaults || 'Reset all settings to their default values (a confirmation dialog will list exactly what is affected).';
@@ -9304,7 +9540,7 @@
                 GM_setValue(KEY_CUSTOM_BEARER, _bearerRealVal);
                 _bearerLocked = true;
                 _syncBearerLock();
-                if (_bearerRealVal) showToast('✅ Bearer Token saved.', 2500, 'success');
+                if (_bearerRealVal) showToast(T.sp_bearer_saved_toast || '✅ Bearer Token saved.', 2500, 'success');
             });
             bearerEditBtn.addEventListener('click', () => {
                 _bearerLocked = false;
@@ -9315,7 +9551,7 @@
 
             bearerDetectBtn.addEventListener('click', async () => {
                 if (!_isTwitterDomain) {
-                    showToast('⚠️ Open Twitter / X first, then try auto-detect.', 3500, 'warning');
+                    showToast(T.sp_bearer_open_x_toast || '⚠️ Open Twitter / X first, then try auto-detect.', 3500, 'warning');
                     return;
                 }
                 const _origTxt = bearerDetectBtn.textContent;
@@ -9328,12 +9564,12 @@
                         GM_setValue(KEY_CUSTOM_BEARER, _bearerRealVal);
                         _bearerLocked = true;
                         _syncBearerLock();
-                        showToast('✅ Bearer Token detected and saved.', 3000, 'success');
+                        showToast(T.sp_bearer_detected_toast || '✅ Bearer Token detected and saved.', 3000, 'success');
                     } else {
-                        showToast('⚠️ Not found in page scripts. Use DevTools method (click ❓).', 4000, 'warning');
+                        showToast(T.sp_bearer_notfound_toast || '⚠️ Not found in page scripts. Use DevTools method (click ❓).', 4000, 'warning');
                     }
                 } catch (err) {
-                    showToast('❌ Detection failed: ' + err.message, 3000, 'error');
+                    showToast(_fmt(T.sp_bearer_detect_failed_toast || '❌ Detection failed: {msg}', { msg: err.message }), 3000, 'error');
                 } finally {
                     bearerDetectBtn.textContent = _origTxt;
                     bearerDetectBtn.disabled = false;
@@ -9639,7 +9875,7 @@
                 if (panel) {
                     panel.dispatchEvent(new CustomEvent('tm-hist-refresh'));
                     const count = _loadAllRecords().length;
-                    showToast(`🔄 History refreshed · ${count} record${count !== 1 ? 's' : ''}`);
+                    showToast(_fmt(T.hist_refreshed_toast || '🔄 History refreshed · {count} record(s)', { count }));
                 } else {
                     showHistoryPanel();
                 }
@@ -10678,7 +10914,7 @@
             StarPipState.pendingGroupRecordId = null;
         }
         StarPipState.pendingIsText = false;
-        showToast(`⭐ Created「${ic.label} · ${name}」`, 2500, 'success');
+        showToast(_fmt(T.sp_grp_created_toast || '⭐ Created「{label} · {name}」', { label: ic.label, name }), 2500, 'success');
 
         setTimeout(() => {
             if (document.getElementById('tm-star-pip')?.classList.contains('tm-popped')) {
@@ -10877,7 +11113,7 @@
                         const resolved = _resolveGroupIcon(newIc.id);
                         iconWrap.style.color = resolved.color;
                         iconWrap.innerHTML = resolved.svg;
-                        showToast(`Icon → ${resolved.label}`, 2500, 'success');
+                        showToast(_fmt(T.sp_grp_icon_toast || 'Icon → {label}', { label: resolved.label }), 2500, 'success');
                     });
                     wrapper.appendChild(picker);
                     _openIconPicker = picker;
@@ -10894,7 +11130,7 @@
                     else if (n !== g.name) {
                         const arr = getGroups();
                         const idx = arr.findIndex(x => x.id === g.id);
-                        if (idx > -1) { arr[idx].name = n; saveGroups(arr); g.name = n; showToast(`Renamed → ${n}`, 2500, 'success'); }
+                        if (idx > -1) { arr[idx].name = n; saveGroups(arr); g.name = n; showToast(_fmt(T.sp_grp_renamed_toast || 'Renamed → {name}', { name: n }), 2500, 'success'); }
                     }
                     nameInput.readOnly = true;
                     nameInput.style.borderColor = 'transparent';
@@ -13030,7 +13266,7 @@
                         };
                         menu.appendChild(mkItem('✏️', 'Rename', null, () => {
                             _dialogOpenGlobal = true;
-                            const newName = prompt('Rename group:', label);
+                            const newName = prompt(T.sp_grp_rename_prompt || 'Rename group:', label);
                             _dialogOpenGlobal = false;
                             if (!newName || !newName.trim()) return;
                             const arr = isTextTab ? getTextGroups() : getGroups();
@@ -13354,7 +13590,7 @@
                             : `✅ Imported ${addCount} new record(s)`, 2500, 'success');
                         render();
                     } catch (err) {
-                        showToast(`❌ Import failed: ${err.message}`, 2500, 'error');
+                        showToast(_fmt(T.sp_import_failed_toast || '❌ Import failed: {msg}', { msg: err.message }), 2500, 'error');
                     } finally {
                         input.remove();
                     }
@@ -15362,7 +15598,7 @@
             if (DockState.side === 'left') {
                 _exitDockMode();
             } else if (DockState.side === 'right') {
-                showToast('⚠️ Undock right side first before docking left', 2500, 'warning');
+                showToast(T.sp_dock_undock_right_toast || '⚠️ Undock right side first before docking left', 2500, 'warning');
             } else {
                 _dock('left');
             }
@@ -15372,7 +15608,7 @@
             if (DockState.side === 'right') {
                 _exitDockMode();
             } else if (DockState.side === 'left') {
-                showToast('⚠️ Undock left side first before docking right', 2500, 'warning');
+                showToast(T.sp_dock_undock_left_toast || '⚠️ Undock left side first before docking right', 2500, 'warning');
             } else {
                 _dock('right');
             }
@@ -18261,11 +18497,11 @@
                 const successCount = total - failCount;
                 if (failCount > 0) {
                     setMediaIcon('warn', `⚠️ ${successCount}/${total}`);
-                    showToast(`⚠️ Downloaded ${successCount} of ${total} files (${failCount} failed).`, 2500, 'warning');
+                    showToast(_fmt(T.msg_dl_partial || '⚠️ Downloaded {ok} of {total} files ({fail} failed).', { ok: successCount, total, fail: failCount }), 2500, 'warning');
                     if (succeededUrls.length) { recordHistory(info, succeededUrls, btn); fireMeteor(btn); }
                 } else {
                     setMediaIcon('ok', T.msg_downloaded, 'Downloaded', 'download');
-                    showToast(`✅ Downloaded ${total} file${total !== 1 ? 's' : ''}.`, 2500, 'success');
+                    showToast(_fmt(T.msg_dl_done || '✅ Downloaded {total} file(s).', { total }), 2500, 'success');
                     recordHistory(info, succeededUrls, btn);
                     fireMeteor(btn);
                 }
@@ -18413,11 +18649,10 @@
                     const info = getTweetInfo(article);
                     const rawText = article.querySelector('[data-testid="tweetText"]')?.innerText?.trim() || '';
                     _dialogOpenGlobal = true;
-                    const confirmed = confirm(
-                        `This post has no media.\n\n` +
-                        `"${rawText.slice(0, 100)}${rawText.length > 100 ? '…' : ''}"\n\n` +
-                        `Save it as a text bookmark for grouping?`
-                    );
+                    const confirmed = confirm(_fmt(
+                        T.sp_no_media_bookmark_confirm || 'This post has no media.\n\n"{text}"\n\nSave it as a text bookmark for grouping?',
+                        { text: rawText.slice(0, 100) + (rawText.length > 100 ? '…' : '') }
+                    ));
                     _dialogOpenGlobal = false;
                     if (!confirmed) return;
                     try {
@@ -18520,11 +18755,11 @@
                 const successCount = total - failCount;
                 if (failCount > 0) {
                     setMediaIcon('warn', `⚠️ ${successCount}/${total}`);
-                    showToast(`⚠️ Downloaded ${successCount} of ${total} files (${failCount} failed).`, 2500, 'warning');
+                    showToast(_fmt(T.msg_dl_partial || '⚠️ Downloaded {ok} of {total} files ({fail} failed).', { ok: successCount, total, fail: failCount }), 2500, 'warning');
                     if (succeededUrls.length) { recordHistory(info, succeededUrls, btn); fireMeteor(btn); }
                 } else {
                     setMediaIcon('ok', T.msg_downloaded, 'Downloaded', 'download');
-                    showToast(`✅ Downloaded ${total} file${total !== 1 ? 's' : ''}.`, 2500, 'success');
+                    showToast(_fmt(T.msg_dl_done || '✅ Downloaded {total} file(s).', { total }), 2500, 'success');
                     recordHistory(info, succeededUrls, btn);
                     fireMeteor(btn);
                 }
