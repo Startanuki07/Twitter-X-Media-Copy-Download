@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.3.4
+// @version      3.2.3.5
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -15534,48 +15534,50 @@
             if (_loadSentinelObserver) { _loadSentinelObserver.disconnect(); _loadSentinelObserver = null; }
         };
 
-        let _dragging = false, _dx = 0, _dy = 0;
+        let _stopDrag = null;
+        const _startMouseDrag = (onMove, onEnd) => {
+            if (_stopDrag) _stopDrag(false);
+            const move = (ev) => onMove(ev);
+            const finish = (notify) => {
+                document.removeEventListener('mousemove', move);
+                document.removeEventListener('mouseup', up);
+                _stopDrag = null;
+                if (notify) onEnd();
+            };
+            const up = () => finish(true);
+            _stopDrag = finish;
+            document.addEventListener('mousemove', move, _acSignal);
+            document.addEventListener('mouseup', up, _acSignal);
+        };
+
+        let _dx = 0, _dy = 0;
         titlebar.addEventListener('mousedown', (e) => {
             if (e.button !== 0 || e.target.classList.contains('tm-hist-icon-btn') || e.target.tagName === 'SELECT') return;
-            _dragging = true;
             _dx = e.clientX - panel.getBoundingClientRect().left;
             _dy = e.clientY - panel.getBoundingClientRect().top;
             e.preventDefault();
+            _startMouseDrag((ev) => {
+                let nx = ev.clientX - _dx;
+                let ny = ev.clientY - _dy;
+                nx = Math.max(0, Math.min(nx, window.innerWidth  - panel.offsetWidth));
+                ny = Math.max(0, Math.min(ny, window.innerHeight - 60));
+                panel.style.left = nx + 'px';
+                panel.style.top  = ny + 'px';
+            }, () => _savePos());
         });
-        document.addEventListener('mousemove', (e) => {
-            if (!_dragging) return;
-            let nx = e.clientX - _dx;
-            let ny = e.clientY - _dy;
-            nx = Math.max(0, Math.min(nx, window.innerWidth  - panel.offsetWidth));
-            ny = Math.max(0, Math.min(ny, window.innerHeight - 60));
-            panel.style.left = nx + 'px';
-            panel.style.top  = ny + 'px';
-        }, _acSignal);
-        document.addEventListener('mouseup', () => {
-            if (!_dragging) return;
-            _dragging = false;
-            _savePos();
-        }, _acSignal);
 
-        let _resizing = false, _rsx = 0, _rsy = 0, _rsw = 0, _rsh = 0;
+        let _rsx = 0, _rsy = 0, _rsw = 0, _rsh = 0;
         resizeHandle.addEventListener('mousedown', (e) => {
-            _resizing = true;
             _rsx = e.clientX; _rsy = e.clientY;
             _rsw = panel.offsetWidth; _rsh = panel.offsetHeight;
             e.preventDefault(); e.stopPropagation();
+            _startMouseDrag((ev) => {
+                const nw = Math.max(300, Math.min(_rsw + (ev.clientX - _rsx), 680));
+                const nh = Math.max(280, Math.min(_rsh + (ev.clientY - _rsy), window.innerHeight - 20));
+                panel.style.width  = nw + 'px';
+                panel.style.height = nh + 'px';
+            }, () => _savePos());
         });
-        document.addEventListener('mousemove', (e) => {
-            if (!_resizing) return;
-            const nw = Math.max(300, Math.min(_rsw + (e.clientX - _rsx), 680));
-            const nh = Math.max(280, Math.min(_rsh + (e.clientY - _rsy), window.innerHeight - 20));
-            panel.style.width  = nw + 'px';
-            panel.style.height = nh + 'px';
-        }, _acSignal);
-        document.addEventListener('mouseup', () => {
-            if (!_resizing) return;
-            _resizing = false;
-            _savePos();
-        }, _acSignal);
 
         const dockCtl = _createDockController({
             panel, render,
@@ -18282,6 +18284,7 @@
     function extractTweetUrl(article, baseUrl) {
         const candidates = [
             article.querySelector('a[href*="/status/"] > time')?.parentElement,
+            article.querySelector('a[href*="/status/"][aria-label]'),
             article.querySelector('a[href*="/status/"]'),
         ];
         for (const el of candidates) {
@@ -18972,7 +18975,7 @@
     }
 
     function insertCopyButton(article) {
-        if (!article.querySelector('time')) {
+        if (!article.querySelector('a[href*="/status/"]')) {
             article.querySelector(`.${BUTTON_CLASS}`)?.remove();
             article.querySelector('.custom-copy-icon')?.remove();
             return;
@@ -18992,7 +18995,7 @@
         const actions = Array.from(article.querySelectorAll('[role="group"]')).pop();
         if (!actions) return;
 
-        const _cloneSrc = Array.from(actions.children).reverse().find(_el => _el.hasAttribute('data-testid'))
+        const _cloneSrc = Array.from(actions.children).reverse().find(_el => _el.hasAttribute('data-testid') || _el.hasAttribute('data-engagement-action'))
             || Array.from(actions.children).reverse().find(_el => !_el.classList.contains(BUTTON_CLASS) && !_el.classList.contains('custom-copy-icon') && !_el.classList.contains('mtga-btn'))
             || actions.children[actions.children.length - 1];
         if (!_cloneSrc) return;
