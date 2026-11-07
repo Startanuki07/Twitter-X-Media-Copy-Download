@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.3.5
+// @version      3.2.3.6
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -16851,6 +16851,24 @@
         return results;
     }
 
+    function _createMouseDragger(signalOpts, target = window) {
+        let stop = null;
+        return function start(onMove, onEnd) {
+            if (stop) stop(false);
+            const move = (ev) => onMove(ev);
+            const finish = (notify) => {
+                target.removeEventListener('mousemove', move);
+                target.removeEventListener('mouseup', up);
+                stop = null;
+                if (notify) onEnd();
+            };
+            const up = () => finish(true);
+            stop = finish;
+            target.addEventListener('mousemove', move, signalOpts);
+            target.addEventListener('mouseup', up, signalOpts);
+        };
+    }
+
     let _lbPrevTeardown = null;
     function showImageLightbox(urls, videoUrls = null, openGallery = false, tweetInfo = null) {
         if (!urls.length) return;
@@ -17308,9 +17326,10 @@
             document.addEventListener('keydown', keyHandler);
 
             let _lbScale = 1;
-            let _lbDragActive = false, _lbDragStart = null, _lbTranslate = { x: 0, y: 0 };
+            let _lbDragStart = null, _lbTranslate = { x: 0, y: 0 };
             const _lbDragAC = new AbortController();
             _lbDragACRef = _lbDragAC;
+            const _lbDragger = _createMouseDragger({ signal: _lbDragAC.signal });
             const _lbResetTransform = () => {
                 _lbScale = 1; _lbTranslate = { x: 0, y: 0 };
                 img.style.transform = '';
@@ -17332,19 +17351,16 @@
             img.addEventListener('mousedown', e => {
                 if (_lbScale <= 1) return;
                 e.preventDefault(); e.stopPropagation();
-                _lbDragActive = true; _lbDragStart = { x: e.clientX - _lbTranslate.x, y: e.clientY - _lbTranslate.y };
+                _lbDragStart = { x: e.clientX - _lbTranslate.x, y: e.clientY - _lbTranslate.y };
                 img.style.cursor = 'grabbing';
+                _lbDragger(
+                    ev => {
+                        _lbTranslate = { x: ev.clientX - _lbDragStart.x, y: ev.clientY - _lbDragStart.y };
+                        _lbApplyTransform();
+                    },
+                    () => { if (_lbScale > 1) img.style.cursor = 'grab'; }
+                );
             });
-            window.addEventListener('mousemove', e => {
-                if (!_lbDragActive) return;
-                _lbTranslate = { x: e.clientX - _lbDragStart.x, y: e.clientY - _lbDragStart.y };
-                _lbApplyTransform();
-            }, { signal: _lbDragAC.signal });
-            window.addEventListener('mouseup', () => {
-                if (!_lbDragActive) return;
-                _lbDragActive = false;
-                if (_lbScale > 1) img.style.cursor = 'grab';
-            }, { signal: _lbDragAC.signal });
             img.addEventListener('dblclick', e => { e.stopPropagation(); _lbResetTransform(); });
             const { galleryBtn: gbA, panel: gpA, pill: pillA, updateSelected: updA, toggleGallery: tgA } = _buildGalleryUI(async (item, group) => {
                 await new Promise(r => setTimeout(r, 0));
@@ -17517,9 +17533,10 @@
             viewVidBtn.onclick = e => { e.stopPropagation(); closeLightbox(); showFloatingVideoPlayer(videoUrls, 0, urls, false, tweetInfo); };
         }
 
-        let _bZoom = 1, _bTx = 0, _bTy = 0, _bDragActive = false, _bDragStart = null;
+        let _bZoom = 1, _bTx = 0, _bTy = 0, _bDragStart = null;
         const _bDragAC = new AbortController();
         _lbBranchBDragAC = _bDragAC;
+        const _bDragger = _createMouseDragger({ signal: _bDragAC.signal });
 
         const _getZoomImg = () => {
             const fc = modal.querySelector('.tm-lb-card.tm-lb-focused');
@@ -17551,18 +17568,13 @@
         modal.addEventListener('mousedown', e => {
             if (_bZoom <= 1 || !e.target.closest('.tm-lb-card img')) return;
             e.preventDefault(); e.stopPropagation();
-            _bDragActive = true; _bDragStart = { x: e.clientX - _bTx, y: e.clientY - _bTy };
+            _bDragStart = { x: e.clientX - _bTx, y: e.clientY - _bTy };
             e.target.style.cursor = 'grabbing';
+            _bDragger(
+                ev => { _bTx = ev.clientX - _bDragStart.x; _bTy = ev.clientY - _bDragStart.y; _bApply(); },
+                () => { const img = _getZoomImg(); if (img && _bZoom > 1) img.style.cursor = 'grab'; }
+            );
         });
-        window.addEventListener('mousemove', e => {
-            if (!_bDragActive) return;
-            _bTx = e.clientX - _bDragStart.x; _bTy = e.clientY - _bDragStart.y; _bApply();
-        }, { signal: _bDragAC.signal });
-        window.addEventListener('mouseup', () => {
-            if (!_bDragActive) return;
-            _bDragActive = false;
-            const img = _getZoomImg(); if (img && _bZoom > 1) img.style.cursor = 'grab';
-        }, { signal: _bDragAC.signal });
 
         keyHandler = e => {
             if (_LB_SCROLL_KEYS.has(e.key)) e.preventDefault();
@@ -18284,7 +18296,6 @@
     function extractTweetUrl(article, baseUrl) {
         const candidates = [
             article.querySelector('a[href*="/status/"] > time')?.parentElement,
-            article.querySelector('a[href*="/status/"][aria-label]'),
             article.querySelector('a[href*="/status/"]'),
         ];
         for (const el of candidates) {
@@ -18975,7 +18986,7 @@
     }
 
     function insertCopyButton(article) {
-        if (!article.querySelector('a[href*="/status/"]')) {
+        if (!article.querySelector('time')) {
             article.querySelector(`.${BUTTON_CLASS}`)?.remove();
             article.querySelector('.custom-copy-icon')?.remove();
             return;
@@ -18995,7 +19006,7 @@
         const actions = Array.from(article.querySelectorAll('[role="group"]')).pop();
         if (!actions) return;
 
-        const _cloneSrc = Array.from(actions.children).reverse().find(_el => _el.hasAttribute('data-testid') || _el.hasAttribute('data-engagement-action'))
+        const _cloneSrc = Array.from(actions.children).reverse().find(_el => _el.hasAttribute('data-testid'))
             || Array.from(actions.children).reverse().find(_el => !_el.classList.contains(BUTTON_CLASS) && !_el.classList.contains('custom-copy-icon') && !_el.classList.contains('mtga-btn'))
             || actions.children[actions.children.length - 1];
         if (!_cloneSrc) return;
