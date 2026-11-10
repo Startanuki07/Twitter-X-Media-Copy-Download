@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.3.8
+// @version      3.2.3.10
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -793,6 +793,7 @@
             sp_bearer_detected_toast:      '✅ Bearer Token detected and saved.',
             sp_bearer_notfound_toast:      '⚠️ Not found in page scripts. Use DevTools method (click ❓).',
             sp_bearer_detect_failed_toast: '❌ Detection failed: {msg}',
+            sp_bearer_autoclean_toast:     '🧹 Removed hidden characters from your Bearer Token, then saved.',
             hist_refreshed_toast:          '🔄 History refreshed · {count} record(s)',
             sp_grp_created_toast:          '⭐ Created「{label} · {name}」',
             sp_grp_icon_toast:             'Icon → {label}',
@@ -1135,6 +1136,7 @@
             sp_bearer_detected_toast:      '✅ 已偵測並儲存 Bearer Token。',
             sp_bearer_notfound_toast:      '⚠️ 在頁面腳本中找不到。請改用開發者工具方式（點擊 ❓）。',
             sp_bearer_detect_failed_toast: '❌ 偵測失敗：{msg}',
+            sp_bearer_autoclean_toast:     '🧹 已自動移除 Bearer Token 中的隱藏字元並儲存。',
             hist_refreshed_toast:          '🔄 歷史紀錄已重新整理 · {count} 筆',
             sp_grp_created_toast:          '⭐ 已建立「{label} · {name}」',
             sp_grp_icon_toast:             '圖示 → {label}',
@@ -9526,10 +9528,15 @@
                 resize:none; height:58px; overflow-y:auto;
                 transition:opacity 0.15s;
             `;
-            let _bearerRealVal = GM_getValue(KEY_CUSTOM_BEARER, '');
+            const _bearerRawVal = GM_getValue(KEY_CUSTOM_BEARER, '');
+            let _bearerRealVal = _sanitizeHeaderValue(_bearerRawVal, 'custom bearer (load)');
+            if (_bearerRealVal !== _bearerRawVal) {
+                GM_setValue(KEY_CUSTOM_BEARER, _bearerRealVal);
+                showToast(T.sp_bearer_autoclean_toast || '🧹 Removed hidden characters from your Bearer Token, then saved.', 3500, 'warning');
+            }
             bearerTa.value = _bearerRealVal;
             bearerTa.addEventListener('change', () => {
-                if (!bearerTa.readOnly) _bearerRealVal = bearerTa.value.trim();
+                if (!bearerTa.readOnly) _bearerRealVal = _sanitizeHeaderValue(bearerTa.value.trim(), 'custom bearer (change)');
                 GM_setValue(KEY_CUSTOM_BEARER, _bearerRealVal);
             });
 
@@ -9547,11 +9554,16 @@
             _syncBearerLock();
 
             bearerApplyBtn.addEventListener('click', () => {
-                _bearerRealVal = bearerTa.value.trim();
+                const _rawInput = bearerTa.value.trim();
+                _bearerRealVal = _sanitizeHeaderValue(_rawInput, 'custom bearer (apply)');
                 GM_setValue(KEY_CUSTOM_BEARER, _bearerRealVal);
                 _bearerLocked = true;
                 _syncBearerLock();
-                if (_bearerRealVal) showToast(T.sp_bearer_saved_toast || '✅ Bearer Token saved.', 2500, 'success');
+                if (_bearerRealVal !== _rawInput) {
+                    showToast(T.sp_bearer_autoclean_toast || '🧹 Removed hidden characters from your Bearer Token, then saved.', 3500, 'warning');
+                } else if (_bearerRealVal) {
+                    showToast(T.sp_bearer_saved_toast || '✅ Bearer Token saved.', 2500, 'success');
+                }
             });
             bearerEditBtn.addEventListener('click', () => {
                 _bearerLocked = false;
@@ -9571,7 +9583,7 @@
                 try {
                     const found = await _scanMainJsForBearer();
                     if (found) {
-                        _bearerRealVal = found.trim();
+                        _bearerRealVal = _sanitizeHeaderValue(found.trim(), 'custom bearer (detect)');
                         GM_setValue(KEY_CUSTOM_BEARER, _bearerRealVal);
                         _bearerLocked = true;
                         _syncBearerLock();
@@ -18098,6 +18110,15 @@
         _circuitCooldown  = _CIRCUIT_BASE_COOLDOWN;
     }
 
+    function _sanitizeHeaderValue(value, fieldName) {
+        if (!value) return value;
+        const cleaned = value.replace(/[^\u0000-\u00FF]/g, '');
+        if (cleaned !== value) {
+            _log('TMApi', `_sanitizeHeaderValue: ${fieldName} 含非 ISO-8859-1 字元，已剝除（原長度 ${value.length} → ${cleaned.length}）`);
+        }
+        return cleaned;
+    }
+
     async function fetchTweetMediaFromAPI(statusId) {
         const _cacheHit = _apiVideoCache.get(statusId);
         if (_cacheHit && (Date.now() - _cacheHit.ts < _API_CACHE_TTL)) return { videos: _cacheHit.urls, images: [] };
@@ -18117,9 +18138,12 @@
 
             let url = `https://${location.hostname}/i/api/graphql/${_cachedGqlId}/TweetResultByRestId?variables=${encodeURIComponent(JSON.stringify(variables))}&features=${encodeURIComponent(JSON.stringify(features))}`;
 
-            let headers = { 'authorization': AUTH_TOKEN, 'x-twitter-active-user': 'yes' };
-            if (ct0) headers['x-csrf-token'] = ct0;
-            if (gt)  headers['x-guest-token'] = gt;
+            const _safeAuth = _sanitizeHeaderValue(AUTH_TOKEN, 'authorization');
+            const _safeCt0  = _sanitizeHeaderValue(ct0, 'ct0/x-csrf-token');
+            const _safeGt   = _sanitizeHeaderValue(gt,  'gt/x-guest-token');
+            let headers = { 'authorization': _safeAuth, 'x-twitter-active-user': 'yes' };
+            if (_safeCt0) headers['x-csrf-token']  = _safeCt0;
+            if (_safeGt)  headers['x-guest-token'] = _safeGt;
 
             const _fetchAC = new AbortController();
             const _fetchTimeout = setTimeout(() => _fetchAC.abort(), 8000);
