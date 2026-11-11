@@ -9,13 +9,14 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.3.10
+// @version      3.2.3.11
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitter.com
 // @match        https://twitter.com/*
 // @match        https://x.com/*
+// @exclude      *://x.com/i/grok
 // @grant        GM_setClipboard
 // @grant        unsafeWindow
 // @grant        GM_registerMenuCommand
@@ -1474,6 +1475,7 @@
             sp_settings_imported_toast:    '✅ 设置已导入。',
             sp_settings_invalid_toast:     '❌ 设置文件无效。',
             sp_settings_reset_toast:       '✅ 设置已重置为默认值。',
+            sp_bearer_autoclean_toast:     '🧹 已自动移除 Bearer Token 中的隐藏字符并保存。',
             sp_bearer_saved_toast:         '✅ Bearer Token 已保存。',
             sp_bearer_open_x_toast:        '⚠️ 请先打开 Twitter / X，再尝试自动检测。',
             sp_bearer_detected_toast:      '✅ 已检测并保存 Bearer Token。',
@@ -1816,6 +1818,7 @@
             sp_settings_imported_toast:    '✅ 設定をインポートしました。',
             sp_settings_invalid_toast:     '❌ 設定ファイルが無効です。',
             sp_settings_reset_toast:       '✅ 設定をデフォルトに戻しました。',
+            sp_bearer_autoclean_toast:     '🧹 Bearer Token から不可視文字を削除して保存しました。',
             sp_bearer_saved_toast:         '✅ Bearer Token を保存しました。',
             sp_bearer_open_x_toast:        '⚠️ 先に Twitter / X を開いてから、自動検出をお試しください。',
             sp_bearer_detected_toast:      '✅ Bearer Token を検出して保存しました。',
@@ -2158,6 +2161,7 @@
             sp_settings_imported_toast:    '✅ 설정을 가져왔습니다.',
             sp_settings_invalid_toast:     '❌ 올바르지 않은 설정 파일입니다.',
             sp_settings_reset_toast:       '✅ 설정이 기본값으로 재설정되었습니다.',
+            sp_bearer_autoclean_toast:     '🧹 Bearer Token에서 숨겨진 문자를 제거한 뒤 저장했습니다.',
             sp_bearer_saved_toast:         '✅ Bearer Token이 저장되었습니다.',
             sp_bearer_open_x_toast:        '⚠️ 먼저 Twitter / X를 연 다음 자동 감지를 시도하세요.',
             sp_bearer_detected_toast:      '✅ Bearer Token을 감지하여 저장했습니다.',
@@ -2500,6 +2504,7 @@
             sp_settings_imported_toast:    '✅ Configuración importada.',
             sp_settings_invalid_toast:     '❌ Archivo de configuración no válido.',
             sp_settings_reset_toast:       '✅ Configuración restablecida a los valores predeterminados.',
+            sp_bearer_autoclean_toast:     '🧹 Se eliminaron caracteres ocultos de tu Token Bearer y se guardó.',
             sp_bearer_saved_toast:         '✅ Token Bearer guardado.',
             sp_bearer_open_x_toast:        '⚠️ Abre primero Twitter / X y luego prueba la detección automática.',
             sp_bearer_detected_toast:      '✅ Token Bearer detectado y guardado.',
@@ -2842,6 +2847,7 @@
             sp_settings_imported_toast:    '✅ Configurações importadas.',
             sp_settings_invalid_toast:     '❌ Arquivo de configurações inválido.',
             sp_settings_reset_toast:       '✅ Configurações restauradas para o padrão.',
+            sp_bearer_autoclean_toast:     '🧹 Caracteres ocultos removidos do seu Token Bearer e salvo.',
             sp_bearer_saved_toast:         '✅ Token Bearer salvo.',
             sp_bearer_open_x_toast:        '⚠️ Abra primeiro o Twitter / X e depois tente a detecção automática.',
             sp_bearer_detected_toast:      '✅ Token Bearer detectado e salvo.',
@@ -3184,6 +3190,7 @@
             sp_settings_imported_toast:    '✅ Paramètres importés.',
             sp_settings_invalid_toast:     '❌ Fichier de paramètres invalide.',
             sp_settings_reset_toast:       '✅ Paramètres réinitialisés aux valeurs par défaut.',
+            sp_bearer_autoclean_toast:     '🧹 Caractères invisibles supprimés de votre Jeton Bearer, puis enregistré.',
             sp_bearer_saved_toast:         '✅ Jeton Bearer enregistré.',
             sp_bearer_open_x_toast:        '⚠️ Ouvrez d\'abord Twitter / X, puis essayez la détection automatique.',
             sp_bearer_detected_toast:      '✅ Jeton Bearer détecté et enregistré.',
@@ -3526,6 +3533,7 @@
             sp_settings_imported_toast:    '✅ Настройки импортированы.',
             sp_settings_invalid_toast:     '❌ Недопустимый файл настроек.',
             sp_settings_reset_toast:       '✅ Настройки сброшены до значений по умолчанию.',
+            sp_bearer_autoclean_toast:     '🧹 Скрытые символы удалены из Bearer Token, затем сохранён.',
             sp_bearer_saved_toast:         '✅ Bearer Token сохранён.',
             sp_bearer_open_x_toast:        '⚠️ Сначала откройте Twitter / X, затем попробуйте автоопределение.',
             sp_bearer_detected_toast:      '✅ Bearer Token найден и сохранён.',
