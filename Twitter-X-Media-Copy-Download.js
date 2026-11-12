@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.3.11
+// @version      3.2.3.12
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -10016,7 +10016,7 @@
     (() => {
         const _pageHistory = (typeof unsafeWindow !== 'undefined' && unsafeWindow) ? unsafeWindow.history : history;
         const _wrap = fn => _exportToPage(function(...args) {
-            const r = fn.apply(this, args);
+            const r = Reflect.apply(fn, this, args);
             try {
                 hideStarPip?.();
                 _scheduleNavScan();
@@ -18076,7 +18076,7 @@
             } else if (!_gqlIdMatch && url.includes('TweetResultByRestId')) {
                 _log('TMApi', 'TweetResultByRestId URL 結構不符預期 regex，自動更新失效，仍使用舊 ID:', _cachedGqlId, url);
             }
-            const promise = _origFetch.apply(this, args);
+            const promise = Reflect.apply(_origFetch, this, args);
             if (!isGraphQL) return promise;
             return promise.then(resp => {
                 try {
