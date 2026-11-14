@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.3.12
+// @version      3.2.3.13
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -40,6 +40,34 @@
 // @description:fr    Ajoute des boutons de copie et de téléchargement en un clic pour les médias et liens des tweets, et permet de restaurer l'ancienne grille de médias du profil. Inclut un panneau d'historique avec signets texte, groupes personnalisés, réorganisation par glisser-déposer, visionneuse entre éléments, modèles de nom de fichier, raccourcis /media depuis l'avatar et thèmes sombre/clair/personnalisé.
 // @description:ru    Добавляет кнопки копирования и скачивания в один клик для медиа и ссылок твитов, а также может восстановить старую сетку медиа в профиле. Панель истории с текстовыми закладками, группами, сортировкой перетаскиванием, лайтбоксом между элементами, именами файлов по шаблону, ярлыками /media из аватара, тёмной/светлой/пользовательской темой. Больше опций в настройках.
 // ==/UserScript==
+
+const _xrayWarned = new Set();
+const _xrayWarnOnce = (key, msg, err) => {
+    try {
+        if (_xrayWarned.has(key)) return;
+        _xrayWarned.add(key);
+        console.warn('[TMXray]', msg, ...(err ? [err] : []));
+    } catch (_) {  }
+};
+
+const _isFirefoxEnv = (() => {
+    try { return /\bFirefox\//.test(navigator.userAgent); } catch (_) { return false; }
+})();
+
+const _exportToPage = (fn, target, failClosed = false) => {
+    try {
+        if (typeof exportFunction === 'function') return exportFunction(fn, target);
+        if (_isFirefoxEnv) {
+            _xrayWarnOnce('no-export', 'exportFunction() is unavailable in this Firefox environment; page hooks (fetch/history/__INITIAL_STATE__) are installed without export and may stall X on load. Please report your userscript manager name and version.');
+        }
+    } catch (e) {
+        if (failClosed) throw e;
+        _xrayWarnOnce('export-failed', 'exportFunction() threw; falling back to the raw sandbox function.', e);
+    }
+    return fn;
+};
+
+const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
 (() => {
     "use strict";
@@ -74,9 +102,7 @@
             _gridState = disableMediaRedesign(_stateDescriptor.value);
         }
 
-        const _exportAccessor = (typeof exportFunction === 'function')
-            ? fn => exportFunction(fn, _pageWindow)
-            : fn => fn;
+        const _exportAccessor = fn => _exportToPage(fn, _pageWindow, true);
 
         Object.defineProperty(_pageWindow, '__INITIAL_STATE__', {
             configurable: true,
@@ -100,13 +126,6 @@
 
     const _log = (tag, msg, ...rest) => {
         try { console.warn(`[${tag}]`, msg, ...rest); } catch (_) {  }
-    };
-
-    const _exportToPage = (fn, target) => {
-        try {
-            if (typeof exportFunction === 'function') return exportFunction(fn, target);
-        } catch (_) {  }
-        return fn;
     };
 
     const GALLERY_PANEL_WIDTH = 212;
@@ -10016,7 +10035,7 @@
     (() => {
         const _pageHistory = (typeof unsafeWindow !== 'undefined' && unsafeWindow) ? unsafeWindow.history : history;
         const _wrap = fn => _exportToPage(function(...args) {
-            const r = Reflect.apply(fn, this, args);
+            const r = _callPageFn(fn, this, args);
             try {
                 hideStarPip?.();
                 _scheduleNavScan();
@@ -16233,7 +16252,7 @@
 
     async function forceDownloadBlob(url, filename, onProgress) {
         try {
-            const resp = await unsafeWindow.fetch(url, { credentials: 'omit' });
+            const resp = await fetch(url, { credentials: 'omit' });
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             const contentLength = parseInt(resp.headers.get('content-length') || '0', 10);
             const reader = resp.body.getReader();
@@ -18076,7 +18095,7 @@
             } else if (!_gqlIdMatch && url.includes('TweetResultByRestId')) {
                 _log('TMApi', 'TweetResultByRestId URL 結構不符預期 regex，自動更新失效，仍使用舊 ID:', _cachedGqlId, url);
             }
-            const promise = Reflect.apply(_origFetch, this, args);
+            const promise = _callPageFn(_origFetch, this, args);
             if (!isGraphQL) return promise;
             return promise.then(resp => {
                 try {
