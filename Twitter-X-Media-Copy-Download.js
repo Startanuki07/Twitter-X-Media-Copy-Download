@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.2.3.13
+// @version      3.3.0.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -470,6 +470,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         'sp_link_btn_visibility',
         'sp_media_btn_visibility',
         'cfn_token_dateparts',
+        'menu_zip_capsule',
     ];
 
     if (GM_getValue(KEY_SEEN_FEATURES, null) === null) {
@@ -646,6 +647,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             cma_slot_longpress:       'Long Press',
             cma_slot_mclick:          'Middle Click',
             cma_slot_rclick:          'Right Click',
+            cma_slot_hover:           'Hover {sec}s',
             cma_section_media:        '🎞️ Media Button',
             cma_section_link:         '🔗 Link Button',
             sp_media_icon_style: 'Icon Style',
@@ -669,6 +671,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             cma_action_copy_prefix:   'Copy with Prefix',
             cma_action_preview:       'Preview',
             cma_action_download_all:  'Download All',
+            cma_action_download_zip:  'Download All as ZIP',
+            msg_zip_too_large:        '⚠️ Too large to pack as ZIP (over {limit} MB). Use Download All instead.',
+            msg_zip_dom_only:         '⚠️ Could not load the full media list — only media visible on screen will be packed.',
             cma_action_copy_url:      'Copy Tweet URL',
             cma_action_save_bookmark: 'Save as Text Bookmark',
             cma_action_none:          'No Action',
@@ -993,6 +998,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             cma_slot_longpress:       '左鍵長按',
             cma_slot_mclick:          '中鍵',
             cma_slot_rclick:          '右鍵',
+            cma_slot_hover:           '懸停 {sec} 秒',
             cma_section_media:        '🎞️ 媒體按鈕',
             cma_section_link:         '🔗 連結按鈕',
             sp_media_icon_style: '圖示樣式',
@@ -1016,6 +1022,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             cma_action_copy_prefix:   '複製含前綴網址',
             cma_action_preview:       '預覽',
             cma_action_download_all:  '下載全部媒體',
+            cma_action_download_zip:  '下載全部媒體（ZIP）',
+            msg_zip_too_large:        '⚠️ 檔案總量過大（超過 {limit} MB），無法打包成 ZIP，請改用「下載全部媒體」。',
+            msg_zip_dom_only:         '⚠️ 無法取得完整媒體清單，只會打包畫面上已顯示的媒體。',
             cma_action_copy_url:      '複製推文網址',
             cma_action_save_bookmark: '另存為文字書籤',
             cma_action_none:          '無動作',
@@ -1336,6 +1345,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             cma_slot_longpress:       '左键长按',
             cma_slot_mclick:          '中键',
             cma_slot_rclick:          '右键',
+            cma_slot_hover:           '悬停 {sec} 秒',
             cma_section_media:        '🎞️ 媒体按钮',
             cma_section_link:         '🔗 链接按钮',
             sp_media_icon_style: '图标样式',
@@ -1359,6 +1369,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             cma_action_copy_prefix:   '复制含前缀网址',
             cma_action_preview:       '预览',
             cma_action_download_all:  '下载全部媒体',
+            cma_action_download_zip:  '下载全部媒体（ZIP）',
+            msg_zip_too_large:        '⚠️ 文件总量过大（超过 {limit} MB），无法打包成 ZIP，请改用“下载全部媒体”。',
+            msg_zip_dom_only:         '⚠️ 无法获取完整媒体列表，只会打包画面上已显示的媒体。',
             cma_action_copy_url:      '复制推文网址',
             cma_action_save_bookmark: '另存为文字书签',
             cma_action_none:          '无动作',
@@ -1679,6 +1692,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             cma_slot_longpress:       '長押し',
             cma_slot_mclick:          '中クリック',
             cma_slot_rclick:          '右クリック',
+            cma_slot_hover:           'ホバー {sec}秒',
             cma_section_media:        '🎞️ メディアボタン',
             cma_section_link:         '🔗 リンクボタン',
             sp_media_icon_style: 'アイコンスタイル',
@@ -1702,6 +1716,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             cma_action_copy_prefix:   '接頭辞付きでコピー',
             cma_action_preview:       'プレビュー',
             cma_action_download_all:  'すべてダウンロード',
+            cma_action_download_zip:  'すべてZIPでダウンロード',
+            msg_zip_too_large:        '⚠️ 合計サイズが大きすぎるためZIPにまとめられません（{limit} MB 超）。「すべてダウンロード」をご利用ください。',
+            msg_zip_dom_only:         '⚠️ メディアの全リストを取得できませんでした。画面に表示されているメディアのみをまとめます。',
             cma_action_copy_url:      'ツイートURLをコピー',
             cma_action_save_bookmark: 'テキストブックマークとして保存',
             cma_action_none:          '操作なし',
@@ -2022,6 +2039,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             cma_slot_longpress:       '길게 누르기',
             cma_slot_mclick:          '휠클릭',
             cma_slot_rclick:          '우클릭',
+            cma_slot_hover:           '마우스 오버 {sec}초',
             cma_section_media:        '🎞️ 미디어 버튼',
             cma_section_link:         '🔗 링크 버튼',
             sp_media_icon_style: '아이콘 스타일',
@@ -2045,6 +2063,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             cma_action_copy_prefix:   '접두사와 함께 복사',
             cma_action_preview:       '미리보기',
             cma_action_download_all:  '전체 다운로드',
+            cma_action_download_zip:  '전체 ZIP으로 다운로드',
+            msg_zip_too_large:        '⚠️ 총 용량이 너무 커서 ZIP으로 묶을 수 없습니다({limit} MB 초과). “전체 다운로드”를 이용해 주세요.',
+            msg_zip_dom_only:         '⚠️ 전체 미디어 목록을 불러오지 못해 화면에 표시된 미디어만 묶습니다.',
             cma_action_copy_url:      '트윗 URL 복사',
             cma_action_save_bookmark: '텍스트 북마크로 저장',
             cma_action_none:          '동작 없음',
@@ -2365,6 +2386,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             cma_slot_longpress:       'Pulsación larga',
             cma_slot_mclick:          'Clic central',
             cma_slot_rclick:          'Clic derecho',
+            cma_slot_hover:           'Cursor encima {sec} s',
             cma_section_media:        '🎞️ Botón de medios',
             cma_section_link:         '🔗 Botón de enlace',
             sp_media_icon_style: 'Estilo de icono',
@@ -2388,6 +2410,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             cma_action_copy_prefix:   'Copiar con prefijo',
             cma_action_preview:       'Vista previa',
             cma_action_download_all:  'Descargar todo',
+            cma_action_download_zip:  'Descargar todo en ZIP',
+            msg_zip_too_large:        '⚠️ Demasiado grande para empaquetar en ZIP (más de {limit} MB). Usa «Descargar todo».',
+            msg_zip_dom_only:         '⚠️ No se pudo cargar la lista completa; solo se empaquetarán los medios visibles en pantalla.',
             cma_action_copy_url:      'Copiar URL del tuit',
             cma_action_save_bookmark: 'Guardar como marcador de texto',
             cma_action_none:          'Sin acción',
@@ -2708,6 +2733,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             cma_slot_longpress:       'Pressão longa',
             cma_slot_mclick:          'Clique do meio',
             cma_slot_rclick:          'Clique direito',
+            cma_slot_hover:           'Mouse sobre {sec} s',
             cma_section_media:        '🎞️ Botão de mídia',
             cma_section_link:         '🔗 Botão de link',
             sp_media_icon_style: 'Estilo do ícone',
@@ -2731,6 +2757,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             cma_action_copy_prefix:   'Copiar com prefixo',
             cma_action_preview:       'Pré-visualizar',
             cma_action_download_all:  'Baixar tudo',
+            cma_action_download_zip:  'Baixar tudo em ZIP',
+            msg_zip_too_large:        '⚠️ Grande demais para compactar em ZIP (mais de {limit} MB). Use “Baixar tudo”.',
+            msg_zip_dom_only:         '⚠️ Não foi possível carregar a lista completa; apenas as mídias visíveis na tela serão compactadas.',
             cma_action_copy_url:      'Copiar URL do tweet',
             cma_action_save_bookmark: 'Salvar como marcador de texto',
             cma_action_none:          'Sem ação',
@@ -3051,6 +3080,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             cma_slot_longpress:       'Appui long',
             cma_slot_mclick:          'Clic central',
             cma_slot_rclick:          'Clic droit',
+            cma_slot_hover:           'Survol {sec} s',
             cma_section_media:        '🎞️ Bouton média',
             cma_section_link:         '🔗 Bouton lien',
             sp_media_icon_style: 'Style d\'icône',
@@ -3074,6 +3104,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             cma_action_copy_prefix:   'Copier avec préfixe',
             cma_action_preview:       'Aperçu',
             cma_action_download_all:  'Tout télécharger',
+            cma_action_download_zip:  'Tout télécharger en ZIP',
+            msg_zip_too_large:        '⚠️ Trop volumineux pour un ZIP (plus de {limit} Mo). Utilisez « Tout télécharger ».',
+            msg_zip_dom_only:         '⚠️ Impossible de charger la liste complète ; seuls les médias visibles à l’écran seront archivés.',
             cma_action_copy_url:      "Copier l'URL du tweet",
             cma_action_save_bookmark: 'Enregistrer comme signet texte',
             cma_action_none:          'Aucune action',
@@ -3394,6 +3427,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             cma_slot_longpress:       'Долгое нажатие',
             cma_slot_mclick:          'Средний клик',
             cma_slot_rclick:          'Правый клик',
+            cma_slot_hover:           'Наведение {sec} с',
             cma_section_media:        '🎞️ Кнопка медиа',
             cma_section_link:         '🔗 Кнопка ссылки',
             sp_media_icon_style: 'Стиль иконки',
@@ -3417,6 +3451,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             cma_action_copy_prefix:   'Скопировать с префиксом',
             cma_action_preview:       'Предпросмотр',
             cma_action_download_all:  'Скачать всё',
+            cma_action_download_zip:  'Скачать всё в ZIP',
+            msg_zip_too_large:        '⚠️ Слишком большой объём для ZIP (более {limit} МБ). Используйте «Скачать всё».',
+            msg_zip_dom_only:         '⚠️ Не удалось загрузить полный список; будут упакованы только медиа, видимые на экране.',
             cma_action_copy_url:      'Скопировать URL твита',
             cma_action_save_bookmark: 'Сохранить как текстовую закладку',
             cma_action_none:          'Без действия',
@@ -6429,10 +6466,10 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 animation: tm-fb-btn-flash 0.55s ease forwards;
             }
             @keyframes tm-anim-slide-up-text {
-                0%   { opacity: 0; transform: translateY(5px); }
-                28%  { opacity: 1; transform: translateY(0);   }
-                72%  { opacity: 1; transform: translateY(0);   }
-                100% { opacity: 0; transform: translateY(-4px); }
+                0%   { opacity: 0; transform: translateY(calc(-50% + 5px)); }
+                28%  { opacity: 1; transform: translateY(-50%);             }
+                72%  { opacity: 1; transform: translateY(-50%);             }
+                100% { opacity: 0; transform: translateY(calc(-50% - 4px)); }
             }
             .tm-anim-pop-text.tm-slide {
                 animation: tm-anim-slide-up-text 0.9s cubic-bezier(0.34,1.2,0.64,1) forwards;
@@ -15980,6 +16017,23 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 .tm-menu-item-icon { width: 16px; height: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; opacity: 0.85; }
                 .tm-menu-item-icon svg { width: 14px; height: 14px; display: block; overflow: visible; flex-shrink: 0; }
                 .tm-menu-divider { height: 1px; margin: 4px 0; background: var(--tm-menu-border); }
+                .tm-menu-item-trailing {
+                    position: relative;
+                    margin-left: auto; padding: 1px 8px; border-radius: 999px;
+                    font-size: 11px; font-weight: 600; line-height: 1.5;
+                    background: var(--tm-menu-hover);
+                    transition: background 0.1s, color 0.1s;
+                }
+                .tm-menu-item-trailing:hover { background: rgba(29,155,240,0.2); color: #1d9bf0; }
+                .tm-menu-new-dot {
+                    position: absolute; top: -3px; right: -3px;
+                    width: 7px; height: 7px; border-radius: 50%;
+                    background: #1d9bf0; pointer-events: none;
+                    animation: tm-sp-new-pulse 1.8s ease-in-out infinite;
+                }
+                @media (prefers-reduced-motion: reduce) {
+                    .tm-menu-new-dot { animation: none; }
+                }
                 @keyframes tm-icon-pop {
                     0%   { transform: scale(0.7); opacity: 0.5; }
                     55%  { transform: scale(1.22); }
@@ -16061,6 +16115,27 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             const lb = document.createElement('span');
             lb.textContent = item.label;
             row.appendChild(lb);
+            if (item.trailing) {
+                const tr = document.createElement('span');
+                tr.className = 'tm-menu-item-trailing';
+                tr.setAttribute('role', 'button');
+                tr.textContent = item.trailing.label;
+                if (item.trailing.title) tr.title = item.trailing.title;
+                const trFeatureId = item.trailing.featureId;
+                if (trFeatureId && isFeatureNew(trFeatureId)) {
+                    const dot = document.createElement('span');
+                    dot.className = 'tm-menu-new-dot';
+                    dot.setAttribute('aria-hidden', 'true');
+                    tr.appendChild(dot);
+                }
+                tr.addEventListener('click', e => {
+                    e.stopPropagation(); e.preventDefault();
+                    if (trFeatureId) markFeatureSeen(trFeatureId);
+                    close();
+                    item.trailing.action();
+                });
+                row.appendChild(tr);
+            }
             row.addEventListener('click', e => {
                 e.stopPropagation(); e.preventDefault();
                 close();
@@ -16228,6 +16303,115 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         return _ac;
     }
 
+    const _ZIP_POP_HOVER_DELAY = 700;
+    const _ZIP_POP_CLOSE_DELAY = 200;
+    const _ZIP_POP_SIZE        = 30;
+    const _ZIP_POP_GAP         = 6;
+    let _zipPop = null;
+
+    function _closeZipPop(immediate = false) {
+        const pop = _zipPop;
+        if (!pop) return;
+        _zipPop = null;
+        clearTimeout(pop.closeTimer);
+        pop.ac.abort();
+        pop.el.classList.remove('tm-zip-pop-in');
+        if (immediate) pop.el.remove();
+        else setTimeout(() => pop.el.remove(), 150);
+    }
+
+    function _scheduleZipPopClose(anchorEl) {
+        const pop = _zipPop;
+        if (!pop || pop.anchorEl !== anchorEl) return;
+        clearTimeout(pop.closeTimer);
+        pop.closeTimer = setTimeout(() => { if (_zipPop === pop) _closeZipPop(); }, _ZIP_POP_CLOSE_DELAY);
+    }
+
+    function _openZipPop(anchorEl, onZip) {
+        if (!anchorEl.isConnected) return;
+        if (_zipPop && _zipPop.anchorEl === anchorEl) { clearTimeout(_zipPop.closeTimer); return; }
+        _closeZipPop(true);
+
+        const dark = window.matchMedia('(prefers-color-scheme: dark)').matches
+                  || document.documentElement.style.colorScheme === 'dark'
+                  || document.documentElement.getAttribute('data-color-scheme') === 'dark';
+
+        if (!document.getElementById('tm-zip-pop-style')) {
+            const s = document.createElement('style');
+            s.id = 'tm-zip-pop-style';
+            s.textContent = `
+                .tm-zip-pop {
+                    position: fixed; z-index: 9999998;
+                    width: ${_ZIP_POP_SIZE}px; height: ${_ZIP_POP_SIZE}px;
+                    border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center;
+                    font-size: 15px; line-height: 1; cursor: pointer; user-select: none;
+                    opacity: 0; transform: translateY(10px) scale(0.5); transform-origin: 50% 100%;
+                    transition: opacity 0.14s ease-in, transform 0.14s ease-in, background 0.12s ease;
+                    pointer-events: none;
+                }
+                .tm-zip-pop.tm-zip-pop-below { transform: translateY(-10px) scale(0.5); transform-origin: 50% 0%; }
+                .tm-zip-pop.tm-zip-pop-in {
+                    opacity: 1; transform: translateY(0) scale(1); pointer-events: auto;
+                    transition: opacity 0.2s ease-out, transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.12s ease;
+                }
+                @media (prefers-reduced-motion: reduce) {
+                    .tm-zip-pop, .tm-zip-pop.tm-zip-pop-below, .tm-zip-pop.tm-zip-pop-in { transform: none; transition: opacity 0.1s linear; }
+                }
+                .tm-zip-pop:hover { background: rgba(29,155,240,0.22) !important; }
+            `;
+            document.head.appendChild(s);
+        }
+
+        const el = document.createElement('div');
+        el.className = 'tm-zip-pop';
+        el.setAttribute('role', 'button');
+        el.title = T.cma_action_download_zip || 'Download All as ZIP';
+        el.textContent = '📦';
+        el.style.background = dark ? '#1e2732' : '#fbf8f2';
+        el.style.border     = `1px solid ${dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)'}`;
+        el.style.boxShadow  = dark ? '0 4px 14px rgba(0,0,0,0.6)' : '0 4px 14px rgba(0,0,0,0.16)';
+
+        const r = anchorEl.getBoundingClientRect();
+        let top = r.top - _ZIP_POP_SIZE - _ZIP_POP_GAP;
+        if (top < 8) { top = r.bottom + _ZIP_POP_GAP; el.classList.add('tm-zip-pop-below'); }
+        const left = Math.max(8, Math.min(r.left + r.width / 2 - _ZIP_POP_SIZE / 2, window.innerWidth - _ZIP_POP_SIZE - 8));
+        el.style.left = left + 'px';
+        el.style.top  = top + 'px';
+
+        const pop = { el, anchorEl, closeTimer: null, ac: new AbortController() };
+        el.addEventListener('mouseenter', () => clearTimeout(pop.closeTimer));
+        el.addEventListener('mouseleave', () => _scheduleZipPopClose(anchorEl));
+        el.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); });
+        el.addEventListener('click', e => {
+            e.preventDefault(); e.stopPropagation();
+            _closeZipPop(true);
+            Promise.resolve(onZip()).catch(err => _log('TMZip', 'zip action failed:', err));
+        });
+        window.addEventListener('scroll', () => _closeZipPop(true), { capture: true, passive: true, signal: pop.ac.signal });
+
+        _zipPop = pop;
+        document.body.appendChild(el);
+        requestAnimationFrame(() => {
+            if (_zipPop !== pop) return;
+            void el.offsetWidth;
+            el.classList.add('tm-zip-pop-in');
+        });
+    }
+
+    function _bindClassicZipPop(anchorEl, onZip) {
+        let hoverTimer = null;
+        anchorEl.addEventListener('mouseenter', () => {
+            clearTimeout(hoverTimer);
+            if (_zipPop && _zipPop.anchorEl === anchorEl) { clearTimeout(_zipPop.closeTimer); return; }
+            hoverTimer = setTimeout(() => _openZipPop(anchorEl, onZip), _ZIP_POP_HOVER_DELAY);
+        });
+        anchorEl.addEventListener('mouseleave', () => {
+            clearTimeout(hoverTimer);
+            _scheduleZipPopClose(anchorEl);
+        });
+    }
+
     function createProgressRing() {
         const R = 8, C = +(2 * Math.PI * R).toFixed(4);
         const el = document.createElement('span');
@@ -16252,7 +16436,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
     async function forceDownloadBlob(url, filename, onProgress) {
         try {
-            const resp = await fetch(url, { credentials: 'omit' });
+            const resp = await _scriptFetch(url, { credentials: 'omit' });
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             const contentLength = parseInt(resp.headers.get('content-length') || '0', 10);
             const reader = resp.body.getReader();
@@ -16323,6 +16507,156 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 }
             });
         });
+    }
+
+    const _ZIP_SOFT_CAP_BYTES = 500 * 1024 * 1024;
+    const _ZIP_CONCURRENCY    = 4;
+
+    async function _scriptFetch(url, opts) {
+        try {
+            return await fetch(url, opts);
+        } catch (e) {
+            if (e && e.name === 'TypeError' && /illegal invocation/i.test(String(e.message))
+                && typeof unsafeWindow !== 'undefined' && typeof unsafeWindow.fetch === 'function') {
+                _log('TMApi', '_scriptFetch: sandbox fetch threw Illegal invocation, retrying with unsafeWindow as receiver');
+                return await unsafeWindow.fetch.call(unsafeWindow, url, opts);
+            }
+            throw e;
+        }
+    }
+
+    function _gmApiFetch(url, headers, timeoutMs) {
+        return new Promise((resolve, reject) => {
+            GM_xmlhttpRequest({
+                method: 'GET', url, headers, timeout: timeoutMs, responseType: 'text',
+                onload: (r) => resolve({
+                    ok: r.status >= 200 && r.status < 300,
+                    status: r.status,
+                    json: async () => JSON.parse(r.responseText),
+                }),
+                ontimeout: () => reject(Object.assign(new Error('GM api request timed out'), { name: 'AbortError' })),
+                onerror:   () => reject(new Error('GM api request failed')),
+            });
+        });
+    }
+
+    async function fetchMediaBlob(url, onProgress) {
+        try {
+            const resp = await _scriptFetch(url, { credentials: 'omit' });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const contentLength = parseInt(resp.headers.get('content-length') || '0', 10);
+            const reader = resp.body.getReader();
+            const chunks = [];
+            let received = 0;
+            if (onProgress) onProgress(contentLength > 0 ? 0 : null);
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                chunks.push(value);
+                received += value.length;
+                if (onProgress && contentLength > 0) onProgress(Math.round(received / contentLength * 100));
+            }
+            if (onProgress) onProgress(100);
+            return new Blob(chunks, { type: resp.headers.get('content-type') || 'application/octet-stream' });
+        } catch (fetchErr) {
+            _log('TMZip', 'fetchMediaBlob: fetch failed, falling back to GM_xmlhttpRequest:', fetchErr);
+        }
+        return await new Promise((resolve, reject) => {
+            GM_xmlhttpRequest({
+                method: 'GET', url, responseType: 'blob',
+                timeout: 120000,
+                onload: (r) => (r.status === 200 && r.response)
+                    ? resolve(r.response)
+                    : reject(new Error(`GM fallback HTTP ${r.status}`)),
+                ontimeout: () => reject(new Error('GM fallback timed out')),
+                onerror:   () => reject(new Error('GM fallback failed')),
+            });
+        });
+    }
+
+    const _ZIP_CRC_TABLE = (() => {
+        const t = new Uint32Array(256);
+        for (let n = 0; n < 256; n++) {
+            let c = n;
+            for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+            t[n] = c >>> 0;
+        }
+        return t;
+    })();
+    function _crc32(bytes) {
+        let c = 0xFFFFFFFF;
+        for (let i = 0; i < bytes.length; i++) c = _ZIP_CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+        return (c ^ 0xFFFFFFFF) >>> 0;
+    }
+
+    function _zipUniqueName(name, used) {
+        const dot  = name.lastIndexOf('.');
+        const stem = dot > 0 ? name.slice(0, dot) : name;
+        const ext  = dot > 0 ? name.slice(dot) : '';
+        let candidate = name, k = 2;
+        while (used.has(candidate.toLowerCase())) candidate = `${stem}_${k++}${ext}`;
+        used.add(candidate.toLowerCase());
+        return candidate;
+    }
+
+    async function _buildZipBlob(entries) {
+        if (entries.length > 0xFFFF) throw new Error('zip: too many entries');
+        const enc = new TextEncoder();
+        const now = new Date();
+        const dosTime = (now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1);
+        const dosDate = ((Math.max(now.getFullYear(), 1980) - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
+
+        const parts = [];
+        const central = [];
+        let offset = 0, cdSize = 0;
+
+        for (const { name, blob } of entries) {
+            const nameBytes = enc.encode(name);
+            const size = blob.size;
+            const crc  = _crc32(new Uint8Array(await blob.arrayBuffer()));
+
+            const lh = new DataView(new ArrayBuffer(30));
+            lh.setUint32(0,  0x04034b50, true);
+            lh.setUint16(4,  20, true);
+            lh.setUint16(6,  0x0800, true);
+            lh.setUint16(8,  0, true);
+            lh.setUint16(10, dosTime, true);
+            lh.setUint16(12, dosDate, true);
+            lh.setUint32(14, crc, true);
+            lh.setUint32(18, size, true);
+            lh.setUint32(22, size, true);
+            lh.setUint16(26, nameBytes.length, true);
+            lh.setUint16(28, 0, true);
+            parts.push(lh.buffer, nameBytes, blob);
+
+            const ch = new DataView(new ArrayBuffer(46));
+            ch.setUint32(0,  0x02014b50, true);
+            ch.setUint16(4,  20, true);
+            ch.setUint16(6,  20, true);
+            ch.setUint16(8,  0x0800, true);
+            ch.setUint16(10, 0, true);
+            ch.setUint16(12, dosTime, true);
+            ch.setUint16(14, dosDate, true);
+            ch.setUint32(16, crc, true);
+            ch.setUint32(20, size, true);
+            ch.setUint32(24, size, true);
+            ch.setUint16(28, nameBytes.length, true);
+            ch.setUint32(42, offset, true);
+            central.push(ch.buffer, nameBytes);
+
+            offset += 30 + nameBytes.length + size;
+            cdSize += 46 + nameBytes.length;
+        }
+        if (offset > 0xFFFFFFFF || cdSize > 0xFFFFFFFF) throw new Error('zip: exceeds ZIP32 limits');
+
+        const eocd = new DataView(new ArrayBuffer(22));
+        eocd.setUint32(0,  0x06054b50, true);
+        eocd.setUint16(8,  entries.length, true);
+        eocd.setUint16(10, entries.length, true);
+        eocd.setUint32(12, cdSize, true);
+        eocd.setUint32(16, offset, true);
+
+        return new Blob([...parts, ...central, eocd.buffer], { type: 'application/zip' });
     }
 
     let _vpPrevTeardown = null;
@@ -18176,7 +18510,13 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             const _fetchTimeout = setTimeout(() => _fetchAC.abort(), 8000);
             let res, json;
             try {
-                res = await fetch(url, { headers, signal: _fetchAC.signal });
+                try {
+                    res = await _scriptFetch(url, { headers, signal: _fetchAC.signal });
+                } catch (fe) {
+                    if (fe && fe.name === 'AbortError') throw fe;
+                    _log('TMApi', 'fetchTweetMediaFromAPI: fetch failed, falling back to GM_xmlhttpRequest:', fe);
+                    res = await _gmApiFetch(url, headers, 8000);
+                }
                 if (res.ok) json = await res.json();
             } catch (e) {
                 if (e.name === 'AbortError') _log('TMApi', 'fetchTweetMediaFromAPI timed out (8s)');
@@ -18328,20 +18668,22 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         }
 
         if (!apiSuccess) {
-            const _quotedImgSrcs = new Set(
-                Array.from(article.querySelectorAll('[data-testid="tweet"] img[src*="pbs.twimg.com"]')).map(img => img.src)
-            );
+            _log('TMApi', 'extractMediaUrls: API 無可用結果，退回 DOM 掃描（只看得到畫面上已渲染的媒體），statusId=', statusId);
             const _allImgSrcs = Array.from(article.querySelectorAll('img[src*="twimg.com"]'))
                 .map(img => img.src)
                 .filter(src => src.includes('pbs.twimg.com') && !src.includes('profile_images') && !src.includes('/emoji/') && !src.includes('twemoji'));
-            const _ownImgSrcs = _allImgSrcs.filter(src => !_quotedImgSrcs.has(src));
+            const _ownImgSrcs = statusId
+                ? Array.from(article.querySelectorAll(`a[href*="/status/${statusId}/photo/"] img[src*="pbs.twimg.com"]`)).map(img => img.src)
+                : [];
             (_ownImgSrcs.length ? _ownImgSrcs : _allImgSrcs).forEach(addImageUrl);
 
             const videos = await extractVideoUrl(article);
             videos.forEach(v => uniqueMedias.set(v, v));
         }
 
-        return Array.from(uniqueMedias.values());
+        const result = Array.from(uniqueMedias.values());
+        result.fromDom = !apiSuccess;
+        return result;
     }
 
     function extractTweetUrl(article, baseUrl) {
@@ -18407,6 +18749,15 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 if (anchorEl._actionToast === toast) anchorEl._actionToast = null;
             }, 200);
         }, 1500);
+    }
+    function _getSlidePillBase() {
+        try {
+            for (const el of [document.body, document.documentElement]) {
+                const bg = el && getComputedStyle(el).backgroundColor;
+                if (bg && bg !== 'transparent' && !/^rgba\(.*,\s*0\)$/.test(bg)) return bg;
+            }
+        } catch (_) {}
+        return '';
     }
     const _LINK_ACTION_LABELS = {
         copy_url:           T.cma_action_copy_url     || 'Copy Tweet URL',
@@ -18475,10 +18826,15 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 btn.innerHTML = SVG_DL;
             } else if (state === 'ok') {
                 if (fbStyle === 'slide') {
+                    btn.querySelectorAll('.tm-anim-pop-text').forEach(n => n.remove());
+                    Array.from(btn.children).forEach(c => {
+                        if (!c.classList.contains('tm-media-dl-dot')) c.classList.add('tm-slide-hide');
+                    });
                     const span = document.createElement('span');
                     span.className = 'tm-anim-pop-text tm-slide';
                     span.textContent = getFeedbackText() || 'Copied';
-                    btn.innerHTML = '';
+                    const _pillBase = _getSlidePillBase();
+                    if (_pillBase) span.style.backgroundColor = _pillBase;
                     btn.appendChild(span);
                     span.addEventListener('animationend', () => setMediaIcon('default'), { once: true });
                 } else if (fbStyle === 'pulse') {
@@ -18574,6 +18930,104 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 setTimeout(() => setMediaIcon('default'), 2000);
             };
 
+            const _downloadAllAsZip = async () => {
+                const urls = await extractMediaUrls(article);
+                if (!urls.length) { setMediaIcon('msg', T.msg_no_media, 'No Media'); setTimeout(() => setMediaIcon('default'), 1500); return; }
+                const info = getTweetInfo(article);
+                setMediaIcon('dl');
+                const ring = createProgressRing();
+                ring.el.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;';
+                btn.appendChild(ring.el);
+
+                if (urls.fromDom) showToast(T.msg_zip_dom_only || '⚠️ Could not load the full media list — only media visible on screen will be packed.', 4500, 'warning');
+
+                const total = urls.length;
+                const blobs = new Array(total).fill(null);
+                const pcts  = new Array(total).fill(0);
+                const _refreshRing = () => ring.update(Math.round(pcts.reduce((a, b) => a + b, 0) / total));
+                let nextIdx = 0, failCount = 0, totalBytes = 0, tooLarge = false;
+
+                const worker = async () => {
+                    while (!tooLarge) {
+                        const i = nextIdx++;
+                        if (i >= total) return;
+                        try {
+                            const blob = await fetchMediaBlob(urls[i], (pct) => { pcts[i] = pct === null ? 0 : pct; _refreshRing(); });
+                            totalBytes += blob.size;
+                            if (totalBytes > _ZIP_SOFT_CAP_BYTES) { tooLarge = true; return; }
+                            blobs[i] = blob;
+                        } catch (err) {
+                            failCount++;
+                            _log('TMZip', 'downloadZip failed for one file:', err);
+                        }
+                        pcts[i] = 100; _refreshRing();
+                    }
+                };
+                await Promise.all(Array.from({ length: Math.min(_ZIP_CONCURRENCY, total) }, worker));
+
+                if (tooLarge) {
+                    blobs.fill(null);
+                    ring.remove();
+                    setMediaIcon('warn', '⚠️ ZIP');
+                    showToast(_fmt(T.msg_zip_too_large || '⚠️ Too large to pack as ZIP (over {limit} MB). Use Download All instead.', { limit: Math.round(_ZIP_SOFT_CAP_BYTES / 1048576) }), 4000, 'warning');
+                    setTimeout(() => setMediaIcon('default'), 2000);
+                    return;
+                }
+
+                const _showZipFailure = () => {
+                    ring.remove();
+                    setMediaIcon('warn', `⚠️ 0/${total}`);
+                    showToast(_fmt(T.msg_dl_partial || '⚠️ Downloaded {ok} of {total} files ({fail} failed).', { ok: 0, total, fail: total }), 2500, 'warning');
+                    setTimeout(() => setMediaIcon('default'), 2000);
+                };
+
+                const usedNames = new Set();
+                const entries = [];
+                const succeededUrls = [];
+                blobs.forEach((blob, i) => {
+                    if (!blob) return;
+                    entries.push({ name: _zipUniqueName(_lbFilename(urls[i], i + 1, info), usedNames), blob });
+                    succeededUrls.push(urls[i]);
+                });
+                if (!entries.length) { _showZipFailure(); return; }
+
+                let zipBlob;
+                try {
+                    zipBlob = await _buildZipBlob(entries);
+                } catch (err) {
+                    _log('TMZip', 'buildZipBlob failed:', err);
+                    _showZipFailure();
+                    return;
+                }
+
+                const safeDisplay = sanitizeForFilename(info.displayName);
+                const safeScreen  = sanitizeForFilename(info.screenName);
+                const zipName = `[twitter] ${safeDisplay}(@${safeScreen})_${info.date}_${info.id}.zip`;
+                const _URL = window.URL || window.webkitURL;
+                const blobUrl = _URL.createObjectURL(zipBlob);
+                const tag = document.createElement('a');
+                tag.style.display = 'none';
+                tag.href = blobUrl;
+                tag.download = zipName;
+                document.body.appendChild(tag);
+                tag.click();
+                document.body.removeChild(tag);
+                setTimeout(() => _URL.revokeObjectURL(blobUrl), 60000);
+
+                ring.remove();
+                const successCount = entries.length;
+                if (failCount > 0) {
+                    setMediaIcon('warn', `⚠️ ${successCount}/${total}`);
+                    showToast(_fmt(T.msg_dl_partial || '⚠️ Downloaded {ok} of {total} files ({fail} failed).', { ok: successCount, total, fail: failCount }), 2500, 'warning');
+                } else {
+                    setMediaIcon('ok', T.msg_downloaded, 'Downloaded', 'download');
+                    showToast(_fmt(T.msg_dl_done || '✅ Downloaded {total} file(s).', { total }), 2500, 'success');
+                }
+                recordHistory(info, succeededUrls, btn);
+                fireMeteor(btn);
+                setTimeout(() => setMediaIcon('default'), 2000);
+            };
+
             const _getMediaItems = () => {
                 return [
                 {
@@ -18593,6 +19047,12 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M2 12v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1"/></svg>`,
                     label: T.cma_action_download_all || 'Download All',
                     action: _doDownloadAll,
+                    trailing: {
+                        label: '📦.zip',
+                        title: T.cma_action_download_zip || 'Download All as ZIP',
+                        featureId: 'menu_zip_capsule',
+                        action: _downloadAllAsZip,
+                    },
                 },
                 'divider',
                 {
@@ -18840,6 +19300,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             copyPrefix: _mediaActionCopyPrefix,
             preview: _mediaActionPreview,
             downloadAll: _mediaActionDownloadAll,
+            downloadZip: _downloadAllAsZip,
         };
     }
 
@@ -18876,10 +19337,13 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
                 if (state === 'ok') {
                     if (fbStyle === 'slide') {
+                        icon.querySelectorAll('.tm-anim-pop-text').forEach(n => n.remove());
+                        Array.from(icon.children).forEach(c => c.classList.add('tm-slide-hide'));
                         const span = document.createElement('span');
                         span.className = 'tm-anim-pop-text tm-slide';
                         span.textContent = silentText || extra || 'Copied';
-                        icon.innerHTML = '';
+                        const _pillBase = _getSlidePillBase();
+                        if (_pillBase) span.style.backgroundColor = _pillBase;
                         icon.appendChild(span);
                         span.addEventListener('animationend', () => setLinkIcon('default'), { once: true });
                     } else if (fbStyle === 'pulse') {
@@ -19090,7 +19554,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     font-weight: 700;
                     font-size: 13px;
                     font-family: system-ui, -apple-system, sans-serif;
-                    background: rgba(128, 128, 128, 0.2);
+                    background-image: linear-gradient(rgba(128, 128, 128, 0.2), rgba(128, 128, 128, 0.2));
                     backdrop-filter: blur(4px);
                     padding: 5px 12px;
                     border-radius: 9999px;
@@ -19099,6 +19563,8 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     pointer-events: none;
                     animation: tm-pop-bounce-text 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
                 }
+                .tm-slide-hide { visibility: hidden; }
+                .${BUTTON_CLASS}:has(> .tm-anim-pop-text), .custom-copy-icon:has(> .tm-anim-pop-text) { opacity: 1; }
             `;
             document.head.appendChild(s);
         }
@@ -19153,6 +19619,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     `${_LINK_SLOT_LABELS.longpress}: ${labelFor(map.longpress)}`,
                     `${_LINK_SLOT_LABELS.mclick}: ${labelFor(map.mclick)}`,
                     `${_LINK_SLOT_LABELS.rclick}: ${labelFor(map.rclick)}`,
+                    `${_fmt(T.cma_slot_hover || 'Hover {sec}s', { sec: _ZIP_POP_HOVER_DELAY / 1000 })}: 📦 ${T.cma_action_download_zip || 'Download All as ZIP'}`,
                 ].join('\n');
             });
 
@@ -19196,6 +19663,8 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 const map = _getCustomMediaActions();
                 await (_MEDIA_ACTION_REGISTRY[map.rclick] || _mediaActionDownloadAll)();
             });
+
+            _bindClassicZipPop(btn, mediaCtl.downloadZip);
         }
 
         const LINK_BTN_CLASS = 'custom-copy-icon';
