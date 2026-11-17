@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.3.0.0
+// @version      3.3.0.2
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -17393,6 +17393,32 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         let focused = 0;
         let _rafId = null;
 
+        const _lbTiered = total > 4;
+        let _lbLargeIdx = _lbTiered ? focused : -1;
+        let _lbTierTimer = null;
+        const _lbImgSrc = (url, tier) => {
+            if (!_lbTiered) return url;
+            try {
+                if (url.includes('pbs.twimg.com') && url.includes('/media/')) {
+                    const u = new URL(url);
+                    u.searchParams.set('name', tier);
+                    return u.toString();
+                }
+            } catch (_) {}
+            return url;
+        };
+        const _lbApplyTier = i => {
+            const im = cards[i] && cards[i].querySelector('img');
+            const next = _lbImgSrc(urls[i], _lbLargeIdx === i ? 'large' : 'medium');
+            if (!im || im.src === next) return;
+            const pre = new Image();
+            pre.src = next;
+            pre.decode().then(() => {
+                if (!modal.isConnected) return;
+                if (_lbImgSrc(urls[i], _lbLargeIdx === i ? 'large' : 'medium') === next) im.src = next;
+            }).catch(() => {});
+        };
+
         const VW = window.innerWidth;
         const VH = window.innerHeight;
         const CARD_W = Math.min(VW * 0.50, 580);
@@ -17485,6 +17511,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
         const _teardownLbListeners = () => {
             document.removeEventListener('keydown', keyHandler);
+            clearTimeout(_lbTierTimer);
             if (_lbDragACRef) { _lbDragACRef.abort(); _lbDragACRef = null; }
             if (_lbBranchBDragAC) { _lbBranchBDragAC.abort(); _lbBranchBDragAC = null; }
         };
@@ -17494,6 +17521,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             modal.classList.remove('tm-lb-in');
             setTimeout(() => { modal.remove(); }, 220);
             document.removeEventListener('keydown', keyHandler);
+            clearTimeout(_lbTierTimer);
             if (_lbDragACRef) { _lbDragACRef.abort(); _lbDragACRef = null; }
             if (_lbBranchBDragAC) { _lbBranchBDragAC.abort(); _lbBranchBDragAC = null; }
             _dialogOpenGlobal = false;
@@ -17807,7 +17835,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 opacity: 0;
             `;
             const img = document.createElement('img');
-            img.src = url;
+            img.src = _lbImgSrc(url, i === focused ? 'large' : 'medium');
             img.decoding = 'async';
             img.loading = i === 0 ? 'eager' : 'lazy';
             img.draggable = false;
@@ -18024,6 +18052,16 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 dot.style.transform = i === focused ? 'scale(1.4)' : 'scale(1)';
             });
             counter.textContent = `${focused + 1} / ${total}`;
+            if (_lbTiered && _lbLargeIdx !== focused) {
+                clearTimeout(_lbTierTimer);
+                if (_lbLargeIdx !== -1) { const _prev = _lbLargeIdx; _lbLargeIdx = -1; _lbApplyTier(_prev); }
+                const _idx = focused;
+                _lbTierTimer = setTimeout(() => {
+                    if (_idx !== focused) return;
+                    _lbLargeIdx = _idx;
+                    _lbApplyTier(_idx);
+                }, 420);
+            }
             qaBtnsB.classList.remove('tm-qa-show');
             _updateQABPosition();
         }
