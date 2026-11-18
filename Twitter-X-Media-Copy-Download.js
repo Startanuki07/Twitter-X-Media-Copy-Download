@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.3.0.2
+// @version      3.3.1.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -439,6 +439,10 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         'Reload page now to apply?';
     const KEY_HISTORY_PREFIX    = 'app_history_m_';
     const KEY_HISTORY_INDEX     = 'app_history_index';
+    const KEY_LB_MOSAIC_NUMBERS = 'app_lb_mosaic_numbers';
+    const KEY_LB_MOSAIC_GAP_X   = 'app_lb_mosaic_gap_x';
+    const KEY_LB_MOSAIC_GAP_Y   = 'app_lb_mosaic_gap_y';
+    const KEY_LB_MOSAIC_RADIUS  = 'app_lb_mosaic_radius';
 
     const NEW_FEATURE_IDS = [
         'history_panel',
@@ -471,6 +475,8 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         'sp_media_btn_visibility',
         'cfn_token_dateparts',
         'menu_zip_capsule',
+        'menu_preview_lightbox',
+        'lb_mosaic_overview',
     ];
 
     if (GM_getValue(KEY_SEEN_FEATURES, null) === null) {
@@ -9347,6 +9353,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 KEY_CUSTOM_THEME_ENABLED, KEY_CUSTOM_THEME_COLORS,
                 KEY_LINK_ICON_STYLE, KEY_MEDIA_ICON_STYLE, KEY_SP_GROUP_OPEN,
                 KEY_SHOW_LINK_BTN, KEY_SHOW_MEDIA_BTN,
+                KEY_LB_MOSAIC_NUMBERS, KEY_LB_MOSAIC_GAP_X, KEY_LB_MOSAIC_GAP_Y, KEY_LB_MOSAIC_RADIUS,
             ];
             function _exportSettings() {
                 const snap = {};
@@ -9428,6 +9435,8 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     KEY_HISTORY_VIEW_MODE,
                     KEY_SCAN_INTERVAL,
                     KEY_SHOW_LINK_BTN, KEY_SHOW_MEDIA_BTN,
+                    KEY_LB_MOSAIC_NUMBERS,
+                    KEY_LB_MOSAIC_GAP_X, KEY_LB_MOSAIC_GAP_Y, KEY_LB_MOSAIC_RADIUS,
                 ];
                 RESET_KEYS.forEach(k => GM_deleteValue(k));
                 GM_setValue(KEY_SEEN_FEATURES, JSON.stringify(NEW_FEATURE_IDS));
@@ -16034,6 +16043,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 @media (prefers-reduced-motion: reduce) {
                     .tm-menu-new-dot { animation: none; }
                 }
+                .tm-menu-new-dot.tm-menu-new-dot--inline { position: static; flex-shrink: 0; margin-left: -4px; }
                 @keyframes tm-icon-pop {
                     0%   { transform: scale(0.7); opacity: 0.5; }
                     55%  { transform: scale(1.22); }
@@ -16115,6 +16125,12 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             const lb = document.createElement('span');
             lb.textContent = item.label;
             row.appendChild(lb);
+            if (item.featureId && isFeatureNew(item.featureId)) {
+                const rowDot = document.createElement('span');
+                rowDot.className = 'tm-menu-new-dot tm-menu-new-dot--inline';
+                rowDot.setAttribute('aria-hidden', 'true');
+                row.appendChild(rowDot);
+            }
             if (item.trailing) {
                 const tr = document.createElement('span');
                 tr.className = 'tm-menu-item-trailing';
@@ -16138,6 +16154,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             }
             row.addEventListener('click', e => {
                 e.stopPropagation(); e.preventDefault();
+                if (item.featureId) markFeatureSeen(item.featureId);
                 close();
                 item.action();
             });
@@ -17277,16 +17294,94 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 #tm-image-lightbox .tm-lb-card { box-shadow: 0 12px 36px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.07); }
                 #tm-image-lightbox .tm-lb-card.tm-lb-focused { box-shadow: 0 28px 80px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.18); }
 
-                #tm-lb-gallery-btn {
+                #tm-lb-gallery-btn, #tm-lb-mosaic-btn {
                     position: absolute; top: 20px; right: 75px;
                     background: rgba(0,0,0,0.6); color: rgba(255,255,255,0.85); border: none;
                     width: 40px; height: 40px; border-radius: 50%;
                     cursor: pointer; display: flex; align-items: center; justify-content: center;
                     transition: background 0.2s, right 0.25s ease; z-index: 31;
                 }
-                #tm-lb-gallery-btn:hover        { background: rgba(255,255,255,0.25); }
-                #tm-lb-gallery-btn.tm-gb-active { background: rgba(29,155,240,0.75); }
-                #tm-lb-gallery-btn.tm-gb-active:hover { background: rgba(29,155,240,1); }
+                #tm-lb-mosaic-btn { right: 125px; }
+                #tm-lb-gallery-btn:hover, #tm-lb-mosaic-btn:hover { background: rgba(255,255,255,0.25); }
+                #tm-lb-gallery-btn.tm-gb-active, #tm-lb-mosaic-btn.tm-gb-active { background: rgba(29,155,240,0.75); }
+                #tm-lb-gallery-btn.tm-gb-active:hover, #tm-lb-mosaic-btn.tm-gb-active:hover { background: rgba(29,155,240,1); }
+                #tm-lb-mosaic-btn .tm-lb-new-dot {
+                    position: absolute; top: 2px; left: 2px;
+                    width: 8px; height: 8px; border-radius: 50%;
+                    background: #1d9bf0; pointer-events: none;
+                    animation: tm-sp-new-pulse 1.8s ease-in-out infinite;
+                }
+                @media (prefers-reduced-motion: reduce) {
+                    #tm-lb-mosaic-btn .tm-lb-new-dot { animation: none; }
+                }
+
+                #tm-image-lightbox .tm-lb-mosaic {
+                    position: absolute; inset: 0; z-index: 29;
+                    background: rgba(6,6,10,0.95);
+                    opacity: 0; transition: opacity 0.16s ease;
+                }
+                #tm-image-lightbox .tm-lb-mosaic.tm-mo-in { opacity: 1; }
+                #tm-image-lightbox .tm-lb-mosaic-grid { position: absolute; }
+                #tm-image-lightbox .tm-lb-mosaic-tile {
+                    position: absolute; overflow: hidden; border-radius: var(--tm-mo-radius, 6px);
+                    background: #15151a; cursor: pointer;
+                    outline: 2px solid transparent; outline-offset: -2px;
+                }
+                #tm-image-lightbox .tm-lb-mosaic.tm-mo-ready .tm-lb-mosaic-tile {
+                    transition: left 0.22s ease, top 0.22s ease, width 0.22s ease, height 0.22s ease;
+                }
+                #tm-image-lightbox .tm-lb-mosaic-tile img {
+                    width: 100%; height: 100%; object-fit: cover; display: block;
+                    pointer-events: none; user-select: none;
+                }
+                #tm-image-lightbox .tm-lb-mosaic-tile:hover { outline-color: rgba(255,255,255,0.55); }
+                #tm-image-lightbox .tm-lb-mosaic-tile.tm-mo-cur { outline-color: rgba(29,155,240,0.95); }
+                #tm-image-lightbox .tm-lb-mosaic-num {
+                    position: absolute; left: max(6px, calc(var(--tm-mo-radius, 6px) * 0.3)); bottom: max(6px, calc(var(--tm-mo-radius, 6px) * 0.3));
+                    min-width: 18px; padding: 0 5px; height: 18px; border-radius: 9px;
+                    background: rgba(0,0,0,0.6); color: rgba(255,255,255,0.9);
+                    font: 600 11px/18px system-ui, sans-serif; text-align: center;
+                    pointer-events: none;
+                    display: none;
+                }
+                #tm-image-lightbox.tm-lb-mo-nums .tm-lb-mosaic-num { display: block; }
+
+                #tm-lb-set-btn {
+                    position: absolute; top: 10px; right: 120px;
+                    width: 16px; height: 16px; padding: 0; border: none; border-radius: 50%;
+                    background: rgba(0,0,0,0.5); color: rgba(255,255,255,0.9);
+                    display: flex; align-items: center; justify-content: center;
+                    cursor: pointer; opacity: 0.4; z-index: 32;
+                    transition: opacity 0.2s, background 0.2s, right 0.25s ease;
+                }
+                #tm-lb-set-btn svg { width: 11px; height: 11px; display: block; pointer-events: none; }
+                #tm-lb-set-btn:hover, #tm-lb-set-btn.tm-set-active { opacity: 1; background: rgba(0,0,0,0.8); }
+                #tm-lb-set-panel {
+                    position: absolute; top: 64px; right: 25px; width: 216px;
+                    box-sizing: border-box; padding: 10px 12px 8px;
+                    background: rgba(18,18,24,0.94); color: rgba(255,255,255,0.88);
+                    border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+                    font: 12px/1.5 system-ui, sans-serif; z-index: 33;
+                    opacity: 0; transform: translateY(-4px); pointer-events: none;
+                    transition: opacity 0.16s ease, transform 0.16s ease, right 0.25s ease;
+                }
+                #tm-lb-set-panel.tm-set-open { opacity: 1; transform: none; pointer-events: auto; }
+                #tm-lb-set-panel .tm-set-title {
+                    margin-bottom: 4px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+                    color: rgba(255,255,255,0.45); text-transform: uppercase;
+                }
+                #tm-lb-set-panel .tm-set-row {
+                    display: flex; align-items: center; gap: 8px; padding: 5px 0;
+                    cursor: pointer; user-select: none;
+                }
+                #tm-lb-set-panel .tm-set-row input { margin: 0; accent-color: #1d9bf0; cursor: pointer; }
+                #tm-lb-set-panel .tm-set-range { padding: 5px 0 3px; user-select: none; }
+                #tm-lb-set-panel .tm-set-range-head { display: flex; justify-content: space-between; align-items: baseline; }
+                #tm-lb-set-panel .tm-set-range-val { color: rgba(255,255,255,0.6); font-variant-numeric: tabular-nums; }
+                #tm-lb-set-panel .tm-set-range input[type="range"] {
+                    display: block; width: 100%; margin: 5px 0 0; accent-color: #1d9bf0; cursor: pointer;
+                }
 
                 #tm-lb-gallery-panel {
                     position: absolute; top: 0; right: 0; bottom: 0;
@@ -17396,6 +17491,14 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         const _lbTiered = total > 4;
         let _lbLargeIdx = _lbTiered ? focused : -1;
         let _lbTierTimer = null;
+        const _lbMosaicOn = total > 1;
+        let _lbMosaicEl = null;
+        let _lbMosaicAC = null;
+        let _lbMosaicRelayout = () => {};
+        let _lbMosaicKey = () => {};
+        let _lbMosaicSync = () => {};
+        let _lbMosaicGapX = 6, _lbMosaicGapY = 6;
+        let _lbSetClose = () => false;
         const _lbImgSrc = (url, tier) => {
             if (!_lbTiered) return url;
             try {
@@ -17512,6 +17615,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         const _teardownLbListeners = () => {
             document.removeEventListener('keydown', keyHandler);
             clearTimeout(_lbTierTimer);
+            if (_lbMosaicAC) { _lbMosaicAC.abort(); _lbMosaicAC = null; }
             if (_lbDragACRef) { _lbDragACRef.abort(); _lbDragACRef = null; }
             if (_lbBranchBDragAC) { _lbBranchBDragAC.abort(); _lbBranchBDragAC = null; }
         };
@@ -17522,6 +17626,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             setTimeout(() => { modal.remove(); }, 220);
             document.removeEventListener('keydown', keyHandler);
             clearTimeout(_lbTierTimer);
+            if (_lbMosaicAC) { _lbMosaicAC.abort(); _lbMosaicAC = null; }
             if (_lbDragACRef) { _lbDragACRef.abort(); _lbDragACRef = null; }
             if (_lbBranchBDragAC) { _lbBranchBDragAC.abort(); _lbBranchBDragAC = null; }
             _dialogOpenGlobal = false;
@@ -17910,7 +18015,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 el.id === 'tm-lb-gallery-panel' || el.id === 'tm-lb-pill' ||
                 (el.className && typeof el.className === 'string' && el.className.includes('tm-'))
             ));
-            if (!hit) closeLightbox();
+            if (!hit) { if (_lbSetClose()) return; closeLightbox(); }
         };
 
         const viewVidBtn = videoUrls && videoUrls.length ? document.createElement('button') : null;
@@ -17978,7 +18083,14 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         }, { signal: _bDragAC.signal });
 
         keyHandler = e => {
+            if (e.target instanceof Element && e.target.type === 'range' && e.target.closest('#tm-lb-set-panel') &&
+                (e.key.startsWith('Arrow') || e.key === 'Home' || e.key === 'End' || e.key === 'PageUp' || e.key === 'PageDown')) return;
             if (_LB_SCROLL_KEYS.has(e.key)) e.preventDefault();
+            if (e.key === 'Escape' && _lbSetClose()) return;
+            if (_lbMosaicEl) {
+                _lbMosaicKey(e);
+                return;
+            }
             if (e.key === 'Escape') { closeLightbox(); return; }
             else if (e.key === '+' || e.key === '=') { _bZoom = Math.min(8, _bZoom * 1.15); _bApply(); return; }
             else if (e.key === '-')                  { _bZoom = Math.max(0.2, _bZoom * 0.87); if (_bZoom <= 1.02) _bReset(); else _bApply(); return; }
@@ -18052,6 +18164,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 dot.style.transform = i === focused ? 'scale(1.4)' : 'scale(1)';
             });
             counter.textContent = `${focused + 1} / ${total}`;
+            _lbMosaicSync();
             if (_lbTiered && _lbLargeIdx !== focused) {
                 clearTimeout(_lbTierTimer);
                 if (_lbLargeIdx !== -1) { const _prev = _lbLargeIdx; _lbLargeIdx = -1; _lbApplyTier(_prev); }
@@ -18076,6 +18189,360 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             pillEl.classList.add('tm-pill-show');
             clearTimeout(pillEl._autoTimer);
             pillEl._autoTimer = setTimeout(() => { pillEl.classList.remove('tm-pill-show'); }, 1500);
+        }
+
+        const _lbMosaicLayout = (ars, W, H, gapX, gapY) => {
+            const n = ars.length, MIN_T = 36;
+            const cut = T => {
+                const best = new Array(n + 1).fill(Infinity), nxt = new Array(n + 1).fill(n);
+                best[n] = 0;
+                for (let i = n - 1; i >= 0; i--) {
+                    let s = 0;
+                    for (let j = i + 1; j <= n; j++) {
+                        s += ars[j - 1];
+                        const h = (W - gapX * (j - i - 1)) / s;
+                        if (j > i + 1 && h < T * 0.4) break;
+                        const d = h - T;
+                        const cost = (j === n && h > T ? 0.35 : 1) * d * d;
+                        if (cost + best[j] < best[i]) { best[i] = cost + best[j]; nxt[i] = j; }
+                    }
+                }
+                const rows = [];
+                for (let i = 0; i < n; i = nxt[i]) rows.push([i, nxt[i]]);
+                return rows;
+            };
+            const evaluate = rows => {
+                const R = rows.length;
+                const sumAr = ([a, b]) => { let s = 0; for (let k = a; k < b; k++) s += ars[k]; return s; };
+                const hs = rows.map(rw => (W - gapX * (rw[1] - rw[0] - 1)) / sumAr(rw));
+                if (R > 1) {
+                    let m = 0;
+                    for (let r = 0; r < R - 1; r++) m += hs[r];
+                    hs[R - 1] = Math.min(hs[R - 1], m / (R - 1));
+                }
+                const sumH = hs.reduce((a, b) => a + b, 0);
+                const avail = H - gapY * (R - 1);
+                const scale = Math.max(0.1, Math.min(1, avail / sumH));
+                let area = 0;
+                rows.forEach((rw, r) => { area += sumAr(rw) * hs[r] * hs[r]; });
+                area *= scale * scale;
+                const mean = sumH / R;
+                let vr = 0;
+                hs.forEach(h => { vr += (h - mean) * (h - mean); });
+                const cv2 = vr / R / (mean * mean);
+                return { rows, hs, scale, score: avail > 0 ? area / (1 + 24 * cv2) : -1 };
+            };
+            const Ts = [];
+            for (let T = Math.max(MIN_T, H); T > MIN_T; T *= 0.92) Ts.push(T);
+            Ts.push(MIN_T);
+            let pick = null;
+            const seen = new Set();
+            for (const T of Ts) {
+                const rows = cut(T);
+                const key = rows.map(rw => rw[1]).join(',');
+                if (seen.has(key)) continue;
+                seen.add(key);
+                const ev = evaluate(rows);
+                if (!pick || ev.score > pick.score) pick = ev;
+            }
+            const { rows, hs, scale } = pick;
+            const totalH = hs.reduce((a, b) => a + b, 0) * scale + gapY * (rows.length - 1);
+            const rects = new Array(n);
+            let y = (H - totalH) / 2;
+            rows.forEach(([a, b], r) => {
+                const h = hs[r] * scale;
+                let rowW = gapX * (b - a - 1);
+                for (let t = a; t < b; t++) rowW += ars[t] * h;
+                let x = (W - rowW) / 2;
+                for (let t = a; t < b; t++) {
+                    const w = ars[t] * h;
+                    rects[t] = { x, y, w, h };
+                    x += w + gapX;
+                }
+                y += h + gapY;
+            });
+            return rects;
+        };
+
+        const mosaicBtn = _lbMosaicOn ? document.createElement('button') : null;
+
+        const _lbMosaicClose = () => {
+            const el = _lbMosaicEl;
+            if (!el) return;
+            _lbMosaicEl = null;
+            _lbMosaicRelayout = () => {};
+            _lbMosaicKey = () => {};
+            _lbMosaicSync = () => {};
+            if (_lbMosaicAC) { _lbMosaicAC.abort(); _lbMosaicAC = null; }
+            if (mosaicBtn) mosaicBtn.classList.remove('tm-gb-active');
+            [lbPrevBtn, lbNextBtn, dotsWrap].forEach(b => { if (b) b.style.visibility = ''; });
+            el.classList.remove('tm-mo-in');
+            setTimeout(() => el.remove(), 170);
+        };
+
+        const _lbMosaicOpen = () => {
+            if (_lbMosaicEl) return;
+            const ars = cards.map(c => {
+                const im = c.querySelector('img');
+                return im && im.naturalWidth > 0 ? im.naturalWidth / im.naturalHeight : 4 / 3;
+            });
+            const ov = document.createElement('div');
+            ov.className = 'tm-lb-mosaic';
+            const grid = document.createElement('div');
+            grid.className = 'tm-lb-mosaic-grid';
+            const tiles = urls.map((url, i) => {
+                const t = document.createElement('div');
+                t.className = 'tm-lb-mosaic-tile' + (i === focused ? ' tm-mo-cur' : '');
+                const im = document.createElement('img');
+                im.decoding = 'async';
+                im.draggable = false;
+                im.onload = () => {
+                    if (!im.naturalWidth) return;
+                    const ar = im.naturalWidth / im.naturalHeight;
+                    if (Math.abs(ar - ars[i]) > 0.001) { ars[i] = ar; _lbMosaicRelayout(); }
+                };
+                im.src = _lbImgSrc(url, 'medium');
+                const num = document.createElement('span');
+                num.className = 'tm-lb-mosaic-num';
+                num.textContent = String(i + 1);
+                t.appendChild(im);
+                t.appendChild(num);
+                t.onclick = e => {
+                    e.stopPropagation();
+                    commit(i);
+                };
+                grid.appendChild(t);
+                return t;
+            });
+            ov.appendChild(grid);
+
+            const layout = () => {
+                if (_lbMosaicEl !== ov) return;
+                const padX = 28, padTop = 76, padBottom = 28;
+                const W = ov.clientWidth - padX * 2 - (_galleryOpen ? GALLERY_PANEL_WIDTH : 0);
+                const H = ov.clientHeight - padTop - padBottom;
+                if (W < 50 || H < 50) return;
+                grid.style.left = padX + 'px';
+                grid.style.top = padTop + 'px';
+                grid.style.width = W + 'px';
+                grid.style.height = H + 'px';
+                const rects = _lbMosaicLayout(ars, W, H, _lbMosaicGapX, _lbMosaicGapY);
+                tiles.forEach((t, i) => {
+                    const r = rects[i];
+                    const L = Math.round(r.x), T = Math.round(r.y);
+                    t.style.left = L + 'px';
+                    t.style.top = T + 'px';
+                    t.style.width = (Math.round(r.x + r.w) - L) + 'px';
+                    t.style.height = (Math.round(r.y + r.h) - T) + 'px';
+                });
+            };
+            let _moRaf = 0;
+            const relayout = () => {
+                if (_moRaf) return;
+                _moRaf = requestAnimationFrame(() => { _moRaf = 0; layout(); });
+            };
+
+            ov.addEventListener('wheel', e => { e.preventDefault(); e.stopPropagation(); }, { passive: false });
+            ov.onclick = e => {
+                e.stopPropagation();
+                if (e.target === ov || e.target === grid) { if (!_lbSetClose()) _lbMosaicClose(); }
+            };
+
+            let cur = focused;
+            const setCursor = i => {
+                tiles[cur].classList.remove('tm-mo-cur');
+                cur = i;
+                tiles[cur].classList.add('tm-mo-cur');
+            };
+            const commit = i => {
+                focused = i;
+                _bReset();
+                _lbMosaicClose();
+                scheduleUpdate();
+            };
+            const box = i => {
+                const s = tiles[i].style;
+                return { x: parseFloat(s.left), y: parseFloat(s.top), w: parseFloat(s.width), h: parseFloat(s.height) };
+            };
+            const moveRow = dir => {
+                const c = box(cur), cx = c.x + c.w / 2;
+                const cand = [];
+                let minGap = Infinity;
+                tiles.forEach((_, i) => {
+                    const b = box(i);
+                    const g = dir > 0 ? b.y - (c.y + c.h) : c.y - (b.y + b.h);
+                    if (g < -0.5) return;
+                    cand.push([i, g, Math.abs(b.x + b.w / 2 - cx)]);
+                    if (g < minGap) minGap = g;
+                });
+                let pick = -1, bestDx = Infinity;
+                cand.forEach(([i, g, dx]) => { if (g <= minGap + 1 && dx < bestDx) { pick = i; bestDx = dx; } });
+                if (pick !== -1) setCursor(pick);
+            };
+            _lbMosaicKey = e => {
+                if (e.key === 'Escape') { _lbMosaicClose(); return; }
+                if (e.key === 'ArrowRight') setCursor((cur + 1) % total);
+                else if (e.key === 'ArrowLeft') setCursor((cur - 1 + total) % total);
+                else if (e.key === 'ArrowDown') moveRow(1);
+                else if (e.key === 'ArrowUp') moveRow(-1);
+                else if (e.key === 'Enter') { e.preventDefault(); commit(cur); }
+            };
+            let _moSeenFocus = focused;
+            _lbMosaicSync = () => {
+                if (focused === _moSeenFocus) return;
+                _moSeenFocus = focused;
+                setCursor(focused);
+            };
+
+            _lbMosaicEl = ov;
+            _lbMosaicRelayout = relayout;
+            _lbMosaicAC = new AbortController();
+            window.addEventListener('resize', relayout, { signal: _lbMosaicAC.signal });
+            mosaicBtn.classList.add('tm-gb-active');
+            [lbPrevBtn, lbNextBtn, dotsWrap].forEach(b => { if (b) b.style.visibility = 'hidden'; });
+            qaBtnsB.classList.remove('tm-qa-show');
+            modal.appendChild(ov);
+            layout();
+            requestAnimationFrame(() => { ov.classList.add('tm-mo-in'); ov.classList.add('tm-mo-ready'); });
+        };
+
+        let mosaicSetBtn = null, mosaicSetPanel = null;
+        if (mosaicBtn) {
+            mosaicBtn.id = 'tm-lb-mosaic-btn';
+            mosaicBtn.title = 'Image overview';
+            mosaicBtn.setAttribute('aria-label', 'Image overview');
+            const _svgEl = (tag, attrs) => {
+                const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+                Object.keys(attrs).forEach(k => el.setAttribute(k, attrs[k]));
+                return el;
+            };
+            const mosaicIcon = _svgEl('svg', { width: 16, height: 16, viewBox: '0 0 16 16', fill: 'none', stroke: 'currentColor', 'stroke-width': 1.7, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
+            [[1.5, 1.5, 8, 5], [11.5, 1.5, 3, 5], [1.5, 9.5, 3.5, 5], [7, 9.5, 7.5, 5]].forEach(([x, y, w, h]) => {
+                mosaicIcon.appendChild(_svgEl('rect', { x, y, width: w, height: h, rx: 1 }));
+            });
+            mosaicBtn.appendChild(mosaicIcon);
+            let _moNewDot = null;
+            if (isFeatureNew('lb_mosaic_overview')) {
+                _moNewDot = document.createElement('span');
+                _moNewDot.className = 'tm-lb-new-dot';
+                _moNewDot.setAttribute('aria-hidden', 'true');
+                mosaicBtn.appendChild(_moNewDot);
+            }
+            mosaicBtn.onclick = e => {
+                e.stopPropagation();
+                if (_moNewDot) { markFeatureSeen('lb_mosaic_overview'); _moNewDot.remove(); _moNewDot = null; }
+                if (_lbMosaicEl) _lbMosaicClose(); else _lbMosaicOpen();
+            };
+            if (viewVidBtn) viewVidBtn.style.right = '180px';
+
+            const _lbSetItems = [
+                { key: KEY_LB_MOSAIC_NUMBERS, label: 'Show numbers in overview', onSet: on => modal.classList.toggle('tm-lb-mo-nums', on) },
+                { key: KEY_LB_MOSAIC_GAP_X, type: 'range', label: 'Gap X', tip: 'Horizontal gap between images in a row (overview)',
+                  min: 0, max: 40, step: 1, def: 6, unit: 'px',
+                  onSet: v => { _lbMosaicGapX = v; _lbMosaicRelayout(); } },
+                { key: KEY_LB_MOSAIC_GAP_Y, type: 'range', label: 'Gap Y', tip: 'Vertical gap between rows (overview)',
+                  min: 0, max: 40, step: 1, def: 6, unit: 'px',
+                  onSet: v => { _lbMosaicGapY = v; _lbMosaicRelayout(); } },
+                { key: KEY_LB_MOSAIC_RADIUS, type: 'range', label: 'Corner radius', tip: 'Rounded corner radius of each image (overview)',
+                  min: 0, max: 40, step: 1, def: 6, unit: 'px',
+                  onSet: v => modal.style.setProperty('--tm-mo-radius', v + 'px') },
+            ];
+            const _setNum = (v, it) => {
+                const n = Math.round(Number(v));
+                return Number.isFinite(n) ? Math.min(it.max, Math.max(it.min, n)) : it.def;
+            };
+            let _setDragging = false;
+            mosaicSetBtn = document.createElement('button');
+            mosaicSetBtn.id = 'tm-lb-set-btn';
+            mosaicSetBtn.title = 'Lightbox settings';
+            mosaicSetBtn.setAttribute('aria-label', 'Lightbox settings');
+            mosaicSetBtn.setAttribute('aria-expanded', 'false');
+            const gearIcon = _svgEl('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
+            gearIcon.appendChild(_svgEl('path', { d: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z' }));
+            gearIcon.appendChild(_svgEl('path', { d: 'M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z' }));
+            mosaicSetBtn.appendChild(gearIcon);
+
+            mosaicSetPanel = document.createElement('div');
+            mosaicSetPanel.id = 'tm-lb-set-panel';
+            mosaicSetPanel.className = 'tm-lb-set-panel';
+            mosaicSetPanel.setAttribute('role', 'dialog');
+            mosaicSetPanel.setAttribute('aria-label', 'Lightbox settings');
+            const setTitle = document.createElement('div');
+            setTitle.className = 'tm-set-title';
+            setTitle.textContent = 'Lightbox settings';
+            mosaicSetPanel.appendChild(setTitle);
+            _lbSetItems.forEach(it => {
+                if (it.type === 'range') {
+                    let val = it.def;
+                    try { val = _setNum(GM_getValue(it.key, it.def), it); } catch (_) {}
+                    it.onSet(val);
+                    const rrow = document.createElement('div');
+                    rrow.className = 'tm-set-range';
+                    if (it.tip) rrow.title = it.tip;
+                    const head = document.createElement('div');
+                    head.className = 'tm-set-range-head';
+                    const name = document.createElement('span');
+                    name.textContent = it.label;
+                    const out = document.createElement('span');
+                    out.className = 'tm-set-range-val';
+                    out.textContent = val + it.unit;
+                    head.append(name, out);
+                    const inp = document.createElement('input');
+                    inp.type = 'range';
+                    inp.min = it.min; inp.max = it.max; inp.step = it.step; inp.value = val;
+                    inp.setAttribute('aria-label', it.label);
+                    inp.addEventListener('pointerdown', () => {
+                        _setDragging = true;
+                        const end = () => setTimeout(() => { _setDragging = false; }, 0);
+                        window.addEventListener('pointerup', end, { once: true, signal: _bDragAC.signal });
+                        window.addEventListener('pointercancel', end, { once: true, signal: _bDragAC.signal });
+                    });
+                    inp.addEventListener('input', () => {
+                        const v = _setNum(inp.value, it);
+                        out.textContent = v + it.unit;
+                        it.onSet(v);
+                    });
+                    inp.addEventListener('change', () => {
+                        try { GM_setValue(it.key, _setNum(inp.value, it)); } catch (_) {}
+                    });
+                    rrow.append(head, inp);
+                    mosaicSetPanel.appendChild(rrow);
+                    return;
+                }
+                let on = false;
+                try { on = !!GM_getValue(it.key, false); } catch (_) {}
+                it.onSet(on);
+                const row = document.createElement('label');
+                row.className = 'tm-set-row';
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.checked = on;
+                const txt = document.createElement('span');
+                txt.textContent = it.label;
+                cb.addEventListener('change', () => {
+                    it.onSet(cb.checked);
+                    try { GM_setValue(it.key, cb.checked); } catch (_) {}
+                });
+                row.append(cb, txt);
+                mosaicSetPanel.appendChild(row);
+            });
+
+            let _setOpen = false;
+            const _setToggle = on => {
+                _setOpen = on;
+                mosaicSetPanel.classList.toggle('tm-set-open', on);
+                mosaicSetBtn.classList.toggle('tm-set-active', on);
+                mosaicSetBtn.setAttribute('aria-expanded', String(on));
+            };
+            _lbSetClose = () => {
+                if (!_setOpen) return false;
+                if (_setDragging) return true;
+                _setToggle(false);
+                return true;
+            };
+            mosaicSetBtn.onclick = e => { e.stopPropagation(); _setToggle(!_setOpen); };
+            mosaicSetPanel.addEventListener('click', e => e.stopPropagation());
+            mosaicSetPanel.addEventListener('wheel', e => { e.preventDefault(); e.stopPropagation(); }, { passive: false });
         }
 
         let _toggleGalleryRef = null;
@@ -18113,7 +18580,8 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 updB(targetUrl);
             }
             _showPill(pillB, group);
-        }, [{ el: closeBtn, base: 25 }, { el: viewVidBtn, base: 130 }], () => scheduleUpdate());
+        }, [{ el: closeBtn, base: 25 }, { el: viewVidBtn, base: mosaicBtn ? 180 : 130 }, { el: mosaicBtn, base: 125 },
+            { el: mosaicSetBtn, base: 120 }, { el: mosaicSetPanel, base: 25 }], () => { scheduleUpdate(); _lbMosaicRelayout(); });
         _toggleGalleryRef = tgB;
 
         modal.appendChild(stage);
@@ -18124,6 +18592,8 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         if (total > 1) { modal.appendChild(dotsWrap); modal.appendChild(counter); }
         modal.appendChild(qaBtnsB);
         modal.appendChild(gbB);
+        if (mosaicBtn) modal.appendChild(mosaicBtn);
+        if (mosaicSetBtn) { modal.appendChild(mosaicSetBtn); modal.appendChild(mosaicSetPanel); }
         modal.appendChild(gpB);
         document.body.appendChild(pillB);
         document.body.appendChild(modal);
@@ -18511,12 +18981,31 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
     function _sanitizeHeaderValue(value, fieldName) {
         if (!value) return value;
-        const cleaned = value.replace(/[^\u0000-\u00FF]/g, '');
+        const cleaned = value.replace(/[^\u0020-\u007E\u0080-\u00FF]/g, '');
         if (cleaned !== value) {
-            _log('TMApi', `_sanitizeHeaderValue: ${fieldName} 含非 ISO-8859-1 字元，已剝除（原長度 ${value.length} → ${cleaned.length}）`);
+            _log('TMApi', `_sanitizeHeaderValue: ${fieldName} 含控制字元或超出 ISO-8859-1 的字元，已剝除（原長度 ${value.length} → ${cleaned.length}）`);
         }
         return cleaned;
     }
+
+    function _diagInvalidHeaders(headers) {
+        if (typeof Headers !== 'function') return [];
+        const bad = [];
+        for (const k of Object.keys(headers)) {
+            const v = String(headers[k]);
+            try { new Headers({ [k]: v }); } catch (_) {
+                const codes = [];
+                for (let i = 0; i < v.length && codes.length < 8; i++) {
+                    const n = v.charCodeAt(i);
+                    if (n < 0x20 || n === 0x7F || n > 0xFF) codes.push(`#${i}:U+${n.toString(16).toUpperCase().padStart(4, '0')}`);
+                }
+                bad.push(`${k}(len ${v.length}) ${codes.join(' ') || '無控制字元（前後空白或其他）'}`);
+            }
+        }
+        return bad;
+    }
+
+    let _apiTokenToastTs = 0;
 
     async function fetchTweetMediaFromAPI(statusId) {
         const _cacheHit = _apiVideoCache.get(statusId);
@@ -18553,6 +19042,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 } catch (fe) {
                     if (fe && fe.name === 'AbortError') throw fe;
                     _log('TMApi', 'fetchTweetMediaFromAPI: fetch failed, falling back to GM_xmlhttpRequest:', fe);
+                    if (fe && fe.name === 'TypeError') _log('TMApi', 'fetchTweetMediaFromAPI: 不合法標頭檢查:', _diagInvalidHeaders(headers));
                     res = await _gmApiFetch(url, headers, 8000);
                 }
                 if (res.ok) json = await res.json();
@@ -18569,7 +19059,10 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     _cachedBearerToken   = _FALLBACK_BEARER;
                     _bearerPendingPromise = null;
                     const _hasCustomBearer = !!GM_getValue(KEY_CUSTOM_BEARER, '').trim();
-                    showToast(
+                    const _tokenToastNow = Date.now();
+                    const _tokenToastDue = _tokenToastNow - _apiTokenToastTs > 30_000;
+                    if (_tokenToastDue) _apiTokenToastTs = _tokenToastNow;
+                    if (_tokenToastDue) showToast(
                         _hasCustomBearer
                             ? '⚠️ API token rejected. Clear or update your custom Bearer Token in ⚙️ Settings → Advanced.'
                             : '⚠️ API token expired. Set a custom Bearer Token in ⚙️ Settings → Advanced to restore video fetch.',
@@ -19108,6 +19601,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 },
                 {
                     itemClass: 'tm-menu-item--preview',
+                    featureId: 'menu_preview_lightbox',
                     icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="8" cy="8" rx="6.5" ry="4"/><circle cx="8" cy="8" r="2"/></svg>`,
                     label: T.menu_preview ? T.menu_preview.replace(/^👁\s*/, '') : 'Preview',
                     action: async () => {
@@ -19902,8 +20396,20 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             const anchor = li.querySelector('a[href*="/status/"]');
             if (!anchor) return;
             const href = anchor.getAttribute('href') || '';
-            const m = href.match(/^\/([^/]+)\/status\/(\d+)\/(photo|video)\/(\d+)/);
-            if (!m) return;
+            let m = href.match(/^\/([^/]+)\/status\/(\d+)\/(photo|video)\/(\d+)/);
+            let isCard = false;
+            if (!m) {
+                const mc = href.match(/^\/([^/]+)\/status\/(\d+)\/?$/);
+                if (mc && anchor.querySelector('img[src*="/card_img/"]')) { m = mc; isCard = true; }
+            }
+            if (!m) {
+                if (li.dataset.tmGridHref) {
+                    li.querySelector('.tm-grid-btn-layer')?.remove();
+                    delete li.dataset.tmGridHref;
+                    _processedGridItems.delete(li);
+                }
+                return;
+            }
             const [, screenName, tweetId] = m;
 
             if (_processedGridItems.has(li) && li.dataset.tmGridHref === href) return;
@@ -19921,6 +20427,29 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             layer.className = 'tm-grid-btn-layer';
 
             const _gridMediaUrls = (apiData) => apiData.videos.length ? apiData.videos : apiData.images;
+
+            let _cardDataP = null;
+            const _gridCardData = () => {
+                if (_cardDataP) return _cardDataP;
+                const src = li.querySelector('img[src*="/card_img/"]')?.src;
+                if (!src) return Promise.resolve(null);
+                const _probe = () => new Promise(resolve => {
+                    let full;
+                    try { const u = new URL(src); u.searchParams.set('name', 'orig'); full = u.toString(); }
+                    catch (_) { resolve(src); return; }
+                    const im = new Image();
+                    const timer = setTimeout(() => { im.onload = im.onerror = null; resolve(src); }, 6000);
+                    im.onload = () => { clearTimeout(timer); resolve(full); };
+                    im.onerror = () => { clearTimeout(timer); resolve(src); };
+                    im.src = full;
+                });
+                _cardDataP = Promise.all([_probe(), fetchTweetMediaFromAPI(tweetId).catch(() => null)]).then(([url, meta]) => ({
+                    videos: [], images: [url],
+                    displayName: meta?.displayName, date: meta?.date, text: meta?.text,
+                }));
+                return _cardDataP;
+            };
+            const _gridFetch = () => isCard ? _gridCardData() : fetchTweetMediaFromAPI(tweetId);
 
             const _gridFilename = (apiData, url, idx) => {
                 let ext = '.jpg';
