@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.3.1.0
+// @version      3.3.1.3
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -17542,7 +17542,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
         const SVG_QA_DOWNLOAD = `<svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M6 9l4 4 4-4"/><line x1="3" y1="17" x2="17" y2="17"/></svg>`;
         const SVG_QA_COPY_LINK = `<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5a2.5 2.5 0 0 0 3.5 0l2-2a2.5 2.5 0 0 0-3.5-3.5l-1 1"/><path d="M9.5 6.5a2.5 2.5 0 0 0-3.5 0l-2 2a2.5 2.5 0 0 0 3.5 3.5l1-1"/></svg>`;
-        function _createQuickActionBtns(getUrl) {
+        function _createQuickActionBtns(getUrl, getInfo = () => tweetInfo) {
             const wrap = document.createElement('div');
             wrap.className = 'tm-lb-quick-actions';
 
@@ -17550,20 +17550,23 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             dlBtn.innerHTML = SVG_QA_DOWNLOAD;
             dlBtn.title = 'Download';
             dlBtn.setAttribute('aria-label', 'Download image');
+            let _dlBusy = false;
             dlBtn.onclick = async e => {
                 e.stopPropagation();
+                if (_dlBusy) return;
                 const url = getUrl();
                 if (!url) return;
-                const original = dlBtn.innerHTML;
+                _dlBusy = true;
+                const original = SVG_QA_DOWNLOAD;
                 dlBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" stroke-dasharray="42" stroke-dashoffset="14"/></svg>';
                 try {
-                    await forceDownloadBlob(url, _lbFilename(url, focused + 1, tweetInfo));
+                    await forceDownloadBlob(url, _lbFilename(url, focused + 1, getInfo()));
                     dlBtn.innerHTML = `<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`;
                 } catch (_) {
                     showToast(T.msg_download_failed || '❌ Download failed', 2500, 'error');
                     dlBtn.innerHTML = original;
                 } finally {
-                    setTimeout(() => { dlBtn.innerHTML = original; }, 1200);
+                    setTimeout(() => { dlBtn.innerHTML = original; _dlBusy = false; }, 1200);
                 }
             };
 
@@ -17577,9 +17580,10 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 if (!url) return;
                 GM_setClipboard(url);
                 showToast(T.toast_grid_media_copied || 'Link copied!', 2500, 'success');
-                const original = copyBtn.innerHTML;
+                clearTimeout(copyBtn._tmRestore);
+                const original = SVG_QA_COPY_LINK;
                 copyBtn.innerHTML = `<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`;
-                setTimeout(() => { copyBtn.innerHTML = original; }, 1200);
+                copyBtn._tmRestore = setTimeout(() => { copyBtn.innerHTML = original; }, 1200);
             };
 
             wrap.appendChild(dlBtn);
@@ -17754,7 +17758,8 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
             container.appendChild(img);
 
-            const qaBtnsA = _createQuickActionBtns(() => urls[0]);
+            let _lbCurUrl = urls[0], _lbCurInfo = tweetInfo;
+            const qaBtnsA = _createQuickActionBtns(() => _lbCurUrl, () => _lbCurInfo);
             qaBtnsA.style.cssText = `
                 position: absolute; top: 20px; right: 125px;
                 display: flex; gap: 6px; z-index: 29;
@@ -17817,6 +17822,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             }
 
             keyHandler = e => {
+                if (e.ctrlKey || e.metaKey || e.altKey) return;
                 if (_LB_SCROLL_KEYS.has(e.key)) e.preventDefault();
                 if (e.key === 'Escape') { closeLightbox(); return; }
                 else if (e.key === '+' || e.key === '=') { _lbScale = Math.min(8, _lbScale * 1.15); _lbApplyTransform(); }
@@ -17887,6 +17893,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 const targetUrl = item.url || item.thumb;
                 if (!targetUrl) return;
                 img.src = targetUrl;
+                _lbResetTransform();
+                _lbCurUrl = targetUrl;
+                _lbCurInfo = targetUrl === urls[0] ? tweetInfo : { screenName: group.handle || 'unknown', id: group.tweetId };
                 updA(targetUrl);
                 _showPill(pillA, group);
             }, [{ el: closeBtn, base: 25 }, { el: viewVidBtn, base: 130 }, { el: qaBtnsA, base: 125 }]);
@@ -17954,8 +17963,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             card.addEventListener('click', e => {
                 e.stopPropagation();
                 if (i !== focused) {
-                    focused = i;
-                    scheduleUpdate();
+                    _goTo(i);
                 } else if (_toggleGalleryRef) {
                     _toggleGalleryRef();
                 }
@@ -17980,7 +17988,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 opacity: 0.35;
                 transition: opacity 0.22s, transform 0.22s;
             `;
-            dot.addEventListener('click', e => { e.stopPropagation(); focused = i; scheduleUpdate(); });
+            dot.addEventListener('click', e => { e.stopPropagation(); _goTo(i); });
             dotsWrap.appendChild(dot);
             return dot;
         });
@@ -18054,6 +18062,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             const img = _getZoomImg();
             if (img) { img.style.transform = ''; img.style.cursor = ''; }
         };
+        const _goTo = i => { focused = i; _bReset(); scheduleUpdate(); };
         modal.addEventListener('wheel', e => {
             if (_lbIsOnPanel(e)) return;
             e.preventDefault();
@@ -18083,6 +18092,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         }, { signal: _bDragAC.signal });
 
         keyHandler = e => {
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
             if (e.target instanceof Element && e.target.type === 'range' && e.target.closest('#tm-lb-set-panel') &&
                 (e.key.startsWith('Arrow') || e.key === 'Home' || e.key === 'End' || e.key === 'PageUp' || e.key === 'PageDown')) return;
             if (_LB_SCROLL_KEYS.has(e.key)) e.preventDefault();
@@ -18096,12 +18106,10 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             else if (e.key === '-')                  { _bZoom = Math.max(0.2, _bZoom * 0.87); if (_bZoom <= 1.02) _bReset(); else _bApply(); return; }
             else if (e.key === '0')                  { _bReset(); return; }
             if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-                focused = focused < total - 1 ? focused + 1 : 0;
-                _bReset(); scheduleUpdate();
+                _goTo(focused < total - 1 ? focused + 1 : 0);
             }
             if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-                focused = focused > 0 ? focused - 1 : total - 1;
-                _bReset(); scheduleUpdate();
+                _goTo(focused > 0 ? focused - 1 : total - 1);
             }
         };
         document.addEventListener('keydown', keyHandler);
@@ -18127,8 +18135,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             lbPrevBtn.onmouseleave = () => lbPrevBtn.style.background = 'rgba(0,0,0,0.55)';
             lbPrevBtn.onclick = e => {
                 e.stopPropagation();
-                focused = focused > 0 ? focused - 1 : total - 1;
-                _bReset(); scheduleUpdate();
+                _goTo(focused > 0 ? focused - 1 : total - 1);
             };
 
             lbNextBtn.className = 'tm-nav-fade-btn';
@@ -18138,8 +18145,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             lbNextBtn.onmouseleave = () => lbNextBtn.style.background = 'rgba(0,0,0,0.55)';
             lbNextBtn.onclick = e => {
                 e.stopPropagation();
-                focused = focused < total - 1 ? focused + 1 : 0;
-                _bReset(); scheduleUpdate();
+                _goTo(focused < total - 1 ? focused + 1 : 0);
             };
         }
 
@@ -18355,10 +18361,8 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 tiles[cur].classList.add('tm-mo-cur');
             };
             const commit = i => {
-                focused = i;
-                _bReset();
                 _lbMosaicClose();
-                scheduleUpdate();
+                _goTo(i);
             };
             const box = i => {
                 const s = tiles[i].style;
@@ -18571,8 +18575,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 if (!isValidUrl(targetUrl)) return;
                 const idx = urls.indexOf(targetUrl);
                 if (idx !== -1) {
-                    focused = idx;
-                    scheduleUpdate();
+                    _goTo(idx);
                 } else {
                     closeLightbox();
                     showImageLightbox([targetUrl], null, true);
@@ -20499,7 +20502,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 _copyLTimer = setTimeout(async () => {
                     _copyLTimer = null;
                     _copyPressing = false;
-                    const apiData = await fetchTweetMediaFromAPI(tweetId);
+                    const apiData = await _gridFetch();
                     if (!apiData) { showToast(T.msg_no_media || 'No media found', 2500, 'warning'); return; }
                     const urls = _gridMediaUrls(apiData);
                     if (!urls.length) { showToast(T.msg_no_media || 'No media found', 2500, 'warning'); return; }
@@ -20518,7 +20521,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     clearTimeout(_copyLTimer);
                     _copyLTimer = null;
                     _copyPressing = false;
-                    const apiData = await fetchTweetMediaFromAPI(tweetId);
+                    const apiData = await _gridFetch();
                     if (!apiData) { showToast(T.msg_no_media || 'No media found', 2500, 'warning'); return; }
                     const urls = _gridMediaUrls(apiData);
                     if (!urls.length) { showToast(T.msg_no_media || 'No media found', 2500, 'warning'); return; }
@@ -20599,7 +20602,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             previewBtn.addEventListener('click', async (e) => {
                 e.preventDefault(); e.stopPropagation();
                 previewBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" stroke-dasharray="42" stroke-dashoffset="14"/></svg>';
-                const apiData = await fetchTweetMediaFromAPI(tweetId);
+                const apiData = await _gridFetch();
                 previewBtn.innerHTML = SVG_GRID_PREVIEW;
                 if (!apiData || (!apiData.videos.length && !apiData.images.length)) {
                     showToast(T.msg_no_media || 'No media found', 2500, 'warning');
@@ -20656,7 +20659,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     _dlLTimer = null;
                     _dlPressing = false;
                     dlBtn.innerHTML = _dlSpinnerSvg;
-                    const apiData = await fetchTweetMediaFromAPI(tweetId);
+                    const apiData = await _gridFetch();
                     dlBtn.innerHTML = SVG_GRID_DL;
                     if (!apiData || (!apiData.videos.length && !apiData.images.length)) {
                         showToast(T.msg_no_media || 'No media found', 2500, 'warning');
@@ -20680,7 +20683,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     _dlLTimer = null;
                     _dlPressing = false;
                     dlBtn.innerHTML = _dlSpinnerSvg;
-                    const apiData = await fetchTweetMediaFromAPI(tweetId);
+                    const apiData = await _gridFetch();
                     dlBtn.innerHTML = SVG_GRID_DL;
                     if (!apiData || (!apiData.videos.length && !apiData.images.length)) {
                         showToast(T.msg_no_media || 'No media found', 2500, 'warning');
