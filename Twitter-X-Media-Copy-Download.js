@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.3.1.3
+// @version      3.3.1.5
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -5885,6 +5885,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 animation: tm-spin-once 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             }
 
+
             #tm-settings-wrapper[data-focus="hist"] #tm-history-btn {
                 transform: scale(1.15);
                 background: ${C.gearBg};
@@ -10077,6 +10078,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         _navScanTimer2 = setTimeout(scanAndInsert, 500);
     }
     window.addEventListener('popstate', _scheduleNavScan, { passive: true });
+    window.addEventListener('popstate', _lbCloseOnNavigate, { passive: true });
 
     (() => {
         const _pageHistory = (typeof unsafeWindow !== 'undefined' && unsafeWindow) ? unsafeWindow.history : history;
@@ -10084,6 +10086,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             const r = _callPageFn(fn, this, args);
             try {
                 hideStarPip?.();
+                _lbCloseOnNavigate();
                 _scheduleNavScan();
                 if (GM_getValue(KEY_HIST_PINNED, false) && !document.getElementById('tm-hist-panel')) {
                     setTimeout(() => {
@@ -17254,6 +17257,12 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
     }
 
     let _lbPrevTeardown = null;
+    let _lbCloseCurrent = null, _lbOpenPath = '';
+    function _lbCloseOnNavigate() {
+        try {
+            if (_lbCloseCurrent && location.pathname !== _lbOpenPath) _lbCloseCurrent();
+        } catch (_) {}
+    }
     function showImageLightbox(urls, videoUrls = null, openGallery = false, tweetInfo = null) {
         if (!urls.length) return;
 
@@ -17265,6 +17274,20 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             const s = document.createElement('style');
             s.id = 'tm-lb-style';
             s.textContent = `
+                #tm-image-lightbox .tm-lb-img-state { display: none; position: absolute; left: 50%; top: 50%; pointer-events: none; }
+                #tm-image-lightbox .tm-lb-img-state[data-state="loading"] {
+                    display: block; width: 28px; height: 28px; margin: -14px 0 0 -14px; box-sizing: border-box;
+                    border: 3px solid rgba(255,255,255,0.18); border-top-color: rgba(255,255,255,0.75);
+                    border-radius: 50%; animation: tm-lb-img-spin 0.8s linear infinite;
+                }
+                #tm-image-lightbox .tm-lb-img-state[data-state="failed"] {
+                    display: block; transform: translate(-50%, -50%); max-width: 80%;
+                    color: rgba(255,255,255,0.65); font: 13px/1.5 system-ui, sans-serif; text-align: center;
+                }
+                @keyframes tm-lb-img-spin { to { transform: rotate(360deg); } }
+                @media (prefers-reduced-motion: reduce) {
+                    #tm-image-lightbox .tm-lb-img-state[data-state="loading"] { animation-duration: 3s; }
+                }
                 #tm-image-lightbox {
                     opacity: 0;
                     transition: opacity 0.22s ease;
@@ -17522,11 +17545,52 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             }).catch(() => {});
         };
 
-        const VW = window.innerWidth;
-        const VH = window.innerHeight;
-        const CARD_W = Math.min(VW * 0.50, 580);
-        const CARD_H = Math.min(VH * 0.88, 1000);
-        const SPREAD = Math.min(CARD_W * 0.40, 200);
+        const _LB_IMG_FALLBACK = ['orig', 'large', 'medium', 'small'];
+        const _lbImgBusy = (img, stateEl) => {
+            delete img.dataset.tmLbRetry;
+            stateEl.textContent = '';
+            stateEl.dataset.state = 'loading';
+        };
+        const _lbWatchImg = (img, host) => {
+            const stateEl = document.createElement('div');
+            stateEl.className = 'tm-lb-img-state';
+            host.appendChild(stateEl);
+            img._tmLbState = stateEl;
+            _lbImgBusy(img, stateEl);
+            img.addEventListener('load', () => {
+                delete img.dataset.tmLbRetry;
+                stateEl.textContent = '';
+                stateEl.dataset.state = '';
+            });
+            img.addEventListener('error', () => {
+                try {
+                    const u = new URL(img.src);
+                    if (u.hostname === 'pbs.twimg.com' && u.pathname.startsWith('/media/')) {
+                        const nxt = _LB_IMG_FALLBACK[_LB_IMG_FALLBACK.indexOf(u.searchParams.get('name')) + 1];
+                        if (nxt) { u.searchParams.set('name', nxt); img.src = u.toString(); return; }
+                    }
+                } catch (_) {}
+                if (!img.dataset.tmLbRetry) {
+                    img.dataset.tmLbRetry = '1';
+                    setTimeout(() => { if (img.isConnected) img.src = img.src; }, 1000);
+                    return;
+                }
+                stateEl.dataset.state = 'failed';
+                stateEl.textContent = T.lb_img_failed || 'Image failed to load';
+            });
+            if (img.complete && img.naturalWidth > 0) stateEl.dataset.state = '';
+        };
+
+        let VW, VH, CARD_W, CARD_H, SPREAD;
+        const _calcStageSize = () => {
+            VW = window.innerWidth;
+            VH = window.innerHeight;
+            CARD_W = Math.min(VW * 0.50, 580);
+            CARD_H = Math.min(VH * 0.88, 1000);
+            SPREAD = Math.min(CARD_W * 0.40, 200);
+        };
+        _calcStageSize();
+        let _lbEntered = false;
 
         function calcTransform(pos) {
             const abs = Math.abs(pos);
@@ -17634,7 +17698,102 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             if (_lbDragACRef) { _lbDragACRef.abort(); _lbDragACRef = null; }
             if (_lbBranchBDragAC) { _lbBranchBDragAC.abort(); _lbBranchBDragAC = null; }
             _dialogOpenGlobal = false;
+            if (_lbCloseCurrent === closeLightbox) _lbCloseCurrent = null;
         }
+        _lbCloseCurrent = closeLightbox;
+        _lbOpenPath = location.pathname;
+
+        function _lbBuildCornerBtns() {
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
+            closeBtn.setAttribute('aria-label', 'Close lightbox');
+            closeBtn.style.cssText = `
+                position: absolute; top: 20px; right: 25px;
+                background: rgba(0,0,0,0.6); color: white; border: none;
+                width: 40px; height: 40px; border-radius: 50%;
+                cursor: pointer; display: flex; align-items: center; justify-content: center;
+                transition: background 0.2s, right 0.25s ease; z-index: 30;
+            `;
+            closeBtn.onmouseenter = () => closeBtn.style.background = 'rgba(255,255,255,0.25)';
+            closeBtn.onmouseleave = () => closeBtn.style.background = 'rgba(0,0,0,0.6)';
+            closeBtn.onclick = closeLightbox;
+
+            let viewVidBtn = null;
+            if (videoUrls && videoUrls.length) {
+                viewVidBtn = document.createElement('button');
+                viewVidBtn.className = 'tm-nav-fade-btn';
+                viewVidBtn.title = T.btn_switch_to_video || 'Switch to Video';
+                viewVidBtn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5,3 19,12 5,21" fill="currentColor" stroke="none"/></svg>`;
+                viewVidBtn.style.cssText = `
+                    position: absolute; top: 20px; right: 130px;
+                    background: rgba(29,155,240,0.85); color: white; border: none;
+                    width: 40px; height: 40px; border-radius: 50%;
+                    cursor: pointer; display: flex; align-items: center; justify-content: center;
+                    transition: background 0.2s, right 0.25s ease; z-index: 31;
+                `;
+                viewVidBtn.onmouseenter = () => viewVidBtn.style.background = 'rgba(29,155,240,1)';
+                viewVidBtn.onmouseleave = () => viewVidBtn.style.background = 'rgba(29,155,240,0.85)';
+                viewVidBtn.onclick = e => { e.stopPropagation(); closeLightbox(); showFloatingVideoPlayer(videoUrls, 0, urls, false, tweetInfo); };
+            }
+            return { closeBtn, viewVidBtn };
+        }
+
+        function _createZoomPan(getImg, ac) {
+            let zoom = 1, tx = 0, ty = 0, dragging = false, start = null;
+            const apply = () => {
+                const img = getImg();
+                if (!img) return;
+                img.style.transform = `scale(${zoom}) translate(${tx / zoom}px, ${ty / zoom}px)`;
+                img.style.cursor = zoom > 1 ? 'grab' : '';
+            };
+            const reset = () => {
+                zoom = 1; tx = 0; ty = 0;
+                const img = getImg();
+                if (img) { img.style.transform = ''; img.style.cursor = ''; }
+            };
+            const settle = () => { if (zoom <= 1.02) reset(); else apply(); };
+            window.addEventListener('mousemove', e => {
+                if (!dragging) return;
+                tx = e.clientX - start.x; ty = e.clientY - start.y;
+                apply();
+            }, { signal: ac.signal });
+            window.addEventListener('mouseup', () => {
+                if (!dragging) return;
+                dragging = false;
+                const img = getImg();
+                if (img && zoom > 1) img.style.cursor = 'grab';
+            }, { signal: ac.signal });
+            return {
+                reset,
+                isZoomed: () => zoom > 1,
+                wheel: dy => { zoom = Math.min(8, Math.max(0.2, zoom * (dy < 0 ? 1.1 : 0.9))); settle(); },
+                zoomIn: () => { zoom = Math.min(8, zoom * 1.15); apply(); },
+                zoomOut: () => { zoom = Math.max(0.2, zoom * 0.87); settle(); },
+                beginDrag: e => {
+                    dragging = true; start = { x: e.clientX - tx, y: e.clientY - ty };
+                    const img = getImg();
+                    if (img) img.style.cursor = 'grabbing';
+                },
+            };
+        }
+
+        const _lbIsHttpUrl = u => typeof u === 'string' && u.startsWith('http');
+        const _lbOpenGalleryVideo = async (item, group) => {
+            let mp4Url = _lbIsHttpUrl(item.url) ? item.url : null;
+            if (!mp4Url && group.tweetId) {
+                try {
+                    const apiData = await fetchTweetMediaFromAPI(group.tweetId);
+                    const candidate = apiData?.videos?.[0];
+                    if (_lbIsHttpUrl(candidate)) mp4Url = candidate;
+                } catch (_) {}
+            }
+            if (mp4Url) {
+                closeLightbox();
+                showFloatingVideoPlayer([mp4Url], 0, null, true);
+            } else {
+                showToast(T.msg_no_video || '❌ No Video', 2500, 'warning');
+            }
+        };
 
         let _galleryOpen   = false;
         let _galleryItems  = null;
@@ -17667,14 +17826,18 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 });
             }
 
+            const _baseRight = el => {
+                if (el.dataset.tmBaseRight === undefined) el.dataset.tmBaseRight = String(parseFloat(getComputedStyle(el).right) || 0);
+                return Number(el.dataset.tmBaseRight);
+            };
+
             function _toggleGallery(forceOpen) {
                 _galleryOpen = (forceOpen !== undefined) ? forceOpen : !_galleryOpen;
                 galleryBtn.classList.toggle('tm-gb-active', _galleryOpen);
                 panel.classList.toggle('tm-gp-open', _galleryOpen);
 
                 const _shift = _galleryOpen ? GALLERY_PANEL_WIDTH : 0;
-                galleryBtn.style.right = (75 + _shift) + 'px';
-                extraBtns.forEach(({ el, base }) => { if (el) el.style.right = (base + _shift) + 'px'; });
+                [galleryBtn, ...extraBtns].forEach(el => { if (el) el.style.right = (_baseRight(el) + _shift) + 'px'; });
                 if (onToggle) onToggle(_galleryOpen);
 
                 if (_galleryOpen && !_galleryItems) {
@@ -17757,6 +17920,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             `;
 
             container.appendChild(img);
+            _lbWatchImg(img, container);
 
             let _lbCurUrl = urls[0], _lbCurInfo = tweetInfo;
             const qaBtnsA = _createQuickActionBtns(() => _lbCurUrl, () => _lbCurInfo);
@@ -17769,19 +17933,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
             modal.appendChild(container);
 
-            const closeBtn = document.createElement('button');
-            closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
-            closeBtn.setAttribute('aria-label', 'Close lightbox');
-            closeBtn.style.cssText = `
-                position: absolute; top: 20px; right: 25px;
-                background: rgba(0,0,0,0.6); color: white; border: none;
-                width: 40px; height: 40px; border-radius: 50%;
-                cursor: pointer; display: flex; align-items: center; justify-content: center;
-                transition: background 0.2s, right 0.25s ease; z-index: 30;
-            `;
-            closeBtn.onmouseenter = () => closeBtn.style.background = 'rgba(255,255,255,0.25)';
-            closeBtn.onmouseleave = () => closeBtn.style.background = 'rgba(0,0,0,0.6)';
-            closeBtn.onclick = closeLightbox;
+            const { closeBtn, viewVidBtn } = _lbBuildCornerBtns();
             modal.onclick = e => {
                 const path = e.composedPath();
                 if (path.some(el => el !== modal && el instanceof Element && (
@@ -17802,103 +17954,47 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             };
             modal.appendChild(closeBtn);
 
-            let viewVidBtn = null;
-            if (videoUrls && videoUrls.length) {
-                viewVidBtn = document.createElement('button');
-                viewVidBtn.className = 'tm-nav-fade-btn';
-                viewVidBtn.title = T.btn_switch_to_video || 'Switch to Video';
-                viewVidBtn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5,3 19,12 5,21" fill="currentColor" stroke="none"/></svg>`;
-                viewVidBtn.style.cssText = `
-                    position: absolute; top: 20px; right: 130px;
-                    background: rgba(29,155,240,0.85); color: white; border: none;
-                    width: 40px; height: 40px; border-radius: 50%;
-                    cursor: pointer; display: flex; align-items: center; justify-content: center;
-                    transition: background 0.2s, right 0.25s ease; z-index: 31;
-                `;
-                viewVidBtn.onmouseenter = () => viewVidBtn.style.background = 'rgba(29,155,240,1)';
-                viewVidBtn.onmouseleave = () => viewVidBtn.style.background = 'rgba(29,155,240,0.85)';
-                viewVidBtn.onclick = e => { e.stopPropagation(); closeLightbox(); showFloatingVideoPlayer(videoUrls, 0, urls, false, tweetInfo); };
-                modal.appendChild(viewVidBtn);
-            }
+            if (viewVidBtn) modal.appendChild(viewVidBtn);
 
             keyHandler = e => {
                 if (e.ctrlKey || e.metaKey || e.altKey) return;
                 if (_LB_SCROLL_KEYS.has(e.key)) e.preventDefault();
                 if (e.key === 'Escape') { closeLightbox(); return; }
-                else if (e.key === '+' || e.key === '=') { _lbScale = Math.min(8, _lbScale * 1.15); _lbApplyTransform(); }
-                else if (e.key === '-')                  { _lbScale = Math.max(0.2, _lbScale * 0.87); if (_lbScale <= 1.02) _lbResetTransform(); else _lbApplyTransform(); }
-                else if (e.key === '0')                  { _lbResetTransform(); }
+                else if (e.key === '+' || e.key === '=') _lbZoom.zoomIn();
+                else if (e.key === '-')                  _lbZoom.zoomOut();
+                else if (e.key === '0')                  _lbZoom.reset();
             };
             document.addEventListener('keydown', keyHandler);
 
-            let _lbScale = 1;
-            let _lbDragActive = false, _lbDragStart = null, _lbTranslate = { x: 0, y: 0 };
             const _lbDragAC = new AbortController();
             _lbDragACRef = _lbDragAC;
-            const _lbResetTransform = () => {
-                _lbScale = 1; _lbTranslate = { x: 0, y: 0 };
-                img.style.transform = '';
-                img.style.cursor = '';
-            };
-            const _lbApplyTransform = () => {
-                img.style.transform = `scale(${_lbScale}) translate(${_lbTranslate.x / _lbScale}px, ${_lbTranslate.y / _lbScale}px)`;
-                img.style.cursor = _lbScale > 1 ? 'grab' : '';
-            };
+            const _lbZoom = _createZoomPan(() => img, _lbDragAC);
+            const _lbResetTransform = _lbZoom.reset;
             modal.addEventListener('wheel', e => {
                 if (_lbIsOnPanel(e)) return;
                 e.preventDefault();
                 e.stopPropagation();
-                const delta = e.deltaY < 0 ? 1.1 : 0.9;
-                _lbScale = Math.min(8, Math.max(0.2, _lbScale * delta));
-                if (_lbScale <= 1.02) { _lbResetTransform(); return; }
-                _lbApplyTransform();
+                _lbZoom.wheel(e.deltaY);
             }, { passive: false });
             img.addEventListener('mousedown', e => {
-                if (_lbScale <= 1) return;
+                if (!_lbZoom.isZoomed()) return;
                 e.preventDefault(); e.stopPropagation();
-                _lbDragActive = true; _lbDragStart = { x: e.clientX - _lbTranslate.x, y: e.clientY - _lbTranslate.y };
-                img.style.cursor = 'grabbing';
+                _lbZoom.beginDrag(e);
             });
-            window.addEventListener('mousemove', e => {
-                if (!_lbDragActive) return;
-                _lbTranslate = { x: e.clientX - _lbDragStart.x, y: e.clientY - _lbDragStart.y };
-                _lbApplyTransform();
-            }, { signal: _lbDragAC.signal });
-            window.addEventListener('mouseup', () => {
-                if (!_lbDragActive) return;
-                _lbDragActive = false;
-                if (_lbScale > 1) img.style.cursor = 'grab';
-            }, { signal: _lbDragAC.signal });
             img.addEventListener('dblclick', e => { e.stopPropagation(); _lbResetTransform(); });
             const { galleryBtn: gbA, panel: gpA, pill: pillA, updateSelected: updA, toggleGallery: tgA } = _buildGalleryUI(async (item, group) => {
                 await new Promise(r => setTimeout(r, 0));
-                if (item.type === 'video') {
-                    const isValidUrl = u => typeof u === 'string' && u.startsWith('http');
-                    let mp4Url = isValidUrl(item.url) ? item.url : null;
-                    if (!mp4Url && group.tweetId) {
-                        try {
-                            const apiData = await fetchTweetMediaFromAPI(group.tweetId);
-                            const candidate = apiData?.videos?.[0];
-                            if (isValidUrl(candidate)) mp4Url = candidate;
-                        } catch(_) {}
-                    }
-                    if (mp4Url) {
-                        closeLightbox();
-                        showFloatingVideoPlayer([mp4Url], 0, null, true);
-                    } else {
-                        showToast(T.msg_no_video || '❌ No Video', 2500, 'warning');
-                    }
-                    return;
-                }
+                if (item.type === 'video') { await _lbOpenGalleryVideo(item, group); return; }
                 const targetUrl = item.url || item.thumb;
                 if (!targetUrl) return;
                 img.src = targetUrl;
                 _lbResetTransform();
+                _lbImgBusy(img, img._tmLbState);
                 _lbCurUrl = targetUrl;
                 _lbCurInfo = targetUrl === urls[0] ? tweetInfo : { screenName: group.handle || 'unknown', id: group.tweetId };
                 updA(targetUrl);
                 _showPill(pillA, group);
-            }, [{ el: closeBtn, base: 25 }, { el: viewVidBtn, base: 130 }, { el: qaBtnsA, base: 125 }]);
+            }, [closeBtn, viewVidBtn, qaBtnsA]);
             container._toggleGalleryRef = tgA;
             modal.appendChild(gbA);
             modal.appendChild(gpA);
@@ -17960,6 +18056,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 user-select: none; -webkit-user-drag: none;
             `;
             card.appendChild(img);
+            _lbWatchImg(img, card);
             card.addEventListener('click', e => {
                 e.stopPropagation();
                 if (i !== focused) {
@@ -18004,19 +18101,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             pointer-events: none; white-space: nowrap;
         `;
 
-        const closeBtn = document.createElement('button');
-        closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
-        closeBtn.setAttribute('aria-label', 'Close lightbox');
-        closeBtn.style.cssText = `
-            position: absolute; top: 20px; right: 25px;
-            background: rgba(0,0,0,0.6); color: white; border: none;
-            width: 40px; height: 40px; border-radius: 50%;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: background 0.2s, right 0.25s ease; z-index: 30;
-        `;
-        closeBtn.onmouseenter = () => closeBtn.style.background = 'rgba(255,255,255,0.25)';
-        closeBtn.onmouseleave = () => closeBtn.style.background = 'rgba(0,0,0,0.6)';
-        closeBtn.onclick = closeLightbox;
+        const { closeBtn, viewVidBtn } = _lbBuildCornerBtns();
         modal.onclick = e => {
             const hit = e.composedPath().some(el => el !== modal && el instanceof Element && (
                 el.tagName === 'IMG' || el.tagName === 'BUTTON' ||
@@ -18026,70 +18111,44 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             if (!hit) { if (_lbSetClose()) return; closeLightbox(); }
         };
 
-        const viewVidBtn = videoUrls && videoUrls.length ? document.createElement('button') : null;
-        if (viewVidBtn) {
-            viewVidBtn.className = 'tm-nav-fade-btn';
-            viewVidBtn.title = T.btn_switch_to_video || 'Switch to Video';
-            viewVidBtn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5,3 19,12 5,21" fill="currentColor" stroke="none"/></svg>`;
-            viewVidBtn.style.cssText = `
-                position: absolute; top: 20px; right: 130px;
-                background: rgba(29,155,240,0.85); color: white; border: none;
-                width: 40px; height: 40px; border-radius: 50%;
-                cursor: pointer; display: flex; align-items: center; justify-content: center;
-                transition: background 0.2s, right 0.25s ease; z-index: 31;
-            `;
-            viewVidBtn.onmouseenter = () => viewVidBtn.style.background = 'rgba(29,155,240,1)';
-            viewVidBtn.onmouseleave = () => viewVidBtn.style.background = 'rgba(29,155,240,0.85)';
-            viewVidBtn.onclick = e => { e.stopPropagation(); closeLightbox(); showFloatingVideoPlayer(videoUrls, 0, urls, false, tweetInfo); };
-        }
-
-        let _bZoom = 1, _bTx = 0, _bTy = 0, _bDragActive = false, _bDragStart = null;
         const _bDragAC = new AbortController();
         _lbBranchBDragAC = _bDragAC;
+
+        let _rzRaf = 0;
+        window.addEventListener('resize', () => {
+            if (_rzRaf) return;
+            _rzRaf = requestAnimationFrame(() => {
+                _rzRaf = 0;
+                _calcStageSize();
+                stage.style.width = CARD_W + 'px';
+                stage.style.height = CARD_H + 'px';
+                cards.forEach(c => { c.style.width = CARD_W + 'px'; c.style.height = CARD_H + 'px'; });
+                if (_lbEntered) scheduleUpdate();
+            });
+        }, { signal: _bDragAC.signal });
 
         const _getZoomImg = () => {
             const fc = modal.querySelector('.tm-lb-card.tm-lb-focused');
             return fc ? fc.querySelector('img') : null;
         };
-        const _bApply = () => {
-            const img = _getZoomImg();
-            if (!img) return;
-            img.style.transform  = `scale(${_bZoom}) translate(${_bTx / _bZoom}px, ${_bTy / _bZoom}px)`;
-            img.style.cursor     = _bZoom > 1 ? 'grab' : '';
-        };
-        const _bReset = () => {
-            _bZoom = 1; _bTx = 0; _bTy = 0;
-            const img = _getZoomImg();
-            if (img) { img.style.transform = ''; img.style.cursor = ''; }
-        };
+        const _bZoomPan = _createZoomPan(_getZoomImg, _bDragAC);
+        const _bReset = _bZoomPan.reset;
         const _goTo = i => { focused = i; _bReset(); scheduleUpdate(); };
         modal.addEventListener('wheel', e => {
             if (_lbIsOnPanel(e)) return;
             e.preventDefault();
             e.stopPropagation();
-            _bZoom = Math.min(8, Math.max(0.2, _bZoom * (e.deltaY < 0 ? 1.1 : 0.9)));
-            if (_bZoom <= 1.02) { _bReset(); return; }
-            _bApply();
+            _bZoomPan.wheel(e.deltaY);
         }, { passive: false });
         modal.addEventListener('dblclick', e => {
             if (!e.target.closest('.tm-lb-card')) return;
             e.stopPropagation(); _bReset();
         });
         modal.addEventListener('mousedown', e => {
-            if (_bZoom <= 1 || !e.target.closest('.tm-lb-card img')) return;
+            if (!_bZoomPan.isZoomed() || !e.target.closest('.tm-lb-card img')) return;
             e.preventDefault(); e.stopPropagation();
-            _bDragActive = true; _bDragStart = { x: e.clientX - _bTx, y: e.clientY - _bTy };
-            e.target.style.cursor = 'grabbing';
+            _bZoomPan.beginDrag(e);
         });
-        window.addEventListener('mousemove', e => {
-            if (!_bDragActive) return;
-            _bTx = e.clientX - _bDragStart.x; _bTy = e.clientY - _bDragStart.y; _bApply();
-        }, { signal: _bDragAC.signal });
-        window.addEventListener('mouseup', () => {
-            if (!_bDragActive) return;
-            _bDragActive = false;
-            const img = _getZoomImg(); if (img && _bZoom > 1) img.style.cursor = 'grab';
-        }, { signal: _bDragAC.signal });
 
         keyHandler = e => {
             if (e.ctrlKey || e.metaKey || e.altKey) return;
@@ -18102,8 +18161,8 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 return;
             }
             if (e.key === 'Escape') { closeLightbox(); return; }
-            else if (e.key === '+' || e.key === '=') { _bZoom = Math.min(8, _bZoom * 1.15); _bApply(); return; }
-            else if (e.key === '-')                  { _bZoom = Math.max(0.2, _bZoom * 0.87); if (_bZoom <= 1.02) _bReset(); else _bApply(); return; }
+            else if (e.key === '+' || e.key === '=') { _bZoomPan.zoomIn(); return; }
+            else if (e.key === '-')                  { _bZoomPan.zoomOut(); return; }
             else if (e.key === '0')                  { _bReset(); return; }
             if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
                 _goTo(focused < total - 1 ? focused + 1 : 0);
@@ -18552,27 +18611,10 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         let _toggleGalleryRef = null;
         const { galleryBtn: gbB, panel: gpB, pill: pillB, updateSelected: updB, toggleGallery: tgB } = _buildGalleryUI(async (item, group) => {
             await new Promise(r => setTimeout(r, 0));
-            const isValidUrl = u => typeof u === 'string' && u.startsWith('http');
-            if (item.type === 'video') {
-                let mp4Url = isValidUrl(item.url) ? item.url : null;
-                if (!mp4Url && group.tweetId) {
-                    try {
-                        const apiData = await fetchTweetMediaFromAPI(group.tweetId);
-                        const candidate = apiData?.videos?.[0];
-                        if (isValidUrl(candidate)) mp4Url = candidate;
-                    } catch(_) {}
-                }
-                if (mp4Url) {
-                    closeLightbox();
-                    showFloatingVideoPlayer([mp4Url], 0, null, true);
-                } else {
-                    showToast(T.msg_no_video || '❌ No Video', 2500, 'warning');
-                }
-                return;
-            }
+            if (item.type === 'video') { await _lbOpenGalleryVideo(item, group); return; }
             if (item.type === 'image') {
                 const targetUrl = item.url;
-                if (!isValidUrl(targetUrl)) return;
+                if (!_lbIsHttpUrl(targetUrl)) return;
                 const idx = urls.indexOf(targetUrl);
                 if (idx !== -1) {
                     _goTo(idx);
@@ -18583,8 +18625,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 updB(targetUrl);
             }
             _showPill(pillB, group);
-        }, [{ el: closeBtn, base: 25 }, { el: viewVidBtn, base: mosaicBtn ? 180 : 130 }, { el: mosaicBtn, base: 125 },
-            { el: mosaicSetBtn, base: 120 }, { el: mosaicSetPanel, base: 25 }], () => { scheduleUpdate(); _lbMosaicRelayout(); });
+        }, [closeBtn, viewVidBtn, mosaicBtn, mosaicSetBtn, mosaicSetPanel], () => { scheduleUpdate(); _lbMosaicRelayout(); });
         _toggleGalleryRef = tgB;
 
         modal.appendChild(stage);
@@ -18624,6 +18665,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     card.classList.add('tm-lb-animated');
                 });
                 void cards[0]?.offsetHeight;
+                _lbEntered = true;
                 _flushUpdate();
                 if (openGallery) tgB(true);
             }, totalStagger);
