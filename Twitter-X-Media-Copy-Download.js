@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.3.1.5
+// @version      3.3.1.8
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -9798,6 +9798,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     tfGroupBody.appendChild(_makeTfToggleRow(label, desc, key, tfKey, featureId));
                 });
 
+                if (GM_getValue(KEY_LEGACY_MEDIA_GRID, false)) {
+                    GM_setValue(KEY_LEGACY_MEDIA_GRID, false);
+                }
                 const _makeLegacyGridRow = () => {
                     const row = document.createElement('div');
                     row.className = 'tm-tf-row';
@@ -9809,59 +9812,23 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     nameEl.textContent = T.sp_legacy_grid_label || 'Legacy Media Grid';
                     const descEl = document.createElement('span');
                     descEl.className = 'tm-tf-row-desc';
-                    descEl.textContent = T.sp_legacy_grid_desc || 'Restore the old profile media grid layout. Requires a page reload to apply.';
+                    descEl.textContent = 'Temporarily unavailable after a recent X update. A fix is being investigated.';
                     left.appendChild(nameEl);
                     left.appendChild(descEl);
                     row.appendChild(left);
 
-                    if (isFeatureNew('legacy_media_grid')) {
-                        const badge = document.createElement('span');
-                        badge.className = 'tm-sp-new-badge';
-                        badge.textContent = 'NEW';
-                        row.appendChild(badge);
-                    }
-
                     const right = document.createElement('div');
                     right.className = 'tm-tf-row-right';
                     const valEl = document.createElement('span');
-                    const updateVal = () => {
-                        const on = GM_getValue(KEY_LEGACY_MEDIA_GRID, false);
-                        valEl.className = on ? 'tm-tf-val-on' : 'tm-tf-val-off';
-                        valEl.textContent = on ? (T.status_on || 'On') : (T.status_off || 'Off');
-                    };
-                    updateVal();
-                    const arrow = document.createElement('span');
-                    arrow.className = 'tm-tf-arrow';
-                    arrow.textContent = '›';
+                    valEl.className = 'tm-tf-val-off';
+                    valEl.textContent = 'Unavailable';
                     right.appendChild(valEl);
-                    right.appendChild(arrow);
                     row.appendChild(right);
 
+                    row.style.opacity = '0.6';
+                    row.style.cursor = 'not-allowed';
                     row.addEventListener('click', () => {
-                        if (document.getElementById('tm-legacy-grid-confirm-modal')) return;
-
-                        markFeatureSeen('legacy_media_grid');
-                        const next = !GM_getValue(KEY_LEGACY_MEDIA_GRID, false);
-                        const stateText = next ? (T.status_on || 'On') : (T.status_off || 'Off');
-                        const commit = () => {
-                            GM_setValue(KEY_LEGACY_MEDIA_GRID, next);
-                            updateVal();
-                        };
-                        if (!next) {
-                            commit();
-                            showToast(T.toast_legacy_grid_pending || 'Change saved. Reload the page to apply.');
-                            return;
-                        }
-                        const confirmMsg = (T.confirm_legacy_grid_reload || DEFAULT_LEGACY_GRID_CONFIRM_MSG)
-                            .replace('{state}', stateText);
-                        showLegacyGridConfirmModal(
-                            confirmMsg,
-                            () => { commit(); location.reload(); },
-                            () => {
-                                commit();
-                                showToast(T.toast_legacy_grid_pending || 'Change saved. Reload the page to apply.');
-                            }
-                        );
+                        showToast('Legacy Media Grid is temporarily unavailable after a recent X update.');
                     });
                     return row;
                 };
@@ -10042,8 +10009,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         if (!btn || btn.querySelector('.tm-media-dl-dot')) return;
         const badge = document.createElement('span');
         badge.className = 'tm-media-dl-dot';
+        const ICON_HALF_W = 10;
         badge.style.cssText = `
-            position: absolute; top: -3px; right: -3px;
+            position: absolute; top: -3px; left: calc(50% + ${ICON_HALF_W}px - 4px);
             width: 8px; height: 8px; border-radius: 50%;
             padding: 0; margin: 0; box-sizing: border-box;
             background: #00ba7c; pointer-events: none;
@@ -18975,7 +18943,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 url.includes('HomeLatestTimeline') || url.includes('UserOriginalsTimeline') ||
                 url.includes('UserVideoTimeline')
             );
-            const _gqlIdMatch = url.match(/\/i\/api\/graphql\/([A-Za-z0-9_-]{20,})\/TweetResultByRestId/);
+            const _gqlIdMatch = url.match(/\/graphql\/([A-Za-z0-9_-]{20,})\/TweetResultByRestId/);
             if (_gqlIdMatch && _gqlIdMatch[1] !== _cachedGqlId) {
                 _cachedGqlId = _gqlIdMatch[1];
                 GM_setValue('app_gql_tweet_id', _cachedGqlId);
@@ -19264,8 +19232,12 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
     function extractTweetUrl(article, baseUrl) {
         const candidates = [
+            Array.from(article.querySelectorAll('a[href*="/status/"]')).find(a => {
+                try { return /^\/[^/]+\/status\/\d+$/.test(new URL(a.href).pathname); }
+                catch (_) { return false; }
+            }),
             article.querySelector('a[href*="/status/"] > time')?.parentElement,
-            article.querySelector('a[href*="/status/"][aria-label]'),
+            article.querySelector('a[href*="/status/"][aria-label]:not([aria-label="圖片"]):not([data-engagement-action])'),
             article.querySelector('a[href*="/status/"]'),
         ];
         for (const el of candidates) {
@@ -20772,7 +20744,8 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 z-index: 3;
             }
             .${AVATAR_BTN_CLASS}:hover { opacity: 1 !important; background: rgba(29,155,240,0.85); }
-            [data-testid="Tweet-User-Avatar"]:hover .${AVATAR_BTN_CLASS} { opacity: 0.85; pointer-events: auto; }
+            [data-testid="Tweet-User-Avatar"]:hover .${AVATAR_BTN_CLASS},
+            [data-post-avatar="true"]:hover .${AVATAR_BTN_CLASS} { opacity: 0.85; pointer-events: auto; }
             .${AVATAR_BTN_CLASS} svg { width: 11px; height: 11px; pointer-events: none; }
         `;
         const _appendAvatarStyle = () => document.head.appendChild(_avatarStyle);
@@ -20797,14 +20770,21 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             n++;
             if (_processedAvatars.has(avatarWrap) || !avatarWrap.isConnected) continue;
 
-            const container = avatarWrap.querySelector('[data-testid^="UserAvatar-Container-"]');
-            if (!container) continue;
-            const testid = container.getAttribute('data-testid') || '';
-            const screenName = testid.replace('UserAvatar-Container-', '');
+            const _legacyContainer = avatarWrap.querySelector('[data-testid^="UserAvatar-Container-"]');
+            let screenName = _legacyContainer
+                ? (_legacyContainer.getAttribute('data-testid') || '').replace('UserAvatar-Container-', '')
+                : '';
+            if (!screenName) {
+                const _avatarAnchor = avatarWrap.querySelector('[data-post-avatar="true"] a[href]');
+                const _href = _avatarAnchor?.getAttribute('href') || '';
+                const _m = _href.match(/^\/([a-zA-Z0-9_]+)\/?$/);
+                if (_m) screenName = _m[1];
+            }
             if (!screenName) continue;
+            const _badgeHost = avatarWrap.querySelector('[data-post-avatar="true"]') || avatarWrap;
 
-            if (getComputedStyle(avatarWrap).position === 'static') {
-                avatarWrap.style.position = 'relative';
+            if (getComputedStyle(_badgeHost).position === 'static') {
+                _badgeHost.style.position = 'relative';
             }
 
             const badge = document.createElement('a');
@@ -20824,7 +20804,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 } catch (_) { window.open(mediaHref, '_blank'); }
             });
 
-            avatarWrap.appendChild(badge);
+            _badgeHost.appendChild(badge);
             _processedAvatars.add(avatarWrap);
         }
 
@@ -20838,7 +20818,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
     insertAvatarMediaButtons = function (enabled) {
         if (!enabled) return;
 
-        document.querySelectorAll('article [data-testid="Tweet-User-Avatar"]').forEach(avatarWrap => {
+        document.querySelectorAll('article [data-testid="Tweet-User-Avatar"], article [data-post-avatar="true"]').forEach(avatarWrap => {
             if (!_processedAvatars.has(avatarWrap) && !_avatarBatchQueued.has(avatarWrap)) {
                 _avatarBatchQueue.push(avatarWrap);
                 _avatarBatchQueued.add(avatarWrap);
