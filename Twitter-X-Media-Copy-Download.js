@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.3.1.12
+// @version      3.3.1.13
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -15291,7 +15291,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     }
                     if (rec.tweetId && fallbackVids.length > 0) {
                         try {
-                            const apiData = await fetchTweetMediaFromAPI(rec.tweetId);
+                            const apiData = await fetchTweetMediaFromAPIWithRetry(rec.tweetId);
                             if (apiData && apiData.videos && apiData.videos.length > 0) {
                                 freshVids = apiData.videos;
                             }
@@ -17098,7 +17098,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                                 let mp4Url = isValidUrl(item.url) ? item.url : null;
                                 if (!mp4Url && group.tweetId) {
                                     try {
-                                        const d = await fetchTweetMediaFromAPI(group.tweetId);
+                                        const d = await fetchTweetMediaFromAPIWithRetry(group.tweetId);
                                         const c = d?.videos?.[0];
                                         if (isValidUrl(c)) mp4Url = c;
                                     } catch(_) {}
@@ -17821,7 +17821,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             let mp4Url = _lbIsHttpUrl(item.url) ? item.url : null;
             if (!mp4Url && group.tweetId) {
                 try {
-                    const apiData = await fetchTweetMediaFromAPI(group.tweetId);
+                    const apiData = await fetchTweetMediaFromAPIWithRetry(group.tweetId);
                     const candidate = apiData?.videos?.[0];
                     if (_lbIsHttpUrl(candidate)) mp4Url = candidate;
                 } catch (_) {}
@@ -19269,7 +19269,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
     const _API_RETRY_COUNT = 2;
     const _API_RETRY_DELAY_MS = 1200;
     function _delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-    async function fetchTweetMediaFromAPIWithRetry(statusId) {
+    async function _fetchTweetMediaFromAPIRetryCore(statusId) {
         let result = await fetchTweetMediaFromAPI(statusId);
         if (result && (result.videos.length > 0 || result.images.length > 0)) return result;
         for (let attempt = 1; attempt <= _API_RETRY_COUNT; attempt++) {
@@ -19280,6 +19280,26 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             if (result && (result.videos.length > 0 || result.images.length > 0)) return result;
         }
         return result;
+    }
+
+    const _DEDUP_NEGATIVE_TTL = 15_000;
+    const _dedupPending = new Map();
+    const _dedupRecent  = new Map();
+    async function fetchTweetMediaFromAPIWithRetry(statusId) {
+        const _cached = _dedupRecent.get(statusId);
+        if (_cached && (Date.now() - _cached.ts < _DEDUP_NEGATIVE_TTL)) return _cached.result;
+
+        const _inflight = _dedupPending.get(statusId);
+        if (_inflight) return _inflight;
+
+        const _p = _fetchTweetMediaFromAPIRetryCore(statusId)
+            .then(result => {
+                _dedupRecent.set(statusId, { result, ts: Date.now() });
+                return result;
+            })
+            .finally(() => { _dedupPending.delete(statusId); });
+        _dedupPending.set(statusId, _p);
+        return _p;
     }
 
     async function extractVideoUrl(article) {
@@ -19775,7 +19795,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                             if (m) { statusId = m[1]; break; }
                         }
                         if (statusId) {
-                            const apiData = await fetchTweetMediaFromAPI(statusId);
+                            const apiData = await fetchTweetMediaFromAPIWithRetry(statusId);
                             if (apiData) { videos = apiData.videos || []; imgUrls = apiData.images || []; }
                         }
                         if (!videos.length && !imgUrls.length) {
@@ -19838,7 +19858,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 }
 
                 if (statusId) {
-                    const apiData = await fetchTweetMediaFromAPI(statusId);
+                    const apiData = await fetchTweetMediaFromAPIWithRetry(statusId);
                     if (apiData) {
                         videos  = apiData.videos  || [];
                         imgUrls = apiData.images   || [];
@@ -20617,13 +20637,13 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     im.onerror = () => { clearTimeout(timer); resolve(src); };
                     im.src = full;
                 });
-                _cardDataP = Promise.all([_probe(), fetchTweetMediaFromAPI(tweetId).catch(() => null)]).then(([url, meta]) => ({
+                _cardDataP = Promise.all([_probe(), fetchTweetMediaFromAPIWithRetry(tweetId).catch(() => null)]).then(([url, meta]) => ({
                     videos: [], images: [url],
                     displayName: meta?.displayName, date: meta?.date, text: meta?.text,
                 }));
                 return _cardDataP;
             };
-            const _gridFetch = () => isCard ? _gridCardData() : fetchTweetMediaFromAPI(tweetId);
+            const _gridFetch = () => isCard ? _gridCardData() : fetchTweetMediaFromAPIWithRetry(tweetId);
 
             const _gridFilename = (apiData, url, idx) => {
                 let ext = '.jpg';
