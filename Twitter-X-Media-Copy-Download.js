@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.3.1.11
+// @version      3.3.1.12
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -565,6 +565,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             btn_switch_to_video: 'Switch to Video',
             btn_switch_to_image: 'Switch to Image',
             msg_no_video: '❌ No Video',
+            msg_video_fetch_failed: '⚠️ Video not retrieved. Please retry in a moment.',
             reload_msg: 'Settings Saved',
             toast_domain_click: '🔗 Single-Click Domain → ',
             toast_domain_long: '🔗 Long-Press Domain → ',
@@ -919,6 +920,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             btn_switch_to_video: '切換至影片',
             btn_switch_to_image: '切換至圖片',
             msg_no_video: '❌ 無影片',
+            msg_video_fetch_failed: '⚠️ 影片未成功取得，請稍後重試',
             reload_msg: '設定已儲存',
             toast_domain_click: '🔗 單擊域名 → ',
             toast_domain_long: '🔗 長按域名 → ',
@@ -1269,6 +1271,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             btn_switch_to_video: '切换至视频',
             btn_switch_to_image: '切换至图片',
             msg_no_video: '❌ 无视频',
+            msg_video_fetch_failed: '⚠️ 视频未成功获取，请稍后重试',
             reload_msg: '设置已保存',
             toast_domain_click: '🔗 单击域名 → ',
             toast_domain_long: '🔗 长按域名 → ',
@@ -1619,6 +1622,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             btn_switch_to_video: '動画に切り替え',
             btn_switch_to_image: '画像に切り替え',
             msg_no_video: '❌ 動画なし',
+            msg_video_fetch_failed: '⚠️ 動画の取得に失敗しました。しばらくしてから再試行してください',
             reload_msg: '設定が保存されました',
             toast_domain_click: '🔗 クリックドメイン → ',
             toast_domain_long: '🔗 長押しドメイン → ',
@@ -1969,6 +1973,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             btn_switch_to_video: '동영상으로 전환',
             btn_switch_to_image: '이미지로 전환',
             msg_no_video: '❌ 동영상 없음',
+            msg_video_fetch_failed: '⚠️ 동영상을 가져오지 못했습니다. 잠시 후 다시 시도해 주세요',
             reload_msg: '설정이 저장되었습니다',
             toast_domain_click: '🔗 클릭 도메인 → ',
             toast_domain_long: '🔗 길게 누르기 도메인 → ',
@@ -2319,6 +2324,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             btn_switch_to_video: 'Cambiar a vídeo',
             btn_switch_to_image: 'Cambiar a imagen',
             msg_no_video: '❌ Sin video',
+            msg_video_fetch_failed: '⚠️ No se pudo obtener el video. Inténtalo de nuevo en un momento.',
             reload_msg: 'Configuración guardada',
             toast_domain_click: '🔗 Dominio de clic → ',
             toast_domain_long: '🔗 Dominio de pulsación larga → ',
@@ -2669,6 +2675,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             btn_switch_to_video: 'Trocar para vídeo',
             btn_switch_to_image: 'Trocar para imagem',
             msg_no_video: '❌ Sem vídeo',
+            msg_video_fetch_failed: '⚠️ Não foi possível obter o vídeo. Tente novamente em instantes.',
             reload_msg: 'Configurações salvas',
             toast_domain_click: '🔗 Domínio de clique → ',
             toast_domain_long: '🔗 Domínio de pressão longa → ',
@@ -3019,6 +3026,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             btn_switch_to_video: 'Basculer vers la vidéo',
             btn_switch_to_image: 'Basculer vers l\'image',
             msg_no_video: '❌ Aucune vidéo',
+            msg_video_fetch_failed: '⚠️ Échec de la récupération de la vidéo. Réessayez dans un instant.',
             reload_msg: 'Paramètres enregistrés',
             toast_domain_click: '🔗 Domaine clic → ',
             toast_domain_long: '🔗 Domaine appui long → ',
@@ -3369,6 +3377,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             btn_switch_to_video: 'Переключить на видео',
             btn_switch_to_image: 'Переключить на изображение',
             msg_no_video: '❌ Нет видео',
+            msg_video_fetch_failed: '⚠️ Не удалось получить видео. Повторите попытку через некоторое время.',
             reload_msg: 'Настройки сохранены',
             toast_domain_click: '🔗 Домен клика → ',
             toast_domain_long: '🔗 Домен долгого нажатия → ',
@@ -19257,6 +19266,22 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         }
     }
 
+    const _API_RETRY_COUNT = 2;
+    const _API_RETRY_DELAY_MS = 1200;
+    function _delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+    async function fetchTweetMediaFromAPIWithRetry(statusId) {
+        let result = await fetchTweetMediaFromAPI(statusId);
+        if (result && (result.videos.length > 0 || result.images.length > 0)) return result;
+        for (let attempt = 1; attempt <= _API_RETRY_COUNT; attempt++) {
+            if (_circuitIsOpen()) break;
+            await _delay(_API_RETRY_DELAY_MS);
+            _log('TMApi', `fetchTweetMediaFromAPI 第 ${attempt} 次重試，statusId=`, statusId);
+            result = await fetchTweetMediaFromAPI(statusId);
+            if (result && (result.videos.length > 0 || result.images.length > 0)) return result;
+        }
+        return result;
+    }
+
     async function extractVideoUrl(article) {
         const cached = _fiberVideoCache.get(article);
         if (cached && (Date.now() - cached.ts < _FIBER_CACHE_TTL)) return cached.urls;
@@ -19269,7 +19294,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         }
 
         if (statusId) {
-            const apiData = await fetchTweetMediaFromAPI(statusId);
+            const apiData = await fetchTweetMediaFromAPIWithRetry(statusId);
             if (apiData && apiData.videos.length > 0) {
                 _fiberVideoCache.set(article, { urls: apiData.videos, ts: Date.now() });
                 return apiData.videos;
@@ -19316,7 +19341,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
         let apiSuccess = false;
         if (statusId) {
-            const apiData = await fetchTweetMediaFromAPI(statusId);
+            const apiData = await fetchTweetMediaFromAPIWithRetry(statusId);
             if (apiData && (apiData.videos.length > 0 || apiData.images.length > 0)) {
                 apiData.videos.forEach(v => uniqueMedias.set(v, v));
                 apiData.images.forEach(addImageUrl);
@@ -19324,6 +19349,8 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             }
         }
 
+        let _domHadVideoEl = false;
+        let _domVideoCount  = 0;
         if (!apiSuccess) {
             _log('TMApi', 'extractMediaUrls: API 無可用結果，退回 DOM 掃描（只看得到畫面上已渲染的媒體），statusId=', statusId);
             const _allImgSrcs = Array.from(article.querySelectorAll('img[src*="twimg.com"]'))
@@ -19334,12 +19361,19 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 : [];
             (_ownImgSrcs.length ? _ownImgSrcs : _allImgSrcs).forEach(addImageUrl);
 
+            _domHadVideoEl = article.querySelectorAll('video').length > 0;
             const videos = await extractVideoUrl(article);
+            _domVideoCount = videos.length;
             videos.forEach(v => uniqueMedias.set(v, v));
         }
 
         const result = Array.from(uniqueMedias.values());
         result.fromDom = !apiSuccess;
+
+        if (!apiSuccess && _domHadVideoEl && _domVideoCount === 0) {
+            showToast(T.msg_video_fetch_failed || '⚠️ Video not retrieved. Please retry in a moment.', 5000, 'warning');
+        }
+
         return result;
     }
 
