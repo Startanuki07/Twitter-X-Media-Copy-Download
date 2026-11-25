@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.3.1.13
+// @version      3.3.2.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -18905,7 +18905,13 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
     let _cachedBearerToken = null;
     let _bearerPendingPromise = null;
     const _DEFAULT_GQL_ID = '2ICDjqPd81tulZcYrtpTuQ';
+    const _persistedGqlId = GM_getValue('app_gql_tweet_id', null);
+    if (_persistedGqlId !== null && _persistedGqlId !== _DEFAULT_GQL_ID) {
+        _log('TMApi', 'app_gql_tweet_id 偵測到與預設值不符的殘留值，判定為可疑污染並清除：', _persistedGqlId);
+        GM_deleteValue('app_gql_tweet_id');
+    }
     let _cachedGqlId = GM_getValue('app_gql_tweet_id', _DEFAULT_GQL_ID);
+    let _observedGqlId = null;
 
     async function _scanMainJsForBearer() {
         for (const script of document.querySelectorAll('script[src*="main."]')) {
@@ -19044,8 +19050,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             );
             const _gqlIdMatch = url.match(/\/graphql\/([A-Za-z0-9_-]{20,})\/TweetResultByRestId/);
             if (_gqlIdMatch && _gqlIdMatch[1] !== _cachedGqlId) {
-                _cachedGqlId = _gqlIdMatch[1];
-                GM_setValue('app_gql_tweet_id', _cachedGqlId);
+                _observedGqlId = _gqlIdMatch[1];
             } else if (!_gqlIdMatch && url.includes('TweetResultByRestId')) {
                 _log('TMApi', 'TweetResultByRestId URL 結構不符預期 regex，自動更新失效，仍使用舊 ID:', _cachedGqlId, url);
             }
@@ -19134,22 +19139,61 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             const AUTH_TOKEN = await _resolveBearerToken();
 
             const variables = {
-                "restId": statusId,
-                "withFocalTweet": true,
-                "__relay_internal__pv__xclientsfeaturesappviewerisloggedinrelayprovider": true,
-                "__relay_internal__pv__replydownvoteenabledrelayprovider": false,
-                "__relay_internal__pv__xclientsfeaturestranslationgroktranslatedpostenabledrelayprovider": true,
-                "__relay_internal__pv__postctafetchenabledrelayprovider": false,
-                "__relay_internal__pv__xclientsfeaturestweetcomponentsgrokanalyzepostrelayprovider": true,
-                "__relay_internal__pv__xclientsfeaturestranslationnoteautotranslationenabledrelayprovider": true,
-                "__relay_internal__pv__liveeventpostcontextenabledrelayprovider": true,
-                "__relay_internal__pv__xclientsfeaturestweetsportspostcontextenabledrelayprovider": true
+                "tweetId": statusId,
+                "with_rux_injections": false,
+                "includePromotedContent": true,
+                "withCommunity": true,
+                "withQuickPromoteEligibilityTweetFields": true,
+                "withBirdwatchNotes": true,
+                "withVoice": true,
+                "withV2Timeline": true
             };
 
-            const _isXHost = /(^|\.)x\.com$/.test(location.hostname);
-            let url = _isXHost
-                ? `https://api.x.com/graphql/${_cachedGqlId}/TweetResultByRestId?variables=${encodeURIComponent(JSON.stringify(variables))}`
-                : `https://${location.hostname}/i/api/graphql/${_cachedGqlId}/TweetResultByRestId?variables=${encodeURIComponent(JSON.stringify(variables))}`;
+            const features = {
+                "articles_preview_enabled": true,
+                "c9s_tweet_anatomy_moderator_badge_enabled": true,
+                "communities_web_enable_tweet_community_results_fetch": true,
+                "creator_subscriptions_quote_tweet_preview_enabled": false,
+                "creator_subscriptions_tweet_preview_api_enabled": true,
+                "freedom_of_speech_not_reach_fetch_enabled": true,
+                "graphql_is_translatable_rweb_tweet_is_translatable_enabled": true,
+                "longform_notetweets_consumption_enabled": true,
+                "longform_notetweets_inline_media_enabled": true,
+                "longform_notetweets_rich_text_read_enabled": true,
+                "premium_content_api_read_enabled": false,
+                "profile_label_improvements_pcf_label_in_post_enabled": true,
+                "responsive_web_edit_tweet_api_enabled": true,
+                "responsive_web_enhance_cards_enabled": false,
+                "responsive_web_graphql_exclude_directive_enabled": true,
+                "responsive_web_graphql_skip_user_profile_image_extensions_enabled": false,
+                "responsive_web_graphql_timeline_navigation_enabled": true,
+                "responsive_web_grok_analysis_button_from_backend": false,
+                "responsive_web_grok_analyze_button_fetch_trends_enabled": false,
+                "responsive_web_grok_analyze_post_followups_enabled": false,
+                "responsive_web_grok_image_annotation_enabled": true,
+                "responsive_web_grok_share_attachment_enabled": true,
+                "responsive_web_grok_show_grok_translated_post": false,
+                "responsive_web_jetfuel_frame": false,
+                "responsive_web_media_download_video_enabled": false,
+                "responsive_web_twitter_article_tweet_consumption_enabled": true,
+                "rweb_tipjar_consumption_enabled": true,
+                "rweb_video_screen_enabled": false,
+                "standardized_nudges_misinfo": true,
+                "tweet_awards_web_tipping_enabled": false,
+                "tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled": true,
+                "tweetypie_unmention_optimization_enabled": true,
+                "verified_phone_label_enabled": false,
+                "view_counts_everywhere_api_enabled": true
+            };
+            const fieldToggles = {
+                "withArticleRichContentState": true,
+                "withArticlePlainText": false,
+                "withGrokAnalyze": false,
+                "withDisallowedReplyControls": false
+            };
+
+            const _qsExtra = `&features=${encodeURIComponent(JSON.stringify(features))}&fieldToggles=${encodeURIComponent(JSON.stringify(fieldToggles))}`;
+            let url = `https://${location.hostname}/i/api/graphql/${_cachedGqlId}/TweetResultByRestId?variables=${encodeURIComponent(JSON.stringify(variables))}${_qsExtra}`;
 
             const _safeAuth = _sanitizeHeaderValue(AUTH_TOKEN, 'authorization');
             const _safeCt0  = _sanitizeHeaderValue(ct0, 'ct0/x-csrf-token');
@@ -19194,17 +19238,19 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                         6000, 'warning'
                     );
                 } else if (res.status === 404) {
-                    _log('TMApi', 'TweetResultByRestId 404, cachedGqlId=', _cachedGqlId, '— 可能已輪替');
-                    GM_deleteValue('app_gql_tweet_id');
-                    _cachedGqlId = _DEFAULT_GQL_ID;
+                    const _nextGqlId = _observedGqlId || _DEFAULT_GQL_ID;
+                    _log('TMApi', 'TweetResultByRestId 404, cachedGqlId=', _cachedGqlId, '— 可能已輪替，切換為:', _nextGqlId, _observedGqlId ? '(觀察候選)' : '(預設值)');
+                    _cachedGqlId = _nextGqlId;
+                    GM_setValue('app_gql_tweet_id', _nextGqlId);
+                    _observedGqlId = null;
                 }
                 _circuitRecordFailure();
                 return null;
             }
-            let core = json.data?.tweet_result_by_rest_id?.result?.tweet
-                || json.data?.tweet_result_by_rest_id?.result
-                || json.data?.tweetResult?.result?.tweet
-                || json.data?.tweetResult?.result;
+            let core = json.data?.tweetResult?.result?.tweet
+                || json.data?.tweetResult?.result
+                || json.data?.tweet_result_by_rest_id?.result?.tweet
+                || json.data?.tweet_result_by_rest_id?.result;
             if (!core) {
                 _log('TMApi', 'fetchTweetMediaFromAPI: result 整層缺失（非 tombstone/unavailable），計入電路斷路器', statusId);
                 _circuitRecordFailure();
@@ -19282,19 +19328,21 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         return result;
     }
 
-    const _DEDUP_NEGATIVE_TTL = 15_000;
+    const _SUCCESS_CACHE_TTL = 15_000;
     const _dedupPending = new Map();
-    const _dedupRecent  = new Map();
+    const _successCache = new Map();
     async function fetchTweetMediaFromAPIWithRetry(statusId) {
-        const _cached = _dedupRecent.get(statusId);
-        if (_cached && (Date.now() - _cached.ts < _DEDUP_NEGATIVE_TTL)) return _cached.result;
+        const _cached = _successCache.get(statusId);
+        if (_cached && (Date.now() - _cached.ts < _SUCCESS_CACHE_TTL)) return _cached.result;
 
         const _inflight = _dedupPending.get(statusId);
         if (_inflight) return _inflight;
 
         const _p = _fetchTweetMediaFromAPIRetryCore(statusId)
             .then(result => {
-                _dedupRecent.set(statusId, { result, ts: Date.now() });
+                if (result && (result.videos.length > 0 || result.images.length > 0)) {
+                    _successCache.set(statusId, { result, ts: Date.now() });
+                }
                 return result;
             })
             .finally(() => { _dedupPending.delete(statusId); });
