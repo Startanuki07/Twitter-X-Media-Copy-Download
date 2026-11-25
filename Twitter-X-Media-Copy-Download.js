@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.3.1.8
+// @version      3.3.1.10
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -30,15 +30,15 @@
 // @connect      twimg.com
 // @run-at       document-start
 // @noframes
-// @description      Adds one-click copy/download buttons for tweet media & links, and can restore legacy media grid. Includes a download history panel with text bookmarks, custom groups, drag-to-reorder, cross-item lightbox, custom filename templates, avatar /media shortcuts, and dark/light/custom themes. More options in settings.
-// @description:zh-TW 為推文的媒體與連結新增一鍵複製分享連結與下載媒體按鈕，並可還原個人頁面的舊版媒體網格版面。提供下載歷史面板，包含文字書籤、自訂群組、拖曳排序、跨項目燈箱瀏覽、自訂檔名樣板、頭像 /media 捷徑，以及深色／淺色／自訂主題選項。部分進階功能未列出，可於設定面板開啟使用。
-// @description:zh-CN 为推文的媒体与链接新增一键复制分享链接与下载媒体按钮，并可还原个人页面的旧版媒体网格版面。提供下载历史面板，包含文字书签、自定义分组、拖拽排序、跨项目灯箱浏览、自定义文件名模板、头像 /media 快捷入口，以及深色／浅色／自定义主题选项。部分进阶功能未列出，可于设置面板开启使用。
-// @description:ja    ツイートのメディアとリンクにワンクリックでコピー＆ダウンロードボタンを追加し、プロフィールページの旧メディアグリッドレイアウトも復元可能。テキストブックマーク、カスタムグループ、ドラッグ&ドロップでの並べ替え、複数アイテムのライトボックス表示、カスタムファイル名テンプレート、アバターの /media ショートカット、ダーク／ライト／カスタムテーマなどを備えたダウンロード履歴パネルを提供。詳細設定は設定パネルから利用可能。
-// @description:ko    트윗의 미디어와 링크에 원클릭 복사 및 다운로드 버튼을 추가하고, 프로필 페이지의 레거시 미디어 그리드 레이아웃도 복원할 수 있습니다. 텍스트 북마크, 사용자 지정 그룹, 드래그 앤 드롭 정렬, 다중 항목 라이트박스 탐색, 사용자 지정 파일명 템플릿, 아바타 /media 바로가기, 다크/라이트/사용자 지정 테마를 포함한 다운로드 기록 패널을 제공합니다. 추가 고급 옵션은 설정 패널에서 이용할 수 있습니다.
-// @description:es    Añade botones de copia y descarga con un clic para medios y enlaces de tweets, y permite restaurar la cuadrícula de medios clásica del perfil. Incluye panel de historial con marcadores de texto, grupos personalizados, reordenación por arrastre, lightbox entre elementos, plantillas de nombre de archivo, accesos directos /media desde el avatar y temas oscuro/claro/personalizado.
-// @description:pt-BR Adiciona botões de copiar e baixar com um clique para mídias e links de tweets, e permite restaurar a grade de mídia clássica do perfil. Inclui painel de histórico com marcadores de texto, grupos personalizados, reordenação por arrastar, lightbox entre itens, modelos de nome de arquivo, atalhos /media pelo avatar e temas escuro/claro/personalizado.
-// @description:fr    Ajoute des boutons de copie et de téléchargement en un clic pour les médias et liens des tweets, et permet de restaurer l'ancienne grille de médias du profil. Inclut un panneau d'historique avec signets texte, groupes personnalisés, réorganisation par glisser-déposer, visionneuse entre éléments, modèles de nom de fichier, raccourcis /media depuis l'avatar et thèmes sombre/clair/personnalisé.
-// @description:ru    Добавляет кнопки копирования и скачивания в один клик для медиа и ссылок твитов, а также может восстановить старую сетку медиа в профиле. Панель истории с текстовыми закладками, группами, сортировкой перетаскиванием, лайтбоксом между элементами, именами файлов по шаблону, ярлыками /media из аватара, тёмной/светлой/пользовательской темой. Больше опций в настройках.
+// @description      Adds one-click copy/download buttons for tweet media & links. Includes a download history panel with text bookmarks, custom groups, drag-to-reorder, cross-item lightbox, custom filename templates, avatar /media shortcuts, and dark/light/custom themes. More options in settings.
+// @description:zh-TW 為推文的媒體與連結新增一鍵複製分享連結與下載媒體按鈕。提供下載歷史面板，包含文字書籤、自訂群組、拖曳排序、跨項目燈箱瀏覽、自訂檔名樣板、頭像 /media 捷徑，以及深色／淺色／自訂主題選項。部分進階功能未列出，可於設定面板開啟使用。
+// @description:zh-CN 为推文的媒体与链接新增一键复制分享链接与下载媒体按钮。提供下载历史面板，包含文字书签、自定义分组、拖拽排序、跨项目灯箱浏览、自定义文件名模板、头像 /media 快捷入口，以及深色／浅色／自定义主题选项。部分进阶功能未列出，可于设置面板开启使用。
+// @description:ja    ツイートのメディアとリンクにワンクリックでコピー＆ダウンロードボタンを追加。テキストブックマーク、カスタムグループ、ドラッグ&ドロップでの並べ替え、複数アイテムのライトボックス表示、カスタムファイル名テンプレート、アバターの /media ショートカット、ダーク／ライト／カスタムテーマなどを備えたダウンロード履歴パネルを提供。詳細設定は設定パネルから利用可能。
+// @description:ko    트윗의 미디어와 링크에 원클릭 복사 및 다운로드 버튼을 추가합니다. 텍스트 북마크, 사용자 지정 그룹, 드래그 앤 드롭 정렬, 다중 항목 라이트박스 탐색, 사용자 지정 파일명 템플릿, 아바타 /media 바로가기, 다크/라이트/사용자 지정 테마를 포함한 다운로드 기록 패널을 제공합니다. 추가 고급 옵션은 설정 패널에서 이용할 수 있습니다.
+// @description:es    Añade botones de copia y descarga con un clic para medios y enlaces de tweets. Incluye panel de historial con marcadores de texto, grupos personalizados, reordenación por arrastre, lightbox entre elementos, plantillas de nombre de archivo, accesos directos /media desde el avatar y temas oscuro/claro/personalizado.
+// @description:pt-BR Adiciona botões de copiar e baixar com um clique para mídias e links de tweets. Inclui painel de histórico com marcadores de texto, grupos personalizados, reordenação por arrastar, lightbox entre itens, modelos de nome de arquivo, atalhos /media pelo avatar e temas escuro/claro/personalizado.
+// @description:fr    Ajoute des boutons de copie et de téléchargement en un clic pour les médias et liens des tweets. Inclut un panneau d'historique avec signets texte, groupes personnalisés, réorganisation par glisser-déposer, visionneuse entre éléments, modèles de nom de fichier, raccourcis /media depuis l'avatar et thèmes sombre/clair/personnalisé.
+// @description:ru    Добавляет кнопки копирования и скачивания в один клик для медиа и ссылок твитов. Панель истории с текстовыми закладками, группами, сортировкой перетаскиванием, лайтбоксом между элементами, именами файлов по шаблону, ярлыками /media из аватара, тёмной/светлой/пользовательской темой. Больше опций в настройках.
 // ==/UserScript==
 
 const _xrayWarned = new Set();
@@ -123,6 +123,14 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         .replace(/>/g,  '&gt;')
         .replace(/"/g,  '&quot;')
         .replace(/'/g,  '&#39;');
+
+    const _ttPolicy = (() => {
+        if (typeof trustedTypes === 'undefined' || !trustedTypes.createPolicy) return null;
+        try { return trustedTypes.createPolicy('twitter-x-media-copy-download-html', { createHTML: s => s }); }
+        catch (_) { return null; }
+    })();
+    const _trustHTML = val => (_ttPolicy ? _ttPolicy.createHTML(val) : val);
+    const setHTML = (el, val) => { el.innerHTML = _trustHTML(val); };
 
     const _log = (tag, msg, ...rest) => {
         try { console.warn(`[${tag}]`, msg, ...rest); } catch (_) {  }
@@ -699,6 +707,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             sp_reset_confirm:       'Reset all settings to defaults?\n\nThis will clear: copy format, feedback style, dock style, trigger distances, group panel appearance, corner position, button visibility, and list/thumb view mode.\n\nDownload history and groups will NOT be affected.',
             sp_legacy_grid_label:   'Legacy Media Grid',
             sp_legacy_grid_desc:    'Restore the old profile media grid layout. Requires a page reload to apply.',
+            sp_legacy_grid_frozen_desc: 'Temporarily unavailable after a recent X update. A fix is being investigated.',
+            sp_legacy_grid_frozen_val:  'Unavailable',
+            toast_legacy_grid_frozen:   'Legacy Media Grid is temporarily unavailable after a recent X update.',
             confirm_legacy_grid_reload: 'Legacy Media Grid {state}.<br><br>' +
                 '<span style="color:#e0245e"><b>⚠️ Note:</b> If you use Tampermonkey (stable), this feature may not work.</span><br>' +
                 'For reliable results, please use <span style="color:#e0245e"><b>Tampermonkey Beta</b></span>, ' +
@@ -1049,6 +1060,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             sp_reset_confirm:       '確定要將所有設定重設為預設值嗎？\n\n將清除：複製格式、提示風格、停靠樣式、觸發距離、群組面板外觀、按鈕位置與顯示開關、列表/縮圖檢視模式。\n\n下載履歷與群組不受影響。',
             sp_legacy_grid_label:   '舊版媒體網格',
             sp_legacy_grid_desc:    '還原個人頁面舊版媒體網格排版，切換後需重新整理頁面生效。',
+            sp_legacy_grid_frozen_desc: 'X 近期改版後暫時無法使用，正在研究修復方式。',
+            sp_legacy_grid_frozen_val:  '暫不可用',
+            toast_legacy_grid_frozen:   '舊版媒體網格在 X 近期改版後暫時無法使用。',
             confirm_legacy_grid_reload: '舊版媒體網格已{state}。<br><br>' +
                 '<span style="color:#e0245e"><b>⚠️ 注意：</b>若您使用 Tampermonkey 穩定版，此功能可能無法正常運作。</span><br>' +
                 '若要正常使用，請改用 <span style="color:#e0245e"><b>Tampermonkey Beta</b></span>、' +
@@ -1396,6 +1410,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             sp_reset_confirm:       '确定要将所有设置重置为默认值吗？\n\n将清除：复制格式、提示风格、停靠样式、触发距离、分组面板外观、按钮位置与显示开关、列表/缩略图视图模式。\n\n下载历史与分组不受影响。',
             sp_legacy_grid_label:   '旧版媒体网格',
             sp_legacy_grid_desc:    '还原个人主页的旧版媒体网格布局。需要刷新页面才能生效。',
+            sp_legacy_grid_frozen_desc: 'X 近期改版后暂时无法使用，正在研究修复方式。',
+            sp_legacy_grid_frozen_val:  '暂不可用',
+            toast_legacy_grid_frozen:   '旧版媒体网格在 X 近期改版后暂时无法使用。',
             confirm_legacy_grid_reload: '旧版媒体网格已{state}。<br><br>' +
                 '<span style="color:#e0245e"><b>⚠️ 注意：</b>若您使用 Tampermonkey 稳定版，此功能可能无法正常运作。</span><br>' +
                 '若要正常使用，请改用 <span style="color:#e0245e"><b>Tampermonkey Beta</b></span>、' +
@@ -1743,6 +1760,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             sp_reset_confirm:       'すべての設定をデフォルトに戻しますか？\n\nリセット対象：コピー形式、通知スタイル、ドックスタイル、トリガー距離、グループパネル外観、ボタン位置・表示、リスト/サムネイルモード。\n\nダウンロード履歴とグループは影響を受けません。',
             sp_legacy_grid_label:   '旧メディアグリッド',
             sp_legacy_grid_desc:    'プロフィールページの旧メディアグリッドレイアウトを復元します。適用にはページの再読み込みが必要です。',
+            sp_legacy_grid_frozen_desc: 'Xの最近のアップデート後、一時的に利用できません。修正方法を調査中です。',
+            sp_legacy_grid_frozen_val:  '利用不可',
+            toast_legacy_grid_frozen:   '旧メディアグリッドは、Xの最近のアップデート後、一時的に利用できません。',
             confirm_legacy_grid_reload: '旧メディアグリッドを{state}しました。<br><br>' +
                 '<span style="color:#e0245e"><b>⚠️ 注意：</b>Tampermonkey（安定版）をご利用の場合、この機能が正常に動作しない可能性があります。</span><br>' +
                 '確実に動作させるには、<span style="color:#e0245e"><b>Tampermonkey Beta</b></span>、' +
@@ -2090,6 +2110,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             sp_reset_confirm:       '모든 설정을 기본값으로 재설정하시겠습니까?\n\n초기화 항목: 복사 형식, 알림 스타일, 도크 스타일, 트리거 거리, 그룹 패널, 버튼 위치/표시, 목록/썸네일 모드.\n\n다운로드 기록과 그룹은 영향받지 않습니다.',
             sp_legacy_grid_label:   '레거시 미디어 그리드',
             sp_legacy_grid_desc:    '프로필 페이지의 레거시 미디어 그리드 레이아웃을 복원합니다. 적용하려면 페이지를 새로고침해야 합니다.',
+            sp_legacy_grid_frozen_desc: '최근 X 업데이트 이후 일시적으로 사용할 수 없습니다. 해결 방법을 조사 중입니다.',
+            sp_legacy_grid_frozen_val:  '사용 불가',
+            toast_legacy_grid_frozen:   '레거시 미디어 그리드는 최근 X 업데이트 이후 일시적으로 사용할 수 없습니다.',
             confirm_legacy_grid_reload: '레거시 미디어 그리드가 {state}되었습니다.<br><br>' +
                 '<span style="color:#e0245e"><b>⚠️ 참고:</b> Tampermonkey(안정 버전)를 사용 중이라면 이 기능이 정상 작동하지 않을 수 있습니다.</span><br>' +
                 '정상적으로 사용하려면 <span style="color:#e0245e"><b>Tampermonkey Beta</b></span>, ' +
@@ -2437,6 +2460,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             sp_reset_confirm:       '¿Restablecer toda la configuración?\n\nSe borrará: formato de copia, estilo de notificación, estilo de dock, distancias, apariencia del panel, posición de botones y modo lista/miniaturas.\n\nEl historial y los grupos no se verán afectados.',
             sp_legacy_grid_label:   'Cuadrícula de medios clásica',
             sp_legacy_grid_desc:    'Restaura el diseño clásico de la cuadrícula de medios del perfil. Requiere recargar la página para aplicarse.',
+            sp_legacy_grid_frozen_desc: 'No disponible temporalmente tras una actualización reciente de X. Se está investigando una solución.',
+            sp_legacy_grid_frozen_val:  'No disponible',
+            toast_legacy_grid_frozen:   'La cuadrícula de medios clásica no está disponible temporalmente tras una actualización reciente de X.',
             confirm_legacy_grid_reload: 'Cuadrícula de medios clásica {state}.<br><br>' +
                 '<span style="color:#e0245e"><b>⚠️ Nota:</b> Si usas Tampermonkey (versión estable), esta función podría no funcionar.</span><br>' +
                 'Para un resultado fiable, usa <span style="color:#e0245e"><b>Tampermonkey Beta</b></span>, ' +
@@ -2784,6 +2810,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             sp_reset_confirm:       'Restaurar todas as configurações para o padrão?\n\nSerá apagado: formato de cópia, estilo de notificação, estilo de dock, distâncias, aparência do painel, posição dos botões e modo lista/miniaturas.\n\nO histórico de downloads e os grupos não serão afetados.',
             sp_legacy_grid_label:   'Grade de mídia clássica',
             sp_legacy_grid_desc:    'Restaura o layout clássico da grade de mídia do perfil. É necessário recarregar a página para aplicar.',
+            sp_legacy_grid_frozen_desc: 'Temporariamente indisponível após uma atualização recente do X. Uma correção está sendo investigada.',
+            sp_legacy_grid_frozen_val:  'Indisponível',
+            toast_legacy_grid_frozen:   'A grade de mídia clássica está temporariamente indisponível após uma atualização recente do X.',
             confirm_legacy_grid_reload: 'Grade de mídia clássica {state}.<br><br>' +
                 '<span style="color:#e0245e"><b>⚠️ Nota:</b> Se você usa o Tampermonkey (versão estável), este recurso pode não funcionar.</span><br>' +
                 'Para um resultado confiável, use o <span style="color:#e0245e"><b>Tampermonkey Beta</b></span>, ' +
@@ -3131,6 +3160,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             sp_reset_confirm:       'Réinitialiser tous les paramètres aux valeurs par défaut ?\n\nCeci effacera : format de copie, style de notification, style de dock, distances, apparence du panneau, position des boutons et mode liste/vignettes.\n\nL\'historique et les groupes ne seront pas affectés.',
             sp_legacy_grid_label:   'Grille média classique',
             sp_legacy_grid_desc:    'Restaure l\'ancienne mise en page de la grille de médias du profil. Nécessite un rechargement de la page pour s\'appliquer.',
+            sp_legacy_grid_frozen_desc: 'Temporairement indisponible après une récente mise à jour de X. Une correction est à l\'étude.',
+            sp_legacy_grid_frozen_val:  'Indisponible',
+            toast_legacy_grid_frozen:   'La grille média classique est temporairement indisponible après une récente mise à jour de X.',
             confirm_legacy_grid_reload: 'Grille média classique {state}.<br><br>' +
                 '<span style="color:#e0245e"><b>⚠️ Remarque :</b> si vous utilisez Tampermonkey (stable), cette fonctionnalité peut ne pas fonctionner.</span><br>' +
                 'Pour un résultat fiable, utilisez <span style="color:#e0245e"><b>Tampermonkey Beta</b></span>, ' +
@@ -3478,6 +3510,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             sp_reset_confirm:       'Сбросить все настройки до значений по умолчанию?\n\nБудет очищено: формат копирования, стиль уведомлений, стиль панели, расстояния активации, внешний вид, положение кнопок и режим список/миниатюры.\n\nИстория загрузок и группы не затронуты.',
             sp_legacy_grid_label:   'Классическая сетка медиа',
             sp_legacy_grid_desc:    'Восстанавливает старую сетку медиа в профиле. Для применения требуется перезагрузка страницы.',
+            sp_legacy_grid_frozen_desc: 'Временно недоступно после недавнего обновления X. Исправление изучается.',
+            sp_legacy_grid_frozen_val:  'Недоступно',
+            toast_legacy_grid_frozen:   'Классическая сетка медиа временно недоступна после недавнего обновления X.',
             confirm_legacy_grid_reload: 'Классическая сетка медиа {state}.<br><br>' +
                 '<span style="color:#e0245e"><b>⚠️ Примечание:</b> если вы используете Tampermonkey (стабильная версия), эта функция может не работать.</span><br>' +
                 'Для надёжной работы используйте <span style="color:#e0245e"><b>Tampermonkey Beta</b></span>, ' +
@@ -3740,7 +3775,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
     function sanitizeHelpHtml(htmlString, container) {
         const ALLOWED_TAGS = new Set(['P','B','BR','HR','CODE','UL','LI','A','SPAN']);
         const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlString, 'text/html');
+        const doc = parser.parseFromString(_trustHTML(htmlString), 'text/html');
 
         function walk(srcNode, destParent) {
             srcNode.childNodes.forEach(child => {
@@ -3834,7 +3869,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         }
 
         const closeBtn = document.createElement('button');
-        closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
+        setHTML(closeBtn, `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`);
         closeBtn.setAttribute('aria-label', 'Close help');
         closeBtn.style.cssText = `
             position: absolute; top: 10px; right: 12px; border: none; background: none;
@@ -3935,7 +3970,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         btnRow.appendChild(reloadBtn);
 
         const closeBtn = document.createElement('button');
-        closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
+        setHTML(closeBtn, `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`);
         closeBtn.setAttribute('aria-label', 'Close');
         closeBtn.style.cssText = `
             position: absolute; top: 10px; right: 12px; border: none; background: none;
@@ -4024,7 +4059,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         `;
 
         const closeBtn = document.createElement('button');
-        closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
+        setHTML(closeBtn, `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`);
         closeBtn.style.cssText = `
             position: absolute; top: 12px; right: 14px; border: none; background: none;
             width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
@@ -4153,7 +4188,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         `;
 
         const closeBtn = document.createElement('button');
-        closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
+        setHTML(closeBtn, `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`);
         closeBtn.style.cssText = `
             position: absolute; top: 12px; right: 14px; border: none; background: none;
             width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
@@ -4322,7 +4357,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         `;
 
         const closeBtn = document.createElement('button');
-        closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
+        setHTML(closeBtn, `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`);
         closeBtn.style.cssText = `
             position: absolute; top: 12px; right: 14px; border: none; background: none;
             width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
@@ -4721,7 +4756,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         customBtn.type = 'button';
         customBtn.className = 'tm-theme-picker-custom-btn' + (GM_getValue(KEY_CUSTOM_THEME_ENABLED, false) ? ' tm-active' : '');
         customBtn.title = T.tp_title || 'Custom Theme';
-        customBtn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.4-.3-.4-.5-.8-.5-1.4 0-1.1.9-2 2-2h2.3a3.7 3.7 0 0 0 3.7-3.7C21 6.5 17 2 12 2z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="16.5" cy="10.5" r="1"/></svg>`;
+        setHTML(customBtn, `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.4-.3-.4-.5-.8-.5-1.4 0-1.1.9-2 2-2h2.3a3.7 3.7 0 0 0 3.7-3.7C21 6.5 17 2 12 2z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="16.5" cy="10.5" r="1"/></svg>`);
         customBtn.addEventListener('click', e => {
             e.stopPropagation();
             showThemePaletteModal(scope);
@@ -4945,7 +4980,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         `;
 
         const closeBtn = document.createElement('button');
-        closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
+        setHTML(closeBtn, `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`);
         closeBtn.setAttribute('aria-label', 'Close');
         closeBtn.style.cssText = `
             position: absolute; top: 10px; right: 12px; border: none; background: none;
@@ -5081,7 +5116,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
         let _rows = [];
         function _renderFields() {
-            fieldsWrap.innerHTML = '';
+            setHTML(fieldsWrap, '');
             _rows = [];
             const colors = _readTabColors(activeTab);
             FIELDS.forEach(([field, label]) => {
@@ -5696,7 +5731,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             box-shadow:0 8px 32px rgba(0,0,0,0.35);position:relative;
         `;
         const closeBtn = document.createElement('button');
-        closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
+        setHTML(closeBtn, `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`);
         closeBtn.style.cssText = `position:absolute;top:12px;right:14px;border:none;
             background:none;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:${C.sub};border-radius:5px;`;
         closeBtn.onclick = () => modal.remove();
@@ -6910,7 +6945,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         const dismissBtn = document.createElement('button');
         dismissBtn.id = 'tm-dismiss-btn';
         dismissBtn.title = 'Hide buttons (reload to restore)';
-        dismissBtn.innerHTML = '<svg viewBox="0 0 10 10" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg>';
+        setHTML(dismissBtn, '<svg viewBox="0 0 10 10" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg>');
         dismissBtn.style.cssText = `
             position:absolute; left:0; top:0;
             width:14px; height:14px;
@@ -6931,7 +6966,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         const SVG_GEAR = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;
         const gearBtn = document.createElement('button');
         gearBtn.id = 'tm-settings-gear-btn';
-        gearBtn.innerHTML = SVG_GEAR;
+        setHTML(gearBtn, SVG_GEAR);
         gearBtn.title = '⚙️ Twitter Media Script Settings';
         gearBtn.setAttribute('aria-label', 'Open settings');
 
@@ -6949,7 +6984,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         const SVG_HISTORY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 15.5"/><path d="M5 5l2.5 2.5" opacity="0.5"/></svg>`;
         const histBtn = document.createElement('button');
         histBtn.id = 'tm-history-btn';
-        histBtn.innerHTML = SVG_HISTORY;
+        setHTML(histBtn, SVG_HISTORY);
         histBtn.title = '📋 Download History';
         histBtn.setAttribute('aria-label', 'Open download history');
 
@@ -7052,7 +7087,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             if (_lastCfnMenuAC) { _lastCfnMenuAC.abort(); _lastCfnMenuAC = null; }
             document.getElementById('tm-egg-bubble-el')?.remove();
             document.getElementById('tm-cfn-menu-el')?.remove();
-            panel.innerHTML = '';
+            setHTML(panel, '');
 
             const s = _readSettings();
             const { clickCustom, clickDomain, prefix, fmt, fbStyle: _fbStyle,
@@ -7069,9 +7104,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             themeToggleBtn.type = 'button';
             themeToggleBtn.className = 'tm-sp-theme-toggle';
             themeToggleBtn.title = dark ? 'Switch to light theme' : 'Switch to dark theme';
-            themeToggleBtn.innerHTML = dark
+            setHTML(themeToggleBtn, dark
                 ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
-                : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+                : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>');
             themeToggleBtn.addEventListener('click', e => {
                 e.stopPropagation();
                 _toggleAppTheme();
@@ -7140,7 +7175,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 btn.type = 'button';
                 btn.className = 'tm-sp-reset-btn';
                 btn.title = 'Reset to default';
-                btn.innerHTML = SVG_RESET;
+                setHTML(btn, SVG_RESET);
                 btn.addEventListener('click', (e) => { e.stopPropagation(); onReset(); });
                 return btn;
             };
@@ -7167,14 +7202,14 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 if (tooltip) {
                     const helpBadge = document.createElement('span');
                     helpBadge.className = 'tm-sp-help-badge';
-                    helpBadge.innerHTML = SVG_HELP_LUCIDE;
+                    setHTML(helpBadge, SVG_HELP_LUCIDE);
                     helpBadge.title = tooltip;
                     g.appendChild(helpBadge);
                 }
 
                 const chevron = document.createElement('span');
                 chevron.className = 'tm-sp-group-chevron';
-                chevron.innerHTML = SVG_CHEVRON;
+                setHTML(chevron, SVG_CHEVRON);
                 if (openState) chevron.style.transform = 'rotate(0deg)';
                 else           chevron.style.transform = 'rotate(-90deg)';
                 g.appendChild(chevron);
@@ -7351,7 +7386,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     `;
 
                     const tmpDiv = document.createElement('div');
-                    tmpDiv.innerHTML = opt.svg;
+                    setHTML(tmpDiv, opt.svg);
                     const svgEl = tmpDiv.querySelector('svg');
                     if (svgEl) {
                         svgEl.setAttribute('width', String(svgW));
@@ -7485,7 +7520,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     `;
 
                     const tmpDiv = document.createElement('div');
-                    tmpDiv.innerHTML = opt.svg;
+                    setHTML(tmpDiv, opt.svg);
                     const svgEl = tmpDiv.querySelector('svg');
                     if (svgEl) {
                         svgEl.setAttribute('width', '18');
@@ -7575,18 +7610,18 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     demo.setAttribute('aria-hidden', 'true');
 
                     if (value === 'toast') {
-                        demo.innerHTML = `
+                        setHTML(demo, `
                             <span class="tm-fb-demo-toast-bubble">
                                 <svg viewBox="0 0 14 14" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
                                 OK
-                            </span>`;
+                            </span>`);
                     } else if (value === 'icon') {
-                        demo.innerHTML = `
+                        setHTML(demo, `
                             <span class="tm-fb-demo-icon-wrap">
                                 <svg class="tm-fb-demo-icon-svg" viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
-                            </span>`;
+                            </span>`);
                     } else if (value === 'pulse') {
-                        demo.innerHTML = `
+                        setHTML(demo, `
                             <span class="tm-fb-demo-pulse-wrap">
                                 <span class="tm-fb-demo-pulse-ring"></span>
                                 <span class="tm-fb-demo-pulse-ring"></span>
@@ -7594,20 +7629,20 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                                 <span class="tm-fb-demo-pulse-icon">
                                     <svg viewBox="0 0 14 14" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
                                 </span>
-                            </span>`;
+                            </span>`);
                     } else if (value === 'flash') {
-                        demo.innerHTML = `
+                        setHTML(demo, `
                             <span class="tm-fb-demo-flash-box">
                                 <span class="tm-fb-demo-flash-sweep"></span>
                                 <span class="tm-fb-demo-flash-check">
                                     <svg viewBox="0 0 14 14" width="9" height="9" fill="none" stroke="#1d9bf0" stroke-width="2.4" stroke-linecap="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
                                 </span>
-                            </span>`;
+                            </span>`);
                     } else if (value === 'slide') {
-                        demo.innerHTML = `
+                        setHTML(demo, `
                             <span class="tm-fb-demo-slide-clip">
                                 <span class="tm-fb-demo-slide-text">Copied</span>
-                            </span>`;
+                            </span>`);
                     }
                     return demo;
                 };
@@ -8193,7 +8228,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 'grid_media_btn'
             );
             const gridBtnIcon = document.createElement('span');
-            gridBtnIcon.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:6px;"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="9.5" y="3" width="6" height="6" rx="1"/><rect x="16" y="3" width="5" height="6" rx="1"/><rect x="3" y="9.5" width="6" height="6" rx="1"/><rect x="9.5" y="9.5" width="6" height="6" rx="1"/><rect x="16" y="9.5" width="5" height="6" rx="1"/><rect x="3" y="16" width="6" height="5" rx="1"/><rect x="9.5" y="16" width="6" height="5" rx="1"/><rect x="16" y="16" width="5" height="5" rx="1"/></svg>';
+            setHTML(gridBtnIcon, '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:6px;"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="9.5" y="3" width="6" height="6" rx="1"/><rect x="16" y="3" width="5" height="6" rx="1"/><rect x="3" y="9.5" width="6" height="6" rx="1"/><rect x="9.5" y="9.5" width="6" height="6" rx="1"/><rect x="16" y="9.5" width="5" height="6" rx="1"/><rect x="3" y="16" width="6" height="5" rx="1"/><rect x="9.5" y="16" width="6" height="5" rx="1"/><rect x="16" y="16" width="5" height="5" rx="1"/></svg>');
             gridBtnRow.querySelector('.tm-sp-row-label')?.prepend(gridBtnIcon);
             gridBtnRow.title =
                 T.sp_grid_media_btn_desc || 'Where to see it: a triangle download button on each thumbnail, on your profile\'s /media page (grid view).';
@@ -8211,7 +8246,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 'avatar_media_btn'
             );
             const avatarBtnIcon = document.createElement('span');
-            avatarBtnIcon.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><polygon points="12,2 2,7 12,12 22,7"/><polyline points="2,12 12,17 22,12"/><polyline points="2,17 12,22 22,17"/></svg>';
+            setHTML(avatarBtnIcon, '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><polygon points="12,2 2,7 12,12 22,7"/><polyline points="2,12 12,17 22,12"/><polyline points="2,17 12,22 22,17"/></svg>');
             avatarBtnRow.querySelector('.tm-sp-row-label')?.prepend(avatarBtnIcon);
             avatarBtnRow.title =
                 T.sp_avatar_media_btn_desc || 'Where to see it: a small shortcut button next to user avatars on the timeline, linking directly to that user\'s /media page.';
@@ -9253,7 +9288,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 if (curTab) {
                     const sideClass = [...curTab.classList].find(c => c.startsWith('side-')) ?? '';
                     curTab.className = 'style-' + next + (sideClass ? ' ' + sideClass : '');
-                    curTab.innerHTML = '';
+                    setHTML(curTab, '');
                     if (next === 'dots') {
                         for (let i = 0; i < 3; i++) {
                             const d = document.createElement('span');
@@ -9462,7 +9497,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             bearerGroupHeader.appendChild(bearerGroupLabel);
             const bearerGroupChevron = document.createElement('span');
             bearerGroupChevron.className = 'tm-tf-group-header-chevron';
-            bearerGroupChevron.innerHTML = `<svg viewBox="0 0 10 10" width="9" height="9" fill="currentColor"><path d="M1 3l4 4 4-4z"/></svg>`;
+            setHTML(bearerGroupChevron, `<svg viewBox="0 0 10 10" width="9" height="9" fill="currentColor"><path d="M1 3l4 4 4-4z"/></svg>`);
             bearerGroupHeader.appendChild(bearerGroupChevron);
 
             const bearerGroupBody = document.createElement('div');
@@ -9498,11 +9533,11 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             bearerLabelRow.style.cssText = 'display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-bottom:4px;';
             const bearerHelpBtn = document.createElement('button');
             bearerHelpBtn.title = 'What is this?';
-            bearerHelpBtn.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            setHTML(bearerHelpBtn, `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/>
                 <path d="M6.5 6.4C6.5 5.51 7.17 4.8 8 4.8s1.5.71 1.5 1.6c0 .78-.52 1.24-1.03 1.6C8.2 8.2 8 8.48 8 8.85" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
                 <circle cx="8" cy="10.75" r="0.8" fill="currentColor"/>
-            </svg>`;
+            </svg>`);
             bearerHelpBtn.style.cssText = `flex-shrink:0;background:none;border:none;padding:2px;cursor:pointer;color:${C.sub};display:flex;align-items:center;border-radius:50%;transition:color 0.12s;`;
             bearerLabelRow.append(bearerHelpBtn);
             const bearerBtnRow = document.createElement('div');
@@ -9528,11 +9563,10 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             `;
             const _bHint = T.sp_bearer_hint || 'Only used on Twitter / X for media fetch (401/403 fallback). Safe to set on any page — the token is never sent cross-domain.';
             const _bManual = T.sp_bearer_manual || 'Manual';
-            bearerPopoverContent.innerHTML =
-                _escHtml(_bHint) + '<br>' +
+            setHTML(bearerPopoverContent, _escHtml(_bHint) + '<br>' +
                 `<b style="color:${C.text}">${_escHtml(_bManual)}:</b> Twitter DevTools → Network → ` +
                 `any <code style="font-family:monospace;color:${C.text}">/i/api/</code> request → ` +
-                `<code style="font-family:monospace;color:${C.text}">Authorization</code> header.`;
+                `<code style="font-family:monospace;color:${C.text}">Authorization</code> header.`);
             bearerPopoverInner.appendChild(bearerPopoverContent);
             bearerPopover.appendChild(bearerPopoverInner);
 
@@ -9699,7 +9733,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
                 const tfGroupChevron = document.createElement('span');
                 tfGroupChevron.className = 'tm-tf-group-header-chevron';
-                tfGroupChevron.innerHTML = SVG_CHEVRON_TF;
+                setHTML(tfGroupChevron, SVG_CHEVRON_TF);
                 tfGroupHeader.appendChild(tfGroupChevron);
 
                 const tfGroupBody = document.createElement('div');
@@ -9812,7 +9846,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     nameEl.textContent = T.sp_legacy_grid_label || 'Legacy Media Grid';
                     const descEl = document.createElement('span');
                     descEl.className = 'tm-tf-row-desc';
-                    descEl.textContent = 'Temporarily unavailable after a recent X update. A fix is being investigated.';
+                    descEl.textContent = T.sp_legacy_grid_frozen_desc || 'Temporarily unavailable after a recent X update. A fix is being investigated.';
                     left.appendChild(nameEl);
                     left.appendChild(descEl);
                     row.appendChild(left);
@@ -9821,14 +9855,14 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     right.className = 'tm-tf-row-right';
                     const valEl = document.createElement('span');
                     valEl.className = 'tm-tf-val-off';
-                    valEl.textContent = 'Unavailable';
+                    valEl.textContent = T.sp_legacy_grid_frozen_val || 'Unavailable';
                     right.appendChild(valEl);
                     row.appendChild(right);
 
                     row.style.opacity = '0.6';
                     row.style.cursor = 'not-allowed';
                     row.addEventListener('click', () => {
-                        showToast('Legacy Media Grid is temporarily unavailable after a recent X update.');
+                        showToast(T.toast_legacy_grid_frozen || 'Legacy Media Grid is temporarily unavailable after a recent X update.');
                     });
                     return row;
                 };
@@ -9842,7 +9876,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
             const _updateCollapseAllBtnIcon = () => {
                 const allOpen = _isAllGroupsOpen();
-                collapseAllBtn.innerHTML = allOpen ? SVG_CHEVRONS_IN : SVG_CHEVRONS_OUT;
+                setHTML(collapseAllBtn, allOpen ? SVG_CHEVRONS_IN : SVG_CHEVRONS_OUT);
                 collapseAllBtn.title = allOpen
                     ? (T.sp_collapseall_collapse_tip || 'Collapse all groups')
                     : (T.sp_collapseall_expand_tip   || 'Expand all groups');
@@ -9912,7 +9946,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             const refreshBtn = document.createElement('button');
             refreshBtn.id    = 'tm-refresh-hist-btn';
             refreshBtn.title = 'Refresh Download History';
-            refreshBtn.innerHTML = SVG_REFRESH;
+            setHTML(refreshBtn, SVG_REFRESH);
             refreshBtn.style.cssText = `
                 position:absolute; right:0; top:0;
                 width:20px; height:20px;
@@ -10165,7 +10199,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
     function _appendListStyleHintBadge(pip) {
         if (GM_getValue(KEY_LIST_STYLE_HINT_SEEN, false)) return;
-        pip.insertAdjacentHTML('beforeend', '<span class="tm-star-pip-hint-badge" title="">❓</span>');
+        pip.insertAdjacentHTML('beforeend', _trustHTML('<span class="tm-star-pip-hint-badge" title="">❓</span>'));
         const _hintBadge = pip.querySelector('.tm-star-pip-hint-badge');
         if (_hintBadge) {
             _hintBadge.addEventListener('mouseenter', (e) => {
@@ -10177,15 +10211,15 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
     function _renderStarPipIcon(pip) {
         if (StarPipState.pendingIsText) {
-            pip.innerHTML = '<span class="tm-star-pip-glyph">📁</span>';
+            setHTML(pip, '<span class="tm-star-pip-glyph">📁</span>');
             return;
         }
         if (GM_getValue(KEY_GROUP_POPUP_STYLE, 'fan') === 'list') {
-            pip.innerHTML = `<span class="tm-star-pip-glyph tm-star-pip-svg">${_GROUP_LIST_TRIGGER_SVG}</span>`;
+            setHTML(pip, `<span class="tm-star-pip-glyph tm-star-pip-svg">${_GROUP_LIST_TRIGGER_SVG}</span>`);
             _appendListStyleHintBadge(pip);
             return;
         }
-        pip.innerHTML = '<span class="tm-star-pip-glyph">⭐</span><span class="tm-star-pip-badge">+</span>';
+        setHTML(pip, '<span class="tm-star-pip-glyph">⭐</span><span class="tm-star-pip-badge">+</span>');
     }
 
     function _markListStyleHintSeen() {
@@ -10208,7 +10242,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             document.body.appendChild(tip);
         }
 
-        tip.innerHTML = '';
+        setHTML(tip, '');
         const textEl = document.createElement('span');
         textEl.textContent = T.list_style_hint_text || 'Tip: you can switch back to the original ⭐ star-style popup anytime in ⚙️ Settings → ⭐ Groups → Popup Style.';
         tip.appendChild(textEl);
@@ -10267,10 +10301,10 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         pip.classList.remove('tm-popped');
         clearTimeout(StarPipState.autoHideTimer);
         if (GM_getValue(KEY_GROUP_POPUP_STYLE, 'fan') === 'list') {
-            pip.innerHTML = `<span class="tm-star-pip-glyph tm-star-pip-svg">${_GROUP_LIST_TRIGGER_SVG}</span>`;
+            setHTML(pip, `<span class="tm-star-pip-glyph tm-star-pip-svg">${_GROUP_LIST_TRIGGER_SVG}</span>`);
             _appendListStyleHintBadge(pip);
         } else {
-            pip.innerHTML = '<span class="tm-star-pip-glyph">⭐</span><span class="tm-star-pip-badge">+</span>';
+            setHTML(pip, '<span class="tm-star-pip-glyph">⭐</span><span class="tm-star-pip-badge">+</span>');
         }
         pip.title = 'Click: New Group · Hover: pick group';
     }
@@ -10349,12 +10383,12 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             const el = document.createElement('div');
             el.className = 'tm-fan-node ' + STAR_FLOAT_CLS[i % STAR_FLOAT_CLS.length];
             el.style.cssText = 'left:-300px;top:-300px;opacity:0';
-            el.innerHTML = `
+            setHTML(el, `
                 <div class="tm-fan-node-inner">
                     <div class="tm-fan-glow" style="background:radial-gradient(circle,${baseGlow} 0%,transparent 68%);inset:-${half}px"></div>
                     ${iconHtml}
                 </div>
-                <span class="tm-fan-label" style="color:${_txtClr};font-size:${_labelPx}px">${_escHtml(g.name)}</span>`;
+                <span class="tm-fan-label" style="color:${_txtClr};font-size:${_labelPx}px">${_escHtml(g.name)}</span>`);
             el.addEventListener('click', () => _onFanGroupClick(g.id, g.name));
             document.body.appendChild(el);
             StarPipState.fanNodes.push(el);
@@ -10575,7 +10609,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
     }
 
     function _renderGroupMenu(menu, groups, toastPrefix, saveFn = saveGroups) {
-        menu.innerHTML = '';
+        setHTML(menu, '');
 
         const header = document.createElement('div');
         header.className = 'tm-tgm-header';
@@ -10651,7 +10685,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 const dragHandle = document.createElement('span');
                 dragHandle.className = 'tm-tgm-drag-handle';
                 dragHandle.title = 'Drag to reorder';
-                dragHandle.innerHTML = '<svg viewBox="0 0 10 16" width="8" height="13" fill="currentColor"><circle cx="3" cy="3" r="1.2"/><circle cx="7" cy="3" r="1.2"/><circle cx="3" cy="8" r="1.2"/><circle cx="7" cy="8" r="1.2"/><circle cx="3" cy="13" r="1.2"/><circle cx="7" cy="13" r="1.2"/></svg>';
+                setHTML(dragHandle, '<svg viewBox="0 0 10 16" width="8" height="13" fill="currentColor"><circle cx="3" cy="3" r="1.2"/><circle cx="7" cy="3" r="1.2"/><circle cx="3" cy="8" r="1.2"/><circle cx="7" cy="8" r="1.2"/><circle cx="3" cy="13" r="1.2"/><circle cx="7" cy="13" r="1.2"/></svg>');
                 dragHandle.addEventListener('mousedown', () => { wrapper.draggable = true; });
                 wrapper.addEventListener('mousedown', e => {
                     if (!e.target.closest('.tm-tgm-drag-handle')) wrapper.draggable = false;
@@ -10666,7 +10700,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 const iconEl = document.createElement('span');
                 iconEl.className   = 'tm-tgm-item-icon';
                 iconEl.style.color = ic.color;
-                iconEl.innerHTML   = ic.svg;
+                setHTML(iconEl, ic.svg);
 
                 const label = document.createElement('span');
                 label.textContent = g.name;
@@ -10704,7 +10738,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         newBtn.type      = 'button';
         newBtn.className = 'tm-tgm-new';
         newBtn.setAttribute('role', 'menuitem');
-        newBtn.innerHTML = '<span style="font-size:14px;line-height:1;opacity:.7">＋</span><span>New Group</span>';
+        setHTML(newBtn, '<span style="font-size:14px;line-height:1;opacity:.7">＋</span><span>New Group</span>');
         newBtn.addEventListener('click', () => {
             closeTextGroupMenu();
             _runStarEscapeAnim(() => showGroupCreateModal());
@@ -10879,7 +10913,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
             const iconWrap = document.createElement('div');
             iconWrap.style.cssText = `width:24px;height:24px;color:${ic.color};flex-shrink:0`;
-            iconWrap.innerHTML = ic.svg;
+            setHTML(iconWrap, ic.svg);
             const svgEl = iconWrap.querySelector('svg');
             if (svgEl) { svgEl.style.width = '24px'; svgEl.style.height = '24px'; }
 
@@ -11054,7 +11088,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 `;
                 const svg = document.createElement('div');
                 svg.style.cssText = `width:18px;height:18px;color:${ic.color}`;
-                svg.innerHTML = ic.svg;
+                setHTML(svg, ic.svg);
                 const svgEl = svg.querySelector('svg');
                 if (svgEl) { svgEl.style.width = '18px'; svgEl.style.height = '18px'; }
                 const lbl = document.createElement('span');
@@ -11073,7 +11107,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         }
 
         function rebuildList() {
-            list.innerHTML = '';
+            setHTML(list, '');
             _openIconPicker = null;
             const groups = getGroups();
 
@@ -11150,7 +11184,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
                 const dragHandle = document.createElement('span');
                 dragHandle.title = 'Drag to reorder';
-                dragHandle.innerHTML = '<svg viewBox="0 0 10 16" width="8" height="13" fill="currentColor"><circle cx="3" cy="3" r="1.2"/><circle cx="7" cy="3" r="1.2"/><circle cx="3" cy="8" r="1.2"/><circle cx="7" cy="8" r="1.2"/><circle cx="3" cy="13" r="1.2"/><circle cx="7" cy="13" r="1.2"/></svg>';
+                setHTML(dragHandle, '<svg viewBox="0 0 10 16" width="8" height="13" fill="currentColor"><circle cx="3" cy="3" r="1.2"/><circle cx="7" cy="3" r="1.2"/><circle cx="3" cy="8" r="1.2"/><circle cx="7" cy="8" r="1.2"/><circle cx="3" cy="13" r="1.2"/><circle cx="7" cy="13" r="1.2"/></svg>');
                 dragHandle.style.cssText = 'flex-shrink:0;color:rgba(255,255,255,.2);cursor:grab;display:flex;align-items:center;transition:color .12s;user-select:none';
                 dragHandle.addEventListener('mouseover', () => dragHandle.style.color = 'rgba(255,255,255,.5)');
                 dragHandle.addEventListener('mouseout',  () => dragHandle.style.color = 'rgba(255,255,255,.2)');
@@ -11169,7 +11203,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 `;
                 const ic = _resolveGroupIcon(g.icon);
                 iconWrap.style.color = ic.color;
-                iconWrap.innerHTML = ic.svg;
+                setHTML(iconWrap, ic.svg);
                 iconWrap.addEventListener('mouseover', () => iconWrap.style.background = 'rgba(255,255,255,.1)');
                 iconWrap.addEventListener('mouseout',  () => iconWrap.style.background = 'transparent');
                 iconWrap.addEventListener('click', () => {
@@ -11180,7 +11214,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                         if (idx > -1) { arr[idx].icon = newIc.id; saveGroups(arr); g.icon = newIc.id; }
                         const resolved = _resolveGroupIcon(newIc.id);
                         iconWrap.style.color = resolved.color;
-                        iconWrap.innerHTML = resolved.svg;
+                        setHTML(iconWrap, resolved.svg);
                         showToast(_fmt(T.sp_grp_icon_toast || 'Icon → {label}', { label: resolved.label }), 2500, 'success');
                     });
                     wrapper.appendChild(picker);
@@ -11214,7 +11248,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 editBtn.type = 'button';
                 editBtn.title = 'Rename';
                 editBtn.style.cssText = 'background:transparent;border:none;color:rgba(255,255,255,.3);cursor:pointer;flex-shrink:0;padding:0 2px;line-height:1;transition:color .12s,opacity .15s;opacity:0';
-                editBtn.innerHTML = '<svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 1.5l3 3L4 13H1v-3L9.5 1.5z"/></svg>';
+                setHTML(editBtn, '<svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 1.5l3 3L4 13H1v-3L9.5 1.5z"/></svg>');
                 editBtn.addEventListener('mouseover', () => editBtn.style.color = 'rgba(255,255,255,.7)');
                 editBtn.addEventListener('mouseout',  () => editBtn.style.color = 'rgba(255,255,255,.3)');
                 editBtn.addEventListener('click', () => {
@@ -11236,7 +11270,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 delBtn.type  = 'button';
                 delBtn.title = 'Delete group';
                 delBtn.style.cssText = 'background:transparent;border:none;color:rgba(255,80,80,.55);font-size:14px;cursor:pointer;flex-shrink:0;padding:0 2px;line-height:1;transition:color .12s';
-                delBtn.innerHTML = '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>';
+                setHTML(delBtn, '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>');
                 delBtn.addEventListener('mouseover', () => delBtn.style.color = 'rgba(255,80,80,.9)');
                 delBtn.addEventListener('mouseout',  () => delBtn.style.color = 'rgba(255,80,80,.55)');
                 delBtn.addEventListener('click', () => {
@@ -11423,7 +11457,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
                     const chevron = document.createElement('span');
                     chevron.className = 'tm-hist-group-chevron';
-                    chevron.innerHTML = `<svg viewBox="0 0 10 10" width="8" height="8" fill="currentColor"><path d="M1 3l4 4 4-4z"/></svg>`;
+                    setHTML(chevron, `<svg viewBox="0 0 10 10" width="8" height="8" fill="currentColor"><path d="M1 3l4 4 4-4z"/></svg>`);
 
                     const label = document.createElement('span');
                     label.textContent = _fmtGroupLabel(rec.yyyymm);
@@ -11506,13 +11540,13 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                         const vi = document.createElement('div');
                         vi.className = 'tm-hist-video-icon';
                         vi.style.color = 'rgba(29,155,240,.5)';
-                        vi.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg>`;
+                        setHTML(vi, `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg>`);
                         thumbWrap.appendChild(vi);
                     }
                 } else {
                     const vi = document.createElement('div');
                     vi.className = 'tm-hist-video-icon';
-                    vi.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M15 10l4.55-2.28A1 1 0 0 1 21 8.65v6.7a1 1 0 0 1-1.45.93L15 14"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg>`;
+                    setHTML(vi, `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M15 10l4.55-2.28A1 1 0 0 1 21 8.65v6.7a1 1 0 0 1-1.45.93L15 14"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg>`);
                     thumbWrap.appendChild(vi);
                 }
                 row.appendChild(thumbWrap);
@@ -11587,7 +11621,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
                 const copyBtn = document.createElement('button');
                 copyBtn.className = 'tm-hist-act-btn tm-copy-btn';
-                copyBtn.innerHTML = SVG_COPY;
+                setHTML(copyBtn, SVG_COPY);
                 copyBtn.title = 'Click: Copy tweet URL\nHold: Copy with prefix';
 
                 const _getMediaUrls = () => {
@@ -11632,14 +11666,14 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
                 const jmpBtn = document.createElement('button');
                 jmpBtn.className = 'tm-hist-act-btn';
-                jmpBtn.innerHTML = SVG_JUMP;
+                setHTML(jmpBtn, SVG_JUMP);
                 jmpBtn.title = 'Open tweet';
                 jmpBtn.addEventListener('click', (e) => { e.stopPropagation(); window.open(rec.tweetUrl, '_blank'); });
 
                 const favBtn = document.createElement('button');
                 const isFav = !!rec.favorited;
                 favBtn.className = 'tm-hist-act-btn tm-fav-btn' + (isFav ? ' tm-fav-active' : '');
-                favBtn.innerHTML = isFav ? SVG_HEART_FULL : SVG_HEART_EMPTY;
+                setHTML(favBtn, isFav ? SVG_HEART_FULL : SVG_HEART_EMPTY);
                 favBtn.title = isFav ? 'Unfavorite' : 'Favorite';
                 if (editMode) {
                     favBtn.style.opacity = '0.3';
@@ -11650,7 +11684,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     const updated = _updateRecord(rec.id, r => { r.favorited = !r.favorited; });
                     if (!updated) return;
                     const nowFav = updated.favorited;
-                    favBtn.innerHTML = nowFav ? SVG_HEART_FULL : SVG_HEART_EMPTY;
+                    setHTML(favBtn, nowFav ? SVG_HEART_FULL : SVG_HEART_EMPTY);
                     favBtn.title = nowFav ? 'Unfavorite' : 'Favorite';
                     favBtn.classList.toggle('tm-fav-active', nowFav);
                     rec.favorited = nowFav;
@@ -11658,14 +11692,14 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
                 const delBtn = document.createElement('button');
                 delBtn.className = 'tm-hist-act-btn danger';
-                delBtn.innerHTML = SVG_DEL;
+                setHTML(delBtn, SVG_DEL);
                 delBtn.title = 'Delete';
                 delBtn.addEventListener('click', (e) => { e.stopPropagation(); _deleteOne(rec.id, idx, favBtn); });
 
                 const SVG_DLOAD = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 2v8"/><path d="M5 7l3 3 3-3"/><path d="M2 13h12"/></svg>`;
                 const dlBtn = document.createElement('button');
                 dlBtn.className = 'tm-hist-act-btn';
-                dlBtn.innerHTML = SVG_DLOAD;
+                setHTML(dlBtn, SVG_DLOAD);
                 const hasMedia = rec.mediaUrls && rec.mediaUrls.length > 0;
                 dlBtn.title = hasMedia ? `Re-download (${rec.mediaUrls.length} file${rec.mediaUrls.length > 1 ? 's' : ''})` : 'Open tweet to re-download';
                 dlBtn.addEventListener('click', (e) => {
@@ -11748,7 +11782,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                         tc.appendChild(avImg);
                     } else {
                         const tcIcon = document.createElement('div');
-                        tcIcon.innerHTML = `<svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="rgba(29,155,240,.6)" stroke-width="1.6" stroke-linecap="round"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="9" x2="17" y2="9"/><line x1="3" y1="13" x2="12" y2="13"/></svg>`;
+                        setHTML(tcIcon, `<svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="rgba(29,155,240,.6)" stroke-width="1.6" stroke-linecap="round"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="9" x2="17" y2="9"/><line x1="3" y1="13" x2="12" y2="13"/></svg>`);
                         tc.appendChild(tcIcon);
                     }
                     const tcText = document.createElement('div');
@@ -11759,7 +11793,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 } else {
                     const ni = document.createElement('div');
                     ni.className = 'tm-hist-grid-nothumb';
-                    ni.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M15 10l4.55-2.28A1 1 0 0 1 21 8.65v6.7a1 1 0 0 1-1.45.93L15 14"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg>`;
+                    setHTML(ni, `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M15 10l4.55-2.28A1 1 0 0 1 21 8.65v6.7a1 1 0 0 1-1.45.93L15 14"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg>`);
                     cell.appendChild(ni);
                 }
 
@@ -11778,7 +11812,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 const SVG_COPY_SM = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="9" height="10" rx="1.5"/><path d="M3 11H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v1"/></svg>`;
                 const gridCopyBtn = document.createElement('button');
                 gridCopyBtn.className = 'tm-grid-copy-btn';
-                gridCopyBtn.innerHTML = SVG_COPY_SM;
+                setHTML(gridCopyBtn, SVG_COPY_SM);
                 gridCopyBtn.title = 'Click: Copy tweet URL\nHold: Copy with prefix';
 
                 const _gcGetUrls = () => {
@@ -11826,7 +11860,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 const SVG_DL_SM = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 2v8"/><path d="M5 7l3 3 3-3"/><path d="M2 13h12"/></svg>`;
                 const gridDlBtn = document.createElement('button');
                 gridDlBtn.className = 'tm-grid-dl-btn';
-                gridDlBtn.innerHTML = SVG_DL_SM;
+                setHTML(gridDlBtn, SVG_DL_SM);
                 const _gcHasMedia = rec.mediaUrls && rec.mediaUrls.length > 0;
                 gridDlBtn.title = _gcHasMedia
                     ? `Re-download (${rec.mediaUrls.length} file${rec.mediaUrls.length > 1 ? 's' : ''})`
@@ -11862,7 +11896,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 const SVG_GOTO_SM = `<svg viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10 L10 4"/><path d="M6.5 4h3.5v3.5"/></svg>`;
                 const gridGotoBtn = document.createElement('button');
                 gridGotoBtn.className = 'tm-grid-goto-btn';
-                gridGotoBtn.innerHTML = SVG_GOTO_SM;
+                setHTML(gridGotoBtn, SVG_GOTO_SM);
                 gridGotoBtn.title = 'Go to tweet';
                 gridGotoBtn.addEventListener('click', e => {
                     e.stopPropagation();
@@ -11882,7 +11916,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 const _GFB_HEART_FULL  = `<svg viewBox="0 0 16 16" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.207 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5z"/></svg>`;
                 const gridFavBtn = document.createElement('button');
                 gridFavBtn.className = 'tm-grid-fav-btn' + (rec.favorited ? ' tm-fav-active' : '');
-                gridFavBtn.innerHTML = rec.favorited ? _GFB_HEART_FULL : _GFB_HEART_EMPTY;
+                setHTML(gridFavBtn, rec.favorited ? _GFB_HEART_FULL : _GFB_HEART_EMPTY);
                 gridFavBtn.title = rec.favorited ? 'Unfavorite' : 'Favorite';
                 gridFavBtn.setAttribute('aria-label', rec.favorited ? 'Unfavorite' : 'Favorite');
                 gridFavBtn.addEventListener('click', e => {
@@ -11890,7 +11924,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     const updated = _updateRecord(rec.id, r => { r.favorited = !r.favorited; });
                     if (!updated) return;
                     const nowFav = updated.favorited;
-                    gridFavBtn.innerHTML = nowFav ? _GFB_HEART_FULL : _GFB_HEART_EMPTY;
+                    setHTML(gridFavBtn, nowFav ? _GFB_HEART_FULL : _GFB_HEART_EMPTY);
                     gridFavBtn.title = nowFav ? 'Unfavorite' : 'Favorite';
                     gridFavBtn.setAttribute('aria-label', nowFav ? 'Unfavorite' : 'Favorite');
                     gridFavBtn.classList.toggle('tm-fav-active', nowFav);
@@ -11942,7 +11976,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                         const iconEl = document.createElement('span');
                         iconEl.style.cssText = 'width:16px;height:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:inherit;opacity:0.8';
                         if (svgOrEmoji.trim().startsWith('<svg')) {
-                            iconEl.innerHTML = svgOrEmoji;
+                            setHTML(iconEl, svgOrEmoji);
                             iconEl.querySelector('svg')?.setAttribute('width', '14');
                             iconEl.querySelector('svg')?.setAttribute('height', '14');
                         } else {
@@ -12058,7 +12092,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             const query = getQuery();
             const em = document.createElement('div');
             em.className = 'tm-hist-empty';
-            em.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+            setHTML(em, `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`);
             const msg = document.createElement('div');
             const _emptyText = query
                 ? (T.hist_empty_search || 'No results matching search.')
@@ -12181,7 +12215,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         function _showZoom(url, e) {
             let z = document.getElementById('tm-hist-zoom');
             if (!z) { z = document.createElement('div'); z.id = 'tm-hist-zoom'; document.body.appendChild(z); }
-            z.innerHTML = '';
+            setHTML(z, '');
             const img = document.createElement('img');
             img.src = _thumbUrl(url).replace('name=small', 'name=medium');
             img.alt = '';
@@ -12559,7 +12593,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             const pinBtn = document.createElement('button');
             pinBtn.className = 'tm-search-pin-btn' + (item.pinned ? ' pinned' : '');
             pinBtn.title = item.pinned ? 'Unpin' : 'Pin to top';
-            pinBtn.innerHTML = item.pinned ? _SPIN_FILL : _SPIN_HOLLOW;
+            setHTML(pinBtn, item.pinned ? _SPIN_FILL : _SPIN_HOLLOW);
             pinBtn.addEventListener('click', e => {
                 e.stopPropagation();
                 const h2 = _loadSearchHist();
@@ -12615,7 +12649,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     if (pinBtn) {
                         pinBtn.className = 'tm-search-pin-btn' + (item.pinned ? ' pinned' : '');
                         pinBtn.title     = item.pinned ? 'Unpin' : 'Pin to top';
-                        pinBtn.innerHTML = item.pinned ? _SPIN_FILL : _SPIN_HOLLOW;
+                        setHTML(pinBtn, item.pinned ? _SPIN_FILL : _SPIN_HOLLOW);
                     }
                 }
                 fragment.appendChild(row);
@@ -12870,7 +12904,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 const homeLink = document.createElement('a');
                 homeLink.href = `https://x.com/${screenName}`;
                 homeLink.target = '_blank'; homeLink.rel = 'noopener noreferrer';
-                homeLink.innerHTML = SVG_HOME;
+                setHTML(homeLink, SVG_HOME);
                 const _homeLinkIdle = dark ? 'rgba(255,255,255,.3)' : 'rgba(15,20,25,.32)';
                 homeLink.style.cssText = `display:inline-flex;align-items:center;color:${_homeLinkIdle};transition:color .12s;flex-shrink:0`;
                 homeLink.title = `@${screenName} profile`;
@@ -12888,7 +12922,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
                 const chev = document.createElement('span');
                 chev.style.cssText = `color:${dark ? 'rgba(255,255,255,.3)' : 'rgba(15,20,25,.32)'};flex-shrink:0;line-height:0`;
-                chev.innerHTML = isCollapsed ? SVG_CHEV_RIGHT : SVG_CHEV_DOWN;
+                setHTML(chev, isCollapsed ? SVG_CHEV_RIGHT : SVG_CHEV_DOWN);
                 header.appendChild(chev);
 
                 header.addEventListener('click', () => {
@@ -12971,28 +13005,28 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     acts.className = 'tm-hist-actions';
 
                     const jmpBtn = document.createElement('button');
-                    jmpBtn.className = 'tm-hist-act-btn'; jmpBtn.innerHTML = SVG_JUMP;
+                    jmpBtn.className = 'tm-hist-act-btn'; setHTML(jmpBtn, SVG_JUMP);
                     jmpBtn.title = 'Open tweet';
                     jmpBtn.addEventListener('click', e => { e.stopPropagation(); window.open(rec.tweetUrl, '_blank'); });
 
                     const favBtn = document.createElement('button');
                     const isFav = !!rec.favorited;
                     favBtn.className = 'tm-hist-act-btn tm-fav-btn' + (isFav ? ' tm-fav-active' : '');
-                    favBtn.innerHTML = isFav ? SVG_HEART_FULL : SVG_HEART_EMPTY;
+                    setHTML(favBtn, isFav ? SVG_HEART_FULL : SVG_HEART_EMPTY);
                     favBtn.title = isFav ? 'Unfavorite' : 'Favorite';
                     favBtn.addEventListener('click', e => {
                         e.stopPropagation();
                         const updated = _updateRecord(rec.id, r => { r.favorited = !r.favorited; });
                         if (!updated) return;
                         const nowFav = updated.favorited;
-                        favBtn.innerHTML = nowFav ? SVG_HEART_FULL : SVG_HEART_EMPTY;
+                        setHTML(favBtn, nowFav ? SVG_HEART_FULL : SVG_HEART_EMPTY);
                         favBtn.title = nowFav ? 'Unfavorite' : 'Favorite';
                         favBtn.classList.toggle('tm-fav-active', nowFav);
                         rec.favorited = nowFav;
                     });
 
                     const delBtn = document.createElement('button');
-                    delBtn.className = 'tm-hist-act-btn danger'; delBtn.innerHTML = SVG_DEL;
+                    delBtn.className = 'tm-hist-act-btn danger'; setHTML(delBtn, SVG_DEL);
                     delBtn.title = 'Delete';
                     delBtn.addEventListener('click', e => { e.stopPropagation(); getDeleteOne()(rec.id, 0, favBtn); });
 
@@ -13151,7 +13185,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         let _gtabExpanded = false;
 
         function buildGroupTabs() {
-            groupTabBar.innerHTML = '';
+            setHTML(groupTabBar, '');
             const mediaFilter = getMediaFilter();
             const activeGroupId = getActiveGroupId();
             const isTextTab = mediaFilter === 'text';
@@ -13165,7 +13199,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             btnAddGroup.type = 'button';
             btnAddGroup.title = 'New group';
             btnAddGroup.style.cssText = `flex-shrink:0;width:26px;height:26px;border-radius:7px;border:none;background:transparent;color:${C.sub};cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s;margin:0 3px 0 2px`;
-            btnAddGroup.innerHTML = '<svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>';
+            setHTML(btnAddGroup, '<svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>');
             btnAddGroup.addEventListener('mouseover', () => { btnAddGroup.style.background = 'rgba(29,155,240,.18)'; btnAddGroup.style.color = '#1d9bf0'; });
             btnAddGroup.addEventListener('mouseout',  () => { btnAddGroup.style.background = 'transparent'; btnAddGroup.style.color = C.sub; });
             btnAddGroup.addEventListener('click', e => {
@@ -13176,7 +13210,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
             const btnLeft = document.createElement('button');
             btnLeft.className = 'tm-gtab-scroll-btn left';
-            btnLeft.innerHTML = SVG_LEFT;
+            setHTML(btnLeft, SVG_LEFT);
             btnLeft.title = 'Scroll left';
             btnLeft.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -13188,7 +13222,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
             const btnRight = document.createElement('button');
             btnRight.className = 'tm-gtab-scroll-btn right visible';
-            btnRight.innerHTML = SVG_RIGHT;
+            setHTML(btnRight, SVG_RIGHT);
             btnRight.title = 'Show all groups';
             btnRight.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -13271,13 +13305,13 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     pill.setAttribute('data-reorderable', '1');
                     const handle = document.createElement('span');
                     handle.className = 'tm-gtab-drag-handle';
-                    handle.innerHTML = SVG_GRIP;
+                    setHTML(handle, SVG_GRIP);
                     handle.title = 'Drag to reorder';
                     pill.appendChild(handle);
                     initDragHandle(handle, pill);
                 }
                 const iconSpan = document.createElement('span');
-                iconSpan.innerHTML = iconHtml;
+                setHTML(iconSpan, iconHtml);
                 iconSpan.style.cssText = 'display:inline-flex;align-items:center;flex-shrink:0';
                 pill.appendChild(iconSpan);
                 if (label) {
@@ -13533,7 +13567,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             prevBtn.id = 'tm-hcn-prev';
             prevBtn.title = 'Previous record in history ([)';
             prevBtn.setAttribute('aria-label', 'Previous record in history');
-            prevBtn.innerHTML = SVG_DPREV;
+            setHTML(prevBtn, SVG_DPREV);
             prevBtn.style.cssText = BTN_BASE + 'left: 20px;';
             prevBtn.onmouseenter = () => prevBtn.style.background = 'rgba(255,255,255,0.25)';
             prevBtn.onmouseleave = () => prevBtn.style.background = 'rgba(0,0,0,0.55)';
@@ -13543,7 +13577,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             nextBtn.id = 'tm-hcn-next';
             nextBtn.title = 'Next record in history (])';
             nextBtn.setAttribute('aria-label', 'Next record in history');
-            nextBtn.innerHTML = SVG_DNEXT;
+            setHTML(nextBtn, SVG_DNEXT);
             nextBtn.style.cssText = BTN_BASE + 'right: 20px;';
             nextBtn.onmouseenter = () => nextBtn.style.background = 'rgba(255,255,255,0.25)';
             nextBtn.onmouseleave = () => nextBtn.style.background = 'rgba(0,0,0,0.55)';
@@ -13713,7 +13747,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     cursor:pointer;font-family:inherit;text-align:left;
                     transition:background .1s;white-space:nowrap;
                 `;
-                item.innerHTML = `<span style="opacity:.65;display:flex;align-items:center">${icon}</span><span>${label}</span>`;
+                setHTML(item, `<span style="opacity:.65;display:flex;align-items:center">${icon}</span><span>${label}</span>`);
                 item.addEventListener('mouseover', () => item.style.background = 'rgba(255,255,255,.09)');
                 item.addEventListener('mouseout',  () => item.style.background = 'transparent');
                 item.addEventListener('click', (e) => {
@@ -14778,7 +14812,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
         const titleIcon = document.createElement('span');
         titleIcon.className = 'tm-hist-badge-icon';
-        titleIcon.innerHTML = `<svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.2 13.2 3v4.1c0 3.4-2.2 5.9-5.2 7.1-3-1.2-5.2-3.7-5.2-7.1V3L8 1.2z"/><path d="M8 5.4 8.9 7.2 10.9 7.5 9.45 8.9 9.8 10.9 8 9.95 6.2 10.9 6.55 8.9 5.1 7.5 7.1 7.2 8 5.4z" fill="currentColor" stroke="none"/></svg>`;
+        setHTML(titleIcon, `<svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.2 13.2 3v4.1c0 3.4-2.2 5.9-5.2 7.1-3-1.2-5.2-3.7-5.2-7.1V3L8 1.2z"/><path d="M8 5.4 8.9 7.2 10.9 7.5 9.45 8.9 9.8 10.9 8 9.95 6.2 10.9 6.55 8.9 5.1 7.5 7.1 7.2 8 5.4z" fill="currentColor" stroke="none"/></svg>`);
 
         const titleText = document.createElement('span');
         titleText.className = 'tm-hist-badge-text';
@@ -14798,9 +14832,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         themeToggleBtn.className = 'tm-hist-icon-btn tm-hist-theme-toggle';
         themeToggleBtn.type = 'button';
         themeToggleBtn.title = dark ? 'Switch to light theme' : 'Switch to dark theme';
-        themeToggleBtn.innerHTML = dark
+        setHTML(themeToggleBtn, dark
             ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
-            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>');
 
         function _applyHistoryThemeWithFade(applyFn) {
             applyFn();
@@ -14868,7 +14902,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         const btnPin = document.createElement('button');
         btnPin.id = 'tm-hist-btn-pin';
         btnPin.type = 'button';
-        btnPin.innerHTML = _pinned ? SVG_PIN_FILLED : SVG_PIN;
+        setHTML(btnPin, _pinned ? SVG_PIN_FILLED : SVG_PIN);
         btnPin.title = _pinned ? 'Unpin panel (currently persistent across navigation)' : 'Pin panel (keep visible across SPA navigation)';
         if (_pinned) {
             btnPin.classList.add('pinned');
@@ -14883,7 +14917,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 btnPin.classList.remove('unpinning');
                 void btnPin.offsetWidth;
                 btnPin.classList.add('pinned');
-                btnPin.innerHTML = SVG_PIN_FILLED;
+                setHTML(btnPin, SVG_PIN_FILLED);
                 btnPin.title = 'Unpin panel (currently persistent across navigation)';
                 panel.classList.add('tm-pinned');
             } else {
@@ -14891,7 +14925,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 btnPin.classList.remove('pin-alert', 'pin-egg-2x', 'pin-egg-mushroom');
                 btnPin.classList.remove('pinned');
                 btnPin.classList.add('unpinning');
-                btnPin.innerHTML = SVG_PIN;
+                setHTML(btnPin, SVG_PIN);
                 btnPin.title = 'Pin panel (keep visible across SPA navigation)';
                 panel.classList.remove('tm-pinned');
                 btnPin.addEventListener('animationend', () => btnPin.classList.remove('unpinning'), { once: true });
@@ -15033,7 +15067,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
         const resizeHandle = document.createElement('div');
         resizeHandle.id = 'tm-hist-resize';
-        resizeHandle.innerHTML = `<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="2" y1="12" x2="12" y2="12"/><line x1="7" y1="12" x2="12" y2="7"/><line x1="12" y1="2" x2="12" y2="12"/></svg>`;
+        setHTML(resizeHandle, `<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="2" y1="12" x2="12" y2="12"/><line x1="7" y1="12" x2="12" y2="7"/><line x1="12" y1="2" x2="12" y2="12"/></svg>`);
         panel.appendChild(resizeHandle);
 
         const SVG_NOTCH = `<svg viewBox="0 0 6 28" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -15044,12 +15078,12 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         const dockTriggerL = document.createElement('button');
         dockTriggerL.className = 'tm-dock-trigger left';
         dockTriggerL.title = 'Dock panel to left edge';
-        dockTriggerL.innerHTML = SVG_NOTCH;
+        setHTML(dockTriggerL, SVG_NOTCH);
         panel.appendChild(dockTriggerL);
         const dockTriggerR = document.createElement('button');
         dockTriggerR.className = 'tm-dock-trigger right';
         dockTriggerR.title = 'Dock panel to right edge';
-        dockTriggerR.innerHTML = SVG_NOTCH;
+        setHTML(dockTriggerR, SVG_NOTCH);
         panel.appendChild(dockTriggerR);
 
         document.body.appendChild(panel);
@@ -15127,7 +15161,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
             if (_loadSentinelObserver) { _loadSentinelObserver.disconnect(); _loadSentinelObserver = null; }
 
-            body.innerHTML = '';
+            setHTML(body, '');
 
             if (_groupTabsDirty || _lastTabFilter !== mediaFilter || _lastTabActiveId !== activeGroupId) {
                 buildGroupTabs();
@@ -15172,7 +15206,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
             if (_savedScrollTop > 0) body.scrollTop = _savedScrollTop;
 
-            btnViewToggle.innerHTML = viewMode === 'list' ? SVG_GRID : SVG_LIST;
+            setHTML(btnViewToggle, viewMode === 'list' ? SVG_GRID : SVG_LIST);
             btnViewToggle.title     = viewMode === 'list' ? 'Switch to Thumbnail' : 'Switch to List';
             btnViewToggle.classList.toggle('active', true);
         }
@@ -15332,7 +15366,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
             const closeBtn = document.createElement('button');
             closeBtn.id = 'tm-thumb-lb-close';
-            closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
+            setHTML(closeBtn, `<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`);
             closeBtn.title = 'Close';
             closeBtn.setAttribute('aria-label', 'Close preview');
 
@@ -15341,7 +15375,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
             const prevBtn = document.createElement('button');
             prevBtn.className = 'tm-nav-fade-btn';
-            prevBtn.innerHTML = `<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="10,3 5,8 10,13"/></svg>`;
+            setHTML(prevBtn, `<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="10,3 5,8 10,13"/></svg>`);
             prevBtn.title = 'Previous';
 
             const counter = document.createElement('span');
@@ -15349,7 +15383,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
             const nextBtn = document.createElement('button');
             nextBtn.className = 'tm-nav-fade-btn';
-            nextBtn.innerHTML = `<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="6,3 11,8 6,13"/></svg>`;
+            setHTML(nextBtn, `<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="6,3 11,8 6,13"/></svg>`);
             nextBtn.title = 'Next';
 
             nav.appendChild(prevBtn);
@@ -15428,7 +15462,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         function _mkIconBtn(svg, title) {
             const b = document.createElement('button');
             b.className = 'tm-hist-icon-btn';
-            b.innerHTML = svg;
+            setHTML(b, svg);
             b.title = title;
             return b;
         }
@@ -15450,7 +15484,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 } else if (_pinCloseAlertCount === 2) {
                     btnPin.classList.add('pin-egg-2x');
                 } else {
-                    btnPin.innerHTML = '🍄';
+                    setHTML(btnPin, '🍄');
                     btnPin.classList.add('pin-egg-mushroom');
                 }
                 return;
@@ -16087,7 +16121,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 const ic = document.createElement('span');
                 ic.className = 'tm-menu-item-icon';
                 if (item.icon.trimStart().startsWith('<svg')) {
-                    ic.innerHTML = item.icon;
+                    setHTML(ic, item.icon);
                 } else {
                     ic.textContent = item.icon;
                 }
@@ -16404,11 +16438,11 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         const R = 8, C = +(2 * Math.PI * R).toFixed(4);
         const el = document.createElement('span');
         el.className = 'tm-dl-ring indeterminate';
-        el.innerHTML = `<svg viewBox="0 0 20 20" width="20" height="20">
+        setHTML(el, `<svg viewBox="0 0 20 20" width="20" height="20">
             <circle class="tm-bg" cx="10" cy="10" r="${R}" fill="none" stroke-width="2.5"/>
             <circle class="tm-fg" cx="10" cy="10" r="${R}" fill="none" stroke-width="2.5"
                 stroke-dasharray="${C}" stroke-dashoffset="${C}"
-                transform="rotate(-90 10 10)"/></svg>`;
+                transform="rotate(-90 10 10)"/></svg>`);
         const fg = el.querySelector('.tm-fg');
         const update = (pct) => {
             if (pct === null) {
@@ -16504,10 +16538,11 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         try {
             return await fetch(url, opts);
         } catch (e) {
-            if (e && e.name === 'TypeError' && /illegal invocation/i.test(String(e.message))
+            if (!_isFirefoxEnv
+                && e && e.name === 'TypeError' && /illegal invocation/i.test(String(e.message))
                 && typeof unsafeWindow !== 'undefined' && typeof unsafeWindow.fetch === 'function') {
                 _log('TMApi', '_scriptFetch: sandbox fetch threw Illegal invocation, retrying with unsafeWindow as receiver');
-                return await unsafeWindow.fetch.call(unsafeWindow, url, opts);
+                return await _callPageFn(unsafeWindow.fetch, unsafeWindow, [url, opts]);
             }
             throw e;
         }
@@ -16732,20 +16767,20 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
         const prevBtn = document.createElement('button');
         prevBtn.className = 'tm-nav-fade-btn';
-        prevBtn.innerHTML = SVG_PREV;
+        setHTML(prevBtn, SVG_PREV);
         prevBtn.style.cssText = NAV_BASE + 'left: 20px;';
         prevBtn.onmouseenter = () => prevBtn.style.background = 'rgba(255,255,255,0.25)';
         prevBtn.onmouseleave = () => prevBtn.style.background = 'rgba(0,0,0,0.55)';
 
         const nextBtn = document.createElement('button');
         nextBtn.className = 'tm-nav-fade-btn';
-        nextBtn.innerHTML = SVG_NEXT;
+        setHTML(nextBtn, SVG_NEXT);
         nextBtn.style.cssText = NAV_BASE + 'right: 20px;';
         nextBtn.onmouseenter = () => nextBtn.style.background = 'rgba(255,255,255,0.25)';
         nextBtn.onmouseleave = () => nextBtn.style.background = 'rgba(0,0,0,0.55)';
 
         const closeBtn = document.createElement('button');
-        closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
+        setHTML(closeBtn, `<svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`);
         closeBtn.setAttribute('aria-label', 'Close video player');
         closeBtn.style.cssText = `
             position: absolute; top: 20px; right: 25px;
@@ -16760,7 +16795,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         const viewImgBtn = imageUrls && imageUrls.length ? document.createElement('button') : null;
         if (viewImgBtn) {
             viewImgBtn.title = T.btn_switch_to_image || 'Switch to Image';
-            viewImgBtn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/><polyline points="21,15 16,10 5,21"/></svg>`;
+            setHTML(viewImgBtn, `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/><polyline points="21,15 16,10 5,21"/></svg>`);
             viewImgBtn.style.cssText = `
                 position: absolute; top: 20px; right: 75px;
                 background: rgba(29,155,240,0.85); color: white; border: none;
@@ -16780,7 +16815,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         const vpDownloadBtn = document.createElement('button');
         vpDownloadBtn.title = 'Download video';
         vpDownloadBtn.setAttribute('aria-label', 'Download video');
-        vpDownloadBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M6 9l4 4 4-4"/><line x1="3" y1="17" x2="17" y2="17"/></svg>`;
+        setHTML(vpDownloadBtn, `<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M6 9l4 4 4-4"/><line x1="3" y1="17" x2="17" y2="17"/></svg>`);
         vpDownloadBtn.style.cssText = `
             position: absolute; top: 20px;
             background: rgba(0,0,0,0.6); color: white; border: none;
@@ -16793,15 +16828,15 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         vpDownloadBtn.onclick = async e => {
             e.stopPropagation();
             const original = vpDownloadBtn.innerHTML;
-            vpDownloadBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" stroke-dasharray="42" stroke-dashoffset="14"/></svg>';
+            setHTML(vpDownloadBtn, '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" stroke-dasharray="42" stroke-dashoffset="14"/></svg>');
             try {
                 await forceDownloadBlob(videoUrls[currentIndex], _lbFilename(videoUrls[currentIndex], currentIndex + 1, tweetInfo));
-                vpDownloadBtn.innerHTML = `<svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`;
+                setHTML(vpDownloadBtn, `<svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`);
             } catch (_) {
                 showToast(T.msg_download_failed || '❌ Download failed', 2500, 'error');
-                vpDownloadBtn.innerHTML = original;
+                setHTML(vpDownloadBtn, original);
             } finally {
-                setTimeout(() => { vpDownloadBtn.innerHTML = original; }, 1200);
+                setTimeout(() => { setHTML(vpDownloadBtn, original); }, 1200);
             }
         };
 
@@ -16934,7 +16969,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             <rect x="9.5" y="9.5" width="5" height="5" rx="1"/>
         </svg>`;
         vpGalleryBtn = document.createElement('button');
-        vpGalleryBtn.innerHTML = SVG_GRID_VP;
+        setHTML(vpGalleryBtn, SVG_GRID_VP);
         vpGalleryBtn.title = 'Browse page media';
         vpGalleryBtn.style.cssText = `
             position: absolute; top: 20px; right: ${_vpGalleryRightBase}px;
@@ -17044,7 +17079,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                         el.onclick = async ev => {
                             ev.stopPropagation();
                             await new Promise(r => setTimeout(r, 0));
-                            vpPill.innerHTML = `<span class="tm-pill-avatar" style="background:${group.avatarColor}">${_escHtml(group.avatarLetter)}</span><span class="tm-pill-author">@${_escHtml(group.handle)}</span>${group.text ? `<span class="tm-pill-text">${_escHtml(group.text)}</span>` : ''}`;
+                            setHTML(vpPill, `<span class="tm-pill-avatar" style="background:${group.avatarColor}">${_escHtml(group.avatarLetter)}</span><span class="tm-pill-author">@${_escHtml(group.handle)}</span>${group.text ? `<span class="tm-pill-text">${_escHtml(group.text)}</span>` : ''}`);
                             vpPill.classList.add('tm-pill-show');
                             clearTimeout(vpPill._autoTimer);
                             vpPill._autoTimer = setTimeout(() => { vpPill.classList.remove('tm-pill-show'); }, 1500);
@@ -17579,7 +17614,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             wrap.className = 'tm-lb-quick-actions';
 
             const dlBtn = document.createElement('button');
-            dlBtn.innerHTML = SVG_QA_DOWNLOAD;
+            setHTML(dlBtn, SVG_QA_DOWNLOAD);
             dlBtn.title = 'Download';
             dlBtn.setAttribute('aria-label', 'Download image');
             let _dlBusy = false;
@@ -17590,20 +17625,20 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 if (!url) return;
                 _dlBusy = true;
                 const original = SVG_QA_DOWNLOAD;
-                dlBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" stroke-dasharray="42" stroke-dashoffset="14"/></svg>';
+                setHTML(dlBtn, '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" stroke-dasharray="42" stroke-dashoffset="14"/></svg>');
                 try {
                     await forceDownloadBlob(url, _lbFilename(url, focused + 1, getInfo()));
-                    dlBtn.innerHTML = `<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`;
+                    setHTML(dlBtn, `<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`);
                 } catch (_) {
                     showToast(T.msg_download_failed || '❌ Download failed', 2500, 'error');
-                    dlBtn.innerHTML = original;
+                    setHTML(dlBtn, original);
                 } finally {
-                    setTimeout(() => { dlBtn.innerHTML = original; _dlBusy = false; }, 1200);
+                    setTimeout(() => { setHTML(dlBtn, original); _dlBusy = false; }, 1200);
                 }
             };
 
             const copyBtn = document.createElement('button');
-            copyBtn.innerHTML = SVG_QA_COPY_LINK;
+            setHTML(copyBtn, SVG_QA_COPY_LINK);
             copyBtn.title = 'Copy link';
             copyBtn.setAttribute('aria-label', 'Copy image link');
             copyBtn.onclick = e => {
@@ -17614,8 +17649,8 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 showToast(T.toast_grid_media_copied || 'Link copied!', 2500, 'success');
                 clearTimeout(copyBtn._tmRestore);
                 const original = SVG_QA_COPY_LINK;
-                copyBtn.innerHTML = `<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`;
-                copyBtn._tmRestore = setTimeout(() => { copyBtn.innerHTML = original; }, 1200);
+                setHTML(copyBtn, `<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,10 8,14 16,6"/></svg>`);
+                copyBtn._tmRestore = setTimeout(() => { setHTML(copyBtn, original); }, 1200);
             };
 
             wrap.appendChild(dlBtn);
@@ -17673,7 +17708,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
         function _lbBuildCornerBtns() {
             const closeBtn = document.createElement('button');
-            closeBtn.innerHTML = `<svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`;
+            setHTML(closeBtn, `<svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`);
             closeBtn.setAttribute('aria-label', 'Close lightbox');
             closeBtn.style.cssText = `
                 position: absolute; top: 20px; right: 25px;
@@ -17691,7 +17726,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 viewVidBtn = document.createElement('button');
                 viewVidBtn.className = 'tm-nav-fade-btn';
                 viewVidBtn.title = T.btn_switch_to_video || 'Switch to Video';
-                viewVidBtn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5,3 19,12 5,21" fill="currentColor" stroke="none"/></svg>`;
+                setHTML(viewVidBtn, `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5,3 19,12 5,21" fill="currentColor" stroke="none"/></svg>`);
                 viewVidBtn.style.cssText = `
                     position: absolute; top: 20px; right: 130px;
                     background: rgba(29,155,240,0.85); color: white; border: none;
@@ -17775,7 +17810,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             </svg>`;
             const galleryBtn = document.createElement('button');
             galleryBtn.id = 'tm-lb-gallery-btn';
-            galleryBtn.innerHTML = SVG_GRID_ICON;
+            setHTML(galleryBtn, SVG_GRID_ICON);
             galleryBtn.title = 'Browse page media';
 
             const panel = document.createElement('div');
@@ -18156,7 +18191,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         const lbNextBtn = total > 1 ? document.createElement('button') : null;
         if (lbPrevBtn && lbNextBtn) {
             lbPrevBtn.className = 'tm-nav-fade-btn';
-            lbPrevBtn.innerHTML = SVG_PREV;
+            setHTML(lbPrevBtn, SVG_PREV);
             lbPrevBtn.style.cssText = NAV_BTN_BASE + 'left: 20px;';
             lbPrevBtn.onmouseenter = () => lbPrevBtn.style.background = 'rgba(255,255,255,0.25)';
             lbPrevBtn.onmouseleave = () => lbPrevBtn.style.background = 'rgba(0,0,0,0.55)';
@@ -18166,7 +18201,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             };
 
             lbNextBtn.className = 'tm-nav-fade-btn';
-            lbNextBtn.innerHTML = SVG_NEXT;
+            setHTML(lbNextBtn, SVG_NEXT);
             lbNextBtn.style.cssText = NAV_BTN_BASE + 'right: 20px;';
             lbNextBtn.onmouseenter = () => lbNextBtn.style.background = 'rgba(255,255,255,0.25)';
             lbNextBtn.onmouseleave = () => lbNextBtn.style.background = 'rgba(0,0,0,0.55)';
@@ -18214,11 +18249,11 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
         function _showPill(pillEl, group) {
             if (!group) { pillEl.classList.remove('tm-pill-show'); return; }
-            pillEl.innerHTML = `
+            setHTML(pillEl, `
                 <span class="tm-pill-avatar" style="background:${group.avatarColor}">${_escHtml(group.avatarLetter)}</span>
                 <span class="tm-pill-author">@${_escHtml(group.handle)}</span>
                 ${group.text ? `<span class="tm-pill-text">${_escHtml(group.text)}</span>` : ''}
-            `;
+            `);
             pillEl.classList.add('tm-pill-show');
             clearTimeout(pillEl._autoTimer);
             pillEl._autoTimer = setTimeout(() => { pillEl.classList.remove('tm-pill-show'); }, 1500);
@@ -18847,7 +18882,8 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
     function _parseVideosFromTweetResult(tweetResult) {
         try {
             const core = tweetResult?.result ?? tweetResult;
-            const tweetId = core?.legacy?.id_str ?? core?.tweet?.legacy?.id_str;
+            const tweetId = core?.rest_id ?? core?.tweet?.rest_id
+                ?? core?.legacy?.id_str ?? core?.tweet?.legacy?.id_str;
             if (!tweetId) return null;
 
             let mp4Urls = [];
@@ -18899,6 +18935,10 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 }
                 if (obj.tweetResult) {
                     const parsed = _parseVideosFromTweetResult(obj.tweetResult);
+                    if (parsed) _apiVideoCache.set(parsed.id, { urls: parsed.urls, ts });
+                }
+                if (obj.tweet_result_by_rest_id) {
+                    const parsed = _parseVideosFromTweetResult(obj.tweet_result_by_rest_id);
                     if (parsed) _apiVideoCache.set(parsed.id, { urls: parsed.urls, ts });
                 }
                 if (obj.retweeted_status_result) {
@@ -19034,10 +19074,23 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
             const AUTH_TOKEN = await _resolveBearerToken();
 
-            const variables = {"tweetId":statusId,"with_rux_injections":false,"includePromotedContent":true,"withCommunity":true,"withQuickPromoteEligibilityTweetFields":true,"withBirdwatchNotes":true,"withVoice":true,"withV2Timeline":true};
-            const features = {"articles_preview_enabled":true,"c9s_tweet_anatomy_moderator_badge_enabled":true,"freedom_of_speech_not_reach_fetch_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"view_counts_everywhere_api_enabled":true};
+            const variables = {
+                "restId": statusId,
+                "withFocalTweet": true,
+                "__relay_internal__pv__xclientsfeaturesappviewerisloggedinrelayprovider": true,
+                "__relay_internal__pv__replydownvoteenabledrelayprovider": false,
+                "__relay_internal__pv__xclientsfeaturestranslationgroktranslatedpostenabledrelayprovider": true,
+                "__relay_internal__pv__postctafetchenabledrelayprovider": false,
+                "__relay_internal__pv__xclientsfeaturestweetcomponentsgrokanalyzepostrelayprovider": true,
+                "__relay_internal__pv__xclientsfeaturestranslationnoteautotranslationenabledrelayprovider": true,
+                "__relay_internal__pv__liveeventpostcontextenabledrelayprovider": true,
+                "__relay_internal__pv__xclientsfeaturestweetsportspostcontextenabledrelayprovider": true
+            };
 
-            let url = `https://${location.hostname}/i/api/graphql/${_cachedGqlId}/TweetResultByRestId?variables=${encodeURIComponent(JSON.stringify(variables))}&features=${encodeURIComponent(JSON.stringify(features))}`;
+            const _isXHost = /(^|\.)x\.com$/.test(location.hostname);
+            let url = _isXHost
+                ? `https://api.x.com/graphql/${_cachedGqlId}/TweetResultByRestId?variables=${encodeURIComponent(JSON.stringify(variables))}`
+                : `https://${location.hostname}/i/api/graphql/${_cachedGqlId}/TweetResultByRestId?variables=${encodeURIComponent(JSON.stringify(variables))}`;
 
             const _safeAuth = _sanitizeHeaderValue(AUTH_TOKEN, 'authorization');
             const _safeCt0  = _sanitizeHeaderValue(ct0, 'ct0/x-csrf-token');
@@ -19089,7 +19142,10 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 _circuitRecordFailure();
                 return null;
             }
-            let core = json.data?.tweetResult?.result?.tweet || json.data?.tweetResult?.result;
+            let core = json.data?.tweet_result_by_rest_id?.result?.tweet
+                || json.data?.tweet_result_by_rest_id?.result
+                || json.data?.tweetResult?.result?.tweet
+                || json.data?.tweetResult?.result;
             if (!core) {
                 _log('TMApi', 'fetchTweetMediaFromAPI: result 整層缺失（非 tombstone/unavailable），計入電路斷路器', statusId);
                 _circuitRecordFailure();
@@ -19099,28 +19155,32 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             let result = { videos: [], images: [] };
             let quotedResult = { videos: [], images: [] };
 
+            const _collectMediaArr = (arr, target) => {
+                if (!arr) return;
+                arr.forEach(m => {
+                    if (m.type === 'photo') {
+                        target.images.push(m.media_url_https + '?name=orig');
+                    } else if (m.type === 'video' || m.type === 'animated_gif') {
+                        let mp4s = m.video_info?.variants?.filter(v => v.content_type === 'video/mp4') || [];
+                        if (mp4s.length) {
+                            let best = mp4s.sort((a,b)=>(b.bitrate||0)-(a.bitrate||0))[0];
+                            target.videos.push(best.url.split('?')[0]);
+                        }
+                    }
+                });
+            };
             const walk = (obj, inQuote = false) => {
                 if (!obj || typeof obj !== 'object') return;
                 const target = inQuote ? quotedResult : result;
 
-                if (obj.extended_entities?.media) {
-                    obj.extended_entities.media.forEach(m => {
-                        if (m.type === 'photo') {
-                            target.images.push(m.media_url_https + '?name=orig');
-                        } else if (m.type === 'video' || m.type === 'animated_gif') {
-                            let mp4s = m.video_info?.variants?.filter(v => v.content_type === 'video/mp4') || [];
-                            if (mp4s.length) {
-                                let best = mp4s.sort((a,b)=>(b.bitrate||0)-(a.bitrate||0))[0];
-                                target.videos.push(best.url.split('?')[0]);
-                            }
-                        }
-                    });
-                }
+                _collectMediaArr(obj.extended_entities?.media, target);
+                _collectMediaArr(obj.media_entities2, target);
 
                 ['tweet', 'retweeted_status_result', 'result', 'legacy'].forEach(k => {
                     if (obj[k]) walk(obj[k], inQuote);
                 });
                 if (obj.quoted_status_result) walk(obj.quoted_status_result, true);
+                if (obj.quoted_tweet_results) walk(obj.quoted_tweet_results, true);
             };
             walk(core);
             if (!result.images.length && !result.videos.length) {
@@ -19344,7 +19404,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
             const setIconMode = (svg, customColor) => {
                 const safeColor = (customColor && /^#[0-9a-fA-F]{3,8}$/.test(customColor)) ? customColor : null;
-                btn.innerHTML = svg;
+                setHTML(btn, svg);
                 btn.classList.add('tm-anim-pop');
                 if (safeColor) {
                     const svgEl = btn.querySelector('svg');
@@ -19356,7 +19416,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             };
             const setIconModeOnly = (svg, customColor) => {
                 const safeColor = (customColor && /^#[0-9a-fA-F]{3,8}$/.test(customColor)) ? customColor : null;
-                btn.innerHTML = svg;
+                setHTML(btn, svg);
                 if (safeColor) {
                     const svgEl = btn.querySelector('svg');
                     if (svgEl) {
@@ -19369,9 +19429,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             const getFeedbackText = () => silentText || extra;
 
             if (state === 'default') {
-                btn.innerHTML = _mediaIconSvg;
+                setHTML(btn, _mediaIconSvg);
             } else if (state === 'dl') {
-                btn.innerHTML = SVG_DL;
+                setHTML(btn, SVG_DL);
             } else if (state === 'ok') {
                 if (fbStyle === 'slide') {
                     btn.querySelectorAll('.tm-anim-pop-text').forEach(n => n.remove());
@@ -19400,7 +19460,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     else if (actionType === 'download') setIconMode(SVG_DL, COLOR_DL_OK);
                     else                                setIconMode(SVG_CHECK_SM);
                 } else {
-                    btn.innerHTML = SVG_CHECK_SM;
+                    setHTML(btn, SVG_CHECK_SM);
                     btn.classList.add('tm-anim-pop');
                     showActionToast(btn, extra || T.msg_copied, 'ok');
                 }
@@ -19408,14 +19468,14 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 if (fbStyle === 'icon') {
                     setIconMode(_mediaIconSvg, '#ff8c00');
                 } else {
-                    btn.innerHTML = _mediaIconSvg;
+                    setHTML(btn, _mediaIconSvg);
                     showActionToast(btn, extra, 'warn');
                 }
             } else {
                 if (fbStyle === 'icon') {
                     setIconMode(_mediaIconSvg, state === 'error' ? '#e0245e' : null);
                 } else {
-                    btn.innerHTML = _mediaIconSvg;
+                    setHTML(btn, _mediaIconSvg);
                     if (extra) showActionToast(btn, extra, state === 'error' ? 'error' : 'ok');
                 }
             }
@@ -19869,12 +19929,12 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 icon.classList.remove('tm-anim-flash');
 
                 const setIconMode = (svg) => {
-                    icon.innerHTML = svg;
+                    setHTML(icon, svg);
                     icon.classList.add('tm-anim-pop');
                 };
                 const setIconModeOnly = (svg, customColor) => {
                     const safeColor = (customColor && /^#[0-9a-fA-F]{3,8}$/.test(customColor)) ? customColor : null;
-                    icon.innerHTML = svg;
+                    setHTML(icon, svg);
                     if (safeColor) {
                         const svgEl = icon.querySelector('svg');
                         if (svgEl) {
@@ -19907,12 +19967,12 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                         const useSvg = actionType === 'prefix' ? SVG_PREFIX_COPY : SVG_CHECK;
                         setIconMode(useSvg);
                     } else {
-                        icon.innerHTML = SVG_CHECK;
+                        setHTML(icon, SVG_CHECK);
                         icon.classList.add('tm-anim-pop');
                         showActionToast(icon, extra || T.msg_copied, 'ok');
                     }
                 } else {
-                    icon.innerHTML = _linkIconSvg;
+                    setHTML(icon, _linkIconSvg);
                 }
             };
             setLinkIcon('default');
@@ -20398,10 +20458,10 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
     const SVG_GRID_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,12 9,17 20,6"/></svg>`;
 
     _gridBtnFeedback = function (btn, originalSvg) {
-        btn.innerHTML = SVG_GRID_CHECK;
+        setHTML(btn, SVG_GRID_CHECK);
         btn.classList.add('tm-grid-btn-ok');
         setTimeout(() => {
-            btn.innerHTML = originalSvg;
+            setHTML(btn, originalSvg);
             btn.classList.remove('tm-grid-btn-ok');
         }, 700);
     }
@@ -20506,7 +20566,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             copyBtn.type = 'button';
             copyBtn.className = `${GRID_BTN_CLASS} tm-grid-btn-copy`;
             copyBtn.title = T.grid_btn_copy_tip || 'Copy media link (long-press for menu)';
-            copyBtn.innerHTML = SVG_GRID_COPY;
+            setHTML(copyBtn, SVG_GRID_COPY);
             let _copyLTimer = null;
             let _copyPressing = false;
             copyBtn.addEventListener('mousedown', (e) => {
@@ -20560,7 +20620,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             shareBtn.type = 'button';
             shareBtn.className = `${GRID_BTN_CLASS} tm-grid-btn-share`;
             shareBtn.title = T.grid_btn_share_tip || 'Copy tweet link (long-press to copy with prefix)';
-            shareBtn.innerHTML = SVG_GRID_SHARE;
+            setHTML(shareBtn, SVG_GRID_SHARE);
             let _shareLTimer = null;
             let _sharePressing = false;
             shareBtn.addEventListener('mousedown', (e) => {
@@ -20612,12 +20672,12 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             previewBtn.type = 'button';
             previewBtn.className = `${GRID_BTN_CLASS} tm-grid-btn-preview`;
             previewBtn.title = T.grid_btn_preview_tip || 'Preview in lightbox';
-            previewBtn.innerHTML = SVG_GRID_PREVIEW;
+            setHTML(previewBtn, SVG_GRID_PREVIEW);
             previewBtn.addEventListener('click', async (e) => {
                 e.preventDefault(); e.stopPropagation();
-                previewBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" stroke-dasharray="42" stroke-dashoffset="14"/></svg>';
+                setHTML(previewBtn, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" stroke-dasharray="42" stroke-dashoffset="14"/></svg>');
                 const apiData = await _gridFetch();
-                previewBtn.innerHTML = SVG_GRID_PREVIEW;
+                setHTML(previewBtn, SVG_GRID_PREVIEW);
                 if (!apiData || (!apiData.videos.length && !apiData.images.length)) {
                     showToast(T.msg_no_media || 'No media found', 2500, 'warning');
                     return;
@@ -20637,7 +20697,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             dlBtn.type = 'button';
             dlBtn.className = `${GRID_BTN_CLASS} tm-grid-btn-dl`;
             dlBtn.title = T.grid_btn_download_tip || 'Download media (long-press for menu)';
-            dlBtn.innerHTML = SVG_GRID_DL;
+            setHTML(dlBtn, SVG_GRID_DL);
             let _dlLTimer = null;
             let _dlPressing = false;
             const _dlSpinnerSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" stroke-dasharray="42" stroke-dashoffset="14"/></svg>';
@@ -20672,9 +20732,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 _dlLTimer = setTimeout(async () => {
                     _dlLTimer = null;
                     _dlPressing = false;
-                    dlBtn.innerHTML = _dlSpinnerSvg;
+                    setHTML(dlBtn, _dlSpinnerSvg);
                     const apiData = await _gridFetch();
-                    dlBtn.innerHTML = SVG_GRID_DL;
+                    setHTML(dlBtn, SVG_GRID_DL);
                     if (!apiData || (!apiData.videos.length && !apiData.images.length)) {
                         showToast(T.msg_no_media || 'No media found', 2500, 'warning');
                         return;
@@ -20696,9 +20756,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     clearTimeout(_dlLTimer);
                     _dlLTimer = null;
                     _dlPressing = false;
-                    dlBtn.innerHTML = _dlSpinnerSvg;
+                    setHTML(dlBtn, _dlSpinnerSvg);
                     const apiData = await _gridFetch();
-                    dlBtn.innerHTML = SVG_GRID_DL;
+                    setHTML(dlBtn, SVG_GRID_DL);
                     if (!apiData || (!apiData.videos.length && !apiData.images.length)) {
                         showToast(T.msg_no_media || 'No media found', 2500, 'warning');
                         return;
@@ -20731,6 +20791,10 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
     const AVATAR_BTN_CLASS = 'tm-avatar-media-btn';
     const _processedAvatars = new WeakSet();
 
+    const AVATAR_SEL_LEGACY_WRAP  = '[data-testid="Tweet-User-Avatar"]';
+    const AVATAR_SEL_NEW_WRAP     = '[data-post-avatar="true"]';
+    const AVATAR_SEL_LEGACY_INNER = '[data-testid^="UserAvatar-Container-"]';
+
     if (!document.getElementById('tm-avatar-btn-style')) {
         const _avatarStyle = document.createElement('style');
         _avatarStyle.id = 'tm-avatar-btn-style';
@@ -20744,8 +20808,8 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 z-index: 3;
             }
             .${AVATAR_BTN_CLASS}:hover { opacity: 1 !important; background: rgba(29,155,240,0.85); }
-            [data-testid="Tweet-User-Avatar"]:hover .${AVATAR_BTN_CLASS},
-            [data-post-avatar="true"]:hover .${AVATAR_BTN_CLASS} { opacity: 0.85; pointer-events: auto; }
+            ${AVATAR_SEL_LEGACY_WRAP}:hover .${AVATAR_BTN_CLASS},
+            ${AVATAR_SEL_NEW_WRAP}:hover .${AVATAR_BTN_CLASS} { opacity: 0.85; pointer-events: auto; }
             .${AVATAR_BTN_CLASS} svg { width: 11px; height: 11px; pointer-events: none; }
         `;
         const _appendAvatarStyle = () => document.head.appendChild(_avatarStyle);
@@ -20770,18 +20834,18 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             n++;
             if (_processedAvatars.has(avatarWrap) || !avatarWrap.isConnected) continue;
 
-            const _legacyContainer = avatarWrap.querySelector('[data-testid^="UserAvatar-Container-"]');
+            const _legacyContainer = avatarWrap.querySelector(AVATAR_SEL_LEGACY_INNER);
             let screenName = _legacyContainer
                 ? (_legacyContainer.getAttribute('data-testid') || '').replace('UserAvatar-Container-', '')
                 : '';
             if (!screenName) {
-                const _avatarAnchor = avatarWrap.querySelector('[data-post-avatar="true"] a[href]');
+                const _avatarAnchor = avatarWrap.querySelector(`${AVATAR_SEL_NEW_WRAP} a[href]`);
                 const _href = _avatarAnchor?.getAttribute('href') || '';
                 const _m = _href.match(/^\/([a-zA-Z0-9_]+)\/?$/);
                 if (_m) screenName = _m[1];
             }
             if (!screenName) continue;
-            const _badgeHost = avatarWrap.querySelector('[data-post-avatar="true"]') || avatarWrap;
+            const _badgeHost = avatarWrap.querySelector(AVATAR_SEL_NEW_WRAP) || avatarWrap;
 
             if (getComputedStyle(_badgeHost).position === 'static') {
                 _badgeHost.style.position = 'relative';
@@ -20793,7 +20857,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             badge.href = mediaHref;
             badge.rel = 'noopener noreferrer';
             badge.title = T.avatar_media_btn_tip || 'Go to /media page';
-            badge.innerHTML = SVG_AVATAR_STACK;
+            setHTML(badge, SVG_AVATAR_STACK);
             badge.addEventListener('click', e => {
                 e.stopPropagation();
                 if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
@@ -20818,7 +20882,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
     insertAvatarMediaButtons = function (enabled) {
         if (!enabled) return;
 
-        document.querySelectorAll('article [data-testid="Tweet-User-Avatar"], article [data-post-avatar="true"]').forEach(avatarWrap => {
+        document.querySelectorAll(`article ${AVATAR_SEL_LEGACY_WRAP}, article ${AVATAR_SEL_NEW_WRAP}`).forEach(avatarWrap => {
             if (!_processedAvatars.has(avatarWrap) && !_avatarBatchQueued.has(avatarWrap)) {
                 _avatarBatchQueue.push(avatarWrap);
                 _avatarBatchQueued.add(avatarWrap);
