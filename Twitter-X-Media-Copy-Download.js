@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.3.1.10
+// @version      3.3.1.11
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -17140,7 +17140,14 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             return AVATAR_COLORS[idx % AVATAR_COLORS.length];
         };
 
-        document.querySelectorAll('article[data-testid="tweet"]').forEach(article => {
+        document.querySelectorAll('article').forEach(article => {
+            let tweetId = '';
+            let _screenNameForFallback = '';
+            for (const a of article.querySelectorAll('a[href*="/status/"]')) {
+                const m = a.href.match(/\/([a-zA-Z0-9_]+)\/status\/(\d+)/);
+                if (m) { _screenNameForFallback = m[1]; tweetId = m[2]; break; }
+            }
+
             let author = '', handle = '';
             try {
                 const userBlock = article.querySelector('[data-testid="User-Name"]');
@@ -17149,20 +17156,40 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     author = lines[0] || '';
                     const at = lines.find(l => l.startsWith('@'));
                     handle = at ? at.slice(1) : '';
+                } else if (_screenNameForFallback) {
+                    handle = _screenNameForFallback;
+                    const profileLinks = article.querySelectorAll(`a[href="/${CSS.escape(_screenNameForFallback)}"]`);
+                    for (const link of profileLinks) {
+                        const nameDiv = link.querySelector('div[dir="auto"]');
+                        if (nameDiv && nameDiv.textContent.trim()) { author = nameDiv.textContent.trim(); break; }
+                    }
                 }
             } catch(_) {}
 
-            const textRaw = article.querySelector('[data-testid="tweetText"]')?.innerText?.trim() || '';
+            const _nestedArticles = article.querySelectorAll('article');
+            const _isInNestedArticle = (el) => {
+                for (const na of _nestedArticles) { if (na.contains(el)) return true; }
+                return false;
+            };
+
+            let textRaw = article.querySelector('[data-testid="tweetText"]')?.innerText?.trim() || '';
+            if (!textRaw) {
+                try {
+                    for (const el of article.querySelectorAll('div[lang]')) {
+                        if (_isInNestedArticle(el)) continue;
+                        const t = (el.innerText || el.textContent || '').trim();
+                        if (t) { textRaw = t; break; }
+                    }
+                } catch(_) {}
+            }
             const text = textRaw.length > 40 ? textRaw.slice(0, 40) + '…' : textRaw;
 
-            let tweetId = '';
-            for (const a of article.querySelectorAll('a[href*="/status/"]')) {
-                const m = a.href.match(/\/status\/(\d+)/);
-                if (m) { tweetId = m[1]; break; }
-            }
-
-            const _quotedImgs = new Set(article.querySelectorAll('[data-testid="tweet"] img[src*="pbs.twimg.com/media"]'));
-            const _quotedVideos = new Set(article.querySelectorAll('[data-testid="tweet"] video[poster]'));
+            const _quotedImgs = new Set(
+                Array.from(article.querySelectorAll('img[src*="pbs.twimg.com/media"]')).filter(_isInNestedArticle)
+            );
+            const _quotedVideos = new Set(
+                Array.from(article.querySelectorAll('video[poster]')).filter(_isInNestedArticle)
+            );
             const ownItems = [];
             const quotedItems = [];
             const seenUrls = new Set();
@@ -18793,7 +18820,21 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         }
 
         const textNode = article.querySelector('[data-testid="tweetText"]');
-        if (textNode) tweetText = textNode.innerText || "";
+        if (textNode) {
+            tweetText = textNode.innerText || "";
+        } else {
+            try {
+                const nestedArticles = article.querySelectorAll('article');
+                const textCandidates = article.querySelectorAll('div[lang]');
+                for (const el of textCandidates) {
+                    let inNested = false;
+                    for (const na of nestedArticles) { if (na.contains(el)) { inNested = true; break; } }
+                    if (inNested) continue;
+                    const t = el.innerText || el.textContent || '';
+                    if (t.trim()) { tweetText = t; break; }
+                }
+            } catch (e) { console.warn('[MediaDL] Fallback tweetText extraction failed:', e); }
+        }
 
         try {
             const userBlock = article.querySelector('[data-testid="User-Name"]');
@@ -18803,6 +18844,15 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 if (screenName === 'unknown' && lines.length >= 2) {
                     const handle = lines.find(l => l.startsWith('@'));
                     if (handle) screenName = handle.replace('@', '');
+                }
+            } else if (screenName !== 'unknown') {
+                const profileLinks = article.querySelectorAll(`a[href="/${CSS.escape(screenName)}"]`);
+                for (const link of profileLinks) {
+                    const nameDiv = link.querySelector('div[dir="auto"]');
+                    if (nameDiv && nameDiv.textContent.trim()) {
+                        displayName = nameDiv.textContent.trim();
+                        break;
+                    }
                 }
             }
         } catch(e) { console.warn('[MediaDL] Failed to extract displayName:', e); }
@@ -19226,9 +19276,12 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             }
         }
 
-        const _quotedVideoEls = new Set(article.querySelectorAll('[data-testid="tweet"] video'));
+        const _nestedArticlesForVideo = article.querySelectorAll('article');
         const _allVideoEls = Array.from(article.querySelectorAll('video'));
-        const _ownVideoEls = _allVideoEls.filter(v => !_quotedVideoEls.has(v));
+        const _ownVideoEls = _allVideoEls.filter(v => {
+            for (const na of _nestedArticlesForVideo) { if (na.contains(v)) return false; }
+            return true;
+        });
         let result = (_ownVideoEls.length ? _ownVideoEls : _allVideoEls)
             .map(v => v.src || v.querySelector('source')?.src)
             .filter(src => src && src.includes('mp4') && !src.startsWith('blob:'))
@@ -19782,7 +19835,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
                 if (urls.length === 0) {
                     const info = getTweetInfo(article);
-                    const rawText = article.querySelector('[data-testid="tweetText"]')?.innerText?.trim() || '';
+                    const rawText = article.querySelector('[data-testid="tweetText"]')?.innerText?.trim() || info.text || '';
                     _dialogOpenGlobal = true;
                     const confirmed = confirm(_fmt(
                         T.sp_no_media_bookmark_confirm || 'This post has no media.\n\n"{text}"\n\nSave it as a text bookmark for grouping?',
@@ -19978,11 +20031,21 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             setLinkIcon('default');
 
             const _doSaveLinkTextBookmark = async () => {
-                const rawText = article.querySelector('[data-testid="tweetText"]')?.innerText?.trim() || '';
-                const _allTweetTexts = article.querySelectorAll('[data-testid="tweetText"]');
-                const _quotedText = _allTweetTexts.length > 1 ? (_allTweetTexts[1].innerText?.trim() || '') : '';
-                const _fullSaveText = _quotedText ? `${rawText}\n\n[Quoted] ${_quotedText}` : rawText;
                 const info = getTweetInfo(article);
+                let rawText = article.querySelector('[data-testid="tweetText"]')?.innerText?.trim() || '';
+                if (!rawText) rawText = info.text || '';
+                const _allTweetTexts = article.querySelectorAll('[data-testid="tweetText"]');
+                let _quotedText = _allTweetTexts.length > 1 ? (_allTweetTexts[1].innerText?.trim() || '') : '';
+                if (!_quotedText) {
+                    try {
+                        for (const na of article.querySelectorAll('article')) {
+                            const el = na.querySelector('div[lang]');
+                            const t = el ? (el.innerText || el.textContent || '').trim() : '';
+                            if (t) { _quotedText = t; break; }
+                        }
+                    } catch(_) {}
+                }
+                const _fullSaveText = _quotedText ? `${rawText}\n\n[Quoted] ${_quotedText}` : rawText;
                 if (!rawText) {
                     _dialogOpenGlobal = true;
                     const ok = confirm(T.sp_empty_bookmark_confirm || 'This post has no text content.\nSave it as an empty text bookmark anyway?');
