@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.3.2.0
+// @version      3.3.2.1
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -20959,6 +20959,8 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
     const AVATAR_SEL_LEGACY_WRAP  = '[data-testid="Tweet-User-Avatar"]';
     const AVATAR_SEL_NEW_WRAP     = '[data-post-avatar="true"]';
     const AVATAR_SEL_LEGACY_INNER = '[data-testid^="UserAvatar-Container-"]';
+    const AVATAR_SEL_NEWEST_INNER = '.x-avatar';
+    const AVATAR_WRAP_MARKER_CLASS = 'tm-avatar-wrap-newest';
 
     if (!document.getElementById('tm-avatar-btn-style')) {
         const _avatarStyle = document.createElement('style');
@@ -20975,6 +20977,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             .${AVATAR_BTN_CLASS}:hover { opacity: 1 !important; background: rgba(29,155,240,0.85); }
             ${AVATAR_SEL_LEGACY_WRAP}:hover .${AVATAR_BTN_CLASS},
             ${AVATAR_SEL_NEW_WRAP}:hover .${AVATAR_BTN_CLASS} { opacity: 0.85; pointer-events: auto; }
+            .${AVATAR_WRAP_MARKER_CLASS}:hover .${AVATAR_BTN_CLASS} { opacity: 0.85; pointer-events: auto; }
             .${AVATAR_BTN_CLASS} svg { width: 11px; height: 11px; pointer-events: none; }
         `;
         const _appendAvatarStyle = () => document.head.appendChild(_avatarStyle);
@@ -21009,6 +21012,12 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 const _m = _href.match(/^\/([a-zA-Z0-9_]+)\/?$/);
                 if (_m) screenName = _m[1];
             }
+            if (!screenName) {
+                const _plainAnchor = avatarWrap.querySelector('a[href]');
+                const _href2 = _plainAnchor?.getAttribute('href') || '';
+                const _m2 = _href2.match(/^\/([a-zA-Z0-9_]+)\/?$/);
+                if (_m2) screenName = _m2[1];
+            }
             if (!screenName) continue;
             const _badgeHost = avatarWrap.querySelector(AVATAR_SEL_NEW_WRAP) || avatarWrap;
 
@@ -21016,9 +21025,13 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 _badgeHost.style.position = 'relative';
             }
 
+            if (!avatarWrap.matches(AVATAR_SEL_LEGACY_WRAP) && !avatarWrap.matches(AVATAR_SEL_NEW_WRAP)) {
+                avatarWrap.classList.add(AVATAR_WRAP_MARKER_CLASS);
+            }
+
             const badge = document.createElement('a');
             badge.className = AVATAR_BTN_CLASS;
-            const mediaHref = `https://${location.hostname}/${screenName}/media`;
+            const mediaHref = `https://${location.hostname}/${screenName}/media?filter=photo`;
             badge.href = mediaHref;
             badge.rel = 'noopener noreferrer';
             badge.title = T.avatar_media_btn_tip || 'Go to /media page';
@@ -21028,7 +21041,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
                 e.preventDefault();
                 try {
-                    history.pushState({ tmNav: true }, '', `/${screenName}/media`);
+                    history.pushState({ tmNav: true }, '', `/${screenName}/media?filter=photo`);
                     window.dispatchEvent(new Event('popstate'));
                 } catch (_) { window.open(mediaHref, '_blank'); }
             });
@@ -21048,6 +21061,15 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         if (!enabled) return;
 
         document.querySelectorAll(`article ${AVATAR_SEL_LEGACY_WRAP}, article ${AVATAR_SEL_NEW_WRAP}`).forEach(avatarWrap => {
+            if (!_processedAvatars.has(avatarWrap) && !_avatarBatchQueued.has(avatarWrap)) {
+                _avatarBatchQueue.push(avatarWrap);
+                _avatarBatchQueued.add(avatarWrap);
+            }
+        });
+
+        document.querySelectorAll(`article ${AVATAR_SEL_NEWEST_INNER}`).forEach(avatarBox => {
+            if (avatarBox.closest(AVATAR_SEL_LEGACY_WRAP) || avatarBox.closest(AVATAR_SEL_NEW_WRAP)) return;
+            const avatarWrap = avatarBox.closest('a[href]')?.parentElement || avatarBox;
             if (!_processedAvatars.has(avatarWrap) && !_avatarBatchQueued.has(avatarWrap)) {
                 _avatarBatchQueue.push(avatarWrap);
                 _avatarBatchQueued.add(avatarWrap);
