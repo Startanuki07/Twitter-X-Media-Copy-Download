@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.3.2.2
+// @version      3.3.2.5
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -17409,7 +17409,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 #tm-image-lightbox.tm-lb-mo-nums .tm-lb-mosaic-num { display: block; }
 
                 #tm-lb-set-btn {
-                    position: absolute; top: 10px; right: 120px;
+                    position: absolute; top: 12px; right: 122px;
                     width: 16px; height: 16px; padding: 0; border: none; border-radius: 50%;
                     background: rgba(0,0,0,0.5); color: rgba(255,255,255,0.9);
                     display: flex; align-items: center; justify-content: center;
@@ -17561,15 +17561,20 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 }
 
                 #tm-lb-focus-exit {
-                    position: absolute; top: 20px; right: 175px;
-                    background: rgba(0,0,0,0.6); color: white; border: none;
-                    width: 40px; height: 40px; border-radius: 50%;
+                    position: absolute; top: 20px; right: 25px;
+                    background: transparent; border: none; padding: 0;
+                    width: 46px; height: 46px;
                     cursor: pointer; display: flex; align-items: center; justify-content: center;
-                    transition: background 0.2s, opacity 0.22s ease;
+                    transition: opacity 0.22s ease;
                     z-index: 31; opacity: 0; pointer-events: none;
                 }
+                #tm-lb-focus-exit svg { width: 26px; height: 26px; stroke: rgba(29,155,240,0.9); transition: stroke 0.2s; }
                 #tm-lb-focus-exit.tm-lb-focus-exit-show { opacity: 1; pointer-events: auto; }
-                #tm-lb-focus-exit:hover { background: rgba(255,255,255,0.25); }
+                #tm-lb-focus-exit:hover svg { stroke: rgba(29,155,240,1); }
+
+                .tm-lb-focus-hide {
+                    opacity: 0 !important; pointer-events: none !important;
+                }
             `;
             document.head.appendChild(s);
         }
@@ -18224,30 +18229,21 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
 
         const focusExitBtn = document.createElement('button');
         focusExitBtn.id = 'tm-lb-focus-exit';
-        setHTML(focusExitBtn, `<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 L6 2 L6 6"/><path d="M6 10 L6 14 L10 14"/><path d="M2 6 L6 6"/><path d="M14 10 L10 10"/></svg>`);
+        setHTML(focusExitBtn, `<svg viewBox="0 0 16 16" fill="none" stroke-width="1.6" stroke-linecap="round"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>`);
         focusExitBtn.title = 'Exit focus view';
         focusExitBtn.setAttribute('aria-label', 'Exit focus view, back to card browsing');
         focusExitBtn.onclick = e => { e.stopPropagation(); _exitFocusMode(); };
 
-        function _focusExitBtnReposition() {
-            const candidates = [closeBtn, viewVidBtn, mosaicBtn].filter(Boolean);
-            let maxRightEdge = 0;
-            candidates.forEach(el => {
-                const r = parseFloat(getComputedStyle(el).right) || 0;
-                const w = el.getBoundingClientRect().width || 40;
-                maxRightEdge = Math.max(maxRightEdge, r + w);
-            });
-            focusExitBtn.style.right = (maxRightEdge + 10) + 'px';
-        }
+        let _focusHideTargets;
 
         function _enterFocusMode() {
             if (_focusOpen) return;
             _focusOpen = true;
             focusImg.src = urls[focused];
-            _focusExitBtnReposition();
             focusLayer.classList.add('tm-lb-focus-in');
             stage.classList.add('tm-lb-stage-dim');
             focusExitBtn.classList.add('tm-lb-focus-exit-show');
+            _focusHideTargets.forEach(el => el.classList.add('tm-lb-focus-hide'));
             _showFocusHud();
         }
         function _exitFocusMode() {
@@ -18257,6 +18253,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             focusLayer.classList.remove('tm-lb-focus-in');
             stage.classList.remove('tm-lb-stage-dim');
             focusExitBtn.classList.remove('tm-lb-focus-exit-show');
+            _focusHideTargets.forEach(el => el.classList.remove('tm-lb-focus-hide'));
             clearTimeout(_focusHudTimer);
             counter.style.opacity = '1';
             dotsWrap.style.opacity = '1';
@@ -18771,8 +18768,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             _showPill(pillB, group);
         }, [closeBtn, viewVidBtn, mosaicBtn, mosaicSetBtn, mosaicSetPanel], () => {
             scheduleUpdate(); _lbMosaicRelayout();
-            if (_focusOpen) _focusExitBtnReposition();
         });
+
+        _focusHideTargets = [closeBtn, viewVidBtn, gbB, mosaicBtn, mosaicSetBtn, mosaicSetPanel, qaBtnsB].filter(Boolean);
 
         modal.appendChild(stage);
         modal.appendChild(focusLayer);
