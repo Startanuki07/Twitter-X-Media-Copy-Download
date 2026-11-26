@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.3.2.1
+// @version      3.3.2.2
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -17541,6 +17541,35 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 #tm-image-lightbox .tm-lb-quick-actions.tm-qa-branch-b {
                     position: fixed; top: 0; right: auto;
                 }
+
+                #tm-lb-focus-layer {
+                    position: absolute; inset: 0;
+                    display: flex; align-items: center; justify-content: center;
+                    z-index: 29; opacity: 0; pointer-events: none;
+                    transition: opacity 0.22s ease;
+                }
+                #tm-lb-focus-layer.tm-lb-focus-in { opacity: 1; pointer-events: auto; }
+                #tm-lb-focus-layer img {
+                    max-width: 100%; max-height: 100%;
+                    width: auto; height: auto;
+                    object-fit: contain; display: block;
+                    user-select: none; -webkit-user-drag: none;
+                }
+                #tm-image-lightbox .tm-lb-stage-dim {
+                    opacity: 0; pointer-events: none;
+                    transition: opacity 0.22s ease;
+                }
+
+                #tm-lb-focus-exit {
+                    position: absolute; top: 20px; right: 175px;
+                    background: rgba(0,0,0,0.6); color: white; border: none;
+                    width: 40px; height: 40px; border-radius: 50%;
+                    cursor: pointer; display: flex; align-items: center; justify-content: center;
+                    transition: background 0.2s, opacity 0.22s ease;
+                    z-index: 31; opacity: 0; pointer-events: none;
+                }
+                #tm-lb-focus-exit.tm-lb-focus-exit-show { opacity: 1; pointer-events: auto; }
+                #tm-lb-focus-exit:hover { background: rgba(255,255,255,0.25); }
             `;
             document.head.appendChild(s);
         }
@@ -17837,6 +17866,8 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         let _galleryOpen   = false;
         let _galleryItems  = null;
 
+        let _focusOpen = false;
+
         function _buildGalleryUI(onSelect, extraBtns = [], onToggle = null) {
             const SVG_GRID_ICON = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="1.5" y="1.5" width="5" height="5" rx="1"/>
@@ -18100,8 +18131,8 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 e.stopPropagation();
                 if (i !== focused) {
                     _goTo(i);
-                } else if (_toggleGalleryRef) {
-                    _toggleGalleryRef();
+                } else {
+                    _enterFocusMode();
                 }
             });
             card.addEventListener('mouseenter', () => { if (i === focused) qaBtnsB.classList.add('tm-qa-show'); });
@@ -18115,6 +18146,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             position: absolute; bottom: 22px; left: 50%;
             transform: translateX(-50%);
             display: flex; gap: 8px; z-index: 30;
+            transition: opacity 0.3s ease;
         `;
         const dots = urls.map((_, i) => {
             const dot = document.createElement('div');
@@ -18138,16 +18170,21 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             padding: 4px 14px; border-radius: 9999px;
             font: 13px/1.5 system-ui, sans-serif; z-index: 30;
             pointer-events: none; white-space: nowrap;
+            transition: opacity 0.3s ease;
         `;
 
         const { closeBtn, viewVidBtn } = _lbBuildCornerBtns();
         modal.onclick = e => {
-            const hit = e.composedPath().some(el => el !== modal && el instanceof Element && (
+            const hit = e.composedPath().some(el => el !== modal && el instanceof Element &&
+                el.id !== 'tm-lb-focus-layer' && (
                 el.tagName === 'IMG' || el.tagName === 'BUTTON' ||
                 el.id === 'tm-lb-gallery-panel' || el.id === 'tm-lb-pill' ||
                 (el.className && typeof el.className === 'string' && el.className.includes('tm-'))
             ));
-            if (!hit) { if (_lbSetClose()) return; closeLightbox(); }
+            if (hit) return;
+            if (_lbSetClose()) return;
+            if (_focusOpen) { _exitFocusMode(); return; }
+            closeLightbox();
         };
 
         const _bDragAC = new AbortController();
@@ -18167,12 +18204,78 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         }, { signal: _bDragAC.signal });
 
         const _getZoomImg = () => {
+            if (_focusOpen) return focusImg;
             const fc = modal.querySelector('.tm-lb-card.tm-lb-focused');
             return fc ? fc.querySelector('img') : null;
         };
         const _bZoomPan = _createZoomPan(_getZoomImg, _bDragAC);
         const _bReset = _bZoomPan.reset;
-        const _goTo = i => { focused = i; _bReset(); scheduleUpdate(); };
+        const _goTo = i => {
+            focused = i; _bReset(); scheduleUpdate();
+            if (_focusOpen) focusImg.src = urls[i];
+        };
+
+        const focusLayer = document.createElement('div');
+        focusLayer.id = 'tm-lb-focus-layer';
+        const focusImg = document.createElement('img');
+        focusImg.draggable = false;
+        focusImg.alt = '';
+        focusLayer.appendChild(focusImg);
+
+        const focusExitBtn = document.createElement('button');
+        focusExitBtn.id = 'tm-lb-focus-exit';
+        setHTML(focusExitBtn, `<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 L6 2 L6 6"/><path d="M6 10 L6 14 L10 14"/><path d="M2 6 L6 6"/><path d="M14 10 L10 10"/></svg>`);
+        focusExitBtn.title = 'Exit focus view';
+        focusExitBtn.setAttribute('aria-label', 'Exit focus view, back to card browsing');
+        focusExitBtn.onclick = e => { e.stopPropagation(); _exitFocusMode(); };
+
+        function _focusExitBtnReposition() {
+            const candidates = [closeBtn, viewVidBtn, mosaicBtn].filter(Boolean);
+            let maxRightEdge = 0;
+            candidates.forEach(el => {
+                const r = parseFloat(getComputedStyle(el).right) || 0;
+                const w = el.getBoundingClientRect().width || 40;
+                maxRightEdge = Math.max(maxRightEdge, r + w);
+            });
+            focusExitBtn.style.right = (maxRightEdge + 10) + 'px';
+        }
+
+        function _enterFocusMode() {
+            if (_focusOpen) return;
+            _focusOpen = true;
+            focusImg.src = urls[focused];
+            _focusExitBtnReposition();
+            focusLayer.classList.add('tm-lb-focus-in');
+            stage.classList.add('tm-lb-stage-dim');
+            focusExitBtn.classList.add('tm-lb-focus-exit-show');
+            _showFocusHud();
+        }
+        function _exitFocusMode() {
+            if (!_focusOpen) return;
+            if (_bZoomPan.isZoomed()) _bReset();
+            _focusOpen = false;
+            focusLayer.classList.remove('tm-lb-focus-in');
+            stage.classList.remove('tm-lb-stage-dim');
+            focusExitBtn.classList.remove('tm-lb-focus-exit-show');
+            clearTimeout(_focusHudTimer);
+            counter.style.opacity = '1';
+            dotsWrap.style.opacity = '1';
+        }
+
+        let _focusHudTimer = null;
+        function _showFocusHud() {
+            if (!_focusOpen) return;
+            clearTimeout(_focusHudTimer);
+            counter.style.opacity = '1';
+            dotsWrap.style.opacity = '1';
+            dotsWrap.style.pointerEvents = 'auto';
+            _focusHudTimer = setTimeout(() => {
+                counter.style.opacity = '0';
+                dotsWrap.style.opacity = '0';
+                dotsWrap.style.pointerEvents = 'none';
+            }, 2000);
+        }
+
         modal.addEventListener('wheel', e => {
             if (_lbIsOnPanel(e)) return;
             e.preventDefault();
@@ -18180,11 +18283,12 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             _bZoomPan.wheel(e.deltaY);
         }, { passive: false });
         modal.addEventListener('dblclick', e => {
-            if (!e.target.closest('.tm-lb-card')) return;
+            if (_focusOpen ? e.target !== focusImg : !e.target.closest('.tm-lb-card')) return;
             e.stopPropagation(); _bReset();
         });
         modal.addEventListener('mousedown', e => {
-            if (!_bZoomPan.isZoomed() || !e.target.closest('.tm-lb-card img')) return;
+            const onTarget = _focusOpen ? e.target === focusImg : e.target.closest('.tm-lb-card img');
+            if (!_bZoomPan.isZoomed() || !onTarget) return;
             e.preventDefault(); e.stopPropagation();
             _bZoomPan.beginDrag(e);
         });
@@ -18199,6 +18303,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 _lbMosaicKey(e);
                 return;
             }
+            if (e.key === 'Escape' && _focusOpen) { _exitFocusMode(); return; }
             if (e.key === 'Escape') { closeLightbox(); return; }
             else if (e.key === '+' || e.key === '=') { _bZoomPan.zoomIn(); return; }
             else if (e.key === '-')                  { _bZoomPan.zoomOut(); return; }
@@ -18259,7 +18364,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             cards.forEach((card, i) => {
                 const { dx, rot, scale, zIndex, opacity, focused: isFocused } = calcTransform(i - focused);
                 card.style.transform = `translateX(${dx}px) rotate(${rot}deg) scale(${scale}) translateZ(0)`;
-                card.style.opacity = (_galleryOpen && !isFocused) ? '0' : opacity;
+                card.style.opacity = (_galleryOpen && !isFocused) ? Math.min(opacity, 0.35) : opacity;
                 card.style.zIndex = String(zIndex);
                 card.classList.toggle('tm-lb-focused', isFocused);
             });
@@ -18268,6 +18373,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 dot.style.transform = i === focused ? 'scale(1.4)' : 'scale(1)';
             });
             counter.textContent = `${focused + 1} / ${total}`;
+            _showFocusHud();
             _lbMosaicSync();
             if (_lbTiered && _lbLargeIdx !== focused) {
                 clearTimeout(_lbTierTimer);
@@ -18647,7 +18753,6 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             mosaicSetPanel.addEventListener('wheel', e => { e.preventDefault(); e.stopPropagation(); }, { passive: false });
         }
 
-        let _toggleGalleryRef = null;
         const { galleryBtn: gbB, panel: gpB, pill: pillB, updateSelected: updB, toggleGallery: tgB } = _buildGalleryUI(async (item, group) => {
             await new Promise(r => setTimeout(r, 0));
             if (item.type === 'video') { await _lbOpenGalleryVideo(item, group); return; }
@@ -18664,10 +18769,13 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 updB(targetUrl);
             }
             _showPill(pillB, group);
-        }, [closeBtn, viewVidBtn, mosaicBtn, mosaicSetBtn, mosaicSetPanel], () => { scheduleUpdate(); _lbMosaicRelayout(); });
-        _toggleGalleryRef = tgB;
+        }, [closeBtn, viewVidBtn, mosaicBtn, mosaicSetBtn, mosaicSetPanel], () => {
+            scheduleUpdate(); _lbMosaicRelayout();
+            if (_focusOpen) _focusExitBtnReposition();
+        });
 
         modal.appendChild(stage);
+        modal.appendChild(focusLayer);
         modal.appendChild(closeBtn);
         if (viewVidBtn) modal.appendChild(viewVidBtn);
         if (lbPrevBtn)  modal.appendChild(lbPrevBtn);
@@ -18675,6 +18783,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         if (total > 1) { modal.appendChild(dotsWrap); modal.appendChild(counter); }
         modal.appendChild(qaBtnsB);
         modal.appendChild(gbB);
+        modal.appendChild(focusExitBtn);
         if (mosaicBtn) modal.appendChild(mosaicBtn);
         if (mosaicSetBtn) { modal.appendChild(mosaicSetBtn); modal.appendChild(mosaicSetPanel); }
         modal.appendChild(gpB);
