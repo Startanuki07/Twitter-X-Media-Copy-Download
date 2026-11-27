@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.3.2.5
+// @version      3.3.3.0
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -232,6 +232,10 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         return null;
     }
 
+    function _isVideoRec(r) {
+        return r.manualType ? r.manualType === 'video' : !!r.hasVideo;
+    }
+
     function _deleteRecordById(id) {
         for (const ym of _getHistoryIndex()) {
             const recs = _readMonthRecords(ym);
@@ -317,6 +321,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         }
         r.thumbUrls = Array.isArray(r.thumbUrls) ? r.thumbUrls.map(u => _importSafeUrl(u, ['twimg.com'])).filter(Boolean) : [];
         r.mediaUrls = Array.isArray(r.mediaUrls) ? r.mediaUrls.map(u => _importSafeUrl(u, ['twimg.com'])).filter(Boolean) : [];
+        if (r.manualType !== 'image' && r.manualType !== 'video') delete r.manualType;
         return r;
     }
 
@@ -11392,6 +11397,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             let monthRecs = _readMonthRecords(ym);
             const _oldRecord = monthRecs.find(r => r.tweetId === info.id);
             if (_oldRecord?.favorited) record.favorited = true;
+            if (_oldRecord?.manualType && _oldRecord.manualType !== (hasVideo ? 'video' : 'image')) {
+                record.manualType = _oldRecord.manualType;
+            }
             monthRecs = monthRecs.filter(r => r.tweetId !== info.id);
             monthRecs.unshift(record);
             _updateHistoryIndex(ym);
@@ -11743,7 +11751,26 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 acts.appendChild(jmpBtn);
                 if (!rec.textOnly) acts.appendChild(dlBtn);
                 acts.appendChild(delBtn);
-                row.appendChild(acts);
+
+                if (rec.textOnly) {
+                    row.appendChild(acts);
+                } else {
+                    const _isVid = _isVideoRec(rec);
+                    const typeBtn = document.createElement('button');
+                    typeBtn.className = 'tm-hist-act-btn tm-hist-type-btn ' + (_isVid ? 'is-video' : 'is-image') + (rec.manualType ? ' is-manual' : '');
+                    setHTML(typeBtn, SVG_TYPE_SWITCH);
+                    typeBtn.title = (_isVid ? 'Video' : 'Image') + (rec.manualType ? ' (manual)' : '') + ' · click to move to ' + (_isVid ? 'Image' : 'Video');
+                    if (editMode) {
+                        typeBtn.style.opacity = '0.3';
+                        typeBtn.style.pointerEvents = 'none';
+                    }
+                    typeBtn.addEventListener('click', e => { e.stopPropagation(); _switchMediaType(rec); });
+                    const actsCol = document.createElement('div');
+                    actsCol.className = 'tm-hist-actions-col';
+                    actsCol.appendChild(acts);
+                    actsCol.appendChild(typeBtn);
+                    row.appendChild(actsCol);
+                }
 
                 if (editMode && !rec.favorited) {
                     row.style.cursor = 'pointer';
@@ -12068,6 +12095,15 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                             setTimeout(() => forceDownloadBlob(url, fname), i * 600);
                         });
                     }));
+                    if (!rec.textOnly && !editMode) {
+                        const sepType = document.createElement('div');
+                        sepType.style.cssText = 'height:0.5px;background:rgba(255,255,255,.1);margin:3px 8px';
+                        menu.appendChild(sepType);
+                        const CTX_TYPE = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h11M10.5 2.5L13 5l-2.5 2.5M14 11H3M5.5 8.5L3 11l2.5 2.5"/></svg>`;
+                        menu.appendChild(mkItem(CTX_TYPE, _isVideoRec(rec) ? 'Move to Image' : 'Move to Video', () => {
+                            _switchMediaType(rec);
+                        }));
+                    }
                     const sep = document.createElement('div');
                     sep.style.cssText = 'height:0.5px;background:rgba(255,255,255,.1);margin:3px 8px';
                     menu.appendChild(sep);
@@ -12144,6 +12180,20 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 if (selectedIds.has(id)) selectedIds.delete(id);
                 else { selectedIds.add(id); setAnchorIdx(idx); }
             }
+            render();
+        }
+
+        const SVG_TYPE_SWITCH = `<svg viewBox="0 0 46 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><g class="tm-ts-vid"><rect x="2" y="2.5" width="12" height="11" rx="1.5"/><path d="M5 2.5v11M11 2.5v11M2 6h3M2 10h3M11 6h3M11 10h3"/></g><g class="tm-ts-arr" transform="translate(16 0)"><path d="M2 5.5h10M9.5 3L12 5.5 9.5 8M12 10.5H2M4.5 8L2 10.5 4.5 13"/></g><g class="tm-ts-img" transform="translate(30 0)"><rect x="2" y="2.5" width="12" height="11" rx="1.5"/><circle cx="5.8" cy="6.2" r="1"/><path d="M2.5 12l3.6-3.6 2.6 2.6 1.8-1.8 3 3"/></g></svg>`;
+
+        function _switchMediaType(rec) {
+            const target = _isVideoRec(rec) ? 'image' : 'video';
+            const updated = _updateRecord(rec.id, r => {
+                if (target === (r.hasVideo ? 'video' : 'image')) delete r.manualType;
+                else r.manualType = target;
+            });
+            if (!updated) return;
+            if (updated.manualType) rec.manualType = updated.manualType; else delete rec.manualType;
+            showToast(target === 'video' ? '🎞️ Moved to Video' : '🖼️ Moved to Image', 1800);
             render();
         }
 
@@ -14259,6 +14309,13 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             .tm-hist-act-btn.tm-fav-btn:hover { color: #e0245e; }
             .tm-hist-act-btn.tm-fav-btn svg { width: 15px; height: 15px; }
             .tm-hist-act-btn.tm-copy-btn svg { width: 12px; height: 12px; }
+            .tm-hist-actions-col { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
+            .tm-hist-act-btn.tm-hist-type-btn { width: auto; padding: 0 6px; border: 1px solid ${C.border}; }
+            .tm-hist-act-btn.tm-hist-type-btn svg { width: 40px; height: 14px; }
+            .tm-hist-type-btn .tm-ts-vid, .tm-hist-type-btn .tm-ts-img { opacity: 0.3; transition: opacity 0.1s; }
+            .tm-hist-type-btn .tm-ts-arr { opacity: 0.6; }
+            .tm-hist-type-btn.is-video .tm-ts-vid, .tm-hist-type-btn.is-image .tm-ts-img { opacity: 1; }
+            .tm-hist-act-btn.tm-hist-type-btn.is-manual { color: #f59e0b; }
 
             @keyframes tm-fav-shake {
                 0%   { transform: scale(1)    rotate(0deg);   color: #e0245e; }
@@ -15123,9 +15180,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             } else if (mediaFilter === 'text') {
                 result = result.filter(r => r.textOnly === true);
             } else if (mediaFilter === 'video') {
-                result = result.filter(r => r.hasVideo && !r.textOnly);
+                result = result.filter(r => _isVideoRec(r) && !r.textOnly);
             } else {
-                result = result.filter(r => !r.hasVideo && !r.textOnly);
+                result = result.filter(r => !_isVideoRec(r) && !r.textOnly);
             }
             return result;
         }
