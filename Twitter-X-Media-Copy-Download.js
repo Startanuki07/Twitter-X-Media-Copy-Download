@@ -9,7 +9,7 @@
 // @name:fr      Twitter / X — Copier & Télécharger les Médias
 // @name:ru      Twitter / X — Копирование и загрузка медиа
 // @namespace    https://greasyfork.org/en/users/1575945-star-tanuki07
-// @version      3.3.3.0
+// @version      3.4.0.1
 // @homepageURL  https://github.com/Startanuki07
 // @license      MIT
 // @author       Star_tanuki07
@@ -419,6 +419,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
     const KEY_GEAR_DISPLAY_MODE = 'app_gear_display_mode';
     const KEY_GEAR_CORNER       = 'app_gear_corner';
     const KEY_HIST_CLEANUP_NOTIFIED = 'app_hist_cleanup_notified';
+    const KEY_DISABLE_HISTORY   = 'app_disable_history';
     const KEY_LIST_STYLE_HINT_SEEN = 'app_list_style_hint_seen';
     const KEY_CLICK_MODE        = 'app_click_mode';
     const KEY_CUSTOM_MEDIA_ACTIONS = 'app_custom_media_actions';
@@ -490,6 +491,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         'menu_zip_capsule',
         'menu_preview_lightbox',
         'lb_mosaic_overview',
+        'sp_disable_history',
     ];
 
     if (GM_getValue(KEY_SEEN_FEATURES, null) === null) {
@@ -790,6 +792,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             sp_dock_reset_pos:         'Reset Panel Position',
             sp_dock_reset_pos_desc:    'Restore panel to default coordinates (dock side kept)',
             sp_dock_reset_btn:         'Reset',
+            sp_disable_history:        'Disable Download History',
+            sp_disable_history_desc:   'Also disables the "already downloaded" badge and Group on Download. Existing records are kept; only new ones stop being saved. Text bookmarks are not affected.',
+            menu_disable_history:      '🚫 Disable Download History',
 
             sp_tip_change_lang:    "Change the script's interface language.",
             sp_tip_click_domain:   'Choose which domain the copy-link button links to.',
@@ -1142,6 +1147,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             sp_dock_reset_pos:         '重置面板位置',
             sp_dock_reset_pos_desc:    '還原面板至預設座標（停靠側不變）',
             sp_dock_reset_btn:         '重置',
+            sp_disable_history:        '關閉下載紀錄',
+            sp_disable_history_desc:   '同時停用「已下載」徽章與下載後分組功能。既有紀錄不受影響，僅從此刻起不再新增紀錄；文字書籤不受此設定影響。',
+            menu_disable_history:      '🚫 關閉下載紀錄',
 
             sp_tip_change_lang:    '更改腳本的介面語言。',
             sp_tip_click_domain:   '選擇連結複製按鈕要連向哪個網域。',
@@ -1493,6 +1501,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             sp_dock_reset_pos:         '重置面板位置',
             sp_dock_reset_pos_desc:    '还原面板至默认坐标（停靠侧不变）',
             sp_dock_reset_btn:         '重置',
+            sp_disable_history:        '关闭下载记录',
+            sp_disable_history_desc:   '同时停用"已下载"徽章与下载后分组功能。现有记录不受影响，仅从此刻起不再新增记录；文字书签不受此设置影响。',
+            menu_disable_history:      '🚫 关闭下载记录',
 
             sp_tip_change_lang:    '更改脚本的界面语言。',
             sp_tip_click_domain:   '选择链接复制按钮要链接到哪个域名。',
@@ -1844,6 +1855,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             sp_dock_reset_pos:         'パネル位置をリセット',
             sp_dock_reset_pos_desc:    'パネルを初期座標に戻します（ドック側は維持）',
             sp_dock_reset_btn:         'リセット',
+            sp_disable_history:        'ダウンロード履歴を無効化',
+            sp_disable_history_desc:   '「ダウンロード済み」バッジとダウンロード後のグループ化も無効になります。既存の記録には影響しません。以後の新規記録のみ保存されなくなります。テキストブックマークへの影響はありません。',
+            menu_disable_history:      '🚫 ダウンロード履歴を無効化',
 
             sp_tip_change_lang:    'スクリプトの表示言語を変更します。',
             sp_tip_click_domain:   'リンクコピーボタンがリンクするドメインを選択します。',
@@ -2195,6 +2209,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             sp_dock_reset_pos:         '패널 위치 재설정',
             sp_dock_reset_pos_desc:    '패널을 기본 좌표로 복원합니다 (도크 방향은 유지)',
             sp_dock_reset_btn:         '초기화',
+            sp_disable_history:        '다운로드 기록 끄기',
+            sp_disable_history_desc:   '"다운로드됨" 배지와 다운로드 후 그룹화 기능도 함께 비활성화됩니다. 기존 기록은 영향을 받지 않으며, 이 시점부터 새 기록만 저장되지 않습니다. 텍스트 북마크에는 영향을 주지 않습니다.',
+            menu_disable_history:      '🚫 다운로드 기록 끄기',
 
             sp_tip_change_lang:    '스크립트의 인터페이스 언어를 변경합니다.',
             sp_tip_click_domain:   '링크 복사 버튼이 연결할 도메인을 선택합니다.',
@@ -2546,6 +2563,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             sp_dock_reset_pos:         'Restablecer posición del panel',
             sp_dock_reset_pos_desc:    'Restaura el panel a las coordenadas predeterminadas (mantiene el lado de anclaje)',
             sp_dock_reset_btn:         'Restablecer',
+            sp_disable_history:        'Desactivar historial de descargas',
+            sp_disable_history_desc:   'También desactiva la insignia de "ya descargado" y Group on Download. Los registros existentes no se ven afectados; solo se dejan de guardar los nuevos. Los marcadores de texto no se ven afectados.',
+            menu_disable_history:      '🚫 Desactivar historial de descargas',
 
             sp_tip_change_lang:    'Cambia el idioma de la interfaz del script.',
             sp_tip_click_domain:   'Elige a qué dominio enlaza el botón de copiar enlace.',
@@ -2897,6 +2917,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             sp_dock_reset_pos:         'Redefinir posição do painel',
             sp_dock_reset_pos_desc:    'Restaura o painel para as coordenadas padrão (lado de ancoragem mantido)',
             sp_dock_reset_btn:         'Redefinir',
+            sp_disable_history:        'Desativar histórico de downloads',
+            sp_disable_history_desc:   'Também desativa o selo de "já baixado" e o Group on Download. Os registros existentes não são afetados; apenas novos registros deixam de ser salvos. Os marcadores de texto não são afetados.',
+            menu_disable_history:      '🚫 Desativar histórico de downloads',
 
             sp_tip_change_lang:    'Altera o idioma da interface do script.',
             sp_tip_click_domain:   'Escolha para qual domínio o botão de copiar link aponta.',
@@ -3248,6 +3271,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             sp_dock_reset_pos:         'Réinitialiser la position du panneau',
             sp_dock_reset_pos_desc:    "Restaure le panneau aux coordonnées par défaut (côté d'ancrage conservé)",
             sp_dock_reset_btn:         'Réinitialiser',
+            sp_disable_history:        "Désactiver l'historique des téléchargements",
+            sp_disable_history_desc:   "Désactive aussi le badge « déjà téléchargé » et le regroupement après téléchargement. Les enregistrements existants ne sont pas affectés ; seuls les nouveaux ne seront plus enregistrés. Les signets texte ne sont pas concernés.",
+            menu_disable_history:      "🚫 Désactiver l'historique des téléchargements",
 
             sp_tip_change_lang:    "Change la langue de l'interface du script.",
             sp_tip_click_domain:   'Choisissez le domaine vers lequel le bouton de copie de lien pointe.',
@@ -3599,6 +3625,9 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
             sp_dock_reset_pos:         'Сбросить позицию панели',
             sp_dock_reset_pos_desc:    'Восстанавливает панель в исходные координаты (сторона стыковки сохраняется)',
             sp_dock_reset_btn:         'Сбросить',
+            sp_disable_history:        'Отключить историю загрузок',
+            sp_disable_history_desc:   'Также отключает значок «уже загружено» и группировку после загрузки. Существующие записи не затрагиваются; перестают сохраняться только новые. Текстовые закладки не затрагиваются.',
+            menu_disable_history:      '🚫 Отключить историю загрузок',
 
             sp_tip_change_lang:    'Изменить язык интерфейса скрипта.',
             sp_tip_click_domain:   'Выберите домен, на который ведёт кнопка копирования ссылки.',
@@ -4635,6 +4664,17 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
         menuIds.push(GM_registerMenuCommand('📋 Open History Panel', () => {
             showHistoryPanel();
         }));
+
+        const _histDisabled = GM_getValue(KEY_DISABLE_HISTORY, false);
+        menuIds.push(GM_registerMenuCommand(
+            (T.menu_disable_history || '🚫 Disable Download History') + ` [${_histDisabled ? (T.status_on || 'On') : (T.status_off || 'Off')}]`,
+            () => {
+                const next = !GM_getValue(KEY_DISABLE_HISTORY, false);
+                GM_setValue(KEY_DISABLE_HISTORY, next);
+                showToast('🚫 ' + (T.menu_disable_history || 'Disable Download History') + ' → ' + (next ? (T.status_on || 'On') : (T.status_off || 'Off')));
+                registerMenus();
+            }
+        ));
 
         menuIds.push(GM_registerMenuCommand(T.menu_help, showHelpModal));
     }
@@ -6089,6 +6129,18 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                              text-shadow: ${dark ? '0 0 6px rgba(248,113,113,0.8), 0 0 14px rgba(248,113,113,0.45)' : 'none'}; }
             .tm-sp-val-option { color: ${dark ? '#a78bfa' : C.valMuted} !important; font-weight: 600; letter-spacing: 0.2px;
                                 text-shadow: ${dark ? '0 0 6px rgba(167,139,250,0.75), 0 0 12px rgba(167,139,250,0.35)' : 'none'}; }
+            .tm-sp-switch-row { cursor: default; }
+            .tm-sp-switch {
+                position: relative; flex-shrink: 0; width: 38px; height: 22px; border-radius: 9999px;
+                background: ${dark ? 'rgba(255,255,255,.18)' : 'rgba(15,20,25,.18)'};
+                border: none; padding: 0; cursor: pointer; transition: background 0.2s ease;
+            }
+            .tm-sp-switch.is-on { background: ${dark ? '#1d9bf0' : '#1d9bf0'}; }
+            .tm-sp-switch-knob {
+                position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 9999px;
+                background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.35); transition: transform 0.2s ease;
+            }
+            .tm-sp-switch.is-on .tm-sp-switch-knob { transform: translateX(16px); }
             .tm-sp-label { font-size: 12px; color: ${C.sub}; white-space: nowrap; }
             .tm-sp-val   { font-size: 13px; color: ${C.text}; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: color 0.2s; }
             .tm-sp-row-picker {  }
@@ -7179,6 +7231,40 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                     val.textContent = getVal();
                     _colorOnOff(val.textContent);
                 });
+                return row;
+            };
+
+            const makeSwitchRow = (label, getOn, onToggle, featureId = null) => {
+                const row = document.createElement('div');
+                row.className = 'tm-sp-row tm-sp-switch-row';
+                const left = document.createElement('div');
+                left.className = 'tm-sp-row-left';
+                const lbl = document.createElement('span');
+                lbl.className = 'tm-sp-row-label';
+                lbl.textContent = label;
+                left.appendChild(lbl);
+                row.appendChild(left);
+                if (featureId && isFeatureNew(featureId)) {
+                    const badge = document.createElement('span');
+                    badge.className = 'tm-sp-new-badge';
+                    badge.textContent = 'NEW';
+                    row.appendChild(badge);
+                }
+                const sw = document.createElement('button');
+                sw.type = 'button';
+                sw.className = 'tm-sp-switch';
+                const knob = document.createElement('span');
+                knob.className = 'tm-sp-switch-knob';
+                sw.appendChild(knob);
+                const _render = () => sw.classList.toggle('is-on', !!getOn());
+                _render();
+                sw.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (featureId) markFeatureSeen(featureId);
+                    onToggle(!getOn());
+                    _render();
+                });
+                row.appendChild(sw);
                 return row;
             };
 
@@ -9386,6 +9472,24 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 grpHist.append(_rstRow);
             }
 
+            {
+                const _disableHistRow = makeSwitchRow(
+                    T.sp_disable_history || 'Disable Download History',
+                    () => GM_getValue(KEY_DISABLE_HISTORY, false),
+                    (next) => {
+                        GM_setValue(KEY_DISABLE_HISTORY, next);
+                        showToast('🚫 ' + (T.sp_disable_history || 'Disable Download History') + ' → ' + (next ? (T.status_on || 'On') : (T.status_off || 'Off')));
+                        registerMenus();
+                    },
+                    'sp_disable_history'
+                );
+                const _disableHistDesc = document.createElement('span');
+                _disableHistDesc.className = 'tm-sp-row-desc';
+                _disableHistDesc.textContent = T.sp_disable_history_desc || 'Also disables the "already downloaded" badge and Group on Download. Existing records are kept; only new ones stop being saved. Text bookmarks are not affected.';
+                _disableHistRow.querySelector('.tm-sp-row-left').appendChild(_disableHistDesc);
+                grpHist.append(_disableHistRow);
+            }
+
             const grpAdv = makeGroup(T.sp_group_advanced || '⚙ Advanced', false, T.sp_tip_grp_advanced || 'Advanced options: backup/restore settings, performance tweaks, and other power-user features.', null, 'settings');
 
             const ALL_SETTING_KEYS = [
@@ -9404,6 +9508,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
                 KEY_LINK_ICON_STYLE, KEY_MEDIA_ICON_STYLE, KEY_SP_GROUP_OPEN,
                 KEY_SHOW_LINK_BTN, KEY_SHOW_MEDIA_BTN,
                 KEY_LB_MOSAIC_NUMBERS, KEY_LB_MOSAIC_GAP_X, KEY_LB_MOSAIC_GAP_Y, KEY_LB_MOSAIC_RADIUS,
+                KEY_DISABLE_HISTORY,
             ];
             function _exportSettings() {
                 const snap = {};
@@ -11363,6 +11468,7 @@ const _callPageFn = (fn, thisArg, args) => Reflect.apply(fn, thisArg, args);
     })();
 
     function recordHistory(info, urls, mediaBtn) {
+        if (GM_getValue(KEY_DISABLE_HISTORY, false)) return;
         try {
             const thumbUrls = urls.filter(u => !u.includes('.mp4'));
             const hasVideo  = urls.some(u => u.includes('.mp4'));
